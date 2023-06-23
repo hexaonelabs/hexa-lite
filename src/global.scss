@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;700&display=swap');
+
+// variable font family
+$font-family: 'Schibsted Grotesk', sans-serif;
+
+html, body, ion-content {
+  background: #303058;
+  --background: #303058;
+}
+
+h1, h2, h3, h4 {
+  font-family: $font-family;
+}
+/* You can add global styles to this file, and also import other style files */
+// global
+* {
+  color-scheme: light dark;
+}
+
+ion-button {
+  --border-radius: 16px;
+}
+ion-button.button-default {
+  --border-radius: 12px!important;
+}
+ion-button.button-small {
+  --border-radius: 8px!important;
+}
