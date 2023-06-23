@@ -144,7 +144,8 @@ function App() {
       case 'fiat':
         return (
           <div style={{
-            paddingBottom: '10rem'
+            paddingBottom: '10rem',
+            textAlign: 'center',
           }}>
             <iframe       
                 style={{
@@ -164,7 +165,9 @@ function App() {
         );
       default:
         return (
-          <div>
+          <div style={{
+            textAlign: 'center',
+          }}>
             <IonText color="medium">
               <h1>{currentSegment.toUpperCase()}</h1>
               <p>
@@ -222,7 +225,7 @@ function App() {
         </IonHeader>
         <IonContent fullscreen={true} className="ion-padding">
           <IonGrid class="ion-no-padding" style={{'height': '95vh'}}>
-            <IonRow style={{height: '100%'}} class="ion-align-items-center ion-justify-content-center ion-no-padding">
+            <IonRow style={{height: '100%'}} class="ion-justify-content-center ion-no-padding">
               <IonCol size="12" class="ion-text-center">
                 {renderSwitch(currentSegment)}
               </IonCol>
