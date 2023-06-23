@@ -4,12 +4,15 @@ import {
   IonCol,
   IonContent,
   IonGrid,
+  IonHeader,
   IonImg,
   IonPage,
   IonRouterOutlet,
   IonRow,
   IonSegment,
   IonSegmentButton,
+  IonText,
+  IonToolbar,
 } from "@ionic/react";
 import { useUser } from "./context/UserContext";
 import ConnectButton from "./components/ConnectButton";
@@ -25,7 +28,9 @@ import { useWallet } from "./context/WalletContext";
 import { setupIonicReact } from '@ionic/react';
 import { AuthBadge } from "./components/AuthBadge";
 
-setupIonicReact();
+setupIonicReact({
+  mode: 'ios',
+});
 
 const styleLogo =  {
   // margin: '15px auto 20px',
@@ -127,11 +132,7 @@ function App() {
   }, [initializeWeb3]);
 
   // use state to handle segment change
-  const [currentSegment, setSegment] = useState('swap');
-  useEffect(() => {
-    console.log('segment', currentSegment);
-  }, [currentSegment]);
-
+  const [currentSegment, setSegment] = useState('fiat');
   const handleSegmentChange = (e: any) => {
     setSegment(e.detail.value);
   };
@@ -143,34 +144,49 @@ function App() {
       case 'fiat':
         return (
           <div style={{
-              borderRadius: '32px',
-              overflow: 'hidden',
-              display: 'inline-block',
-              border: 'solid 1px var(--ion-border-color)'
+            paddingBottom: '10rem'
           }}>
-            <iframe        
-                src="https://buy.onramper.com?themeName=dark"
+            <iframe       
+                style={{
+                  maxWidth: '100vw',
+                  border: 'solid 1px var(--ion-border-color)',
+                  borderRadius: '32px',
+                  overflow: 'hidden',
+                  display: 'inline-block',
+                }} 
+                src="https://buy.onramper.com?themeName=dark&cardColor=272747&borderRadius=12px"
                 title="Onramper Widget"
                 height="630px"
-                width="420px"
+                width="450px"
                 allow="payment"
             />
           </div>
         );
       default:
-        return 'foo';
+        return (
+          <div>
+            <IonText color="medium">
+              <h1>{currentSegment.toUpperCase()}</h1>
+              <p>
+                This feature is in development. <br/>
+                Please check back later.
+              </p>
+            </IonText>
+            <IonChip color="primary">Coming soon</IonChip>
+          </div>
+        );
     }
   }
 
   return (
     <IonApp>
       <IonRouterOutlet>
-          <IonContent>
-            <IonGrid style={{'height': '100vh'}}>
-
-              <IonRow style={{position: 'fixed', width: '100%'}} class="ion-align-items-center ion-justify-content-between">
-                <IonCol size="auto" class="ion-padding">
-                  <div style={{position: 'relative'}}>
+        <IonHeader translucent={true} class="ion-no-border">
+          <IonToolbar style={{'--background': 'transparent'}}>
+            <IonGrid class="ion-no-padding">
+              <IonRow class="ion-align-items-center ion-justify-content-between">
+                <IonCol size="2" class="ion-padding ion-text-start">
+                  <div style={{position: 'relative', display: 'inline-block'}}>
                     <IonImg 
                       style={styleLogo} 
                       src="./assets/images/logo.svg"></IonImg>
@@ -184,25 +200,35 @@ function App() {
                     <IonSegmentButton value="swap">
                       Exchange
                     </IonSegmentButton>
+                    <IonSegmentButton value="defi">
+                      Lending & Borrow
+                    </IonSegmentButton>
+                    <IonSegmentButton value="stacking">
+                      Earn Interest
+                    </IonSegmentButton>
                     <IonSegmentButton value="fiat">
                       Buy
                     </IonSegmentButton>
                   </IonSegment>
                 </IonCol>
-                <IonCol size="auto"  class="ion-padding">
+                <IonCol size="2"  class="ion-padding ion-text-end">
                   <AuthBadge user={user} />
                 </IonCol>
                 {/* <IonCol size="12">{AuthButton}</IonCol> */}
                 {/* <IonCol size="12">{WalletInfo}</IonCol> */}
               </IonRow>
-
-              <IonRow style={{height: '100%'}} class="ion-align-items-center ion-justify-content-center">
-                <IonCol size="12" class="ion-padding-top ion-margin-top ion-text-center">
-                  {renderSwitch(currentSegment)}
-                </IonCol>
-              </IonRow>
             </IonGrid>
-          </IonContent>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent fullscreen={true} className="ion-padding">
+          <IonGrid class="ion-no-padding" style={{'height': '95vh'}}>
+            <IonRow style={{height: '100%'}} class="ion-align-items-center ion-justify-content-center ion-no-padding">
+              <IonCol size="12" class="ion-text-center">
+                {renderSwitch(currentSegment)}
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonContent>
       </IonRouterOutlet>
     </IonApp>
   );

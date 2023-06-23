@@ -4,8 +4,8 @@
 $font-family: 'Schibsted Grotesk', sans-serif;
 
 html, body, ion-content {
-  background: #303058;
-  --background: #303058;
+  background: var(--background-gradient);
+  --background: var(--background-gradient);
 }
 
 h1, h2, h3, h4 {
@@ -16,6 +16,31 @@ h1, h2, h3, h4 {
 * {
   color-scheme: light dark;
 }
+
+.header-background {
+  backdrop-filter: blur(20px);
+}
+
+// ion-segment-button {
+//   --background-checked: var(--ion-color-success);
+//   --color-checked: var(--ion-color-success-contrast);
+// }
+
+ion-segment {
+  border-radius: 12px !important;
+}
+ion-segment-button{
+  --indicator-box-shadow: transparent!important;
+  --border-radius: 12px !important;
+  padding: 0.3rem;
+  // margin: 0;
+  // --background:white;
+  // --color:#2d2e87;
+  // --background-checked: linear-gradient(to right, #2d2e87, #0083CB)!important;
+  // --color-checked: white;
+  --indicator-color : rgba(var(--ion-color-primary-rgb), 0.08)!important; /* this solution */
+
+  }
 
 ion-button {
   --border-radius: 16px;
