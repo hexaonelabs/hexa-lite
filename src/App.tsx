@@ -72,7 +72,7 @@ function App() {
         },
         palette: {
           background: {
-            paper: '#272747', // green
+            paper: 'rgb(39 39 71 / 80%)', // green
             // default: '#272747',
           },
           primary: {
@@ -132,7 +132,7 @@ function App() {
   }, [initializeWeb3]);
 
   // use state to handle segment change
-  const [currentSegment, setSegment] = useState('fiat');
+  const [currentSegment, setSegment] = useState('swap');
   const handleSegmentChange = (e: any) => {
     setSegment(e.detail.value);
   };
@@ -154,7 +154,7 @@ function App() {
                   overflow: 'hidden',
                   display: 'inline-block',
                 }} 
-                src="https://buy.onramper.com?themeName=dark&cardColor=272747&borderRadius=12px"
+                src="https://buy.onramper.com?themeName=dark&cardColor=272747cc&borderRadius=12px"
                 title="Onramper Widget"
                 height="630px"
                 width="450px"
