@@ -225,8 +225,8 @@ function App() {
         </IonHeader>
         <IonContent fullscreen={true} className="ion-padding">
           <IonGrid class="ion-no-padding" style={{'height': '95vh'}}>
-            <IonRow style={{height: '100%'}} class="ion-justify-content-center ion-no-padding">
-              <IonCol size="12" class="ion-text-center">
+            <IonRow style={{height: '100%'}} class="ion-align-items-center ion-justify-content-center ion-no-padding">
+              <IonCol size="12">
                 {renderSwitch(currentSegment)}
               </IonCol>
             </IonRow>
