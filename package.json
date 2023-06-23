@@ -1,7 +1,8 @@
 {
   "name": "hexa-lite",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.0.1-beta",
+  "homepage": "https://hexaonelabs.github.io/hexa-lite",
+  "private": false,
   "dependencies": {
     "@chakra-ui/react": "^2.7.1",
     "@emotion/react": "^11.11.1",
@@ -17,6 +18,7 @@
     "@types/react-dom": "^18.2.6",
     "ethereum-blockies-base64": "^1.0.2",
     "framer-motion": "^10.12.16",
+    "gh-pages": "^5.0.0",
     "magic-sdk": "^18.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -28,6 +30,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
