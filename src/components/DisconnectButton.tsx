@@ -4,7 +4,7 @@ import { useEthersProvider } from "../context/Web3Context"
 import { magic } from "../servcies/magic"
 import { useWallet } from "@lifi/widget"
 
-const DisconnectButton = () => {
+const DisconnectButton = (props: {style?: any}) => {
   // Get the initializeWeb3 function from the Web3 context
   const { initializeWeb3 } = useEthersProvider()
   // Define the event handler for the button click
@@ -21,7 +21,7 @@ const DisconnectButton = () => {
   }
 
   // Render the button component with the click event handler
-  return <IonButton onClick={handleDisconnect}>Disconnect</IonButton>
+  return <IonButton style={props.style||{}} onClick={handleDisconnect}>Disconnect</IonButton>
 }
 
 export default DisconnectButton

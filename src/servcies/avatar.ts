@@ -7,6 +7,11 @@ export const getAvatarFromEVMAddress = async (evmAddress?: string, theme: 'jazzi
     // return import('@metamask/jazzicon').then(jazzicon => jazzicon.default( 97, value ));
     throw 'Not implemented';
   } else {
-    return import('ethereum-blockies-base64').then(blockies => blockies.default(evmAddress));
+    const base64Img = await import('ethereum-blockies-base64').then(blockies => blockies.default(evmAddress));
+    // convert base64 blob to create to local url 
+    const blob = await fetch(base64Img).then(r => r.blob());
+    const url = URL.createObjectURL(blob);
+    return url;
+
   }    
 }

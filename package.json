@@ -4,6 +4,9 @@
   "homepage": "https://hexaonelabs.github.io/hexa-lite",
   "private": false,
   "dependencies": {
+    "@aave/contract-helpers": "^1.17.8",
+    "@aave/math-utils": "^1.17.8",
+    "@bgd-labs/aave-address-book": "^1.26.2",
     "@chakra-ui/react": "^2.7.1",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
@@ -16,6 +19,7 @@
     "@types/node": "^16.18.36",
     "@types/react": "^18.2.13",
     "@types/react-dom": "^18.2.6",
+    "cryptocurrency-icons": "^0.18.1",
     "ethereum-blockies-base64": "^1.0.2",
     "framer-motion": "^10.12.16",
     "gh-pages": "^5.0.0",

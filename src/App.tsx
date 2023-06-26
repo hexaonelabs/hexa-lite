@@ -27,6 +27,8 @@ import { magic } from "./servcies/magic";
 import { useWallet } from "./context/WalletContext";
 import { setupIonicReact } from '@ionic/react';
 import { AuthBadge } from "./components/AuthBadge";
+import { AaveProvider } from "./context/AaveContext";
+import { DefiContainer } from "./components/DefiContainer";
 
 setupIonicReact({
   mode: 'ios',
@@ -35,7 +37,9 @@ setupIonicReact({
 const styleLogo =  {
   // margin: '15px auto 20px',
   padding:' 0px',
+  width: '42px',
   maxWidth: '42px',
+  height: '42px',
   cursor: 'pointer',
 };
 
@@ -62,8 +66,8 @@ function App() {
       variant: "expandable",
       insurance: true,
       containerStyle: {
-        border: `1px solid var(--ion-border-color)`,
-        borderRadius: "24px",
+        border: `1px solid rgba(var(--ion-color-primary-rgb), 0.4);`,
+        borderRadius: "32px",
       },
       theme: {
         shape: {
@@ -150,7 +154,7 @@ function App() {
             <iframe       
                 style={{
                   maxWidth: '100vw',
-                  border: 'solid 1px var(--ion-border-color)',
+                  border: 'solid 1px rgba(var(--ion-color-primary-rgb), 0.4)',
                   borderRadius: '32px',
                   overflow: 'hidden',
                   display: 'inline-block',
@@ -163,6 +167,12 @@ function App() {
             />
           </div>
         );
+      case 'defi': 
+        return (
+          <AaveProvider>
+            <DefiContainer></DefiContainer>
+          </AaveProvider>
+        )
       default:
         return (
           <div style={{
@@ -224,8 +234,8 @@ function App() {
           </IonToolbar>
         </IonHeader>
         <IonContent fullscreen={true} className="ion-padding">
-          <IonGrid class="ion-no-padding" style={{'height': '95vh'}}>
-            <IonRow style={{height: '100%'}} class="ion-align-items-center ion-justify-content-center ion-no-padding">
+          <IonGrid class="ion-no-padding" style={{'minHeight': '95vh'}}>
+            <IonRow style={{minHeight: '100%'}} class="ion-align-items-top ion-justify-content-center ion-no-padding">
               <IonCol size="12">
                 {renderSwitch(currentSegment)}
               </IonCol>

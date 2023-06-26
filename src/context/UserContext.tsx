@@ -18,7 +18,7 @@ export const useUser = () => useContext(UserContext)
 // Provider component that wraps parts of the app that need user context.
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   // Use the web3 context.
-  const { ethereum } = useEthersProvider()
+  const { ethereum } = useEthersProvider();
 
   // Initialize user state to hold user's account information.
   const [user, setUser] = useState<string | null>(null)
