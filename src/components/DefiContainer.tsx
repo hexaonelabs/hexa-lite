@@ -267,10 +267,10 @@ export const DefiContainer = () => {
       </IonRow>
     </IonGrid>
   ) : (
-    <IonGrid class="ion-padding" style={{ marginBottom: "5rem" }}>
+    <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
       <IonRow class="ion-justify-content-center">
 
-        <IonCol class="ion-padding" size-xs="12" size-sm="12" size-md="6" size-lg="5" size-xl="4">
+        <IonCol class="ion-padding" size-xs="12" size-sm="12" size-md="6" size-lg="5" size-xl="5">
           <div className="widgetWrapper">
             <h3
               style={{
@@ -292,7 +292,7 @@ export const DefiContainer = () => {
                     <h3>Wallet balance</h3>
                   </IonLabel>
                 </IonCol>
-                <IonCol size="3" class="ion-text-end ion-padding-end">
+                <IonCol size="3" class="ion-text-end">
                   <IonLabel color="medium">
                     <h3 style={{ paddingRight: "2rem" }}>APY</h3>
                   </IonLabel>
@@ -304,16 +304,20 @@ export const DefiContainer = () => {
                 <IonAccordion key={index}>
                   <IonItem slot="header">
                     <IonGrid>
-                      <IonRow class="ion-align-items-center ion-justify-content-between">
+                      <IonRow class="ion-align-items-center ion-justify-content-between ion-padding-vertical">
                         <IonCol size="auto">
-                          <IonAvatar>
+                          <IonAvatar style={{height: '32px', width: '32px'}}>
                             <IonImg src={reserve?.logo}></IonImg>
                           </IonAvatar>
                         </IonCol>
                         <IonCol size="3" class="ion-text-start">
-                          <IonLabel class="ion-paddng-start">
+                          <IonLabel class="ion-padding-start">
                             {reserve?.symbol}
-                            <p>{reserve?.name}</p>
+                            <p>
+                              <small>
+                                {reserve?.name}
+                              </small>
+                            </p>
                           </IonLabel>
                         </IonCol>
                         <IonCol size="4" class="ion-text-end">
@@ -331,10 +335,9 @@ export const DefiContainer = () => {
                             </IonText>
                           </IonLabel>
                         </IonCol>
-                        <IonCol size="3" class="ion-text-end ion-padding-end">
+                        <IonCol size="3" class="ion-text-end">
                           <IonLabel>
-                            {(Number(reserve?.supplyAPY || 0) * 100).toFixed(2)}
-                            %
+                            {(Number(reserve?.supplyAPY || 0) * 100).toFixed(2)}%
                           </IonLabel>
                         </IonCol>
                       </IonRow>
@@ -422,7 +425,7 @@ export const DefiContainer = () => {
           </div>
         </IonCol>
 
-        <IonCol class="ion-padding" size-xs="12" size-sm="12" size-md="6" size-lg="5" size-xl="4">
+        <IonCol class="ion-padding" size-xs="12" size-sm="12" size-md="6" size-lg="5" size-xl="5">
           <div className="widgetWrapper">
             <h3
               style={{
@@ -444,7 +447,7 @@ export const DefiContainer = () => {
                     <h3>Wallet balance</h3>
                   </IonLabel>
                 </IonCol>
-                <IonCol size="3" class="ion-text-end ion-padding-end">
+                <IonCol size="3" class="ion-text-end">
                   <IonLabel color="medium">
                     <h3 style={{ paddingRight: "2rem" }}>APY</h3>
                   </IonLabel>
@@ -459,17 +462,20 @@ export const DefiContainer = () => {
                   <IonAccordion key={index}>
                     <IonItem slot="header">
                       <IonGrid>
-                        <IonRow class="ion-align-items-center ion-justify-content-between">
+                        <IonRow class="ion-align-items-center ion-justify-content-between ion-padding-vertical">
                           <IonCol size="auto">
-                            <IonAvatar>
+                            <IonAvatar style={{width: '32px', height: '32px'}}>
                               <IonImg src={reserve?.logo}></IonImg>
                             </IonAvatar>
                           </IonCol>
                           <IonCol size="3" class="ion-text-start">
-                            <IonLabel class="ion-paddng-start">
+                            <IonLabel class="ion-padding-start">
                               {reserve?.symbol}
-
-                              <p>{reserve?.name}</p>
+                              <p>
+                                <small>
+                                  {reserve?.name}
+                                </small>
+                              </p>
                             </IonLabel>
                           </IonCol>
                           <IonCol size="4" class="ion-text-end">
@@ -487,7 +493,7 @@ export const DefiContainer = () => {
                               </IonText>
                             </IonLabel>
                           </IonCol>
-                          <IonCol size="3" class="ion-text-end ion-padding-end">
+                          <IonCol size="3" class="ion-text-end">
                             <IonLabel>
                               {(
                                 Number(reserve?.variableBorrowAPY || 0) * 100

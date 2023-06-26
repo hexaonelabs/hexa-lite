@@ -3,7 +3,11 @@ import { useEthersProvider } from "../context/Web3Context"
 import { magic } from "../servcies/magic"
 import { IonButton } from "@ionic/react"
 
-const ConnectButton = (props: {style?: any}) => {
+const ConnectButton = (props: {
+  style?: any;
+  size?: "small" | "default" | "large";
+  expand?: "full" | "block";
+}) => {
   // Get the initializeWeb3 function from the Web3 context
   const { initializeWeb3 } = useEthersProvider()
   // Define the event handler for the button click
@@ -21,7 +25,11 @@ const ConnectButton = (props: {style?: any}) => {
   }
 
   // Render the button component with the click event handler
-  return <IonButton style={props.style||{}} onClick={handleConnect}>Connect</IonButton>
+  return <IonButton 
+    size={props?.size||'default'} 
+    style={props.style||{}} 
+    expand={props?.expand||undefined}
+    onClick={handleConnect}>Connect</IonButton>
 }
 
 export default ConnectButton
