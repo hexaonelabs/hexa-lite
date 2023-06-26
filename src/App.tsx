@@ -158,7 +158,6 @@ function App() {
           style={{
             paddingTop: '1rem',
             paddingBottom: "10rem",
-            textAlign: "center",
           }}>
             <LiFiWidget config={widgetConfig} integrator="cra-example" />
           </div>
