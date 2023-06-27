@@ -93,7 +93,7 @@ const FormModal = ({
 export const DefiContainer = () => {
   const { user } = useUser();
   const { ethereum } = useEthersProvider();
-  const { walletBallance, markets } = useAave();
+  const { poolReserves, markets, totalTVL } = useAave();
   const [present, dismiss] = useIonModal(FormModal, {
     onDismiss: (data: string, role: string) => dismiss(data, role),
   });
@@ -201,9 +201,14 @@ export const DefiContainer = () => {
       },
     });
   }
-  console.log('xxx walletBallance: ', walletBallance);
+
+  function currencyFormat(num: number) {
+    return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+  }
+
+  console.log('[INFO] {{DefiContainer}} poolReserves: ', poolReserves);
   
-  const reserves = walletBallance?.map((reserve) => {
+  const reserves = poolReserves?.map((reserve) => {
     const { aTokenAddress } = reserve;
     const supplyBalance = 0;
     // walletBalance.find(
@@ -258,7 +263,7 @@ export const DefiContainer = () => {
     };
   });
 
-  return reserves?.length === 0 ? (
+  return (!reserves || reserves.length === 0) ? (
     <IonGrid class="ion-padding">
       <IonRow class="ion-padding">
         <IonCol size="12" class="ion-text-center ion-padding">
@@ -268,6 +273,31 @@ export const DefiContainer = () => {
     </IonGrid>
   ) : (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
+      <IonRow class="ion-justify-content-center">
+
+        <IonCol size="12" class="ion-text-center">
+          <IonText>
+            <h1>DeFi liquidity protocol</h1>
+          </IonText>
+          <IonText color="medium">
+            <p style={{
+              lineHeight: '1.3rem',
+            }}>
+            Borrow assets using your crypto as collateral <br/>and earn interest by providing liquidity 
+            <span style={{
+              fontSize: '2rem',
+              display: 'block',
+              color: 'var(--ion-color-primary)',
+              margin: '1rem 1rem 3rem',
+              fontFamily: 'monospace',
+              fontWeight: 600,
+            }}>$ {currencyFormat(totalTVL||0)} TVL</span>
+            </p>
+          </IonText>
+        </IonCol>
+
+      </IonRow>
+
       <IonRow class="ion-justify-content-center">
 
         <IonCol class="ion-padding" size-xs="12" size-sm="12" size-md="6" size-lg="5" size-xl="5">
