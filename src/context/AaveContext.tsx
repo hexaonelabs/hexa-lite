@@ -9,7 +9,7 @@ import {
 import { ethers } from "ethers";
 
 import { useUser } from "./UserContext";
-import { MARKETTYPE, formatUserSummaryAndIncentives, getMarkets, getWalletBalance } from "../servcies/aave.service";
+import { MARKETTYPE, formatUserSummaryAndIncentives, getMarkets, getPools } from "../servcies/aave.service";
 
 
 const stub = (): never => {
@@ -19,65 +19,80 @@ const stub = (): never => {
 // Define the type for the user context.
 type AaveContextType = {
   markets: MARKETTYPE | null;
-  walletBallance: (ReserveDataHumanized &
-    FormatReserveUSDResponse & { balance: string; tokenAddress: string })[];
+  poolReserves: (ReserveDataHumanized & FormatReserveUSDResponse)[] | null;
+  totalTVL: number | null;
+  // walletBallance: (ReserveDataHumanized &
+  //   FormatReserveUSDResponse & { balance: string; tokenAddress: string })[];
+};
+
+const AaveContextDefault: AaveContextType = {
+  markets: null,
+  poolReserves: null,
+  totalTVL: null,
 };
 
 // Create a context for user data.
-const AaveContext = createContext<AaveContextType>({
-  markets: null,
-  walletBallance: [],
-});
+const AaveContext = createContext<AaveContextType>(AaveContextDefault);
 
 // Custom hook for accessing user context data.
 export const useAave = () => useContext(AaveContext);
 
 // Provider component that wraps parts of the app that need user context.
 export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useUser();
   const { ethereum } = useEthersProvider();
-  const [markets, setMarkets] = useState<MARKETTYPE | null>(null);
-  const [userBallance, setUserBallance] = useState<
-    | (ReserveDataHumanized &
-        FormatReserveUSDResponse & {
-          balance: string;
-          tokenAddress: string;
-        })[]
-    | null
-  >(null);
+  const [ state, setState ] = useState<AaveContextType>(AaveContextDefault);
+
+  // const [ markets, setMarkets ] = useState<MARKETTYPE | null>(null);
+  // const [ poolReserves, setPoolReserves ] = useState<(ReserveDataHumanized & FormatReserveUSDResponse)[] | null>(null);
+  // const [ totalTVL, setTotalTVL ] = useState<number | null>(null);
+
+  const fetchTVL = async () => {
+    const response = await fetch('https://api.llama.fi/tvl/aave');
+    const data = await response.json();
+    console.log("[INFO] {{AAVEService}} fetchTVL: ", data);
+    setState((prev) => ({
+      ...prev,
+      totalTVL: data
+    }));
+    return data;
+  };
 
   const fetchMarkets = async (chainId: number) => {
     // get markets
     const markets = getMarkets(chainId);
-    // set markets
-    setMarkets(markets ? markets : null);
+    setState((prev) => ({
+      ...prev,
+      markets
+    }));
     return markets;
   };
   
   // Function to retrieve and set user's account.
-  const fetchUserBallance = async (market?: MARKETTYPE | null) => {
+  const fetchPools = async (market?: MARKETTYPE | null) => {
     const sampleProvider = new ethers.providers.JsonRpcProvider(
       "https://rpc.ankr.com/eth"
     );
     if (!market) {
-      setUserBallance(null);
+      setState(((prev) => ({
+        ...prev, 
+        markets: null,
+        poolReserves: null
+      })));
       return;
     }
-    console.log("[INFO] {{AAVEService}} : ");
-    const formattedPoolReserves = await getWalletBalance({
+    const formattedPoolReserves = await getPools({
       provider: ethereum || sampleProvider,
-      market,
-      user,
+      market
     });
-
-    // Update the user state with the first account (if available), otherwise set to null.
-    setUserBallance(
-      formattedPoolReserves ? (formattedPoolReserves as any) : null
-    );
+    console.log("[INFO] {{AAVEService}} fetchPools: ", formattedPoolReserves);
+    setState(((prev) => ({
+      ...prev, 
+      poolReserves: formattedPoolReserves
+    })));
   };
 
   // build getNetwork promise with default value 1 (mainnet)
-  const getNetwork = () => new Promise(async (resolve: (value: number) => void, reject) => {
+  const getNetwork = async () => await new Promise(async (resolve: (value: number) => void, reject) => {
     try {
       if (ethereum) {
         const network = await ethereum.getNetwork();
@@ -91,17 +106,17 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   useEffect(() => {
-    getNetwork()
+    fetchTVL()
+      .then(() => getNetwork())
       .then((chainId: number) => fetchMarkets(chainId))
-      .then((m) => fetchUserBallance(m));
-  }, []);
+      .then((m) => fetchPools(m));
+    return () => {
+    };
+  }, [ethereum,state.markets]);
 
   return (
     <AaveContext.Provider
-      value={{
-        markets,
-        walletBallance: userBallance ? userBallance : [],
-      }}
+      value={state}
     >
       {children}
     </AaveContext.Provider>

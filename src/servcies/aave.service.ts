@@ -307,7 +307,40 @@ export const getMarkets = (chainId: number) => {
   }
 };
 
-export const getWalletBalance = async (ops: {
+export const getPools = async (ops: {
+  provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
+  market: MARKETTYPE;
+}) => {
+  const { provider, market } = ops;
+  // get current network id from ethter provider
+  const network = (await provider?.getNetwork()) || { chainId: 1 };
+  // get id
+  const networkId = network?.chainId;
+  // View contract used to fetch all reserves data (including market base currency data), and user reserves
+  const poolDataProviderContract = new UiPoolDataProvider({
+    uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
+    provider,
+    chainId: networkId,
+  });
+  const reserves = await poolDataProviderContract.getReservesHumanized({
+    lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
+  });
+  const reservesArray = reserves.reservesData;
+  const baseCurrencyData = reserves.baseCurrencyData;
+  const currentTimestamp = Date.now();
+
+  const formattedPoolReserves = formatReserves({
+    reserves: reservesArray,
+    currentTimestamp,
+    marketReferenceCurrencyDecimals:
+      baseCurrencyData.marketReferenceCurrencyDecimals,
+    marketReferencePriceInUsd:
+      baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+  });
+  return formattedPoolReserves;
+}
+
+const getWalletBalance = async (ops: {
   provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
   user: string|null;
@@ -318,7 +351,6 @@ export const getWalletBalance = async (ops: {
     // get id
     const networkId = network?.chainId;
     // View contract used to fetch all reserves data (including market base currency data), and user reserves
-    // Using Aave V3 Eth Mainnet address for demo
     const poolDataProviderContract = new UiPoolDataProvider({
       uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
       provider,
