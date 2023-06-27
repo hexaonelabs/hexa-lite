@@ -28,7 +28,7 @@ import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-com
 import { useUser } from "../context/UserContext";
 import ConnectButton from "./ConnectButton";
 import { ethers } from "ethers";
-import { borrow, submitTransaction, supplyWithPermit } from "../servcies/aave.service";
+import { borrow, repay, submitTransaction, supplyWithPermit, withdraw } from "../servcies/aave.service";
 import { useEthersProvider } from "../context/Web3Context";
 
 const formatCurrencyValue = (
@@ -90,64 +90,6 @@ const FormModal = ({
   );
 };
 
-const handleSupplyAsset = async (
-  amountValue: string|number,
-  reserve: ReserveDataHumanized,
-  poolAddress: string,
-  gatewayAddress: string,
-  provider: ethers.providers.Web3Provider
-) => {
-  const amount = Number(amountValue);
-  console.log('amount: ', amount);
-  
-  // handle invalid amount
-  if (isNaN(amount) || amount <= 0) {
-    throw new Error('Invalid amount. Value must be greater than 0.');
-  }
-  // call method
-  const txs = await supplyWithPermit(
-    {
-      provider,
-      reserve,
-      amount: amount.toString(),
-      onBehalfOf: undefined,
-      poolAddress,
-      gatewayAddress
-    }
-  );
-  console.log('txs: ', txs); 
-}
-
-const handleBorrowAsset = async (
-  amountValue: string|number,
-  reserve: ReserveDataHumanized,
-  poolAddress: string,
-  gatewayAddress: string,
-  provider: ethers.providers.Web3Provider
-) => {
-  const amount = Number(amountValue);
-  console.log('amount: ', amount);
-  
-  // handle invalid amount
-  if (isNaN(amount) || amount <= 0) {
-    throw new Error('Invalid amount. Value must be greater than 0.');
-  }
-  // call method
-  const txs = await borrow(
-    {
-      provider,
-      reserve,
-      amount: amount.toString(),
-      onBehalfOf: undefined,
-      poolAddress,
-      gatewayAddress,
-    }
-  );
-  return Promise.all([
-    ...txs.map(tx => submitTransaction({tx, provider}))
-  ]); 
-}
-
 export const DefiContainer = () => {
   const { user } = useUser();
   const { ethereum } = useEthersProvider();
@@ -159,7 +101,7 @@ export const DefiContainer = () => {
     "This modal example uses the modalController to present and dismiss modals."
   );
 
-  function openModal(type: string, reserve: ReserveDataHumanized ) {
+  function handleOpenModal(type: string, reserve: ReserveDataHumanized ) {
     present({
       onWillDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
         if (ev.detail.role === "confirm") {
@@ -168,29 +110,88 @@ export const DefiContainer = () => {
             throw new Error('No ethereum provider found');
           }
           switch (true) {
-            case type === 'deposit':
-              const amount = ev.detail.data;
-              const result = await handleSupplyAsset(
-                Number(amount),
-                reserve,
-                `${markets?.POOL}`,
-                `${markets?.WETH_GATEWAY}`,
-                ethereum
-              );
-              console.log('TX result: ', result);
-              break;
-            case type === 'borrow': {
-              // get amount
-              const amount = ev.detail.data;
+            case type === 'deposit':{
+              const value = ev.detail.data;
+              const amount = Number(value);
+              // handle invalid amount
+              if (isNaN(amount) || amount <= 0) {
+                throw new Error('Invalid amount. Value must be greater than 0.');
+              }
               // call method
-              const result = await handleBorrowAsset(
-                Number(amount),
+              const params = {
+                provider: ethereum,
                 reserve,
-                `${markets?.POOL}`,
-                `${markets?.WETH_GATEWAY}`,
-                ethereum
-              );
-              console.log('TX result: ', result);
+                amount: amount.toString(),
+                onBehalfOf: undefined,
+                poolAddress: `${markets?.POOL}`,
+                gatewayAddress: `${markets?.WETH_GATEWAY}`,
+              }
+              console.log('params: ', params);  
+              const txReceipts = await supplyWithPermit(params);
+              console.log('TX result: ', txReceipts);
+              break;
+            }
+            case type === 'withdraw': {
+              const value = ev.detail.data;
+              const amount = Number(value);
+              // handle invalid amount
+              if (isNaN(amount) || amount <= 0) {
+                throw new Error('Invalid amount. Value must be greater than 0.');
+              }
+              // call method
+              const params = {
+                provider: ethereum,
+                reserve,
+                amount: amount.toString(),
+                onBehalfOf: undefined,
+                poolAddress: `${markets?.POOL}`,
+                gatewayAddress: `${markets?.WETH_GATEWAY}`,
+              }
+              console.log('params: ', params);
+              const txReceipts = await withdraw(params);
+              console.log('TX result: ', txReceipts);
+              break;
+            }
+            case type === 'borrow': {
+              const value = ev.detail.data;
+              const amount = Number(value);
+              // handle invalid amount
+              if (isNaN(amount) || amount <= 0) {
+                throw new Error('Invalid amount. Value must be greater than 0.');
+              }
+              // call method
+              const params = {
+                provider: ethereum,
+                reserve,
+                amount: amount.toString(),
+                onBehalfOf: undefined,
+                poolAddress: `${markets?.POOL}`,
+                gatewayAddress: `${markets?.WETH_GATEWAY}`,
+              }
+              console.log('params: ', params);
+              const txReceipts = await borrow(params);
+              console.log('TX result: ', txReceipts);
+              break;
+            }
+            case type === 'repay': {
+              const value = ev.detail.data;
+              const amount = Number(value);
+              // handle invalid amount
+              if (isNaN(amount) || amount <= 0) {
+                throw new Error('Invalid amount. Value must be greater than 0.');
+              }
+              // call method
+              const params = {
+                provider: ethereum,
+                reserve,
+                amount: amount.toString(),
+                onBehalfOf: undefined,
+                poolAddress: `${markets?.POOL}`,
+                gatewayAddress: `${markets?.WETH_GATEWAY}`,
+              }
+              console.log('params: ', params);
+              const txReceipts = await repay(params);
+              console.log('TX result: ', txReceipts);
               break;
             }
             default:
@@ -200,7 +201,6 @@ export const DefiContainer = () => {
       },
     });
   }
-
   console.log('xxx walletBallance: ', walletBallance);
   
   const reserves = walletBallance?.map((reserve) => {
@@ -275,7 +275,7 @@ export const DefiContainer = () => {
             <h3
               style={{
                 textAlign: "center",
-                margin: "1rem auto 2rem",
+                margin: "2rem auto 2rem",
               }}
             >
               Deposits
@@ -356,10 +356,7 @@ export const DefiContainer = () => {
                           <IonButton
                             fill="solid"
                             color="primary"
-                            disabled={reserve?.supplyBalance <= 0}
-                            onClick={(e) => {
-                              console.log("withdraw");
-                            }}
+                            onClick={() => handleOpenModal('withdraw', reserve)}
                           >
                             Withdraw
                           </IonButton>
@@ -368,7 +365,7 @@ export const DefiContainer = () => {
                           <IonButton
                             fill="solid"
                             color="primary"
-                            onClick={() => openModal('deposit', reserve)}
+                            onClick={() => handleOpenModal('deposit', reserve)}
                           >
                             Deposit
                           </IonButton>
@@ -430,7 +427,7 @@ export const DefiContainer = () => {
             <h3
               style={{
                 textAlign: "center",
-                margin: "1rem auto 2rem",
+                margin: "2rem auto 2rem",
               }}
             >
               Borrowing
@@ -517,10 +514,7 @@ export const DefiContainer = () => {
                             <IonButton
                               fill="solid"
                               color="primary"
-                              disabled={reserve?.borrowBalance <= 0}
-                              onClick={(e) => {
-                                console.log("repay");
-                              }}
+                              onClick={() => handleOpenModal('repay', reserve)}
                             >
                               Repay
                             </IonButton>
@@ -529,7 +523,7 @@ export const DefiContainer = () => {
                             <IonButton
                               fill="solid"
                               color="primary"
-                              onClick={() => openModal('borrow', reserve)}
+                              onClick={() => handleOpenModal('borrow', reserve)}
                             >
                               Borrow
                             </IonButton>

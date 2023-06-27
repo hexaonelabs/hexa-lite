@@ -85,7 +85,7 @@ function App() {
         },
         palette: {
           background: {
-            paper: "rgb(39 39 71 / 80%)", // green
+            paper: '#1c2b42', //"rgb(39 39 71 / 80%)", // green
             // default: '#272747',
           },
           primary: {
@@ -97,6 +97,7 @@ function App() {
           // },
         },
       },
+      appearance: 'dark',
       hiddenUI: [HiddenUI.Appearance, HiddenUI.Language, HiddenUI.PoweredBy],
       walletManagement: {
         connect: async () => {
@@ -179,7 +180,7 @@ function App() {
                 overflow: "hidden",
                 display: "inline-block",
               }}
-              src="https://buy.onramper.com?themeName=dark&cardColor=272747cc&borderRadius=12px"
+              src="https://buy.onramper.com?themeName=dark&cardColor=1c2b42&borderRadius=12px"
               title="Onramper Widget"
               height="630px"
               width="450px"
