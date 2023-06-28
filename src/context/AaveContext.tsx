@@ -41,7 +41,7 @@ export const useAave = () => useContext(AaveContext);
 
 // Provider component that wraps parts of the app that need user context.
 export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
-  const { ethereum } = useEthersProvider();
+  const { ethereumProvider } = useEthersProvider();
   const [ state, setState ] = useState<AaveContextType>(AaveContextDefault);
 
   // const [ markets, setMarkets ] = useState<MARKETTYPE | null>(null);
@@ -83,7 +83,7 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     const formattedPoolReserves = await getPools({
-      provider: ethereum || sampleProvider,
+      provider: ethereumProvider || sampleProvider,
       market
     });
     console.log("[INFO] {{AAVEService}} fetchPools: ", formattedPoolReserves);
@@ -96,8 +96,8 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   // build getNetwork promise with default value 1 (mainnet)
   const getNetwork = async () => await new Promise(async (resolve: (value: number) => void, reject) => {
     try {
-      if (ethereum) {
-        const network = await ethereum.getNetwork();
+      if (ethereumProvider) {
+        const network = await ethereumProvider.getNetwork();
         resolve(network.chainId);
       } else {
         resolve(1);
@@ -119,7 +119,7 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     const userSummary = await getUserSummary({
-      provider: ethereum || sampleProvider,
+      provider: ethereumProvider || sampleProvider,
       market
     });
     console.log("[INFO] {{AAVEService}} fetchUserSummary: ", userSummary);
@@ -137,7 +137,7 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       .then(() => fetchUserSummary(state.markets));
     return () => {
     };
-  }, [ethereum, state.markets]);
+  }, [ethereumProvider]);
 
   return (
     <AaveContext.Provider

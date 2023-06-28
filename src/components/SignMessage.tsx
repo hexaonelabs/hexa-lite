@@ -6,7 +6,7 @@ import { IonButton, IonCol, IonGrid, IonInput, IonRow, IonText } from "@ionic/re
 
 const SignMessage = () => {
   // Use the Web3Context to get the current instance of web3
-  const { ethereum } = useEthersProvider()
+  const { ethereumProvider } = useEthersProvider()
   // Use the UserContext to get the current logged-in user
   const { user } = useUser()
 
@@ -20,10 +20,10 @@ const SignMessage = () => {
 
   // Define the signMessage function which is used to sign the message
   const handleSignMessage = async () => {
-    if (user && ethereum) {
+    if (user && ethereumProvider) {
       try {
         // Sign the message using the connected wallet
-        const signer = ethereum.getSigner();
+        const signer = ethereumProvider.getSigner();
         const signedMessage = await signer.signMessage(message)
         console.log(signedMessage)
         // Set the signature state with the signed message
