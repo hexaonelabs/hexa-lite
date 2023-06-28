@@ -4,6 +4,7 @@ import {
   IonChip,
   IonCol,
   IonContent,
+  IonFooter,
   IonGrid,
   IonHeader,
   IonIcon,
@@ -21,7 +22,7 @@ import {
   IonText,
   IonToolbar,
 } from "@ionic/react";
-import { ellipsisVerticalSharp } from "ionicons/icons";
+import { ellipsisVerticalSharp, logoGithub } from "ionicons/icons";
 import { useUser } from "./context/UserContext";
 import ConnectButton from "./components/ConnectButton";
 import WalletDetail from "./components/WalletDetail";
@@ -38,6 +39,7 @@ import { AuthBadge } from "./components/AuthBadge";
 import { AaveProvider } from "./context/AaveContext";
 import { DefiContainer } from "./components/DefiContainer";
 import { I } from "@bgd-labs/aave-address-book/dist/AaveV2EthereumAssets-3aae4284";
+import { position } from "@chakra-ui/react";
 
 setupIonicReact({
   mode: "ios",
@@ -167,7 +169,7 @@ function App() {
                     src={"./assets/images/logo.svg"}
                   ></IonImg>
               </IonCol>
-              <IonCol size="12" class="ion-text-center">
+              <IonCol size="12" size-md="6" class="ion-text-center">
                 <IonText>
                   <h1 style={{
                     fontWeight: 'bold',
@@ -177,8 +179,8 @@ function App() {
                   <p style={{
                     lineHeight: '1.3rem',
                   }}>
-                    BUY ASSETS WITH FIATS, EXCHANGE ASSETS AT BEST RATE, <br />
-                    LEND AND BORROW MONEY ON AAVE PROTOCOL
+                    Buy assets with fiats, exchange assets at best rate, 
+                    lend and borrow money on DeFi protocols and earn interest
                   </p>
                 </IonText>
               </IonCol>
@@ -466,6 +468,31 @@ function App() {
             </IonRow>
           </IonGrid>
         </IonContent>
+        {/* <IonFooter style={{
+          position: 'absolute',
+          bottom: 0,
+        }}  class="ion-no-border">
+          <IonToolbar style={{'--background': 'transparent'}}>
+            <IonGrid class="ion-no-padding">
+              <IonRow class="ion-align-items-center ion-justify-content-between">
+                <IonCol size="auto" class="ion-padding-horizontal">
+                  <IonText color="medium">
+                    <p>
+                      <small>
+                      Powered by HexaOneLabs
+                      </small>
+                    </p>
+                  </IonText>
+                </IonCol>
+                <IonCol size="auto" class="ion-padding-horizontal ion-text-end">
+                  <a href="https://github.com/hexaonelabs" target="_blank" rel="noreferrer">
+                    <IonIcon color={'#fff'} icon={logoGithub}></IonIcon>
+                  </a>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
+          </IonToolbar>
+        </IonFooter> */}
       </IonRouterOutlet>
     </IonApp>
   );
