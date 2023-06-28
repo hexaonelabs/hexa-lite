@@ -146,22 +146,79 @@ function App() {
   }, [initializeWeb3]);
 
   // use state to handle segment change
-  const [currentSegment, setSegment] = useState("swap");
+  const [currentSegment, setSegment] = useState("welcome");
   const handleSegmentChange = (e: any) => {
     setSegment(e.detail.value);
   };
 
   const renderSwitch = (param: string) => {
     switch (param) {
+      case "welcome": 
+        return (
+          <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
+            <IonRow class="ion-justify-content-center">
+              <IonCol size="12" class="ion-text-center">
+                  <IonImg
+                    style={{
+                      width: "200px",
+                      height: "200px",
+                      margin: 'auto'
+                    }}
+                    src={"./assets/images/logo.svg"}
+                  ></IonImg>
+              </IonCol>
+              <IonCol size="12" class="ion-text-center">
+                <IonText>
+                  <h1>WELCOME TO HEXA-LITE</h1>
+                </IonText>
+                <IonText color="medium">
+                  <p style={{
+                    lineHeight: '1.3rem',
+                  }}>
+                    BUY ASSET WITH FIATS, EXCHANGE ASSETS AT BEST RATE, <br />
+                    LEND AND BORROW MONEY ON AAVE PROTOCOL
+                  </p>
+                </IonText>
+              </IonCol>
+              <IonCol size="12" class="ion-text-center">
+                <IonButton onClick={(e) => handleSegmentChange({detail: {value: 'swap'}})}>
+                  Launch App
+                </IonButton>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        )
       case "swap":
         return (
-          <div
-          style={{
-            paddingTop: '1rem',
-            paddingBottom: "10rem",
-          }}>
-            <LiFiWidget config={widgetConfig} integrator="cra-example" />
-          </div>
+          <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
+            <IonRow class="ion-justify-content-center">
+
+              <IonCol size="12" class="ion-text-center">
+                <IonText>
+                  <h1>Swap Assets</h1>
+                </IonText>
+                <IonText color="medium">
+                  <p style={{
+                    lineHeight: '1.3rem',
+                  }}>
+                    Cross chain swap assets instantly at the best rates and lowest fees
+                  </p>
+                </IonText>
+              </IonCol>
+            </IonRow>
+            <IonRow>
+              <IonCol size="12">
+                <div
+                  style={{
+                    paddingTop: '3rem',
+                    paddingBottom: "10rem",
+                  }}>
+                    <LiFiWidget config={widgetConfig} integrator="hexa-lite" />
+                  </div>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+
         );
       case "fiat":
         return (
@@ -213,6 +270,7 @@ function App() {
         );
     }
   };
+
   const popoverRef = useRef<HTMLIonPopoverElement>(null);
 
   return (
@@ -234,23 +292,30 @@ function App() {
                     <IonChip style={styleChip}>beta</IonChip>
                   </div>
                 </IonCol>
-                <IonCol size="8" class="ion-padding ion-hide-md-down">
-                  <IonSegment
-                    style={{ maxWidth: "550px" }}
-                    mode="ios"
-                    value={currentSegment}
-                    onIonChange={(e: any) => handleSegmentChange(e)}
-                  >
-                    <IonSegmentButton value="swap">Exchange</IonSegmentButton>
-                    <IonSegmentButton value="defi">
-                      Lending & Borrow
-                    </IonSegmentButton>
-                    <IonSegmentButton value="stacking">
-                      Earn Interest
-                    </IonSegmentButton>
-                    <IonSegmentButton value="fiat">Buy</IonSegmentButton>
-                  </IonSegment>
-                </IonCol>
+                {
+                  currentSegment !== 'welcome' 
+                  ? (
+                    <IonCol size="8" class="ion-padding ion-hide-md-down">
+                      <IonSegment
+                        style={{ maxWidth: "550px" }}
+                        mode="ios"
+                        value={currentSegment}
+                        onIonChange={(e: any) => handleSegmentChange(e)}
+                      >
+                        <IonSegmentButton value="swap">Exchange</IonSegmentButton>
+                        <IonSegmentButton value="defi">
+                          Lending & Borrow
+                        </IonSegmentButton>
+                        <IonSegmentButton value="stacking">
+                          Earn Interest
+                        </IonSegmentButton>
+                        <IonSegmentButton value="fiat">Buy</IonSegmentButton>
+                      </IonSegment>
+                    </IonCol>
+                  )
+                  : (<> </>)
+                }
+                
                 <IonCol
                   size="2"
                   class="ion-padding ion-text-end ion-hide-md-down"
