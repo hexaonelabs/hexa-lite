@@ -1,9 +1,9 @@
-import { EthereumTransactionTypeExtended, InterestRate, Pool, PoolBaseCurrencyHumanized, ReserveDataHumanized, UiPoolDataProvider, UserReserveData, WalletBalanceProvider } from "@aave/contract-helpers";
+import { EthereumTransactionTypeExtended, InterestRate, Pool, PoolBaseCurrencyHumanized, ReserveDataHumanized, UiIncentiveDataProvider, UiPoolDataProvider, UserReserveData, WalletBalanceProvider } from "@aave/contract-helpers";
 import { ethers } from "ethers";
 import { splitSignature } from 'ethers/lib/utils';
 import lendingPoolABI from '../abi/aavePool.abi.json';
 import * as MARKETS from "@bgd-labs/aave-address-book";
-import { FormatReserveUSDResponse, formatReserves } from "@aave/math-utils";
+import { FormatReserveUSDResponse, formatReserves, formatUserSummary, formatUserSummaryAndIncentives } from "@aave/math-utils";
 import { ChainId } from '@aave/contract-helpers';
 
 export const supply = async(ops: {
@@ -340,6 +340,133 @@ export const getPools = async (ops: {
   return formattedPoolReserves;
 }
 
+export const getUserSummary = async (ops: {
+  provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
+  market: MARKETTYPE;
+})=> {
+  const { provider, market } = ops;
+  // get current network id from ethter provider
+  const network = (await provider?.getNetwork()) || { chainId: 1 };
+  // get id
+  const networkId = network?.chainId;
+  // get current user account using provider signer
+  const signer = provider.getSigner();
+  const user = await signer?.getAddress().catch(err => null);
+  if (!user) {
+    return null;
+  }
+  const poolDataProviderContract = new UiPoolDataProvider({
+    uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
+    provider,
+    chainId: networkId,
+  });
+  const reserves = await poolDataProviderContract.getReservesHumanized({
+    lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
+  });
+  const userReserves = await poolDataProviderContract.getUserReservesHumanized({
+    lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
+    user,
+  });
+
+  const reservesArray = reserves.reservesData;
+  const baseCurrencyData = reserves.baseCurrencyData;
+  const userReservesArray = userReserves.userReserves;
+  const currentTimestamp = Date.now();
+
+  const formattedPoolReserves = formatReserves({
+    reserves: reservesArray,
+    currentTimestamp,
+    marketReferenceCurrencyDecimals:
+      baseCurrencyData.marketReferenceCurrencyDecimals,
+    marketReferencePriceInUsd: baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+  });
+
+  /*
+  - @param `currentTimestamp` Current UNIX timestamp in seconds, Math.floor(Date.now() / 1000)
+  - @param `marketReferencePriceInUsd` Input from [Fetching Protocol Data](#fetching-protocol-data), `reserves.baseCurrencyData.marketReferencePriceInUsd`
+  - @param `marketReferenceCurrencyDecimals` Input from [Fetching Protocol Data](#fetching-protocol-data), `reserves.baseCurrencyData.marketReferenceCurrencyDecimals`
+  - @param `userReserves` Input from [Fetching Protocol Data](#fetching-protocol-data), combination of `userReserves.userReserves` and `reserves.reservesArray`
+  - @param `userEmodeCategoryId` Input from [Fetching Protocol Data](#fetching-protocol-data), `userReserves.userEmodeCategoryId`
+  */
+  const userSummary = formatUserSummary({
+    currentTimestamp,
+    marketReferencePriceInUsd: baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+    marketReferenceCurrencyDecimals:
+      baseCurrencyData.marketReferenceCurrencyDecimals,
+    userReserves: userReservesArray,
+    formattedReserves: formattedPoolReserves,
+    userEmodeCategoryId: userReserves.userEmodeCategoryId,
+  });
+  console.log('userSummary: ', userSummary);
+
+  const userSummaryAndIncentives = await getUserSummaryAndIncentives(ops);
+  console.log('userSummaryAndIncentives: ', userSummaryAndIncentives);
+
+  return userSummaryAndIncentives;
+}
+
+export const getContractData = async (ops: {
+  provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
+  market: MARKETTYPE;
+})=> {
+  const { 
+    provider,
+    market,
+  } = ops;
+  const signer = provider.getSigner();
+  const user = await signer?.getAddress().catch(err => null);
+
+  // View contract used to fetch all reserves data (including market base currency data), and user reserves
+  // Using Aave V3 Eth Mainnet address for demo
+  const poolDataProviderContract = new UiPoolDataProvider({
+    uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
+    provider,
+    chainId: ChainId.mainnet,
+  });
+
+  // View contract used to fetch all reserve incentives (APRs), and user incentives
+  // Using Aave V3 Eth Mainnet address for demo
+  const incentiveDataProviderContract = new UiIncentiveDataProvider({
+    uiIncentiveDataProviderAddress:
+      market.UI_INCENTIVE_DATA_PROVIDER,
+    provider,
+    chainId: ChainId.mainnet,
+  });
+
+  // Object containing array of pool reserves and market base currency data
+  // { reservesArray, baseCurrencyData }
+  const reserves = await poolDataProviderContract.getReservesHumanized({
+    lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
+  });
+  
+  // Array of incentive tokens with price feed and emission APR
+  const reserveIncentives =
+  await incentiveDataProviderContract.getReservesIncentivesDataHumanized({
+    lendingPoolAddressProvider:
+    market.POOL_ADDRESSES_PROVIDER,
+  });
+
+  let userReserves = null;
+  let userIncentives = null;
+  if (user) {
+    // Object containing array or users aave positions and active eMode category
+    // { userReserves, userEmodeCategoryId }
+    userReserves = await poolDataProviderContract.getUserReservesHumanized({
+      lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
+      user,
+    });
+    // Dictionary of claimable user incentives
+    userIncentives = await incentiveDataProviderContract.getUserReservesIncentivesDataHumanized({
+      lendingPoolAddressProvider:
+        market.POOL_ADDRESSES_PROVIDER,
+      user,
+    });
+
+  }
+  console.log({ reserves, userReserves, reserveIncentives, userIncentives });
+  return { reserves, userReserves, reserveIncentives, userIncentives };
+}
+
 const getWalletBalance = async (ops: {
   provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
@@ -427,39 +554,40 @@ const getWalletBalance = async (ops: {
     return formattedPoolReserves;
 }
 
-export const formatUserSummaryAndIncentives = async (ops: {
-  reservesData: ReserveDataHumanized[];
-  baseCurrencyData: PoolBaseCurrencyHumanized;
-  userReserves: UserReserveData[];
-  currentTimestamp: number;
+export const getUserSummaryAndIncentives = async (ops: {
+  provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
+  market: MARKETTYPE;
 }) => {
 
-  const { reservesData, baseCurrencyData, userReserves, currentTimestamp } = ops;
+  const {reserveIncentives, reserves, userIncentives, userReserves } = await getContractData(ops);
+  if (!userReserves || !userIncentives ) {
+    return null;
+  }
+  const currentTimestamp = Date.now();
+  const reservesArray = reserves.reservesData;
+  const baseCurrencyData = reserves.baseCurrencyData;
+  const userReservesArray = userReserves.userReserves;
 
-  // const formattedPoolReserves = formatReserves({
-  //   reserves: reservesData,
-  //   currentTimestamp,
-  //   marketReferenceCurrencyDecimals: baseCurrencyData.marketReferenceCurrencyDecimals,
-  //   marketReferencePriceInUsd: baseCurrencyData.marketReferenceCurrencyPriceInUsd,
-  // });
-
-  /*
-  - @param `currentTimestamp` Current UNIX timestamp in seconds, Math.floor(Date.now() / 1000)
-  - @param `marketReferencePriceInUsd` Input from [Fetching Protocol Data](#fetching-protocol-data), `reserves.baseCurrencyData.marketReferencePriceInUsd`
-  - @param `marketReferenceCurrencyDecimals` Input from [Fetching Protocol Data](#fetching-protocol-data), `reserves.baseCurrencyData.marketReferenceCurrencyDecimals`
-  - @param `userReserves` Input from [Fetching Protocol Data](#fetching-protocol-data), combination of `userReserves.userReserves` and `reserves.reservesArray`
-  - @param `userEmodeCategoryId` Input from [Fetching Protocol Data](#fetching-protocol-data), `userReserves.userEmodeCategoryId`
-  - @param `reserveIncentives` Input from [Fetching Protocol Data](#fetching-protocol-data), `reserveIncentives`
-  - @param `userIncentives` Input from [Fetching Protocol Data](#fetching-protocol-data), `userIncentives`
-  */
-  const formatedUserSummaryAndIncentives: any = formatUserSummaryAndIncentives({
+  const formattedPoolReserves = formatReserves({
+    reserves: reservesArray,
     currentTimestamp,
-    baseCurrencyData,
-    userReserves,
-    reservesData
+    marketReferenceCurrencyDecimals:
+      baseCurrencyData.marketReferenceCurrencyDecimals,
+    marketReferencePriceInUsd: baseCurrencyData.marketReferenceCurrencyPriceInUsd,
   });
 
-  return {formatedUserSummaryAndIncentives};
+  const formatedUserSummaryAndIncentives = formatUserSummaryAndIncentives({
+    currentTimestamp,
+    marketReferencePriceInUsd: baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+    marketReferenceCurrencyDecimals: baseCurrencyData.marketReferenceCurrencyDecimals,
+    userReserves: userReservesArray,
+    formattedReserves: formattedPoolReserves,
+    reserveIncentives,
+    userIncentives,
+    userEmodeCategoryId: userReserves.userEmodeCategoryId,
+  });
+
+  return formatedUserSummaryAndIncentives;
 }
 
 // deprecated

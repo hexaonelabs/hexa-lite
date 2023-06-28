@@ -37,16 +37,22 @@ const formatCurrencyValue = (
   msg?: string
 ) => {
   const result = Number(balance) * Number(priceInUSD || 1);
+  if (result > 1000000000000) {
+    return "$" + (result / 1000000000000).toFixed(2) + "T";
+  }
+  if (result > 1000000000) {
+    return "$" + (result / 1000000000).toFixed(2) + "B";
+  }
   if (result > 1000000) {
-    return (result / 1000000).toFixed(2) + "M";
+    return "$" + (result / 1000000).toFixed(2) + "M";
   }
   if (result > 1000) {
-    return (result / 1000).toFixed(2) + "K";
+    return "$" + (result / 1000).toFixed(2) + "K";
   }
   if (result <= 0) {
     return msg || "0";
   }
-  return result.toFixed(2);
+  return "$" + result.toFixed(2);
 };
 
 const FormModal = ({
@@ -93,7 +99,7 @@ const FormModal = ({
 export const DefiContainer = () => {
   const { user } = useUser();
   const { ethereum } = useEthersProvider();
-  const { poolReserves, markets, totalTVL } = useAave();
+  const { poolReserves, markets, totalTVL, userSummary } = useAave();
   const [present, dismiss] = useIonModal(FormModal, {
     onDismiss: (data: string, role: string) => dismiss(data, role),
   });
@@ -202,19 +208,31 @@ export const DefiContainer = () => {
     });
   }
 
-  function currencyFormat(num: number) {
-    return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+  function currencyFormat(num: number, ops?: {currency?: string; language?: string;}) {
+    const currency = ops?.currency || 'USD';
+    const language = ops?.language || 'en-US';
+    return num.toLocaleString(language, {
+      style: 'currency',
+      currency
+    });
   }
 
   console.log('[INFO] {{DefiContainer}} poolReserves: ', poolReserves);
+  const poolFormated = poolReserves?.map((reserve) => {
+    return {
+      reserve,
+      underlyingBalance: null,
+      scaledATokenBalance: null
+    }
+  });
   
-  const reserves = poolReserves?.map((reserve) => {
-    const { aTokenAddress } = reserve;
-    const supplyBalance = 0;
+  const reserves = (userSummary?.userReservesData||poolFormated)?.map(({reserve, underlyingBalance, scaledATokenBalance}) => {
+    const { aTokenAddress, decimals } = reserve;
+    const borrowBalance = Number(underlyingBalance) / 10 ** decimals;
     // walletBalance.find(
     //   token => token.address?.toLocaleLowerCase() === aTokenAddress?.toLocaleLowerCase()
     // )?.balance||0;
-    const borrowBalance = 0;
+    const supplyBalance  = Number(scaledATokenBalance) / 10 ** decimals;
     // walletBalance.find(
     //   token => token.address?.toLocaleLowerCase() === reserve.variableDebtTokenAddress?.toLocaleLowerCase()
     // )?.balance||0;
@@ -291,7 +309,7 @@ export const DefiContainer = () => {
               margin: '1rem 1rem 3rem',
               fontFamily: 'monospace',
               fontWeight: 600,
-            }}>$ {currencyFormat(totalTVL||0)} TVL</span>
+            }}>{currencyFormat(totalTVL||0)} TVL</span>
             </p>
           </IonText>
         </IonCol>
@@ -299,7 +317,47 @@ export const DefiContainer = () => {
       </IonRow>
 
       <IonRow class="ion-justify-content-center">
+        <IonCol class="ion-padding" size-md="12" size-lg="10" size-xl="10">
+          <IonGrid class="ion-no-padding">
+            <IonRow class="ion-text-center widgetWrapper">
+              <IonCol size="12" size-md="4" class=" ion-padding-vertical ion-margin-vertical">
+                <h3>{currencyFormat(Number(userSummary?.totalCollateralUSD||0)/1000)}</h3>
+                <IonText color="medium">
+                  <p>
+                    MY DEPOSIT BALANCE<br/>
+                    <small>
+                      Used as collateral to borrow assets
+                    </small>
+                  </p>
+                </IonText>
+              </IonCol>
+              <IonCol size="12" size-md="4" class=" ion-padding-vertical ion-margin-vertical">
+                <h3>{currencyFormat(Number(userSummary?.totalBorrowsUSD||0)/1000)}</h3>
+                <IonText color="medium">
+                  <p>
+                    BORROWING CAPACITY<br/>
+                    <small>$0.00 of $0.00</small>
+                  </p>
+                </IonText>
+              </IonCol>
+              <IonCol size="12" size-md="4" class=" ion-padding-vertical ion-margin-vertical">
+                <h3>{currencyFormat(Number(userSummary?.availableBorrowsMarketReferenceCurrency||0)/1000)}</h3>
+                <IonText color="medium">
+                  <p>MY BORROW BALANCE</p>
+                </IonText>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonCol>
+      </IonRow>
 
+      <IonRow class="ion-justify-content-center">
+        <IonCol class="ion-padding ion-text-center" size="12">
+            <h1>Available Markets</h1>
+        </IonCol>
+      </IonRow>
+
+      <IonRow class="ion-justify-content-center">
         <IonCol class="ion-padding" size-xs="12" size-sm="12" size-md="6" size-lg="5" size-xl="5">
           <div className="widgetWrapper">
             <h3
@@ -319,7 +377,7 @@ export const DefiContainer = () => {
                 </IonCol>
                 <IonCol size="4" class="ion-text-end ion-padding-end">
                   <IonLabel color="medium">
-                    <h3>Wallet balance</h3>
+                    <h3>Deposited</h3>
                   </IonLabel>
                 </IonCol>
                 <IonCol size="3" class="ion-text-end">
@@ -330,7 +388,9 @@ export const DefiContainer = () => {
               </IonRow>
             </IonGrid>
             <IonAccordionGroup>
-              {reserves.map((reserve, index) => (
+              {reserves
+                .sort((a, b) => b.supplyBalance - a.supplyBalance)
+                .map((reserve, index) => (
                 <IonAccordion key={index}>
                   <IonItem slot="header">
                     <IonGrid>
@@ -352,7 +412,7 @@ export const DefiContainer = () => {
                         </IonCol>
                         <IonCol size="4" class="ion-text-end">
                           <IonLabel>
-                            {reserve?.supplyBalance || "0.00"}
+                            {reserve?.supplyBalance.toFixed(4) || "0.00"}
                             <br />
                             <IonText color="medium">
                               <small>
@@ -471,7 +531,7 @@ export const DefiContainer = () => {
                 </IonCol>
                 <IonCol size="4" class="ion-text-end ion-padding-end">
                   <IonLabel color="medium">
-                    <h3>Wallet balance</h3>
+                    <h3>Borrowed</h3>
                   </IonLabel>
                 </IonCol>
                 <IonCol size="3" class="ion-text-end">
@@ -507,14 +567,14 @@ export const DefiContainer = () => {
                           </IonCol>
                           <IonCol size="4" class="ion-text-end">
                             <IonLabel>
-                              {reserve?.borrowBalance || "0.00"}
+                              {reserve?.borrowBalance.toFixed(4) || "0.00"}
                               <br />
                               <IonText color="medium">
                                 <small>
                                   {formatCurrencyValue(
                                     reserve?.borrowBalance,
                                     Number(reserve?.priceInUSD),
-                                    "No deposit"
+                                    "No debit"
                                   )}
                                 </small>
                               </IonText>

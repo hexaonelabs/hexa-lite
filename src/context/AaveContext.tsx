@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useEthersProvider } from "./Web3Context";
-import { FormatReserveUSDResponse, formatReserves } from "@aave/math-utils";
+import { FormatReserveUSDResponse, FormatUserSummaryAndIncentivesResponse, FormatUserSummaryResponse, formatReserves } from "@aave/math-utils";
 import {
   ReserveDataHumanized,
   UiPoolDataProvider,
@@ -9,7 +9,7 @@ import {
 import { ethers } from "ethers";
 
 import { useUser } from "./UserContext";
-import { MARKETTYPE, formatUserSummaryAndIncentives, getMarkets, getPools } from "../servcies/aave.service";
+import { MARKETTYPE, getMarkets, getPools, getUserSummary } from "../servcies/aave.service";
 
 
 const stub = (): never => {
@@ -20,6 +20,7 @@ const stub = (): never => {
 type AaveContextType = {
   markets: MARKETTYPE | null;
   poolReserves: (ReserveDataHumanized & FormatReserveUSDResponse)[] | null;
+  userSummary: FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse> | null;
   totalTVL: number | null;
   // walletBallance: (ReserveDataHumanized &
   //   FormatReserveUSDResponse & { balance: string; tokenAddress: string })[];
@@ -28,6 +29,7 @@ type AaveContextType = {
 const AaveContextDefault: AaveContextType = {
   markets: null,
   poolReserves: null,
+  userSummary: null,
   totalTVL: null,
 };
 
@@ -105,14 +107,37 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
     }
   });
 
+  const fetchUserSummary = async (market?: MARKETTYPE | null) => {
+    const sampleProvider = new ethers.providers.JsonRpcProvider(
+      "https://rpc.ankr.com/eth"
+    );
+    if (!market) {
+      setState(((prev) => ({
+        ...prev, 
+        userSummary: null
+      })));
+      return;
+    }
+    const userSummary = await getUserSummary({
+      provider: ethereum || sampleProvider,
+      market
+    });
+    console.log("[INFO] {{AAVEService}} fetchUserSummary: ", userSummary);
+    setState(((prev) => ({
+      ...prev, 
+      userSummary
+    })));
+  };
+
   useEffect(() => {
     fetchTVL()
       .then(() => getNetwork())
       .then((chainId: number) => fetchMarkets(chainId))
-      .then((m) => fetchPools(m));
+      .then((m) => fetchPools(m))
+      .then(() => fetchUserSummary(state.markets));
     return () => {
     };
-  }, [ethereum,state.markets]);
+  }, [ethereum, state.markets]);
 
   return (
     <AaveContext.Provider
