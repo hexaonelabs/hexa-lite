@@ -169,13 +169,15 @@ function App() {
               </IonCol>
               <IonCol size="12" class="ion-text-center">
                 <IonText>
-                  <h1>WELCOME TO HEXA-LITE</h1>
+                  <h1 style={{
+                    fontWeight: 'bold',
+                  }}>WELCOME TO HEXA-LITE</h1>
                 </IonText>
                 <IonText color="medium">
                   <p style={{
                     lineHeight: '1.3rem',
                   }}>
-                    BUY ASSET WITH FIATS, EXCHANGE ASSETS AT BEST RATE, <br />
+                    BUY ASSETS WITH FIATS, EXCHANGE ASSETS AT BEST RATE, <br />
                     LEND AND BORROW MONEY ON AAVE PROTOCOL
                   </p>
                 </IonText>
@@ -280,163 +282,165 @@ function App() {
           <IonToolbar style={{ "--background": "transparent" }}>
             <IonGrid class="ion-no-padding">
               <IonRow class="ion-align-items-center ion-justify-content-between">
-                <IonCol size="2" class="ion-padding ion-text-start">
-                  <div
-                    style={{ position: "relative", display: "inline-block" }}
-                  >
-                    <IonImg
-                      style={styleLogo}
-                      src={"./assets/images/logo.svg"}
-                    ></IonImg>
-                    {/* <IonIcon icon={'./assets/images/logo.svg'} style={styleLogo} /> */}
-                    <IonChip style={styleChip}>beta</IonChip>
-                  </div>
-                </IonCol>
+
                 {
                   currentSegment !== 'welcome' 
                   ? (
-                    <IonCol size="8" class="ion-padding ion-hide-md-down">
-                      <IonSegment
-                        style={{ maxWidth: "550px" }}
-                        mode="ios"
-                        value={currentSegment}
-                        onIonChange={(e: any) => handleSegmentChange(e)}
+                    <>
+                      <IonCol size="2" class="ion-padding ion-text-start">
+                        <div
+                          style={{ position: "relative", display: "inline-block" }}
+                        >
+                          <IonImg
+                            style={styleLogo}
+                            src={"./assets/images/logo.svg"}
+                          ></IonImg>
+                          {/* <IonIcon icon={'./assets/images/logo.svg'} style={styleLogo} /> */}
+                          <IonChip style={styleChip}>beta</IonChip>
+                        </div>
+                      </IonCol>                    
+                      <IonCol size="8" class="ion-padding ion-hide-md-down">
+                        <IonSegment
+                          style={{ maxWidth: "550px" }}
+                          mode="ios"
+                          value={currentSegment}
+                          onIonChange={(e: any) => handleSegmentChange(e)}
+                        >
+                          <IonSegmentButton value="swap">Exchange</IonSegmentButton>
+                          <IonSegmentButton value="defi">
+                            Lending & Borrow
+                          </IonSegmentButton>
+                          <IonSegmentButton value="stacking">
+                            Earn Interest
+                          </IonSegmentButton>
+                          <IonSegmentButton value="fiat">Buy</IonSegmentButton>
+                        </IonSegment>
+                      </IonCol>
+                      <IonCol
+                        size="2"
+                        class="ion-padding ion-text-end ion-hide-md-down"
                       >
-                        <IonSegmentButton value="swap">Exchange</IonSegmentButton>
-                        <IonSegmentButton value="defi">
-                          Lending & Borrow
-                        </IonSegmentButton>
-                        <IonSegmentButton value="stacking">
-                          Earn Interest
-                        </IonSegmentButton>
-                        <IonSegmentButton value="fiat">Buy</IonSegmentButton>
-                      </IonSegment>
-                    </IonCol>
+                        <AuthBadge user={user} />
+                      </IonCol>
+                      {/* Mobile nav button */}
+                      <IonCol size="auto" class="ion-padding ion-hide-md-up">
+                        <IonButton fill="clear" color="primary" id="click-trigger">
+                          <IonIcon slot="icon-only" icon={ellipsisVerticalSharp} />
+                        </IonButton>
+                        {/* Popover wiith options */}
+                        <IonPopover ref={popoverRef} trigger="click-trigger" triggerAction="click">
+                          <IonContent class="ion-no-padding">
+                            <IonListHeader>
+                              <IonLabel class="ion-no-margin ion-padding-vertical">Menu</IonLabel>
+                            </IonListHeader>
+                            <IonItem
+                              lines="none"
+                              button={true}
+                              style={{ "--background": "transparent" }}
+                              onClick={() => {
+                                popoverRef.current?.dismiss();
+                                handleSegmentChange({ detail: { value: "swap" } });
+                              }}
+                            >
+                              <IonLabel class="ion-text-wrap">
+                                <IonText>
+                                  <h2>Exchange</h2>
+                                </IonText>
+                                <IonText color="medium">
+                                  <p>Swap tokens instantly at the best rates.</p>
+                                </IonText>
+                              </IonLabel>
+                            </IonItem>
+                            <IonItem
+                              lines="none"
+                              button={true}
+                              style={{ "--background": "transparent" }}
+                              onClick={() => {
+                                popoverRef.current?.dismiss();
+                                handleSegmentChange({ detail: { value: "defi" } });
+                              }}
+                            >
+                              <IonLabel class="ion-text-wrap">
+                                <IonText>
+                                  <h2>Lending & Borrow</h2>
+                                </IonText>
+                                <IonText color="medium">
+                                  <p>Provide liquidity and earn interest.</p>
+                                </IonText>
+                              </IonLabel>
+                            </IonItem>
+                            <IonItem
+                              lines="none"
+                              button={true}
+                              style={{ "--background": "transparent" }}
+                              onClick={() => {
+                                popoverRef.current?.dismiss();
+                                handleSegmentChange({ detail: { value: "stack" } });
+                              }}
+                            >
+                              <IonLabel class="ion-text-wrap">
+                                <IonText>
+                                  <h2>Earn Interest</h2>
+                                </IonText>
+                                <IonText color="medium">
+                                  <p>Earn interest on your crypto.</p>
+                                </IonText>
+                              </IonLabel>
+                            </IonItem>
+                            <IonItem
+                              lines="none"
+                              button={true}
+                              style={{ "--background": "transparent" }}
+                              onClick={() => {
+                                popoverRef.current?.dismiss();
+                                handleSegmentChange({ detail: { value: "fiat" } });
+                              }}
+                            >
+                              <IonLabel>
+                                <IonText>
+                                  <h2>Buy</h2>
+                                </IonText>
+                                <IonText color="medium">
+                                  <p>Buy crypto with fiat.</p>
+                                </IonText>
+                              </IonLabel>
+                            </IonItem>
+                            <IonItemDivider style={{ "--background": "transparent" }}></IonItemDivider>
+                            {/* <IonItem button={true} style={{ "--background": "transparent" }}>
+                              <IonLabel>
+                                <IonText>
+                                  <h2>Wallet</h2>
+                                </IonText>
+                                <IonText color="medium">
+                                  <p>Manage your wallet.</p>
+                                </IonText>
+                              </IonLabel>
+                            </IonItem> */}
+                            <div 
+                              className="ion-padding ion-text-center"
+                              onClick={() => {
+                                popoverRef.current?.dismiss();
+                              }}>
+                                {
+                                  !user 
+                                  ? <ConnectButton size="default" expand="block"></ConnectButton>
+                                  : <DisconnectButton size="default" expand="block"></DisconnectButton>
+
+                                }
+                              {/* <IonLabel>
+                                <IonText>
+                                  <h2>Disconnect</h2>
+                                </IonText>
+                              </IonLabel> */}
+                            </div>
+                          </IonContent>
+                        </IonPopover>
+                      </IonCol>                    
+                    </>
                   )
-                  : (<> </>)
+                  : (<></>)
                 }
                 
-                <IonCol
-                  size="2"
-                  class="ion-padding ion-text-end ion-hide-md-down"
-                >
-                  <AuthBadge user={user} />
-                </IonCol>
-                {/* Mobile nav button */}
-                <IonCol size="auto" class="ion-padding ion-hide-md-up">
-                  <IonButton fill="clear" color="primary" id="click-trigger">
-                    <IonIcon slot="icon-only" icon={ellipsisVerticalSharp} />
-                  </IonButton>
-                  {/* Popover wiith options */}
-                  <IonPopover ref={popoverRef} trigger="click-trigger" triggerAction="click">
-                    <IonContent class="ion-no-padding">
-                      <IonListHeader>
-                        <IonLabel class="ion-no-margin ion-padding-vertical">Menu</IonLabel>
-                      </IonListHeader>
-                      <IonItem
-                        lines="none"
-                        button={true}
-                        style={{ "--background": "transparent" }}
-                        onClick={() => {
-                          popoverRef.current?.dismiss();
-                          handleSegmentChange({ detail: { value: "swap" } });
-                        }}
-                      >
-                        <IonLabel class="ion-text-wrap">
-                          <IonText>
-                            <h2>Exchange</h2>
-                          </IonText>
-                          <IonText color="medium">
-                            <p>Swap tokens instantly at the best rates.</p>
-                          </IonText>
-                        </IonLabel>
-                      </IonItem>
-                      <IonItem
-                        lines="none"
-                        button={true}
-                        style={{ "--background": "transparent" }}
-                        onClick={() => {
-                          popoverRef.current?.dismiss();
-                          handleSegmentChange({ detail: { value: "defi" } });
-                        }}
-                      >
-                        <IonLabel class="ion-text-wrap">
-                          <IonText>
-                            <h2>Lending & Borrow</h2>
-                          </IonText>
-                          <IonText color="medium">
-                            <p>Provide liquidity and earn interest.</p>
-                          </IonText>
-                        </IonLabel>
-                      </IonItem>
-                      <IonItem
-                        lines="none"
-                        button={true}
-                        style={{ "--background": "transparent" }}
-                        onClick={() => {
-                          popoverRef.current?.dismiss();
-                          handleSegmentChange({ detail: { value: "stack" } });
-                        }}
-                      >
-                        <IonLabel class="ion-text-wrap">
-                          <IonText>
-                            <h2>Earn Interest</h2>
-                          </IonText>
-                          <IonText color="medium">
-                            <p>Earn interest on your crypto.</p>
-                          </IonText>
-                        </IonLabel>
-                      </IonItem>
-                      <IonItem
-                        lines="none"
-                        button={true}
-                        style={{ "--background": "transparent" }}
-                        onClick={() => {
-                          popoverRef.current?.dismiss();
-                          handleSegmentChange({ detail: { value: "fiat" } });
-                        }}
-                      >
-                        <IonLabel>
-                          <IonText>
-                            <h2>Buy</h2>
-                          </IonText>
-                          <IonText color="medium">
-                            <p>Buy crypto with fiat.</p>
-                          </IonText>
-                        </IonLabel>
-                      </IonItem>
-                      <IonItemDivider style={{ "--background": "transparent" }}></IonItemDivider>
-                      {/* <IonItem button={true} style={{ "--background": "transparent" }}>
-                        <IonLabel>
-                          <IonText>
-                            <h2>Wallet</h2>
-                          </IonText>
-                          <IonText color="medium">
-                            <p>Manage your wallet.</p>
-                          </IonText>
-                        </IonLabel>
-                      </IonItem> */}
-                      <div 
-                        className="ion-padding ion-text-center"
-                        onClick={() => {
-                          popoverRef.current?.dismiss();
-                        }}>
-                          {
-                            !user 
-                            ? <ConnectButton size="default" expand="block"></ConnectButton>
-                            : <DisconnectButton size="default" expand="block"></DisconnectButton>
-
-                          }
-                        {/* <IonLabel>
-                          <IonText>
-                            <h2>Disconnect</h2>
-                          </IonText>
-                        </IonLabel> */}
-                      </div>
-                    </IonContent>
-                  </IonPopover>
-                </IonCol>
-
                 {/* <IonCol size="12">{AuthButton}</IonCol> */}
                 {/* <IonCol size="12">{WalletInfo}</IonCol> */}
               </IonRow>
@@ -446,8 +450,15 @@ function App() {
         <IonContent fullscreen={true} className="ion-padding">
           <IonGrid class="ion-no-padding" style={{ minHeight: "95vh" }}>
             <IonRow
-              style={{ minHeight: "100%" }}
-              class="ion-align-items-top ion-justify-content-center ion-no-padding"
+              style={{ 
+                minHeight: "100%", 
+                height: currentSegment !== "welcome" ? "100%" : "90vh" 
+              }}
+              class={
+                currentSegment !== "welcome"
+                ? 'ion-align-items-top ion-justify-content-center ion-no-padding'
+                : 'ion-align-items-center ion-justify-content-center ion-no-padding'
+              }
             >
               <IonCol size="12" class="ion-no-padding">
                 {renderSwitch(currentSegment)}
