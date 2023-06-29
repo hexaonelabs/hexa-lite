@@ -420,7 +420,7 @@ export const DefiContainer = () => {
   const borrowingCapacity = totalCollateralUsd * 0.75;
 
   // calcule percentage of totalBorrowsUsd
-  const percentageBorrowingCapacity = (totalBorrowsUsd / borrowingCapacity) * 100;
+  const percentageBorrowingCapacity = (totalBorrowsUsd / (borrowingCapacity||1)) * 100;
   const progressBarFormatedValue = Number((percentageBorrowingCapacity / 100).toFixed(2));
   let getProgressBarFormatedColor = (value: number) => {
     console.log("[INFO] getProgressBarFormatedColor: ", value);
