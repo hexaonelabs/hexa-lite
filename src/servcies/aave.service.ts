@@ -302,8 +302,12 @@ export const getMarkets = (chainId: number) => {
       return MARKETS.AaveV3Arbitrum;
     case chainId === 421613:
       return MARKETS.AaveV3ArbitrumGoerli;
+    case chainId === 10:
+      return MARKETS.AaveV3Optimism;
+    case chainId === 69:
+      return MARKETS.AaveV3Avalanche;
     default:
-      throw new Error("ChainId not supported");
+      throw new Error(`ChainId ${chainId} not supported`);
   }
 };
 

@@ -51,6 +51,25 @@ ion-button.button-default {
 ion-button.button-small {
   --border-radius: 8px!important;
 }
+
+
+ion-popover::part(content) {
+  border-radius: 24px;
+}
+
+ion-popover  {
+  --width: 250px;
+  ion-content {
+    --background: var(--ion-background-color);
+  }
+  ion-list {
+    background: transparent;
+  }
+  ion-item {
+    --background: var(--ion-background-color);
+  }
+}
+
 ion-popover.profil-popover {
   --width: 100%;
   --max-width: 328px;
@@ -79,6 +98,20 @@ ion-popover.profil-popover {
 
   .item-profil {
     margin-bottom: 2rem;
+  }
+}
+
+.modalAlert {
+  --width: fit-content;
+  --min-width: 250px;
+  --max-width: 650px;
+  --height: fit-content;
+  
+  // --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+  padding: 2rem;
+
+  .ion-accordion-toggle-icon {
+    display: none;
   }
 }
 

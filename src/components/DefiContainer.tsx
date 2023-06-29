@@ -7,12 +7,15 @@ import {
   IonCol,
   IonGrid,
   IonHeader,
+  IonIcon,
   IonImg,
   IonInput,
   IonItem,
   IonLabel,
   IonListHeader,
   IonPage,
+  IonProgressBar,
+  IonRange,
   IonRow,
   IonSpinner,
   IonText,
@@ -20,6 +23,7 @@ import {
   IonToolbar,
   useIonModal,
 } from "@ionic/react";
+import { informationCircleOutline, closeSharp } from "ionicons/icons";
 import { useAave } from "../context/AaveContext";
 import { Pool, ReserveDataHumanized } from "@aave/contract-helpers";
 import {
@@ -39,6 +43,7 @@ import {
   withdraw,
 } from "../servcies/aave.service";
 import { useEthersProvider } from "../context/Web3Context";
+import { useLoader } from "../context/LoaderContext";
 
 const formatCurrencyValue = (
   balance: number,
@@ -80,61 +85,104 @@ const formatCurrencyValue = (
 
 const FormModal = ({
   onDismiss,
+  selectedReserve,
+  actionType,
 }: {
+  actionType: string;
+  selectedReserve: ReserveDataHumanized & { borrowBalance: number;
+    borrowBalanceUsd: number;
+    supplyBalance: number;
+    supplyBalanceUsd: number;
+    logo: string;} | null;
   onDismiss: (data?: string | null | undefined | number, role?: string) => void;
 }) => {
   const inputRef = useRef<HTMLIonInputElement>(null);
   return (
-    <IonPage>
       <IonGrid className="ion-padding" style={{ width: "100%" }}>
-        <IonRow class="ion-justify-content-between">
-          <IonCol size="6">
-            <IonButton color="medium" onClick={() => onDismiss(null, "cancel")}>
-              Cancel
-            </IonButton>
+        <IonRow class="ion-align-items-top ion-margin-bottom">
+          <IonCol size="10">
+              <h3>
+              Enter a amount
+              </h3>
           </IonCol>
-          <IonCol size="6">
-            <IonButton
-              onClick={() => onDismiss(inputRef.current?.value, "confirm")}
-              strong={true}
-            >
-              Confirm
+          <IonCol size="2" class="ion-text-end">
+            <IonButton size="small" fill="clear" onClick={() => onDismiss(null, "cancel")}>
+              <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
             </IonButton>
           </IonCol>
         </IonRow>
         <IonRow>
           <IonCol size="12">
             <IonItem>
-              <IonInput
-                ref={inputRef}
-                labelPlacement="stacked"
-                label="enter a amount"
-                placeholder="amount"
-              />
+              <IonAvatar slot="start">
+                <IonImg src={selectedReserve?.logo}></IonImg>
+              </IonAvatar>
+              <div>
+                <IonInput
+                  ref={inputRef}
+                  style={{fontSize: '1.5rem'}}
+                  placeholder="0"
+                  type="number"
+                  max={selectedReserve?.supplyBalance.toFixed(2)}
+                  min={0}
+                  debounce={500}
+                  onIonChange={(e) => {
+                    const value = e.detail.value;
+                    if (value && (Number(value) > (selectedReserve?.supplyBalance||0))) {
+                      e.target.value = selectedReserve?.supplyBalance.toFixed(2);
+                    }
+                    if (value && (Number(value) < 0)) {
+                      e.target.value = "0";
+                    }
+                  }}
+                />
+                <span>
+                  <small>
+                    {selectedReserve?.symbol} Max: 
+                    {selectedReserve?.supplyBalance.toFixed(4)}
+                  </small>
+                </span>
+              </div>
             </IonItem>
           </IonCol>
         </IonRow>
+        <IonRow class="ion-justify-content-between">
+          <IonCol size="12">
+            <IonButton
+              expand="block"
+              onClick={() => onDismiss(inputRef.current?.value, "confirm")}
+              strong={true}
+            >
+              Confirm
+            </IonButton>
+          </IonCol>
+          </IonRow>
       </IonGrid>
-    </IonPage>
   );
 };
 
 export const DefiContainer = () => {
+  const [selectedReserve, setSelectedReserve] = useState<ReserveDataHumanized | null>(null);
+  const {display: displayLoader, hide: hideLoader} = useLoader();
   const { user, assets } = useUser();
   const { ethereumProvider } = useEthersProvider();
-  const { poolReserves, markets, totalTVL } = useAave();
+  const { poolReserves, markets, totalTVL, refresh } = useAave();
   const [present, dismiss] = useIonModal(FormModal, {
+    selectedReserve,
     onDismiss: (data: string, role: string) => dismiss(data, role),
   });
 
   function handleOpenModal(type: string, reserve: ReserveDataHumanized) {
+    setSelectedReserve(reserve);
     present({
+      cssClass: 'modalAlert ',
       onWillDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
         if (ev.detail.role === "confirm") {
           console.log(`${ev.detail.data}!`);
           if (!ethereumProvider) {
             throw new Error("No ethereumProvider provider found");
           }
+          displayLoader();
           switch (true) {
             case type === "deposit": {
               const value = ev.detail.data;
@@ -155,8 +203,13 @@ export const DefiContainer = () => {
                 gatewayAddress: `${markets?.WETH_GATEWAY}`,
               };
               console.log("params: ", params);
-              const txReceipts = await supplyWithPermit(params);
-              console.log("TX result: ", txReceipts);
+              try {
+                const txReceipts = await supplyWithPermit(params);
+                console.log("TX result: ", txReceipts);
+                refresh();
+              } catch (error) {
+                hideLoader();
+              }
               break;
             }
             case type === "withdraw": {
@@ -178,8 +231,15 @@ export const DefiContainer = () => {
                 gatewayAddress: `${markets?.WETH_GATEWAY}`,
               };
               console.log("params: ", params);
-              const txReceipts = await withdraw(params);
-              console.log("TX result: ", txReceipts);
+              try {
+                const txReceipts = await withdraw(params);
+                console.log("TX result: ", txReceipts);
+                await hideLoader();
+                refresh();
+              } catch (error) {
+                console.log("error: ", error);
+                hideLoader();
+              }
               break;
             }
             case type === "borrow": {
@@ -201,8 +261,15 @@ export const DefiContainer = () => {
                 gatewayAddress: `${markets?.WETH_GATEWAY}`,
               };
               console.log("params: ", params);
-              const txReceipts = await borrow(params);
-              console.log("TX result: ", txReceipts);
+              try {
+                const txReceipts = await borrow(params);
+                console.log("TX result: ", txReceipts);
+                await hideLoader();
+                refresh();
+              } catch (error) {
+                console.log("[ERROR]: ", error);
+                hideLoader();
+              }
               break;
             }
             case type === "repay": {
@@ -224,15 +291,23 @@ export const DefiContainer = () => {
                 gatewayAddress: `${markets?.WETH_GATEWAY}`,
               };
               console.log("params: ", params);
-              const txReceipts = await repay(params);
-              console.log("TX result: ", txReceipts);
+              try {
+                const txReceipts = await repay(params);
+                console.log("TX result: ", txReceipts);
+                await hideLoader();
+                refresh();
+              } catch (error) {
+                console.log("[ERROR]: ", error);
+                hideLoader();
+              }
               break;
             }
             default:
               break;
           }
+          hideLoader();
         }
-      },
+      }
     });
   }
 
@@ -344,6 +419,27 @@ export const DefiContainer = () => {
   // calcule 75% of totalCollateralUsd
   const borrowingCapacity = totalCollateralUsd * 0.75;
 
+  // calcule percentage of totalBorrowsUsd
+  const percentageBorrowingCapacity = (totalBorrowsUsd / borrowingCapacity) * 100;
+  const progressBarFormatedValue = Number((percentageBorrowingCapacity / 100).toFixed(2));
+  let getProgressBarFormatedColor = (value: number) => {
+    console.log("[INFO] getProgressBarFormatedColor: ", value);
+    let color = "primary";
+    switch (true) {
+      case value > 75:
+        color = "danger";
+        break;
+      case value > 60:
+        color = "warning";
+        break;
+      case value > 0:
+        color = "success";  
+        break;
+      default:
+        break;
+    }
+    return color;
+  };
   console.log("[INFO] totalCollateralUsd : ", totalCollateralUsd);
 
 
@@ -378,6 +474,7 @@ export const DefiContainer = () => {
                   margin: "1rem 1rem 3rem",
                   fontFamily: "monospace",
                   fontWeight: 600,
+                  lineHeight: "1.8rem",
                 }}
               >
                 {currencyFormat(totalTVL || 0)} TVL
@@ -415,16 +512,30 @@ export const DefiContainer = () => {
                 class=" ion-padding-vertical ion-margin-vertical"
               >
                 <h3>
-                  {currencyFormat(
-                    borrowingCapacity
-                  )}
+                  {Number(percentageBorrowingCapacity.toFixed(2))}%
                 </h3>
+                <div className="ion-margin-horizontal">
+                  <IonProgressBar 
+                    color={getProgressBarFormatedColor(percentageBorrowingCapacity)}
+                    value={progressBarFormatedValue}></IonProgressBar>
+                </div>
                 <IonText color="medium">
                   <p>
-                    BORROWING CAPACITY
+                    BORROWING CAPACITY 
+                    <IonIcon 
+                      icon={informationCircleOutline}
+                      style={{
+                        transform: 'scale(0.8)',
+                        marginLeft: '0.2rem',
+                        cursor: 'pointer'
+                      }} />
                     <br />
                     <small>
-                      Maximum amount you can borrow
+                    {currencyFormat(
+                    totalBorrowsUsd
+                  )} of {currencyFormat(
+                    borrowingCapacity
+                  )}
                     </small>
                   </p>
                 </IonText>

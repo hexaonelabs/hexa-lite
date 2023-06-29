@@ -10,6 +10,7 @@ import { Web3Provider } from './context/Web3Context';
 import { UserProvider } from './context/UserContext';
 // import { theme } from './theme'
 import { WalletProvider } from './context/WalletContext';
+import { LoaderProvider } from './context/LoaderContext';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -21,7 +22,9 @@ root.render(
      */}
       <Web3Provider>
         <UserProvider>
-          <App />
+          <LoaderProvider>
+            <App />
+          </LoaderProvider>
         </UserProvider>
       </Web3Provider>
   </React.StrictMode>

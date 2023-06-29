@@ -468,31 +468,42 @@ function App() {
             </IonRow>
           </IonGrid>
         </IonContent>
-        {/* <IonFooter style={{
-          position: 'absolute',
-          bottom: 0,
-        }}  class="ion-no-border">
-          <IonToolbar style={{'--background': 'transparent'}}>
-            <IonGrid class="ion-no-padding">
-              <IonRow class="ion-align-items-center ion-justify-content-between">
-                <IonCol size="auto" class="ion-padding-horizontal">
-                  <IonText color="medium">
-                    <p>
-                      <small>
-                      Powered by HexaOneLabs
-                      </small>
-                    </p>
-                  </IonText>
-                </IonCol>
-                <IonCol size="auto" class="ion-padding-horizontal ion-text-end">
-                  <a href="https://github.com/hexaonelabs" target="_blank" rel="noreferrer">
-                    <IonIcon color={'#fff'} icon={logoGithub}></IonIcon>
-                  </a>
-                </IonCol>
-              </IonRow>
-            </IonGrid>
-          </IonToolbar>
-        </IonFooter> */}
+        {
+          currentSegment === 'welcome'
+            ? (
+            <IonFooter style={{
+              position: 'fixed',
+              bottom: 0,
+            }}  class="ion-no-border">
+              <IonToolbar style={{'--background': 'transparent'}}>
+                <IonGrid class="ion-no-padding">
+                  <IonRow class="ion-align-items-center ion-justify-content-between">
+                    <IonCol size="auto" class="ion-padding-horizontal">
+                      <IonText color="medium">
+                        <p>
+                          <small>
+                          Open source software powered by HexaOneLabs
+                          </small>
+                        </p>
+                      </IonText>
+                    </IonCol>
+                    <IonCol size="auto" class="ion-padding-horizontal ion-text-end">
+                      <a href="https://github.com/hexaonelabs" target="_blank" rel="noreferrer">
+                        <IonIcon style={{
+                            color: '#fff'
+                          }} icon={logoGithub}></IonIcon>
+                      </a>
+                    </IonCol>
+                  </IonRow>
+                </IonGrid>
+              </IonToolbar>
+            </IonFooter>              
+            )
+            : (
+              <></>
+            )
+        }
+
       </IonRouterOutlet>
     </IonApp>
   );

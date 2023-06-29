@@ -22,8 +22,7 @@ type AaveContextType = {
   poolReserves: (ReserveDataHumanized & FormatReserveUSDResponse)[] | null;
   userSummary: FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse> | null;
   totalTVL: number | null;
-  // walletBallance: (ReserveDataHumanized &
-  //   FormatReserveUSDResponse & { balance: string; tokenAddress: string })[];
+  refresh: () => Promise<void>;
 };
 
 const AaveContextDefault: AaveContextType = {
@@ -31,6 +30,7 @@ const AaveContextDefault: AaveContextType = {
   poolReserves: null,
   userSummary: null,
   totalTVL: null,
+  refresh: stub,
 };
 
 // Create a context for user data.
@@ -141,7 +141,15 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AaveContext.Provider
-      value={state}
+      value={{
+        ...state,
+        refresh: async () => {
+          const chainId = await getNetwork();
+          const markets = await fetchMarkets(chainId);
+          await fetchPools(markets);
+          await fetchUserSummary(markets);
+        }
+      }}
     >
       {children}
     </AaveContext.Provider>
