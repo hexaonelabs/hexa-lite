@@ -1,0 +1,25 @@
+on: push
+name: 🚀 Deploy website on push
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v3
+      
+        
+    - name: npm install
+      run: npm install
+    
+    - name: npm run build
+      run: npm run build
+
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: hexaonelabs.com
+        username: ${{ secrets.USER }}
+        password: ${{ secrets.PWD }}
+        local-dir: ./src/
+        remote-dir: ./hexa-lite/

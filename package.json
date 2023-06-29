@@ -1,7 +1,7 @@
 {
   "name": "hexa-lite",
   "version": "0.0.1-beta.1",
-  "homepage": "https://hexaonelabs.github.io/hexa-lite",
+  "homepage": ".",
   "private": false,
   "dependencies": {
     "@aave/contract-helpers": "^1.17.8",
