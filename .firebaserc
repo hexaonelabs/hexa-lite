@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "hexaonelabs": {
+      "hosting": {
+        "hexa-lite": [
+          "hexa-lite"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "hexa-lite"
+  }
+}
