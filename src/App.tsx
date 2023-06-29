@@ -38,8 +38,6 @@ import { setupIonicReact } from "@ionic/react";
 import { AuthBadge } from "./components/AuthBadge";
 import { AaveProvider } from "./context/AaveContext";
 import { DefiContainer } from "./components/DefiContainer";
-import { I } from "@bgd-labs/aave-address-book/dist/AaveV2EthereumAssets-3aae4284";
-import { position } from "@chakra-ui/react";
 
 setupIonicReact({
   mode: "ios",

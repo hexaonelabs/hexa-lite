@@ -8,7 +8,6 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Web3Provider } from './context/Web3Context';
 import { UserProvider } from './context/UserContext';
-// import { theme } from './theme'
 import { WalletProvider } from './context/WalletContext';
 import { LoaderProvider } from './context/LoaderContext';
 
@@ -17,9 +16,6 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    {/* 
-      Pass your custom theme to the ChakraProvider, otherwise your color mode config won't be taken into consideration.
-     */}
       <Web3Provider>
         <UserProvider>
           <LoaderProvider>
