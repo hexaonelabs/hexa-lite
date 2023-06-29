@@ -71,7 +71,8 @@ function App() {
   // load environment config
   const widgetConfig: WidgetConfig = useMemo((): WidgetConfig => {
     return {
-      integrator: "cra-example",
+      integrator: "hexa-lite",
+      fee: 0.01,
       variant: "expandable",
       insurance: true,
       containerStyle: {
@@ -167,18 +168,25 @@ function App() {
                     src={"./assets/images/logo.svg"}
                   ></IonImg>
               </IonCol>
-              <IonCol size="12" size-md="6" class="ion-text-center">
+              <IonCol size="12" size-md="7" class="ion-text-center">
                 <IonText>
                   <h1 style={{
                     fontWeight: 'bold',
-                  }}>WELCOME TO HEXA-LITE</h1>
+                    marginTop: '2rem',
+                  }}><span style={{
+                    display: 'block',
+                    fontSize: '3.5rem',
+                    lineHeight: '3.8rem',
+                    marginTop: '0.2rem',
+                  }}>HEXA LITE</span></h1>
                 </IonText>
                 <IonText color="medium">
                   <p style={{
                     lineHeight: '1.3rem',
+                    margin: '0.5rem 0 2.5rem 0',
                   }}>
                     Buy assets with fiats, exchange assets at best rate, 
-                    lend and borrow money on DeFi protocols and earn interest
+                    lend and borrow money on DeFi protocols without any intermediate smart contract to enforce security and increase earn interest.
                   </p>
                 </IonText>
               </IonCol>
@@ -289,6 +297,7 @@ function App() {
                     <>
                       <IonCol size="2" class="ion-padding ion-text-start">
                         <div
+                          onClick={() => handleSegmentChange({detail: {value: 'welcome'}})}
                           style={{ position: "relative", display: "inline-block" }}
                         >
                           <IonImg
