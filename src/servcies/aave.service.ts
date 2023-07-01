@@ -150,8 +150,7 @@ export const withdraw = async(ops: {
     reserve: reserve.underlyingAsset,
     amount,
     aTokenAddress: reserve.aTokenAddress,
-    onBehalfOf,
-    useOptimizedPath: true,
+    onBehalfOf
   });
 
   const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(

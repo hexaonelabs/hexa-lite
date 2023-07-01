@@ -387,14 +387,6 @@ export const DefiContainer = () => {
       if (reserve.symbol === "WETH") {
         logo = `./assets/icons/weth.svg`;
       }
-      console.log("[INFO] {{DefiContainer}} : ", {
-        symbol: reserve.symbol,
-        borrowBalance,
-        borrowBalanceUsd: borrowBalance * (borrowPriceUsd||0),
-        supplyBalance,
-        supplyBalanceUsd: supplyBalance * (supplyPriceUsd||0),
-        logo,
-      });
       
       return {
         ...reserve,
