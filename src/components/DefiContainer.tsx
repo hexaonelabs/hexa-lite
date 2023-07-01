@@ -439,7 +439,7 @@ export const DefiContainer = () => {
     <IonGrid class="ion-padding">
       <IonRow class="ion-padding">
         <IonCol size="12" class="ion-text-center ion-padding">
-          <IonSpinner color="primary"></IonSpinner>
+          <IonSpinner></IonSpinner>
         </IonCol>
       </IonRow>
     </IonGrid>
