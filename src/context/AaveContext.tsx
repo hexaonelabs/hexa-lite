@@ -111,6 +111,8 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
     const sampleProvider = new ethers.providers.JsonRpcProvider(
       "https://rpc.ankr.com/eth"
     );
+    console.log("[INFO] {{AAVEService}} fetchUserSummary... ", market);
+    
     if (!market) {
       setState(((prev) => ({
         ...prev, 
@@ -144,6 +146,13 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         ...state,
         refresh: async () => {
+          let t = undefined;
+          await new Promise((resolve) => {
+            t = setTimeout(resolve, 10000);
+            
+          });
+          console.log("[INFO] {{AAVEService}} refresh... ");
+          clearTimeout(t);
           const chainId = await getNetwork();
           const markets = await fetchMarkets(chainId);
           await fetchPools(markets);

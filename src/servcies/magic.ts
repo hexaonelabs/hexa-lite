@@ -18,9 +18,13 @@ const getRPCNodeOptions = () => {
     {
       rpcUrl: 'https://rpc.ankr.com/polygon_mumbai',
       chainId: 80001
+    },
+    {
+      rpcUrl: 'https://rpc.ankr.com/optimism',
+      chainId: 10
     }
   ];
-  const defaultChainId = 1;
+  const defaultChainId = 10;
   const {chainId = defaultChainId} = (window as any)?.ethereum||{};
   console.log(`[INFO] {getRPCNodeOptions} - chainId: `, chainId||defaultChainId);
   const chainIdAsDecimal = Number(BigInt(chainId||defaultChainId).toString());

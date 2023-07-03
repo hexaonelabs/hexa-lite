@@ -69,30 +69,15 @@ const formatCurrencyValue = (
   return "$" + result.toFixed(2);
 };
 
-// const getWalletBalanceAndPriceUsd = (reserve: ReserveDataHumanized & FormatReserveUSDResponse, asset: IAsset[]): {
-//   balance: number;
-//   priceInUSD: number;
-// } => {
-//   const { symbol, aTokenAddress, underlyingAsset } = reserve;
-//   const assetBalance = asset.find((token) => token.symbol === symbol || token.contractAddress?.toLocaleLowerCase() === aTokenAddress?.toLocaleLowerCase());
-//   const balance = assetBalance?.balance || 0;
-//   const priceInUSD = assetBalance?.priceUsd || 0;
-//   return {
-//     balance,
-//     priceInUSD,
-//   }
-// };
-
 const FormModal = ({
   onDismiss,
   selectedReserve,
-  actionType,
 }: {
-  actionType: string;
   selectedReserve: ReserveDataHumanized & { borrowBalance: number;
     borrowBalanceUsd: number;
     supplyBalance: number;
     supplyBalanceUsd: number;
+    maxAmount: number|undefined;
     logo: string;} | null;
   onDismiss: (data?: string | null | undefined | number, role?: string) => void;
 }) => {
@@ -123,23 +108,28 @@ const FormModal = ({
                   style={{fontSize: '1.5rem'}}
                   placeholder="0"
                   type="number"
-                  max={selectedReserve?.supplyBalance.toFixed(2)}
+                  max={selectedReserve?.maxAmount}
                   min={0}
                   debounce={500}
                   onIonChange={(e) => {
                     const value = e.detail.value;
-                    if (value && (Number(value) > (selectedReserve?.supplyBalance||0))) {
-                      e.target.value = selectedReserve?.supplyBalance.toFixed(2);
+                    if (selectedReserve?.maxAmount && value && (Number(value) > selectedReserve?.maxAmount)) {
+                      e.target.value = selectedReserve?.maxAmount;
                     }
                     if (value && (Number(value) < 0)) {
                       e.target.value = "0";
                     }
                   }}
                 />
-                <span>
+                <span style={{cursor: 'pointer'}} onClick={() => {
+                  const el = inputRef.current
+                  if (el) {
+                    (el as any).value = selectedReserve?.maxAmount||0;
+                  }
+                }}>
                   <small>
-                    {selectedReserve?.symbol} Max: 
-                    {selectedReserve?.supplyBalance.toFixed(4)}
+                    Max {selectedReserve?.symbol}: 
+                    {selectedReserve?.maxAmount?.toFixed(4)}
                   </small>
                 </span>
               </div>
@@ -162,7 +152,7 @@ const FormModal = ({
 };
 
 export const DefiContainer = () => {
-  const [selectedReserve, setSelectedReserve] = useState<ReserveDataHumanized | null>(null);
+  const [selectedReserve, setSelectedReserve] = useState<ReserveDataHumanized & {maxAmount: number|undefined} | null>(null);
   const {display: displayLoader, hide: hideLoader} = useLoader();
   const { user, assets } = useUser();
   const { ethereumProvider } = useEthersProvider();
@@ -172,8 +162,42 @@ export const DefiContainer = () => {
     onDismiss: (data: string, role: string) => dismiss(data, role),
   });
 
-  function handleOpenModal(type: string, reserve: ReserveDataHumanized) {
-    setSelectedReserve(reserve);
+  function handleOpenModal(type: string, reserve: ReserveDataHumanized & {
+    borrowBalance: number;
+    borrowBalanceUsd: number;
+    supplyBalance: number;
+    supplyBalanceUsd: number;
+    walletBalance: number;
+    logo: string;
+    priceInUSD: string;
+  }) {
+    
+    // calcul max amount
+    let maxAmount = undefined
+    switch (true) {
+      case type === "deposit": {
+        maxAmount = Number(reserve?.walletBalance);
+        break;
+      }
+      case type === "withdraw": {
+        maxAmount = Number(reserve?.supplyBalance);
+        break;
+      }
+      case type === "borrow": {
+        maxAmount = (Number(borrowingCapacity) - Number(totalBorrowsUsd)) / Number(reserve?.priceInUSD);
+        break;
+      }
+      case type === "repay": {
+        maxAmount = Number(reserve?.borrowBalance);
+        break
+      }
+      default:
+        break;
+
+    }
+    console.log("[INFO] maxAmount: ", {type, reserve, maxAmount});
+    
+    setSelectedReserve({...reserve, maxAmount});
     present({
       cssClass: 'modalAlert ',
       onWillDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
@@ -336,12 +360,12 @@ export const DefiContainer = () => {
   ?.filter(({ reserve: { usageAsCollateralEnabled, isIsolated }  }) => usageAsCollateralEnabled === true && isIsolated === false)
   ?.map(
     ({ reserve }) => {
-      const { aTokenAddress, decimals, variableDebtTokenAddress } = reserve;
-      const { balance: borrowBalance = 0, priceUsd: borrowPriceUsd } =
+      const { aTokenAddress, decimals, variableDebtTokenAddress, underlyingAsset } = reserve;
+      const { balance: borrowBalance = 0, priceUsd: borrowPriceUsd, balanceRawInteger } =
         assets?.find(
           ({contractAddress}) =>
             contractAddress?.toLocaleLowerCase() ===
-            variableDebtTokenAddress?.toLocaleLowerCase()
+            variableDebtTokenAddress?.toLocaleLowerCase() // underlyingAsset ??
         ) || {};
       const { balance: supplyBalance = 0, priceUsd: supplyPriceUsd} =
         assets?.find(
@@ -349,7 +373,12 @@ export const DefiContainer = () => {
             contractAddress?.toLocaleLowerCase() ===
             aTokenAddress?.toLocaleLowerCase()
         ) || {};
-
+      const { balance: walletBalance = 0 } = assets?.find(
+        ({contractAddress}) =>
+          contractAddress?.toLocaleLowerCase() ===
+          underlyingAsset?.toLocaleLowerCase()
+      ) || {};
+      
       let logo =
         "./assets/cryptocurrency-icons/" +
         reserve?.symbol?.toLowerCase() +
@@ -391,9 +420,10 @@ export const DefiContainer = () => {
       return {
         ...reserve,
         borrowBalance,
-        borrowBalanceUsd: borrowBalance * (supplyPriceUsd||0),
+        borrowBalanceUsd: borrowBalance * (borrowPriceUsd||0),
         supplyBalance,
         supplyBalanceUsd: supplyBalance * (supplyPriceUsd||0),
+        walletBalance,
         logo,
       };
     }
@@ -408,14 +438,13 @@ export const DefiContainer = () => {
     0
   )
 
-  // calcule 75% of totalCollateralUsd
-  const borrowingCapacity = totalCollateralUsd * 0.75;
+  // calcule 70% of totalCollateralUsd
+  const borrowingCapacity = totalCollateralUsd * 0.70;
 
   // calcule percentage of totalBorrowsUsd
   const percentageBorrowingCapacity = (totalBorrowsUsd / (borrowingCapacity||1)) * 100;
   const progressBarFormatedValue = Number((percentageBorrowingCapacity / 100).toFixed(2));
   let getProgressBarFormatedColor = (value: number) => {
-    console.log("[INFO] getProgressBarFormatedColor: ", value);
     let color = "primary";
     switch (true) {
       case value > 75:
@@ -432,8 +461,6 @@ export const DefiContainer = () => {
     }
     return color;
   };
-  console.log("[INFO] totalCollateralUsd : ", totalCollateralUsd);
-
 
   return !reserves || reserves.length === 0 ? (
     <IonGrid class="ion-padding">
@@ -456,8 +483,11 @@ export const DefiContainer = () => {
                 lineHeight: "1.3rem",
               }}
             >
-              Borrow assets using your crypto as collateral <br />
-              and earn interest by providing liquidity
+              <span style={{maxWidth: '600px', display: 'inline-block'}}>
+                Connect to the best DeFi liquidity protocols, 
+                borrow assets using your crypto as collateral 
+                and earn interest by providing liquidity over 
+              </span>
               <span
                 style={{
                   fontSize: "2rem",
@@ -479,78 +509,97 @@ export const DefiContainer = () => {
       <IonRow class="ion-justify-content-center">
         <IonCol class="ion-padding" size-md="12" size-lg="10" size-xl="10">
           <IonGrid class="ion-no-padding">
-            <IonRow class="ion-text-center widgetWrapper">
-              <IonCol
-                size="12"
-                size-md="4"
-                class=" ion-padding-vertical ion-margin-vertical"
-              >
-                <h3>
-                  {currencyFormat(
-                    totalCollateralUsd
-                  )}
-                </h3>
-                <IonText color="medium">
-                  <p>
-                    MY DEPOSIT BALANCE
-                    <br />
-                    <small>Used as collateral to borrow assets</small>
-                  </p>
-                </IonText>
-              </IonCol>
-              <IonCol
-                size="12"
-                size-md="4"
-                class=" ion-padding-vertical ion-margin-vertical"
-              >
-                <h3>
-                  {Number(percentageBorrowingCapacity.toFixed(2))}%
-                </h3>
-                <div className="ion-margin-horizontal">
-                  <IonProgressBar 
-                    color={getProgressBarFormatedColor(percentageBorrowingCapacity)}
-                    value={progressBarFormatedValue}></IonProgressBar>
-                </div>
-                <IonText color="medium">
-                  <p>
-                    BORROWING CAPACITY 
-                    <IonIcon 
-                      icon={informationCircleOutline}
-                      style={{
-                        transform: 'scale(0.8)',
-                        marginLeft: '0.2rem',
-                        cursor: 'pointer'
-                      }} />
-                    <br />
-                    <small>
-                    {currencyFormat(
-                    totalBorrowsUsd
-                  )} of {currencyFormat(
-                    borrowingCapacity
-                  )}
-                    </small>
-                  </p>
-                </IonText>
-              </IonCol>
-              <IonCol
-                size="12"
-                size-md="4"
-                class=" ion-padding-vertical ion-margin-vertical"
-              >
-                <h3>
-                {currencyFormat(
-                    totalBorrowsUsd
-                  )}
-                </h3>
-                <IonText color="medium">
-                  <p>
-                    MY BORROW BALANCE
-                    <br />
-                    <small>Total amount borrowed</small>
-                  </p>
-                </IonText>
-              </IonCol>
-            </IonRow>
+            {
+              user && borrowingCapacity > 0
+                ? (
+                  <IonRow class="ion-text-center widgetWrapper">
+                    <IonCol
+                      size="12"
+                      size-md="4"
+                      class=" ion-padding-vertical ion-margin-vertical"
+                    >
+                      <h3>
+                        {currencyFormat(
+                          totalCollateralUsd
+                        )}
+                      </h3>
+                      <IonText color="medium">
+                        <p>
+                          MY DEPOSIT BALANCE
+                          <br />
+                          <small>Used as collateral to borrow assets</small>
+                        </p>
+                      </IonText>
+                    </IonCol>
+                    <IonCol
+                      size="12"
+                      size-md="4"
+                      class=" ion-padding-vertical ion-margin-vertical"
+                    >
+                      <h3>
+                        {Number(percentageBorrowingCapacity.toFixed(2))}%
+                      </h3>
+                      <div className="ion-margin-horizontal">
+                        <IonProgressBar 
+                          color={getProgressBarFormatedColor(percentageBorrowingCapacity)}
+                          value={progressBarFormatedValue}></IonProgressBar>
+                      </div>
+                      <IonText color="medium">
+                        <p>
+                          BORROWING CAPACITY 
+                          <IonIcon 
+                            icon={informationCircleOutline}
+                            style={{
+                              transform: 'scale(0.8)',
+                              marginLeft: '0.2rem',
+                              cursor: 'pointer'
+                            }} />
+                          <br />
+                          <small>
+                          {currencyFormat(
+                          totalBorrowsUsd
+                        )} of {currencyFormat(
+                          borrowingCapacity
+                        )}
+                          </small>
+                        </p>
+                      </IonText>
+                    </IonCol>
+                    <IonCol
+                      size="12"
+                      size-md="4"
+                      class=" ion-padding-vertical ion-margin-vertical"
+                    >
+                      <h3>
+                      {currencyFormat(
+                          totalBorrowsUsd
+                        )}
+                      </h3>
+                      <IonText color="medium">
+                        <p>
+                          MY BORROW BALANCE
+                          <br />
+                          <small>Total amount borrowed</small>
+                        </p>
+                      </IonText>
+                    </IonCol>
+                  </IonRow>
+                )
+                : (
+                  <IonRow class="ion-text-center widgetWrapper">
+                    <IonCol
+                      size="12"
+                      class=" ion-padding ion-margin-vertical ion-text-center"
+                    >
+                      <IonText>
+                        <p>
+                          {!user ? 'Connect your wallet, deposit' : 'Deposit'}, assets as collateral to borrow assets and start earning interest
+                        </p>
+                      </IonText>
+                    </IonCol>
+                  </IonRow>
+                )
+            }
           </IonGrid>
         </IonCol>
       </IonRow>
@@ -660,6 +709,7 @@ export const DefiContainer = () => {
                             <IonButton
                               fill="solid"
                               color="primary"
+                              disabled={(!reserve?.supplyBalance||reserve.supplyBalance <= 0) ? true : false}
                               onClick={() =>
                                 handleOpenModal("withdraw", reserve)
                               }
@@ -671,6 +721,7 @@ export const DefiContainer = () => {
                             <IonButton
                               fill="solid"
                               color="primary"
+                              disabled={(!reserve?.walletBalance||reserve.walletBalance <= 0) ? true : false}
                               onClick={() =>
                                 handleOpenModal("deposit", reserve)
                               }
@@ -682,6 +733,21 @@ export const DefiContainer = () => {
                       )}
                       <IonRow>
                         <IonCol size="12">
+                          { user 
+                            ? (
+                              <IonItem style={{ "--background": "transparent" }}>
+                                <IonLabel color="medium">
+                                  Wallet balance
+                                </IonLabel>
+                                <IonText color="medium">
+                                  {formatCurrencyValue(
+                                    Number(reserve.walletBalance)
+                                  )}
+                                </IonText>
+                              </IonItem>
+                            )
+                            : (<></>)
+                          }
                           <IonItem style={{ "--background": "transparent" }}>
                             <IonLabel color="medium">
                               Liquidity protocol
@@ -833,6 +899,7 @@ export const DefiContainer = () => {
                             <IonButton
                               fill="solid"
                               color="primary"
+                              disabled={(!reserve?.borrowBalance||reserve.borrowBalance <= 0) ? true : false}
                               onClick={() => handleOpenModal("repay", reserve)}
                             >
                               Repay
@@ -842,6 +909,7 @@ export const DefiContainer = () => {
                             <IonButton
                               fill="solid"
                               color="primary"
+                              disabled={(borrowingCapacity - totalBorrowsUsd <= 0) ? true : false}
                               onClick={() => handleOpenModal("borrow", reserve)}
                             >
                               Borrow

@@ -14,8 +14,9 @@ export function Swap() {
   // load environment config
   const widgetConfig = useMemo((): WidgetConfig => {
     return {
-      integrator: "cra-example",
-      // fee: 0.01,
+      // integrator: "cra-example",
+      integrator: "hexa-lite",
+      fee: 0.01,
       variant: "expandable",
       insurance: true,
       containerStyle: {
@@ -77,9 +78,9 @@ export function Swap() {
         },
       },
       // set source chain to Polygon
-      fromChain: 1,
+      fromChain: 10,
       // set destination chain to Optimism
-      toChain: 10,
+      toChain: 1,
       // set source token to ETH (Ethereum)
       fromToken: "0x0000000000000000000000000000000000000000",
       // set source token to USDC (Optimism)
@@ -89,28 +90,28 @@ export function Swap() {
     };
   }, [initializeWeb3]);
 
-  useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const response = await fetch(
-          "https://li.quest/v1/integrators/hexa-lite"
-        );
-        const {integratorId = null} = await (response.status === 200 ? response.json() : {});
-        if (integratorId) {
-          setLifiConfig({
-            integrator: "hexa-lite",
-            fee: 0.01,
-          });
-        } else {
-          setLifiConfig({});
-        }
-      } catch (error) {
-        console.error("fetchConfig:", error);
-        setLifiConfig({});
-      }
-    };
-    fetchConfig();
-  }, []);
+  // useEffect(() => {
+  //   const fetchConfig = async () => {
+  //     try {
+  //       const response = await fetch(
+  //         "https://li.quest/v1/integrators/hexa-lite"
+  //       );
+  //       const {integratorId = null} = await (response.status === 200 ? response.json() : {});
+  //       if (integratorId) {
+  //         setLifiConfig({
+  //           integrator: "hexa-lite",
+  //           fee: 0.01,
+  //         });
+  //       } else {
+  //         setLifiConfig({});
+  //       }
+  //     } catch (error) {
+  //       console.error("fetchConfig:", error);
+  //       setLifiConfig({});
+  //     }
+  //   };
+  //   fetchConfig();
+  // }, []);
 
   return (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
@@ -139,18 +140,7 @@ export function Swap() {
               paddingBottom: "10rem",
             }}
           >
-            {
-              !lifiConfig
-                ? <div className="ion-text-center">
-                    <IonSpinner name="lines" />
-                  </div>
-                : <LiFiWidget config={{
-                  ...widgetConfig,
-                  ...lifiConfig,
-                }} integrator="hexa-lite" />
-
-            }
-            
+            <LiFiWidget config={widgetConfig} integrator="hexa-lite" />
           </div>
         </IonCol>
       </IonRow>
