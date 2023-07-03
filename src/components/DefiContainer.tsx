@@ -161,7 +161,6 @@ export const DefiContainer = () => {
     selectedReserve,
     onDismiss: (data: string, role: string) => dismiss(data, role),
   });
-
   function handleOpenModal(type: string, reserve: ReserveDataHumanized & {
     borrowBalance: number;
     borrowBalanceUsd: number;
@@ -363,20 +362,23 @@ export const DefiContainer = () => {
       const { aTokenAddress, decimals, variableDebtTokenAddress, underlyingAsset } = reserve;
       const { balance: borrowBalance = 0, priceUsd: borrowPriceUsd, balanceRawInteger } =
         assets?.find(
-          ({contractAddress}) =>
+          ({contractAddress, chain = {}}) =>
             contractAddress?.toLocaleLowerCase() ===
             variableDebtTokenAddress?.toLocaleLowerCase() // underlyingAsset ??
+            && chain?.id === markets?.CHAIN_ID
         ) || {};
       const { balance: supplyBalance = 0, priceUsd: supplyPriceUsd} =
         assets?.find(
-          ({contractAddress}) =>
+          ({contractAddress, chain = {}}) =>
             contractAddress?.toLocaleLowerCase() ===
             aTokenAddress?.toLocaleLowerCase()
+            && chain?.id === markets?.CHAIN_ID
         ) || {};
       const { balance: walletBalance = 0 } = assets?.find(
-        ({contractAddress}) =>
+        ({contractAddress, chain = {}}) =>
           contractAddress?.toLocaleLowerCase() ===
           underlyingAsset?.toLocaleLowerCase()
+          && chain?.id === markets?.CHAIN_ID
       ) || {};
       
       let logo =
