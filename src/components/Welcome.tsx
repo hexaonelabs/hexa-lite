@@ -49,9 +49,9 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                 margin: "0.5rem 0 2.5rem 0",
               }}
             >
-              Buy assets with fiats, exchange assets at best rate, lend
-              and borrow money on DeFi protocols without any intermediate
-              smart contract to enforce security and increase earn
+              Buy digitals assets with fiats, exchange at best rate, lend
+              and borrow money on DeFi protocols without any intermediate 
+              smart contract or third-party to enforce security and increase earn
               interest.
             </p>
           </IonText>
@@ -84,8 +84,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
           </IonText>
           <IonText>
             <p>
-              Hexa Lite allow you to manage your digitals assets across
-              DeFi with ease and security
+              Onboard on Web3 to take full controls of your portfolio.
             </p>
           </IonText>
         </IonCol>
@@ -118,7 +117,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
               EVM-Compatible Chains
             </h3>
             <p>
-              Hexa Lite support 9 EVM-Compatible blockchain such as
+              Hexa Lite support 20 EVM-Compatible blockchain such as
               Ethereum, Polygon, Binance Smart Chain, Optimism, Arbitrum,
               etc. without have to care about how to manage networks
               changes.
