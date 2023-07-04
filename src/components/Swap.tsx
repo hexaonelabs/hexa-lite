@@ -42,8 +42,11 @@ export function Swap() {
           // },
         },
       },
+      languages: {
+        default: "en",
+      },
       appearance: "dark",
-      hiddenUI: [HiddenUI.Appearance, HiddenUI.Language, HiddenUI.PoweredBy],
+      hiddenUI: [HiddenUI.Appearance, HiddenUI.PoweredBy, HiddenUI.Language],
       walletManagement: {
         connect: async () => {
           try {
