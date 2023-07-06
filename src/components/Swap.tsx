@@ -1,16 +1,11 @@
 import { IonCol, IonGrid, IonRow, IonSpinner, IonText } from "@ionic/react";
 import { HiddenUI, LiFiWidget, WidgetConfig } from "@lifi/widget";
 import { useEffect, useMemo, useState } from "react";
-import { magic } from "../servcies/magic";
+import { getMagic } from "../servcies/magic";
 import { useEthersProvider } from "../context/Web3Context";
 
 export function Swap() {
   const { initializeWeb3 } = useEthersProvider();
-
-  // create state that contains `integrator` and `fee` config for LiFi widget
-  // and set default value to `undefined` and `undefined` as initial value: `{}`
-  // then fetch the result access api to get the config fro LiFi using useEffect()
-  const [lifiConfig, setLifiConfig] = useState<Partial<WidgetConfig>|null>(null);
   // load environment config
   const widgetConfig = useMemo((): WidgetConfig => {
     return {
@@ -50,6 +45,7 @@ export function Swap() {
       walletManagement: {
         connect: async () => {
           try {
+            const magic = await getMagic();
             // Try to connect to the wallet using Magic's user interface
             await magic.wallet.connectWithUI();
 
@@ -70,6 +66,7 @@ export function Swap() {
         },
         disconnect: async () => {
           try {
+            const magic = await getMagic();
             // Try to disconnect the user's wallet using Magic's logout method
             await magic.user.logout();
             // After successful disconnection, re-initialize the Web3 instance
@@ -81,9 +78,9 @@ export function Swap() {
         },
       },
       // set source chain to Polygon
-      fromChain: 10,
+      fromChain: 137,
       // set destination chain to Optimism
-      toChain: 1,
+      toChain: 10,
       // set source token to ETH (Ethereum)
       fromToken: "0x0000000000000000000000000000000000000000",
       // set source token to USDC (Optimism)

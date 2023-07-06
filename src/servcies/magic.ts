@@ -1,6 +1,12 @@
+import { InstanceWithExtensions, MagicSDKExtensionsOption, SDKBase } from "@magic-sdk/provider";
 import { Magic } from "magic-sdk";
 
-const getRPCNodeOptions = () => {
+const getRPCNodeOptions = async () => {
+  let t;
+  await new Promise((resolve) => {
+    t = setTimeout(resolve, 1000);
+  });
+  clearTimeout(t);
   const MAINNET_RPC_URL = 'https://rpc.ankr.com/eth';
   const RPC_NODE_OPTIONS = [
     {
@@ -35,10 +41,18 @@ const getRPCNodeOptions = () => {
   return nodeOps;
 }
 
-export const magic = new Magic(
-  `${process.env?.REACT_APP_ONBOARD_APIKEY}`, 
-  {
-  network: getRPCNodeOptions(), // 'mainnet', // or your own custom node url in the format of { rpcUrl: string chainId: number }
-  // extensions: [new WebAuthnExtension()],
+let _magic: InstanceWithExtensions<SDKBase, MagicSDKExtensionsOption<string>>|undefined = undefined;
+export const getMagic = async (forceInit?: boolean) => {
+  if (!_magic || forceInit) {
+    const magic = new Magic(
+      `${process.env?.REACT_APP_ONBOARD_APIKEY}`, 
+      {
+      network: await getRPCNodeOptions(), // 'mainnet', // or your own custom node url in the format of { rpcUrl: string chainId: number }
+      // extensions: [new WebAuthnExtension()],
+      }
+    );
+    _magic = magic;
+    return magic;
   }
-);
+  return _magic;
+}

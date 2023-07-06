@@ -15,7 +15,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { magic } from '../servcies/magic';
+import { getMagic } from '../servcies/magic';
 import { useEthersProvider } from './Web3Context';
 
 
@@ -97,6 +97,7 @@ export const WalletProvider: React.FC<PropsWithChildren<{}>> = ({
     // }
     try {
       // Try to connect to the wallet using Magic's user interface
+      const magic = await getMagic();
       await magic.wallet.connectWithUI()
 
       // If connection to the wallet was successful, initialize new Web3 instance

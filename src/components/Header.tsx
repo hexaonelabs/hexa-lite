@@ -67,7 +67,7 @@ export function Header({
                <></>
             ) : (
               <>
-              <IonCol size="2" class="ion-padding ion-text-start">
+              <IonCol size="auto" class="ion-padding ion-text-start">
                 <div
                   onClick={() =>
                     handleSegmentChange({ detail: { value: "welcome" } })
@@ -85,7 +85,12 @@ export function Header({
                   <IonChip style={styleChip}>beta</IonChip>
                 </div>
               </IonCol>
-              <IonCol size="8" class="ion-padding ion-hide-md-down">
+              <IonCol size="auto" style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)'
+              }} class="ion-padding ion-hide-md-down">
                 <IonSegment
                   style={{ maxWidth: "550px" }}
                   mode="ios"
@@ -103,7 +108,7 @@ export function Header({
                 </IonSegment>
               </IonCol>
               <IonCol
-                size="2"
+                size="auto"
                 class="ion-padding ion-text-end ion-hide-md-down"
               >
                 <AuthBadge user={user} />

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { magic } from "../servcies/magic";
+import { getMagic } from "../servcies/magic";
 import { ethers } from "ethers";
 
 // Define the structure of the Web3 context state
@@ -27,9 +27,19 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
   const initializeWeb3 = async () => {
     console.log(`[INFO] {{Web3Context}} initializeWeb3()`);
     // Get the provider from the Magic instance
+    const magic = await getMagic(true);
     const onboardProvider = await magic.wallet.getProvider();
     // Create a new instance of Web3 with the provider
     const provider = new ethers.providers.Web3Provider(onboardProvider, "any");
+    provider.on("network", (newNetwork, oldNetwork) => {
+      console.log(`[INFO] {{Web3Context}} initializeWeb3() network changed`, {newNetwork, oldNetwork});
+      // When a Provider makes its initial connection, it emits a "network"
+      // event with a null oldNetwork along with the newNetwork. So, if the
+      // oldNetwork exists, it represents a changing network
+      if (oldNetwork) {
+          window.location.reload();
+      }
+  });
     // Save the instance to state
     setEthersProvider(provider);
     return provider;

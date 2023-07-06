@@ -17,6 +17,8 @@ import { useUser } from "../context/UserContext";
 import { getAvatarFromEVMAddress } from "../servcies/avatar";
 import ConnectButton from "./ConnectButton";
 import DisconnectButton from "./DisconnectButton";
+import { useEthersProvider } from "../context/Web3Context";
+import { CHAIN_AVAILABLES } from "../constants/chains";
 
 const styleFixed = {
   // position: "fixed",
@@ -87,7 +89,18 @@ const copyAccountAddressToClipboard = (address: string) => {};
 export const AuthBadge = ({ user }: { user: string | null }) => {
   // use local state to store the avatar url
   const [avatarUrl, setAvatarUrl] = useState("");
+  const { ethereumProvider } = useEthersProvider();
   // use user address to get the avatar url using getAvatarFromEVMAddress()
+
+  const getChainData = (chainId: number) => {
+    console.log('>>>>>> chainId', chainId);
+    
+    const chain = CHAIN_AVAILABLES.find((chain) => chain.id === chainId);
+    return {
+      ...chain
+    };
+  };
+
   useEffect(() => {
     const getAvatar = async () => {
       if (!user) return;
@@ -106,46 +119,21 @@ export const AuthBadge = ({ user }: { user: string | null }) => {
   const [diss] = useIonAlert();
   const disconnect = () => {
     
-    // present confirmation alert 
-    // if confirmed, disconnect
-  
   };
-  // const [present, dismiss] = useIonPopover(PopoverBadge, {
-  //   onDismiss: (data: any, role: string) => dismiss(data, role),
-  // });
-  // const [roleMsg, setRoleMsg] = useState('');
 
-  return user ? (
-    <>
-      {/* <IonButton 
-        id="profil-trigger" 
-        mode="ios" 
-        style={styleBtn}
-        onClick={(e: any) =>
-          // present({
-          //   event: e,
-          //   onDidDismiss: (e: CustomEvent) => setRoleMsg(`Popover dismissed with role: ${e.detail.role}`),
-          // })
-          disconnect()
-        }>
-        <IonIcon src="./assets/images/logo-colored.svg"></IonIcon>
-        <IonImg style={styleImg} src={avatarUrl}></IonImg>
-      </IonButton>
-      <IonPopover
-        className="profil-popover"
-        trigger="profil-trigger"
-        size="auto"
-        side="bottom"
-        alignment="start"
-        keepContentsMounted={true}
-        dismissOnSelect={false}
-        triggerAction="click"
-      >
+  const chain = getChainData(ethereumProvider?.network?.chainId || 137);
+  const NetworkButton = (
+    <IonButton disabled={true} style={{opacity: 1}} fill="clear" className="ion-hide-lg-down" >
+      <IonIcon src={chain.logo}></IonIcon>
+    </IonButton>
+  );
 
-      </IonPopover> */}
-    <DisconnectButton style={styleFixed} />
-    </>
-  ) : (
-    <ConnectButton style={styleFixed} />
+  return (
+    user
+        ? <>
+            {NetworkButton}
+            <DisconnectButton style={styleFixed} />
+          </>
+        : <ConnectButton style={styleFixed} />
   );
 };

@@ -10,7 +10,7 @@ import {
   useIonToast,
 } from "@ionic/react";
 import { useEthersProvider } from "../context/Web3Context";
-import { magic } from "../servcies/magic";
+import { getMagic } from "../servcies/magic";
 import { useWallet } from "@lifi/widget";
 import React, { useEffect, useRef, useState } from "react";
 import { useUser } from "../context/UserContext";
@@ -112,6 +112,7 @@ const DisconnectButton = (props: {
   const handleDisconnect = async () => {
     try {
       // Try to disconnect the user's wallet using Magic's logout method
+      const magic = await getMagic();
       await magic.user.logout();
       // After successful disconnection, re-initialize the Web3 instance
       initializeWeb3();

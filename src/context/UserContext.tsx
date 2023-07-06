@@ -51,9 +51,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   // Function to retrieve and set user's account.
   const fetchUserAccount = async () => {
     // Use 'ethers' to get user's accounts.
-    const accounts = await ethereumProvider?.listAccounts();
-    // Update the user state with the first account (if available), otherwise set to null.
-    return accounts ? accounts[0] : null;
+    try {      
+      const accounts = await ethereumProvider?.listAccounts();
+      // Update the user state with the first account (if available), otherwise set to null.
+      return accounts ? accounts[0] : null;
+    } catch (error) {
+      return null;
+    }
   }
 
   const fetchUserAssets = async (user: string) => {
@@ -67,6 +71,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Run fetchUserAccount function whenever the web3 instance changes.
   useEffect(() => {
+    if (!ethereumProvider) return;
     fetchUserAccount()
       .then(async (user) => {
         const assets = user ?  await fetchUserAssets(user) : null;

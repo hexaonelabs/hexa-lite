@@ -60,6 +60,7 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const fetchMarkets = async (chainId: number) => {
+    console.log("[INFO] {{AAVEService}} fetchMarkets: ", chainId);    
     // get markets
     const markets = getMarkets(chainId);
     setState((prev) => ({

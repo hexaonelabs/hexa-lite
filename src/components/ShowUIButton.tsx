@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react"
-import { magic } from "../servcies/magic";
+import { getMagic } from "../servcies/magic";
 import { IonButton } from "@ionic/react";
 
 const ShowUIButton = () => {
@@ -10,6 +10,7 @@ const ShowUIButton = () => {
   // Define a function to check the type of the wallet
   const checkWalletType = async () => {
     try {
+      const magic = await getMagic();
       const provider = await magic?.wallet.getProvider();
       console.log(provider);
       const isMagicProvider = provider.isMagicProvider;
@@ -35,12 +36,14 @@ const ShowUIButton = () => {
 
   useEffect(() => {
     // Call the checkWalletType function
-    checkWalletType()
-  }, [magic])
+    checkWalletType();
+    return () => {}
+  }, [])
 
   // Define the event handler for the button click
   const handleShowUI = async () => {
     try {
+      const magic = await getMagic();
       // Try to show the magic wallet user interface
       await magic?.wallet.showUI()
     } catch (error) {

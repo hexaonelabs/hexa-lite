@@ -1,6 +1,6 @@
 
 import { useEthersProvider } from "../context/Web3Context"
-import { magic } from "../servcies/magic"
+import { getMagic } from "../servcies/magic"
 import { IonButton } from "@ionic/react"
 
 const ConnectButton = (props: {
@@ -13,6 +13,7 @@ const ConnectButton = (props: {
   // Define the event handler for the button click
   const handleConnect = async () => {
     try {
+      const magic = await getMagic();
       // Try to connect to the wallet using Magic's user interface
       await magic.wallet.connectWithUI()
 

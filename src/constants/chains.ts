@@ -4,6 +4,7 @@ export interface IChain {
   value: string;
   name: string;
   nativeSymbol?: string;
+  logo?: string;
 };
 
 export const CHAIN_AVAILABLES: IChain[] = [
@@ -11,44 +12,50 @@ export const CHAIN_AVAILABLES: IChain[] = [
     id: 1,
     value: 'eth',
     name: 'Ethereum',
-    nativeSymbol: 'ETH'
+    nativeSymbol: 'ETH',
+    logo: '/assets/cryptocurrency-icons/eth.svg'
   },
   {
     id: 56,
     value: 'bsc',
     name: 'Binance smart chain',
-    nativeSymbol: 'BNB'
+    nativeSymbol: 'BNB',
+    logo: '/assets/cryptocurrency-icons/bnb.svg'    
   },
-  {
-    id: 250,
-    value: 'fantom',
-    name: 'Fantom',
-    nativeSymbol: 'FTM'
-  },
-  {
-    id: 43114,
-    value: 'avalanche',
-    name: 'Avalanche',
-    nativeSymbol: 'AVAX'
-  },
+  // {
+  //   id: 250,
+  //   value: 'fantom',
+  //   name: 'Fantom',
+  //   nativeSymbol: 'FTM',
+  //   logo: '/assets/cryptocurrency-icons/eth.svg'
+  // },
+  // {
+  //   id: 43114,
+  //   value: 'avalanche',
+  //   name: 'Avalanche',
+  //   nativeSymbol: 'AVAX'
+  // },
   {
     id: 137,
     value: 'polygon',
     name: 'Polygon',
-    nativeSymbol: 'MATIC'
+    nativeSymbol: 'MATIC',
+    logo: '/assets/cryptocurrency-icons/matic.svg'
   },
-  {
-    id: 42161,
-    value: 'arbitrum',
-    name: 'Arbitrum',
-    nativeSymbol: 'ARB'
-  },
+  // {
+  //   id: 42161,
+  //   value: 'arbitrum',
+  //   name: 'Arbitrum',
+  //   nativeSymbol: 'ARB'
+  // },
   {
     id: 10,
     value: 'optimism',
     name: 'Optimism',
-    nativeSymbol: 'ETH'
+    nativeSymbol: 'ETH',
+    logo: '/assets/icons/op.svg'
   },
+  // testnets
   {
     id: 5,
     value: 'eth_goerli',

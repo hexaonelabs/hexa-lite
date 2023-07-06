@@ -38,7 +38,7 @@ export function Fiat() {
                 overflow: "hidden",
                 display: "inline-block",
               }}
-              src="https://buy.onramper.com?themeName=dark&cardColor=1c2b42&borderRadius=12px"
+              src="https://buy.onramper.com?themeName=dark&cardColor=1c2b42&borderRadius=12px&defaultCrypto=MATIC_POLYGON"
               title="Onramper Widget"
               height="630px"
               width="450px"
