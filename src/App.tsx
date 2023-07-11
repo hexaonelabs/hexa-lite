@@ -51,13 +51,13 @@ function App() {
       case "welcome":
         return <Welcome handleSegmentChange={handleSegmentChange} />;
       case "swap":
-        return <Swap></Swap>;
+        return <Swap />;
       case "fiat":
-        return (<Fiat></Fiat>);
+        return (<Fiat />);
       case "defi":
         return (
           <AaveProvider>
-            <DefiContainer></DefiContainer>
+            <DefiContainer handleSegmentChange={handleSegmentChange} />
           </AaveProvider>
         );
       default:

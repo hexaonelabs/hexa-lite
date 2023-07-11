@@ -1,7 +1,7 @@
 import { IonCol, IonGrid, IonRow, IonSpinner, IonText } from "@ionic/react";
 import { HiddenUI, LiFiWidget, WidgetConfig } from "@lifi/widget";
 import { useEffect, useMemo, useState } from "react";
-import { getMagic } from "../servcies/magic";
+import { connect, disconnect, getMagic } from "../servcies/magic";
 import { useEthersProvider } from "../context/Web3Context";
 
 export function Swap() {
@@ -45,10 +45,7 @@ export function Swap() {
       walletManagement: {
         connect: async () => {
           try {
-            const magic = await getMagic();
-            // Try to connect to the wallet using Magic's user interface
-            await magic.wallet.connectWithUI();
-
+            await connect();
             // If connection to the wallet was successful, initialize new Web3 instance
             const provider = await initializeWeb3();
             const signer = provider?.getSigner();
@@ -66,9 +63,7 @@ export function Swap() {
         },
         disconnect: async () => {
           try {
-            const magic = await getMagic();
-            // Try to disconnect the user's wallet using Magic's logout method
-            await magic.user.logout();
+            await disconnect();
             // After successful disconnection, re-initialize the Web3 instance
             initializeWeb3();
           } catch (error) {
@@ -88,7 +83,7 @@ export function Swap() {
       // // set source token amount to 10 USDC (Polygon)
       // fromAmount: 10,
     };
-  }, [initializeWeb3]);
+  }, []);
 
   // useEffect(() => {
   //   const fetchConfig = async () => {

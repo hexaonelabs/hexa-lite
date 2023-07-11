@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useEthersProvider } from "./Web3Context";
-import { FormatReserveUSDResponse, FormatUserSummaryAndIncentivesResponse, FormatUserSummaryResponse, formatReserves } from "@aave/math-utils";
+import { FormatReserveUSDResponse, FormatUserSummaryAndIncentivesResponse, FormatUserSummaryResponse, formatReserves, formatReservesAndIncentives } from "@aave/math-utils";
 import {
   ReserveDataHumanized,
   UiPoolDataProvider,
@@ -12,6 +12,22 @@ import { useUser } from "./UserContext";
 import { MARKETTYPE, getMarkets, getPools, getUserSummary } from "../servcies/aave.service";
 
 
+
+export type ComputedReserveData = ReturnType<typeof formatReservesAndIncentives>[0] &
+ReserveDataHumanized & {
+  iconSymbol: string;
+  isEmodeEnabled: boolean;
+  isWrappedBaseAsset: boolean;
+};
+
+export type ExtendedFormattedUser = FormatUserSummaryAndIncentivesResponse<ComputedReserveData> & {
+  earnedAPY: number;
+  debtAPY: number;
+  netAPY: number;
+  isInEmode: boolean;
+  userEmodeCategoryId: number;
+};
+
 const stub = (): never => {
   throw new Error("You forgot to wrap your component in <AaveProvider>.");
 };
@@ -22,6 +38,7 @@ type AaveContextType = {
   poolReserves: (ReserveDataHumanized & FormatReserveUSDResponse)[] | null;
   userSummary: FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse> | null;
   totalTVL: number | null;
+  // user: ExtendedFormattedUser|null;
   refresh: () => Promise<void>;
 };
 
@@ -30,6 +47,7 @@ const AaveContextDefault: AaveContextType = {
   poolReserves: null,
   userSummary: null,
   totalTVL: null,
+  // user: null,
   refresh: stub,
 };
 

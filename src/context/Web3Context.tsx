@@ -39,7 +39,7 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
       if (oldNetwork) {
           window.location.reload();
       }
-  });
+    });
     // Save the instance to state
     setEthersProvider(provider);
     return provider;
@@ -48,6 +48,7 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
   // Effect to initialize Web3 when the component mounts
   useEffect(() => {
     initializeWeb3();
+    return () => {};
   }, []);
 
   return (

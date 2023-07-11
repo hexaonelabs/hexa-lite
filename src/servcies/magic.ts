@@ -44,10 +44,11 @@ const getRPCNodeOptions = async () => {
 let _magic: InstanceWithExtensions<SDKBase, MagicSDKExtensionsOption<string>>|undefined = undefined;
 export const getMagic = async (forceInit?: boolean) => {
   if (!_magic || forceInit) {
+    const network = await getRPCNodeOptions();// 'mainnet', // or your own custom node url in the format of { rpcUrl: string chainId: number }
     const magic = new Magic(
       `${process.env?.REACT_APP_ONBOARD_APIKEY}`, 
       {
-      network: await getRPCNodeOptions(), // 'mainnet', // or your own custom node url in the format of { rpcUrl: string chainId: number }
+        network, 
       // extensions: [new WebAuthnExtension()],
       }
     );
@@ -55,4 +56,25 @@ export const getMagic = async (forceInit?: boolean) => {
     return magic;
   }
   return _magic;
+}
+
+export const connect = async (ops?: {email: string}) => {
+  const magic = await getMagic();
+  if (ops?.email) {
+    const {email} = ops;
+    await magic.auth.loginWithEmailOTP({email, showUI: true});
+    const user = await magic.user.getInfo();
+    return user.publicAddress;
+  } else {
+    const magic = await getMagic();
+    // Try to connect to the wallet using Magic's user interface
+    const address = await magic.wallet.connectWithUI();
+    return address[0];
+  }
+}
+
+export const disconnect = async () => { 
+  // Try to disconnect the user's wallet using Magic's logout method
+  const magic = await getMagic();
+  return await magic.user.logout();
 }
