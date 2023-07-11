@@ -2,7 +2,7 @@
 > Buy assets with fiats, exchange assets at best rate, lend and borrow money on DeFi protocols and earn interest
 
 ## Project Description
-Hexa Lite is an open-source, non-custodial, decentralized finance (DeFi) platform service aggregator that allows users to buy assets with fiats, exchange assets at best rate, lend and borrow money on DeFi protocols and earn interest with custom farming strategies. Hexa Lite is built on top of latest web technologie and use the best API to interract with major EVM compatible blockchains such as Ethereum, Binance Smart Chain, Polygon, Optimism or Arbitrum and provides a simple and secure interface for users to interact with DeFi protocols and services without intermediates smart contracts or third-party services and without the need to leave the platform.
+Hexa Lite is an open-source, non-custodial, decentralized finance (DeFi) platform service aggregator that allows users to onboard with blockchain and buy assets with fiats, exchange assets at best rate, lend and borrow money on DeFi protocols and earn interest with custom farming strategies. Hexa Lite is built on top of latest web technologie and use the best API to interract with major EVM compatible blockchains such as Ethereum, Binance Smart Chain, Polygon, Optimism or Arbitrum and provides a simple and secure interface for users to interact with DeFi protocols and services without intermediates smart contracts or third-party services and without the need to leave the platform.
 
 ## Value Proposition
 Hexa Lite is frictionless, secure, and reliable for everyone to use and enjoy the benefits of blockchain technology & DeFi services without the need to understand the complexity of the underlying technology and protocols involved or the web3 onboarding with the need to manage private keys or seed phrases. 
@@ -17,15 +17,18 @@ Hexa Lite is frictionless, secure, and reliable for everyone to use and enjoy th
 
 ## 🚀 Features
 
-- Buy assets with fiats: Users can buy assets with fiats using Credit Card, Debit Card, [Google Pay](https://pay.google.com/intl/en_us/about/) or [Apple Pay](https://www.apple.com/apple-pay/).
+- [x] <b>Frictionless Onboarding:</b> Users can create an account and start using the platform in less than 30 seconds without the need to manage private keys or seed phrases.
 
-- Exchange assets at best rate: Users can exchange assets at best rate that is available on the market and can select the best rate from multiple DEXs and liquidity pools across multiple blockchains.
+- [x] <b>Buy assets with fiats:</b> Users can buy assets with fiats using Credit Card, Debit Card, [Google Pay](https://pay.google.com/intl/en_us/about/) or [Apple Pay](https://www.apple.com/apple-pay/).
 
-- Lend and borrow money on DeFi protocols: Users can lend and borrow money on DeFi protocols and earn interest with by providing liquidity to lending pools from multiple liquidity providers across multiple blockchains.
+- [x] <b>Exchange assets at best rate:</b> Users can exchange assets at best rate that is available on the market and can select the best rate from multiple DEXs and liquidity pools across multiple blockchains.
 
-- Earn interest with liquide staking: Users can earn interest with liquide staking by providing liquidity to staking pools from multiple liquidity providers across multiple blockchains.
+- [x] <b>Lend and borrow money on DeFi protocols:</b> Users can lend and borrow money on DeFi protocols and earn interest with by providing liquidity to lending pools from multiple liquidity providers across multiple blockchains.
 
-- Custom farming strategies: Users can create custom farming strategies by combining multiple DeFi protocols and services to earn interest with their assets.
+- [ ] <b>WIP - Earn interest with liquide staking:</b> Users can earn interest with liquide staking by providing liquidity to staking pools from multiple liquidity providers across multiple blockchains.
+
+- [ ] <b>WIP - Custom farming strategies:</b> Users can create custom farming strategies by combining multiple DeFi protocols and services to earn interest with their assets.
+
 
 ## 🛠️ Technology Stack
 - [ReactJS](https://reactjs.org/)
