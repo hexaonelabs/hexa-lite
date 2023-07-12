@@ -41,7 +41,7 @@ setupIonicReact({
 function App() {
 
   // use state to handle segment change
-  const [currentSegment, setSegment] = useState("welcome");
+  const [currentSegment, setSegment] = useState("defi");
   const handleSegmentChange = (e: any) => {
     setSegment(e.detail.value);
   };

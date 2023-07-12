@@ -22,6 +22,7 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
   // State variable to hold an instance of Web3
   const [ethereumProvider, setEthersProvider] =
     useState<ethers.providers.Web3Provider | null>(null);
+  const [chainId, setChainId] = useState<number >(137);
 
   // Initialize Web3
   const initializeWeb3 = async () => {
@@ -31,6 +32,8 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
     const onboardProvider = await magic.wallet.getProvider();
     // Create a new instance of Web3 with the provider
     const provider = new ethers.providers.Web3Provider(onboardProvider, "any");
+    // const network = await provider.getNetwork();
+
     provider.on("network", (newNetwork, oldNetwork) => {
       console.log(`[INFO] {{Web3Context}} initializeWeb3() network changed`, {newNetwork, oldNetwork});
       // When a Provider makes its initial connection, it emits a "network"
@@ -55,7 +58,7 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
     <Web3Context.Provider
       value={{
         ethereumProvider,
-        initializeWeb3,
+        initializeWeb3
       }}
     >
       {children}

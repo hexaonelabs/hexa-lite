@@ -16,6 +16,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useUser } from "../context/UserContext";
 import { copyOutline, closeSharp } from "ionicons/icons";
 import { getAvatarFromEVMAddress } from "../servcies/avatar";
+import ShowUIButton from "./ShowUIButton";
 
 const splitAddress = (address: string) => {
   return address.slice(0, 6) + "..." + address.slice(-4);
@@ -45,13 +46,13 @@ function DisconnectPopover({
   const handleActions = async (type: string, payload: string) => {
     if (type === "copy") {
       navigator?.clipboard?.writeText(payload);
+      // display toast confirmation
+      await present({
+        message: `Copy to clipboard`,
+        duration: 5000,
+        color: "success",
+      });
     }
-    // display toast confirmation
-    await present({
-      message: `Copy to clipboard`,
-      duration: 5000,
-      color: "success",
-    });
   }
 
   return (
@@ -78,7 +79,12 @@ function DisconnectPopover({
               icon={copyOutline}
               style={{cursor: 'pointer'}} />
           </IonItem>
+
+
           <div className="ion-padding">
+            <div className="ion-text-center" style={{padding: '0.5rem 0'}}>
+              <ShowUIButton />
+            </div>
             <IonButton
               style={{cursor: 'pointer'}}
               expand="block"

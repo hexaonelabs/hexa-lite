@@ -3,8 +3,15 @@ import { ethers } from "ethers";
 import { splitSignature } from 'ethers/lib/utils';
 import lendingPoolABI from '../abi/aavePool.abi.json';
 import * as MARKETS from "@bgd-labs/aave-address-book";
-import { FormatReserveUSDResponse, formatReserves, formatUserSummary, formatUserSummaryAndIncentives } from "@aave/math-utils";
+import { FormatReserveUSDResponse, formatReserves, formatReservesAndIncentives, formatUserSummary, formatUserSummaryAndIncentives } from "@aave/math-utils";
 import { ChainId } from '@aave/contract-helpers';
+
+export const fetchTVL = async () => {
+  const response = await fetch("https://api.llama.fi/tvl/aave");
+  const data = await response.json();
+  console.log("[INFO] {{AAVEService}} fetchTVL: ", data);
+  return data;
+};
 
 export const supply = async(ops: {
   provider: ethers.providers.Web3Provider;
@@ -313,25 +320,23 @@ export const getMarkets = (chainId: number) => {
 export const getPools = async (ops: {
   provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
+  currentTimestamp: number;
 }) => {
-  const { provider, market } = ops;
-  // get current network id from ethter provider
-  const network = (await provider?.getNetwork()) || { chainId: 1 };
-  // get id
-  const networkId = network?.chainId;
+  const { provider, market, currentTimestamp } = ops;
+  const chainId = market.CHAIN_ID;
   // View contract used to fetch all reserves data (including market base currency data), and user reserves
   const poolDataProviderContract = new UiPoolDataProvider({
     uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
     provider,
-    chainId: networkId,
+    chainId,
   });
   const reserves = await poolDataProviderContract.getReservesHumanized({
     lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
   });
   const reservesArray = reserves.reservesData;
   const baseCurrencyData = reserves.baseCurrencyData;
-  const currentTimestamp = Date.now();
-
+  // console.log('>>>>> reserves: ', reserves);
+  
   const formattedPoolReserves = formatReserves({
     reserves: reservesArray,
     currentTimestamp,
@@ -340,28 +345,30 @@ export const getPools = async (ops: {
     marketReferencePriceInUsd:
       baseCurrencyData.marketReferenceCurrencyPriceInUsd,
   });
+
+  // formatReservesAndIncentives({
+  //   reserves: reservesArray,
+  //   currentTimestamp,
+  //   marketReferenceCurrencyDecimals: baseCurrencyData.marketReferenceCurrencyDecimals,
+  //   marketReferencePriceInUsd: baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+  //   reserveIncentives: reserveIncentiveData || [],
+  // })
   return formattedPoolReserves;
 }
 
 export const getUserSummary = async (ops: {
   provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
+  user: string,
+  currentTimestamp: number;
 })=> {
-  const { provider, market } = ops;
+  const { provider, market, user, currentTimestamp } = ops;
   // get current network id from ethter provider
-  const network = (await provider?.getNetwork()) || { chainId: 1 };
-  // get id
-  const networkId = network?.chainId;
-  // get current user account using provider signer
-  const signer = provider.getSigner();
-  const user = await signer?.getAddress().catch(err => null);
-  if (!user) {
-    return null;
-  }
+  const chainId = market.CHAIN_ID;
   const poolDataProviderContract = new UiPoolDataProvider({
     uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
     provider,
-    chainId: networkId,
+    chainId,
   });
   const reserves = await poolDataProviderContract.getReservesHumanized({
     lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
@@ -374,8 +381,6 @@ export const getUserSummary = async (ops: {
   const reservesArray = reserves.reservesData;
   const baseCurrencyData = reserves.baseCurrencyData;
   const userReservesArray = userReserves.userReserves;
-  const currentTimestamp = Date.now();
-
   const formattedPoolReserves = formatReserves({
     reserves: reservesArray,
     currentTimestamp,
@@ -411,20 +416,20 @@ export const getUserSummary = async (ops: {
 export const getContractData = async (ops: {
   provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
+  user: string;
 })=> {
   const { 
     provider,
     market,
+    user,
   } = ops;
-  const signer = provider.getSigner();
-  const user = await signer?.getAddress().catch(err => null);
 
   // View contract used to fetch all reserves data (including market base currency data), and user reserves
   // Using Aave V3 Eth Mainnet address for demo
   const poolDataProviderContract = new UiPoolDataProvider({
     uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
     provider,
-    chainId: ChainId.mainnet,
+    chainId: market.CHAIN_ID,
   });
 
   // View contract used to fetch all reserve incentives (APRs), and user incentives
@@ -474,12 +479,10 @@ const getWalletBalance = async (ops: {
   provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
   user: string|null;
+  currentTimestamp: number;
 })=> {
-    const { provider, market, user } = ops;
-    // get current network id from ethter provider
-    const network = (await provider?.getNetwork()) || { chainId: 1 };
-    // get id
-    const networkId = network?.chainId;
+    const { provider, market, user, currentTimestamp } = ops;
+    const networkId = market.CHAIN_ID;
     // View contract used to fetch all reserves data (including market base currency data), and user reserves
     const poolDataProviderContract = new UiPoolDataProvider({
       uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
@@ -491,7 +494,6 @@ const getWalletBalance = async (ops: {
     });
     const reservesArray = reserves.reservesData;
     const baseCurrencyData = reserves.baseCurrencyData;
-    const currentTimestamp = Date.now();
 
     const formattedPoolReserves = formatReserves({
       reserves: reservesArray,
@@ -501,12 +503,6 @@ const getWalletBalance = async (ops: {
       marketReferencePriceInUsd:
         baseCurrencyData.marketReferenceCurrencyPriceInUsd,
     });
-
-    // const userReserves = await poolDataProviderContract.getUserReservesHumanized({
-    //   lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
-    //   user,
-    // });
-
 
     console.log(
       "[INFO] {{AAVEService}} formattedPoolReserves: ",
@@ -560,13 +556,14 @@ const getWalletBalance = async (ops: {
 export const getUserSummaryAndIncentives = async (ops: {
   provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
+  currentTimestamp: number;
+  user: string;
 }) => {
-
+  const { currentTimestamp } = ops;
   const {reserveIncentives, reserves, userIncentives, userReserves } = await getContractData(ops);
   if (!userReserves || !userIncentives ) {
     return null;
   }
-  const currentTimestamp = Date.now();
   const reservesArray = reserves.reservesData;
   const baseCurrencyData = reserves.baseCurrencyData;
   const userReservesArray = userReserves.userReserves;

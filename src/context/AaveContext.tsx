@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useEthersProvider } from "./Web3Context";
-import { FormatReserveUSDResponse, FormatUserSummaryAndIncentivesResponse, FormatUserSummaryResponse, formatReserves, formatReservesAndIncentives } from "@aave/math-utils";
+import {
+  FormatReserveUSDResponse,
+  FormatUserSummaryAndIncentivesResponse,
+  FormatUserSummaryResponse,
+  formatReserves,
+  formatReservesAndIncentives,
+} from "@aave/math-utils";
 import {
   ReserveDataHumanized,
   UiPoolDataProvider,
@@ -9,24 +15,32 @@ import {
 import { ethers } from "ethers";
 
 import { useUser } from "./UserContext";
-import { MARKETTYPE, getMarkets, getPools, getUserSummary } from "../servcies/aave.service";
+import {
+  MARKETTYPE,
+  fetchTVL,
+  getMarkets,
+  getPools,
+  getUserSummary,
+} from "../servcies/aave.service";
+import { useCurrentTimestamp } from "../hooks/useCurrentTimestamp";
 
+export type ComputedReserveData = ReturnType<
+  typeof formatReservesAndIncentives
+>[0] &
+  ReserveDataHumanized & {
+    iconSymbol: string;
+    isEmodeEnabled: boolean;
+    isWrappedBaseAsset: boolean;
+  };
 
-
-export type ComputedReserveData = ReturnType<typeof formatReservesAndIncentives>[0] &
-ReserveDataHumanized & {
-  iconSymbol: string;
-  isEmodeEnabled: boolean;
-  isWrappedBaseAsset: boolean;
-};
-
-export type ExtendedFormattedUser = FormatUserSummaryAndIncentivesResponse<ComputedReserveData> & {
-  earnedAPY: number;
-  debtAPY: number;
-  netAPY: number;
-  isInEmode: boolean;
-  userEmodeCategoryId: number;
-};
+export type ExtendedFormattedUser =
+  FormatUserSummaryAndIncentivesResponse<ComputedReserveData> & {
+    earnedAPY: number;
+    debtAPY: number;
+    netAPY: number;
+    isInEmode: boolean;
+    userEmodeCategoryId: number;
+  };
 
 const stub = (): never => {
   throw new Error("You forgot to wrap your component in <AaveProvider>.");
@@ -36,7 +50,9 @@ const stub = (): never => {
 type AaveContextType = {
   markets: MARKETTYPE | null;
   poolReserves: (ReserveDataHumanized & FormatReserveUSDResponse)[] | null;
-  userSummary: FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse> | null;
+  userSummary: FormatUserSummaryAndIncentivesResponse<
+    ReserveDataHumanized & FormatReserveUSDResponse
+  > | null;
   totalTVL: number | null;
   // user: ExtendedFormattedUser|null;
   refresh: () => Promise<void>;
@@ -60,105 +76,83 @@ export const useAave = () => useContext(AaveContext);
 // Provider component that wraps parts of the app that need user context.
 export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   const { ethereumProvider } = useEthersProvider();
-  const [ state, setState ] = useState<AaveContextType>(AaveContextDefault);
-
-  // const [ markets, setMarkets ] = useState<MARKETTYPE | null>(null);
-  // const [ poolReserves, setPoolReserves ] = useState<(ReserveDataHumanized & FormatReserveUSDResponse)[] | null>(null);
-  // const [ totalTVL, setTotalTVL ] = useState<number | null>(null);
-
-  const fetchTVL = async () => {
-    const response = await fetch('https://api.llama.fi/tvl/aave');
-    const data = await response.json();
-    console.log("[INFO] {{AAVEService}} fetchTVL: ", data);
-    setState((prev) => ({
-      ...prev,
-      totalTVL: data
-    }));
-    return data;
-  };
-
-  const fetchMarkets = async (chainId: number) => {
-    console.log("[INFO] {{AAVEService}} fetchMarkets: ", chainId);    
-    // get markets
-    const markets = getMarkets(chainId);
-    setState((prev) => ({
-      ...prev,
-      markets
-    }));
-    return markets;
-  };
-  
-  // Function to retrieve and set user's account.
-  const fetchPools = async (market?: MARKETTYPE | null) => {
-    const sampleProvider = new ethers.providers.JsonRpcProvider(
-      "https://rpc.ankr.com/eth"
-    );
-    if (!market) {
-      setState(((prev) => ({
-        ...prev, 
-        markets: null,
-        poolReserves: null
-      })));
-      return;
-    }
-    const formattedPoolReserves = await getPools({
-      provider: ethereumProvider || sampleProvider,
-      market
-    });
-    console.log("[INFO] {{AAVEService}} fetchPools: ", formattedPoolReserves);
-    setState(((prev) => ({
-      ...prev, 
-      poolReserves: formattedPoolReserves
-    })));
-  };
-
-  // build getNetwork promise with default value 1 (mainnet)
-  const getNetwork = async () => await new Promise(async (resolve: (value: number) => void, reject) => {
-    try {
-      if (ethereumProvider) {
-        const network = await ethereumProvider.getNetwork();
-        resolve(network.chainId);
-      } else {
-        resolve(1);
-      }
-    } catch (error: any) {
-      reject(error as Error)
-    }
-  });
-
-  const fetchUserSummary = async (market?: MARKETTYPE | null) => {
-    const sampleProvider = new ethers.providers.JsonRpcProvider(
-      "https://rpc.ankr.com/eth"
-    );
-    console.log("[INFO] {{AAVEService}} fetchUserSummary... ", market);
-    
-    if (!market) {
-      setState(((prev) => ({
-        ...prev, 
-        userSummary: null
-      })));
-      return;
-    }
-    const userSummary = await getUserSummary({
-      provider: ethereumProvider || sampleProvider,
-      market
-    });
-    console.log("[INFO] {{AAVEService}} fetchUserSummary: ", userSummary);
-    setState(((prev) => ({
-      ...prev, 
-      userSummary
-    })));
-  };
+  const { user } = useUser();
+  const currentTimestamp = useCurrentTimestamp(5);
+  const [state, setState] = useState<AaveContextType>(AaveContextDefault);
 
   useEffect(() => {
-    fetchTVL()
-      .then(() => getNetwork())
-      .then((chainId: number) => fetchMarkets(chainId))
-      .then((m) => fetchPools(m))
-      .then(() => fetchUserSummary(state.markets));
-    return () => {
-    };
-  }, [ethereumProvider]);
+    if (ethereumProvider?.network?.chainId) {
+      const markets = getMarkets(ethereumProvider.network.chainId);
+      setState((prev) => ({
+        ...prev,
+        markets,
+      }));
+    }
+
+    const promises = [];
+    promises.push(
+      fetchTVL().then((tvl) => {
+        setState((prev) => ({
+          ...prev,
+          totalTVL: tvl,
+        }));
+        return { tvl };
+      })
+    );
+    if (ethereumProvider && state.markets) {
+      promises.push(
+        getPools({
+          provider: ethereumProvider,
+          market: state.markets,
+          currentTimestamp,
+        })
+        .then((poolReserves) => {
+          setState((prev) => ({
+            ...prev,
+            poolReserves,
+          }));
+          return { poolReserves };
+        })
+        .catch((error) => {
+          console.error("[ERROR] {{AAVEService}} fetchPools: ", error);
+          setState((prev) => ({
+            ...prev,
+            poolReserves: null,
+          }));
+        })
+      );
+    }
+    if (ethereumProvider && state.markets && user) {
+      promises.push(
+        getUserSummary({
+          provider: ethereumProvider,
+          market: state.markets,
+          user,
+          currentTimestamp,
+        })
+          .then(userSummary =>  {
+            setState((prev) => ({
+              ...prev,
+              userSummary,
+            }));
+            return { userSummary };
+          })
+          .catch((error) => {
+            console.error("[ERROR] {{AAVEService}} fetchUserSummary: ", error);
+            setState((prev) => ({
+              ...prev,
+              userSummary: null,
+            }));
+          })
+      );
+    }
+    Promise
+      .all(promises)
+      .then((results) => {
+        console.log("[INFO] {{AAVEService}} fetchPools done", { results });
+      });
+    return () => {};
+  }, [ethereumProvider, user, state.markets]);
 
   return (
     <AaveContext.Provider
@@ -168,15 +162,15 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
           let t = undefined;
           await new Promise((resolve) => {
             t = setTimeout(resolve, 10000);
-            
           });
           console.log("[INFO] {{AAVEService}} refresh... ");
           clearTimeout(t);
-          const chainId = await getNetwork();
-          const markets = await fetchMarkets(chainId);
-          await fetchPools(markets);
-          await fetchUserSummary(markets);
-        }
+          throw new Error("Not implemented");
+          // const chainId = await getNetwork();
+          // const markets = await fetchMarkets(chainId);
+          // await fetchPools(markets);
+          // await fetchUserSummary(user, markets);
+        },
       }}
     >
       {children}

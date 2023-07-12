@@ -129,11 +129,13 @@ export const AuthBadge = ({ user }: { user: string | null }) => {
   );
 
   return (
-    user
-        ? <>
-            {NetworkButton}
-            <DisconnectButton style={styleFixed} />
-          </>
-        : <ConnectButton style={styleFixed} />
+    <>
+      {NetworkButton}
+      {
+        user
+          ? <DisconnectButton style={styleFixed} />
+          : <ConnectButton style={styleFixed} />
+      }
+    </>
   );
 };

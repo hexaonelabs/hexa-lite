@@ -1,20 +1,23 @@
 
 import { useEffect, useState } from "react"
 import { getMagic } from "../servcies/magic";
-import { IonButton } from "@ionic/react";
+import { IonButton, IonSpinner } from "@ionic/react";
 
 const ShowUIButton = () => {
   // Initialize state variable to decide whether to show button or not
-  const [showButton, setShowButton] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const [showButton, setShowButton] = useState(false);
 
   // Define a function to check the type of the wallet
   const checkWalletType = async () => {
     try {
+      setIsLoading(true);
       const magic = await getMagic();
       const provider = await magic?.wallet.getProvider();
       console.log(provider);
-      const isMagicProvider = provider.isMagicProvider;
+      const isMagicProvider = provider.isMagicProvider|| provider.isMagic;
       if (!isMagicProvider) {
+        setIsLoading(false);
         setShowButton(false);
         return;
       }
@@ -27,10 +30,12 @@ const ShowUIButton = () => {
       const isMagicWallet = walletInfo.walletType === "magic"
 
       // Set 'showButton' state based on the result of the check
-      setShowButton(isMagicWallet)
+      setIsLoading(false);
+      setShowButton(isMagicWallet);
     } catch (error) {
       // Log any errors that occur during the wallet type check process
       console.error("checkWalletType:", error)
+      setIsLoading(false);
     }
   }
 
@@ -53,7 +58,11 @@ const ShowUIButton = () => {
   }
 
   // Render the button component if showButton is true, otherwise render nothing
-  return showButton ? <IonButton onClick={handleShowUI}>Show UI</IonButton> : null
+  return isLoading 
+    ? <IonSpinner name="dots" />
+    : showButton
+      ? <IonButton expand="block" fill="outline" onClick={handleShowUI}>Wallet overview</IonButton>
+      : null
 }
 
 export default ShowUIButton

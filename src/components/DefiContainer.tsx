@@ -445,16 +445,28 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
       if (reserve.symbol === "rETH") {
         logo = `./assets/icons/reth.svg`;
       }
+      if (reserve.symbol === "DPI") {
+        logo = `./assets/icons/dpi.svg`;
+      }
+      if (reserve.symbol === "MaticX") {
+        logo = `./assets/icons/maticx.svg`;
+      }
+      if (reserve.symbol === "MAI") {
+        logo = `./assets/icons/mai.svg`;
+      }
+      if (reserve.symbol === "sUSD") {
+        logo = `./assets/icons/susd.svg`;
+      }
       if (reserve.symbol === "WETH") {
         logo = `./assets/icons/weth.svg`;
       }
       
       const supplyPoolRatioInPercent = getPercent(
-        (valueToBigNumber(reserve.totalLiquidityUSD).toNumber() - valueToBigNumber(reserve.totalDebtUSD).toNumber()),
+        valueToBigNumber(reserve.totalLiquidityUSD).toNumber(),
         valueToBigNumber(reserve.supplyCapUSD).toNumber()
       );
       const borrowPoolRatioInPercent = getPercent(
-        valueToBigNumber(reserve.formattedAvailableLiquidity).toNumber(),
+        valueToBigNumber(reserve.totalDebtUSD).toNumber(),
         valueToBigNumber(reserve.borrowCapUSD).toNumber()
       );
       return {
@@ -816,17 +828,16 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                                   : "var(--ion-color-danger)",
                                 trailColor: "rgba(var(--ion-color-primary-rgb), 0.2)",
                               })}
-                             
                               value={reserve.supplyPoolRatioInPercent} >
-                                <div>
-                                  <h3>{`${reserve.supplyPoolRatioInPercent.toFixed(2)}%`}</h3>
-                                  <IonText color="medium">
-                                    <small>
-                                      Total deposit
-                                    </small>
-                                  </IonText>
-                                </div>
-                              </CircularProgressbarWithChildren>
+                              <div>
+                                <h3>{`${reserve.supplyPoolRatioInPercent.toFixed(2)}%`}</h3>
+                                <IonText color="medium">
+                                  <small>
+                                    Total deposit
+                                  </small>
+                                </IonText>
+                              </div>
+                            </CircularProgressbarWithChildren>
                           </div>
                         </IonCol>
                         <IonCol size="6" class="ion-padding ion-text-center">
@@ -873,9 +884,9 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                             </div>
                           </IonItem>
                         </IonCol> */}
-                        <IonCol size="6">
+                        <IonCol size="6" class="ion-padding">
                           <IonItem lines="none" style={{ "--background": "transparent" }}>
-                            <IonLabel class="ion-text-start">
+                            <IonLabel class="ion-text-center">
                               Deposit liquidity
                             </IonLabel>
                           </IonItem>
@@ -921,7 +932,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                                 symbol="USD"
                               /> */}
                               {formatCurrencyValue(
-                                valueToBigNumber(reserve.totalLiquidityUSD).toNumber() - valueToBigNumber(reserve.totalDebtUSD).toNumber()
+                                valueToBigNumber(reserve.totalLiquidityUSD).toNumber()
                               )}
                             </IonText>
                           </IonItem>
@@ -939,9 +950,9 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                             </IonText>
                           </IonItem>
                         </IonCol>
-                        <IonCol size="6">
+                        <IonCol size="6" class="ion-padding">
                           <IonItem lines="none" style={{ "--background": "transparent" }}>
-                            <IonLabel class="ion-text-start">
+                            <IonLabel class="ion-text-center">
                               Borrow liquidity
                             </IonLabel>
                           </IonItem>
@@ -967,11 +978,11 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                           </IonItem>
                           <IonItem style={{ "--background": "transparent" }}>
                             <IonLabel color="medium">
-                              Available liquidity
+                              Debit liquidity
                             </IonLabel>
                             <IonText color="medium">
                               {formatCurrencyValue(
-                                Number(reserve.formattedAvailableLiquidity)
+                                Number(reserve.totalDebtUSD)
                               )}
                               {/* {formatCurrencyValue(+reserve.totalLiquidityUSD)} */}
                               {/* <FormattedNumber
@@ -1000,13 +1011,13 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
 
                       {!user ? (
                         <IonRow class="ion-justify-content-center ion-align-item-center ion-padding-vertical">
-                          <IonCol size="auto" class="ion-margin-bottom">
+                          <IonCol size="auto" class="ion-margin-bottom ion-padding-vertical">
                             <ConnectButton></ConnectButton>
                           </IonCol>
                         </IonRow>
                       ) : (
-                        <IonRow class="ion-justify-content-center ion-text-start ion-padding-vertical">
-                          <IonCol size="6" class="ion-padding-start">
+                        <IonRow class="ion-justify-content-center ion-padding-vertical">
+                          <IonCol size="6" class="ion-padding-horizontal ion-text-center">
                             {
                               (!reserve?.supplyBalance||reserve.supplyBalance <= 0)
                                 ? (<>
@@ -1062,7 +1073,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                             }
                             
                           </IonCol>
-                          <IonCol size="6" class="ion-padding-start">
+                          <IonCol size="6" class="ion-padding-horizontal ion-text-center">
 
                             <IonButton
                               fill="solid"
