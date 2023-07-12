@@ -108,9 +108,10 @@ ion-popover.profil-popover {
 
 .modalAlert {
   --width: fit-content;
-  --min-width: 250px;
+  --min-width: 350px;
   --max-width: 650px;
   --height: fit-content;
+  --border-radius: 32px;
   
   // --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
   padding: 2rem;

@@ -1,10 +1,26 @@
-import { EthereumTransactionTypeExtended, InterestRate, Pool, PoolBaseCurrencyHumanized, ReserveDataHumanized, UiIncentiveDataProvider, UiPoolDataProvider, UserReserveData, WalletBalanceProvider } from "@aave/contract-helpers";
+import {
+  EthereumTransactionTypeExtended,
+  InterestRate,
+  Pool,
+  PoolBaseCurrencyHumanized,
+  ReserveDataHumanized,
+  UiIncentiveDataProvider,
+  UiPoolDataProvider,
+  UserReserveData,
+  WalletBalanceProvider,
+} from "@aave/contract-helpers";
 import { ethers } from "ethers";
-import { splitSignature } from 'ethers/lib/utils';
-import lendingPoolABI from '../abi/aavePool.abi.json';
+import { splitSignature } from "ethers/lib/utils";
+import lendingPoolABI from "../abi/aavePool.abi.json";
 import * as MARKETS from "@bgd-labs/aave-address-book";
-import { FormatReserveUSDResponse, formatReserves, formatReservesAndIncentives, formatUserSummary, formatUserSummaryAndIncentives } from "@aave/math-utils";
-import { ChainId } from '@aave/contract-helpers';
+import {
+  FormatReserveUSDResponse,
+  formatReserves,
+  formatReservesAndIncentives,
+  formatUserSummary,
+  formatUserSummaryAndIncentives,
+} from "@aave/math-utils";
+import { ChainId } from "@aave/contract-helpers";
 
 export const fetchTVL = async () => {
   const response = await fetch("https://api.llama.fi/tvl/aave");
@@ -13,7 +29,7 @@ export const fetchTVL = async () => {
   return data;
 };
 
-export const supply = async(ops: {
+export const supply = async (ops: {
   provider: ethers.providers.Web3Provider;
   reserve: ReserveDataHumanized;
   amount: string;
@@ -21,7 +37,8 @@ export const supply = async(ops: {
   poolAddress: string;
   gatewayAddress: string;
 }) => {
-  const { provider, reserve, amount, onBehalfOf, poolAddress, gatewayAddress } = ops;
+  const { provider, reserve, amount, onBehalfOf, poolAddress, gatewayAddress } =
+    ops;
   const pool = new Pool(provider, {
     POOL: poolAddress,
     WETH_GATEWAY: gatewayAddress,
@@ -37,7 +54,7 @@ export const supply = async(ops: {
     amount,
     onBehalfOf,
   });
-  console.log('txs: ', txs);
+  console.log("txs: ", txs);
   const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(
     txs.map(async (tx) => {
       const txResponse = await submitTransaction({
@@ -47,11 +64,11 @@ export const supply = async(ops: {
       return txResponse;
     })
   );
-  console.log('result: ', txResponses);
-  return await Promise.all(txResponses.map(tx => tx.wait()));
-}
+  console.log("result: ", txResponses);
+  return await Promise.all(txResponses.map((tx) => tx.wait()));
+};
 
-export const supplyWithPermit = async(ops: {
+export const supplyWithPermit = async (ops: {
   provider: ethers.providers.Web3Provider;
   reserve: ReserveDataHumanized;
   amount: string;
@@ -59,9 +76,8 @@ export const supplyWithPermit = async(ops: {
   poolAddress: string;
   gatewayAddress: string;
 }) => {
-  const {
-    provider, reserve, amount, onBehalfOf, poolAddress, gatewayAddress
-  } = ops;
+  const { provider, reserve, amount, onBehalfOf, poolAddress, gatewayAddress } =
+    ops;
   const pool = new Pool(provider, {
     POOL: poolAddress,
     WETH_GATEWAY: gatewayAddress,
@@ -72,12 +88,13 @@ export const supplyWithPermit = async(ops: {
   const network = await provider.getNetwork();
   const tokenAdress = reserve.underlyingAsset;
   // create timestamp of 10 minutes from now
-  const deadline = `${new Date().setMinutes(new Date().getMinutes() + 10)}`
+  const deadline = `${new Date().setMinutes(new Date().getMinutes() + 10)}`;
 
   const isNotTestnet = network.chainId !== 5 && network.chainId !== 80001;
-  const havePermitConfig = permitByChainAndToken[network.chainId]?.[tokenAdress]||false;
+  const havePermitConfig =
+    permitByChainAndToken[network.chainId]?.[tokenAdress] || false;
   if (!havePermitConfig && isNotTestnet) {
-    console.log('no permit config');
+    console.log("no permit config");
     const txReceipts = await supply(ops);
     return txReceipts;
   }
@@ -87,14 +104,14 @@ export const supplyWithPermit = async(ops: {
     amount,
     deadline,
   });
-  console.log('dataToSign: ', dataToSign);
-  
-  const signature = await provider.send('eth_signTypedData_v4', [
+  console.log("dataToSign: ", dataToSign);
+
+  const signature = await provider.send("eth_signTypedData_v4", [
     user,
     dataToSign,
   ]);
-  console.log('signature: ', signature);
-  
+  console.log("signature: ", signature);
+
   const txs: EthereumTransactionTypeExtended[] = await pool.supplyWithPermit({
     user,
     reserve: tokenAdress,
@@ -103,7 +120,7 @@ export const supplyWithPermit = async(ops: {
     onBehalfOf,
     deadline,
   });
-  console.log('txs: ', txs);
+  console.log("txs: ", txs);
 
   const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(
     txs.map(async (tx) => {
@@ -114,13 +131,13 @@ export const supplyWithPermit = async(ops: {
       return txResponse;
     })
   );
-  console.log('result: ', txResponses);
+  console.log("result: ", txResponses);
 
-  const txReceipts = await Promise.all(txResponses.map(tx => tx.wait()));
+  const txReceipts = await Promise.all(txResponses.map((tx) => tx.wait()));
   return txReceipts;
-}
+};
 
-export const withdraw = async(ops: {
+export const withdraw = async (ops: {
   provider: ethers.providers.Web3Provider;
   reserve: ReserveDataHumanized;
   amount: string;
@@ -128,14 +145,8 @@ export const withdraw = async(ops: {
   poolAddress: string;
   gatewayAddress: string;
 }) => {
-  const {
-    provider,
-    reserve,
-    amount,
-    onBehalfOf,
-    poolAddress,
-    gatewayAddress,
-  } = ops;
+  const { provider, reserve, amount, onBehalfOf, poolAddress, gatewayAddress } =
+    ops;
 
   const pool = new Pool(provider, {
     POOL: poolAddress,
@@ -157,7 +168,7 @@ export const withdraw = async(ops: {
     reserve: reserve.underlyingAsset,
     amount,
     aTokenAddress: reserve.aTokenAddress,
-    onBehalfOf
+    onBehalfOf,
   });
 
   const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(
@@ -167,13 +178,13 @@ export const withdraw = async(ops: {
         tx,
       });
       return txResponse;
-    }
-  ));
-  console.log('result: ', txResponses);
-  return await Promise.all(txResponses.map(tx => tx.wait()));
-}
+    })
+  );
+  console.log("result: ", txResponses);
+  return await Promise.all(txResponses.map((tx) => tx.wait()));
+};
 
-export const borrow = async(ops: {
+export const borrow = async (ops: {
   provider: ethers.providers.Web3Provider;
   reserve: ReserveDataHumanized;
   amount: string;
@@ -181,22 +192,16 @@ export const borrow = async(ops: {
   poolAddress: string;
   gatewayAddress: string;
 }) => {
-  const {
-    provider,
-    reserve,
-    amount,
-    onBehalfOf,
-    poolAddress,
-    gatewayAddress,
-  } = ops;
+  const { provider, reserve, amount, onBehalfOf, poolAddress, gatewayAddress } =
+    ops;
 
   const pool = new Pool(provider, {
     POOL: poolAddress,
     WETH_GATEWAY: gatewayAddress,
   });
 
-  console.log('pool: ', pool);
-  
+  console.log("pool: ", pool);
+
   const signer = provider.getSigner();
   const currentAccount = await signer?.getAddress();
 
@@ -204,11 +209,10 @@ export const borrow = async(ops: {
     user: currentAccount,
     reserve: reserve.underlyingAsset,
     amount,
-    onBehalfOf: onBehalfOf || currentAccount, 
+    onBehalfOf: onBehalfOf || currentAccount,
     interestRateMode: InterestRate.Variable,
   });
-  console.log('txs: ', txs);
-
+  console.log("txs: ", txs);
 
   const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(
     txs.map(async (tx) => {
@@ -217,15 +221,15 @@ export const borrow = async(ops: {
         tx,
       });
       return txResponse;
-    }
-  ));
-  console.log('result: ', txResponses);
+    })
+  );
+  console.log("result: ", txResponses);
 
-  const txReceipts = await Promise.all(txResponses.map(tx => tx.wait()));
-  return txReceipts;  
-}
+  const txReceipts = await Promise.all(txResponses.map((tx) => tx.wait()));
+  return txReceipts;
+};
 
-export const repay = async(ops: {
+export const repay = async (ops: {
   provider: ethers.providers.Web3Provider;
   reserve: ReserveDataHumanized;
   amount: string;
@@ -233,22 +237,16 @@ export const repay = async(ops: {
   poolAddress: string;
   gatewayAddress: string;
 }) => {
-  const {
-    provider,
-    reserve,
-    amount,
-    onBehalfOf,
-    poolAddress,
-    gatewayAddress,
-  } = ops;
+  const { provider, reserve, amount, onBehalfOf, poolAddress, gatewayAddress } =
+    ops;
 
   const pool = new Pool(provider, {
     POOL: poolAddress,
     WETH_GATEWAY: gatewayAddress,
   });
 
-  console.log('pool: ', pool);
-  
+  console.log("pool: ", pool);
+
   const signer = provider.getSigner();
   const currentAccount = await signer?.getAddress();
 
@@ -259,7 +257,7 @@ export const repay = async(ops: {
     interestRateMode: InterestRate.Variable,
     onBehalfOf,
   });
-  console.log('txs: ', txs);
+  console.log("txs: ", txs);
 
   const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(
     txs.map(async (tx) => {
@@ -268,18 +266,18 @@ export const repay = async(ops: {
         tx,
       });
       return txResponse;
-    }
-  ));
-  console.log('result: ', txResponses);
+    })
+  );
+  console.log("result: ", txResponses);
 
-  const txReceipts = await Promise.all(txResponses.map(tx => tx.wait()));
+  const txReceipts = await Promise.all(txResponses.map((tx) => tx.wait()));
   return txReceipts;
-}
+};
 
 export const submitTransaction = async (ops: {
-  provider: ethers.providers.Web3Provider,  // Signing transactions requires a wallet provider
-  tx: EthereumTransactionTypeExtended
-}) =>{
+  provider: ethers.providers.Web3Provider; // Signing transactions requires a wallet provider
+  tx: EthereumTransactionTypeExtended;
+}) => {
   const { provider, tx } = ops;
   const extendedTxData = await tx.tx();
   const { from, ...txData } = extendedTxData;
@@ -290,7 +288,7 @@ export const submitTransaction = async (ops: {
     // value: txData.value ? BigNumber.from(txData.value) : undefined,
   });
   return txResponse;
-}
+};
 
 export const getMarkets = (chainId: number) => {
   switch (true) {
@@ -330,63 +328,54 @@ export const getPools = async (ops: {
     provider,
     chainId,
   });
-  const reserves = await poolDataProviderContract.getReservesHumanized({
-    lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
-  });
-  const reservesArray = reserves.reservesData;
-  const baseCurrencyData = reserves.baseCurrencyData;
-  // console.log('>>>>> reserves: ', reserves);
-  
-  const formattedPoolReserves = formatReserves({
-    reserves: reservesArray,
-    currentTimestamp,
-    marketReferenceCurrencyDecimals:
-      baseCurrencyData.marketReferenceCurrencyDecimals,
-    marketReferencePriceInUsd:
-      baseCurrencyData.marketReferenceCurrencyPriceInUsd,
-  });
+  const { reservesData: reserves, baseCurrencyData } =
+    await poolDataProviderContract.getReservesHumanized({
+      lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
+    });
+  const {
+    marketReferenceCurrencyDecimals,
+    marketReferenceCurrencyPriceInUsd: marketReferencePriceInUsd,
+  } = baseCurrencyData;
 
-  // formatReservesAndIncentives({
-  //   reserves: reservesArray,
-  //   currentTimestamp,
-  //   marketReferenceCurrencyDecimals: baseCurrencyData.marketReferenceCurrencyDecimals,
-  //   marketReferencePriceInUsd: baseCurrencyData.marketReferenceCurrencyPriceInUsd,
-  //   reserveIncentives: reserveIncentiveData || [],
-  // })
+  const formattedPoolReserves = formatReserves({
+    reserves,
+    currentTimestamp,
+    marketReferenceCurrencyDecimals,
+    marketReferencePriceInUsd,
+  });
   return formattedPoolReserves;
-}
+};
 
 export const getUserSummary = async (ops: {
   provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
-  user: string,
+  user: string;
   currentTimestamp: number;
-})=> {
+}) => {
   const { provider, market, user, currentTimestamp } = ops;
-  // get current network id from ethter provider
   const chainId = market.CHAIN_ID;
   const poolDataProviderContract = new UiPoolDataProvider({
     uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
     provider,
     chainId,
   });
-  const reserves = await poolDataProviderContract.getReservesHumanized({
-    lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
-  });
-  const userReserves = await poolDataProviderContract.getUserReservesHumanized({
-    lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
-    user,
-  });
+  const { baseCurrencyData, reservesData: reserves } =
+    await poolDataProviderContract.getReservesHumanized({
+      lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
+    });
+  const { userReserves, userEmodeCategoryId } =
+    await poolDataProviderContract.getUserReservesHumanized({
+      lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
+      user,
+    });
 
-  const reservesArray = reserves.reservesData;
-  const baseCurrencyData = reserves.baseCurrencyData;
-  const userReservesArray = userReserves.userReserves;
   const formattedPoolReserves = formatReserves({
-    reserves: reservesArray,
+    reserves,
     currentTimestamp,
     marketReferenceCurrencyDecimals:
       baseCurrencyData.marketReferenceCurrencyDecimals,
-    marketReferencePriceInUsd: baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+    marketReferencePriceInUsd:
+      baseCurrencyData.marketReferenceCurrencyPriceInUsd,
   });
 
   /*
@@ -398,31 +387,24 @@ export const getUserSummary = async (ops: {
   */
   const userSummary = formatUserSummary({
     currentTimestamp,
-    marketReferencePriceInUsd: baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+    marketReferencePriceInUsd:
+      baseCurrencyData.marketReferenceCurrencyPriceInUsd,
     marketReferenceCurrencyDecimals:
       baseCurrencyData.marketReferenceCurrencyDecimals,
-    userReserves: userReservesArray,
+    userReserves,
     formattedReserves: formattedPoolReserves,
-    userEmodeCategoryId: userReserves.userEmodeCategoryId,
+    userEmodeCategoryId: userEmodeCategoryId,
   });
-  console.log('userSummary: ', userSummary);
-
-  const userSummaryAndIncentives = await getUserSummaryAndIncentives(ops);
-  console.log('userSummaryAndIncentives: ', userSummaryAndIncentives);
-
-  return userSummaryAndIncentives;
-}
+  console.log(`[INFO] {{AAVEService}} userSummary: `, {userSummary});
+  return userSummary;
+};
 
 export const getContractData = async (ops: {
   provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
   user: string;
-})=> {
-  const { 
-    provider,
-    market,
-    user,
-  } = ops;
+}) => {
+  const { provider, market, user } = ops;
 
   // View contract used to fetch all reserves data (including market base currency data), and user reserves
   // Using Aave V3 Eth Mainnet address for demo
@@ -435,8 +417,7 @@ export const getContractData = async (ops: {
   // View contract used to fetch all reserve incentives (APRs), and user incentives
   // Using Aave V3 Eth Mainnet address for demo
   const incentiveDataProviderContract = new UiIncentiveDataProvider({
-    uiIncentiveDataProviderAddress:
-      market.UI_INCENTIVE_DATA_PROVIDER,
+    uiIncentiveDataProviderAddress: market.UI_INCENTIVE_DATA_PROVIDER,
     provider,
     chainId: ChainId.mainnet,
   });
@@ -446,13 +427,12 @@ export const getContractData = async (ops: {
   const reserves = await poolDataProviderContract.getReservesHumanized({
     lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
   });
-  
+
   // Array of incentive tokens with price feed and emission APR
   const reserveIncentives =
-  await incentiveDataProviderContract.getReservesIncentivesDataHumanized({
-    lendingPoolAddressProvider:
-    market.POOL_ADDRESSES_PROVIDER,
-  });
+    await incentiveDataProviderContract.getReservesIncentivesDataHumanized({
+      lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
+    });
 
   let userReserves = null;
   let userIncentives = null;
@@ -464,94 +444,94 @@ export const getContractData = async (ops: {
       user,
     });
     // Dictionary of claimable user incentives
-    userIncentives = await incentiveDataProviderContract.getUserReservesIncentivesDataHumanized({
-      lendingPoolAddressProvider:
-        market.POOL_ADDRESSES_PROVIDER,
-      user,
-    });
-
+    userIncentives =
+      await incentiveDataProviderContract.getUserReservesIncentivesDataHumanized(
+        {
+          lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
+          user,
+        }
+      );
   }
   console.log({ reserves, userReserves, reserveIncentives, userIncentives });
   return { reserves, userReserves, reserveIncentives, userIncentives };
-}
+};
 
 const getWalletBalance = async (ops: {
   provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
-  user: string|null;
+  user: string | null;
   currentTimestamp: number;
-})=> {
-    const { provider, market, user, currentTimestamp } = ops;
-    const networkId = market.CHAIN_ID;
-    // View contract used to fetch all reserves data (including market base currency data), and user reserves
-    const poolDataProviderContract = new UiPoolDataProvider({
-      uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
-      provider,
-      chainId: networkId,
-    });
-    const reserves = await poolDataProviderContract.getReservesHumanized({
-      lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
-    });
-    const reservesArray = reserves.reservesData;
-    const baseCurrencyData = reserves.baseCurrencyData;
+}) => {
+  const { provider, market, user, currentTimestamp } = ops;
+  const networkId = market.CHAIN_ID;
+  // View contract used to fetch all reserves data (including market base currency data), and user reserves
+  const poolDataProviderContract = new UiPoolDataProvider({
+    uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
+    provider,
+    chainId: networkId,
+  });
+  const reserves = await poolDataProviderContract.getReservesHumanized({
+    lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
+  });
+  const reservesArray = reserves.reservesData;
+  const baseCurrencyData = reserves.baseCurrencyData;
 
-    const formattedPoolReserves = formatReserves({
-      reserves: reservesArray,
-      currentTimestamp,
-      marketReferenceCurrencyDecimals:
-        baseCurrencyData.marketReferenceCurrencyDecimals,
-      marketReferencePriceInUsd:
-        baseCurrencyData.marketReferenceCurrencyPriceInUsd,
-    });
+  const formattedPoolReserves = formatReserves({
+    reserves: reservesArray,
+    currentTimestamp,
+    marketReferenceCurrencyDecimals:
+      baseCurrencyData.marketReferenceCurrencyDecimals,
+    marketReferencePriceInUsd:
+      baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+  });
 
-    console.log(
-      "[INFO] {{AAVEService}} formattedPoolReserves: ",
-      formattedPoolReserves
-    );
-    // Get user wallet balances for all tokens in the lending pool
-    const walletBallance = new WalletBalanceProvider({
-      provider,
-      walletBalanceProviderAddress: market.WALLET_BALANCE_PROVIDER,
-    });
-    const userWalletDatas = !user
-      ? []
-      : await walletBallance.getUserWalletBalancesForLendingPoolProvider(
-          user,
-          market.POOL_ADDRESSES_PROVIDER
+  console.log(
+    "[INFO] {{AAVEService}} formattedPoolReserves: ",
+    formattedPoolReserves
+  );
+  // Get user wallet balances for all tokens in the lending pool
+  const walletBallance = new WalletBalanceProvider({
+    provider,
+    walletBalanceProviderAddress: market.WALLET_BALANCE_PROVIDER,
+  });
+  const userWalletDatas = !user
+    ? []
+    : await walletBallance.getUserWalletBalancesForLendingPoolProvider(
+        user,
+        market.POOL_ADDRESSES_PROVIDER
+      );
+  // Humanize user wallet array data
+  const tokenAddress = userWalletDatas[0] || [];
+  const bigNumberValues = userWalletDatas[1];
+  const walletbalancesByPools = tokenAddress?.map((address, i) => {
+    const pool =
+      formattedPoolReserves?.find((poolReserve) => {
+        return (
+          poolReserve.underlyingAsset?.toUpperCase() === address?.toUpperCase()
         );
-    // Humanize user wallet array data
-    const tokenAddress = userWalletDatas[0] || [];
-    const bigNumberValues = userWalletDatas[1];
-    const walletbalancesByPools = tokenAddress?.map((address, i) => {
-      const pool =
-        formattedPoolReserves?.find((poolReserve) => {
-          return (
-            poolReserve.underlyingAsset?.toUpperCase() ===
-            address?.toUpperCase()
-          );
-        }) || ({} as ReserveDataHumanized & FormatReserveUSDResponse);
-      return {
-        ...pool,
-        tokenAddress: address,
-        tokenBalance: bigNumberValues?.[i] || 0,
-        // convert  bigNumberValues[i] to human readable format
-        balance: bigNumberValues
-          ? ethers.utils.formatUnits(bigNumberValues[i], pool.decimals)
-          : 0,
-      };
-    });
-    console.log(
-      "[INFO] {{AAVEService}} formattedPoolReserves: ",
-      formattedPoolReserves
-    );
-    // const userData = await formatUserSummaryAndIncentives({
-    //   currentTimestamp,
-    //   baseCurrencyData,
-    //   reservesData: reservesArray,
-    //   userReserves
-    // })
-    return formattedPoolReserves;
-}
+      }) || ({} as ReserveDataHumanized & FormatReserveUSDResponse);
+    return {
+      ...pool,
+      tokenAddress: address,
+      tokenBalance: bigNumberValues?.[i] || 0,
+      // convert  bigNumberValues[i] to human readable format
+      balance: bigNumberValues
+        ? ethers.utils.formatUnits(bigNumberValues[i], pool.decimals)
+        : 0,
+    };
+  });
+  console.log(
+    "[INFO] {{AAVEService}} formattedPoolReserves: ",
+    formattedPoolReserves
+  );
+  // const userData = await formatUserSummaryAndIncentives({
+  //   currentTimestamp,
+  //   baseCurrencyData,
+  //   reservesData: reservesArray,
+  //   userReserves
+  // })
+  return formattedPoolReserves;
+};
 
 export const getUserSummaryAndIncentives = async (ops: {
   provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
@@ -560,8 +540,9 @@ export const getUserSummaryAndIncentives = async (ops: {
   user: string;
 }) => {
   const { currentTimestamp } = ops;
-  const {reserveIncentives, reserves, userIncentives, userReserves } = await getContractData(ops);
-  if (!userReserves || !userIncentives ) {
+  const { reserveIncentives, reserves, userIncentives, userReserves } =
+    await getContractData(ops);
+  if (!userReserves || !userIncentives) {
     return null;
   }
   const reservesArray = reserves.reservesData;
@@ -573,13 +554,16 @@ export const getUserSummaryAndIncentives = async (ops: {
     currentTimestamp,
     marketReferenceCurrencyDecimals:
       baseCurrencyData.marketReferenceCurrencyDecimals,
-    marketReferencePriceInUsd: baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+    marketReferencePriceInUsd:
+      baseCurrencyData.marketReferenceCurrencyPriceInUsd,
   });
 
   const formatedUserSummaryAndIncentives = formatUserSummaryAndIncentives({
     currentTimestamp,
-    marketReferencePriceInUsd: baseCurrencyData.marketReferenceCurrencyPriceInUsd,
-    marketReferenceCurrencyDecimals: baseCurrencyData.marketReferenceCurrencyDecimals,
+    marketReferencePriceInUsd:
+      baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+    marketReferenceCurrencyDecimals:
+      baseCurrencyData.marketReferenceCurrencyDecimals,
     userReserves: userReservesArray,
     formattedReserves: formattedPoolReserves,
     reserveIncentives,
@@ -588,10 +572,10 @@ export const getUserSummaryAndIncentives = async (ops: {
   });
 
   return formatedUserSummaryAndIncentives;
-}
+};
 
 // deprecated
-export const supplyWithPermitAndContract = async(ops: {
+export const supplyWithPermitAndContract = async (ops: {
   provider: ethers.providers.Web3Provider;
   reserve: ReserveDataHumanized;
   amount: string;
@@ -600,15 +584,11 @@ export const supplyWithPermitAndContract = async(ops: {
   gatewayAddress: string;
 }) => {
   // display deprecated warning
-  console.warn('supplyWithPermitAndContract is deprecated, use supplyWithPermit instead');
-  const {
-    provider,
-    reserve,
-    amount,
-    onBehalfOf,
-    poolAddress,
-    gatewayAddress,
-  } = ops;
+  console.warn(
+    "supplyWithPermitAndContract is deprecated, use supplyWithPermit instead"
+  );
+  const { provider, reserve, amount, onBehalfOf, poolAddress, gatewayAddress } =
+    ops;
 
   const pool = new Pool(provider, {
     POOL: poolAddress,
@@ -622,17 +602,15 @@ export const supplyWithPermitAndContract = async(ops: {
   let dataToSign = undefined;
   let signature = undefined;
   console.log(`sign: `, {
-    currentAccount, tokenAdress, deadline
+    currentAccount,
+    tokenAdress,
+    deadline,
   });
-  
+
   // const lendingPoolABI = await fetch('/assets/abi/aavePool.abi.json').then((res) => res.json());
-  
+
   //Contracts
-  const poolContract = new ethers.Contract(
-    poolAddress,
-    lendingPoolABI,
-    signer
-  );
+  const poolContract = new ethers.Contract(poolAddress, lendingPoolABI, signer);
 
   // request signature
   try {
@@ -641,107 +619,106 @@ export const supplyWithPermitAndContract = async(ops: {
       reserve: tokenAdress,
       amount, // use simple amount, withouth decimals formating
       deadline,
-    }
-    console.log('param: ', param);
-    
+    };
+    console.log("param: ", param);
+
     dataToSign = await pool.signERC20Approval(param);
   } catch (error) {
-    throw new Error('unable to sign');
+    throw new Error("unable to sign");
   }
-  console.log('dataToSign: ', {dataToSign, pool});
+  console.log("dataToSign: ", { dataToSign, pool });
 
   if (dataToSign.length > 0) {
     try {
-      signature = await provider.send('eth_signTypedData_v4', [
+      signature = await provider.send("eth_signTypedData_v4", [
         currentAccount,
         dataToSign,
       ]);
     } catch (error) {
-      console.log('error: ', error);
-      
+      console.log("error: ", error);
     }
   }
 
-  console.log('signature: ', signature);
+  console.log("signature: ", signature);
 
   // formmating signature
   const sig = splitSignature(signature);
-  console.log('sig: ', sig);
+  console.log("sig: ", sig);
 
   // call supplyWithPermit
-  const supplyTx = await poolContract.functions['supplyWithPermit'](
+  const supplyTx = await poolContract.functions["supplyWithPermit"](
     tokenAdress,
     `${+amount * Math.pow(10, reserve.decimals)}`,
     onBehalfOf || currentAccount,
-    '0',
+    "0",
     deadline,
     sig.v,
     sig.r,
     sig.s
   );
-  console.log('supplyTx: ', supplyTx);
+  console.log("supplyTx: ", supplyTx);
   try {
     console.log(`Transaction mined succesfully: ${supplyTx.hash}`);
     return await supplyTx.wait();
   } catch (error) {
     console.log(`Transaction failed with error: ${error}`);
-    throw new Error('Transaction failed');
+    throw new Error("Transaction failed");
   }
-}
+};
 
 export type MARKETTYPE =
-| typeof MARKETS.AaveV3Ethereum
-| typeof MARKETS.AaveV3Goerli
-| typeof MARKETS.AaveV3Polygon
-| typeof MARKETS.AaveV3Mumbai
-| typeof MARKETS.AaveV3Fuji
-| typeof MARKETS.AaveV3Avalanche
-| typeof MARKETS.AaveV3Arbitrum
-| typeof MARKETS.AaveV3ArbitrumGoerli
-| typeof MARKETS.AaveV3Optimism
-| typeof MARKETS.AaveV3ArbitrumGoerli;
+  | typeof MARKETS.AaveV3Ethereum
+  | typeof MARKETS.AaveV3Goerli
+  | typeof MARKETS.AaveV3Polygon
+  | typeof MARKETS.AaveV3Mumbai
+  | typeof MARKETS.AaveV3Fuji
+  | typeof MARKETS.AaveV3Avalanche
+  | typeof MARKETS.AaveV3Arbitrum
+  | typeof MARKETS.AaveV3ArbitrumGoerli
+  | typeof MARKETS.AaveV3Optimism
+  | typeof MARKETS.AaveV3ArbitrumGoerli;
 
 export const permitByChainAndToken: {
   [chainId: number]: Record<string, boolean>;
 } = {
   [ChainId.mainnet]: {
-    '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': false,
-    '0x6b175474e89094c44da98b954eedeac495271d0f': false,
-    '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': true,
-    '0x514910771af9ca656af840dff83e8264ecf986ca': false,
-    '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': false,
-    '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': false,
-    '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0': true,
+    "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": false,
+    "0x6b175474e89094c44da98b954eedeac495271d0f": false,
+    "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9": true,
+    "0x514910771af9ca656af840dff83e8264ecf986ca": false,
+    "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": false,
+    "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": false,
+    "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0": true,
   },
   [ChainId.arbitrum_one]: {
-    '0xf97f4df75117a78c1a5a0dbb814af92458539fb4': true,
-    '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8': true,
-    '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f': true,
-    '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': true,
-    '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': true,
-    '0xba5ddd1f9d7f570dc94a51479a000e3bce967196': true,
-    '0xd22a58f79e9481d1a88e00c343885a588b34b68b': false, // eurs
+    "0xf97f4df75117a78c1a5a0dbb814af92458539fb4": true,
+    "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8": true,
+    "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f": true,
+    "0x82af49447d8a07e3bd95bd0d56f35241523fbab1": true,
+    "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9": true,
+    "0xba5ddd1f9d7f570dc94a51479a000e3bce967196": true,
+    "0xd22a58f79e9481d1a88e00c343885a588b34b68b": false, // eurs
   },
   [ChainId.fantom]: {
-    '0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e': true,
-    '0xb3654dc3d10ea7645f8319668e8f54d2574fbdc8': true,
-    '0x04068da6c83afcfa0e13ba15a6696662335d5b75': true,
-    '0x321162cd933e2be498cd2267a90534a804051b11': true,
-    '0x74b23882a30290451a17c44f4f05243b6b58c76d': true,
-    '0x049d68029688eabf473097a2fc38ef61633a3c7a': true,
-    '0x6a07a792ab2965c72a5b8088d3a069a7ac3a993b': true,
-    '0xae75a438b2e0cb8bb01ec1e1e376de11d44477cc': false, // sushi
-    '0x1e4f97b9f9f913c46f1632781732927b9019c68b': true,
+    "0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e": true,
+    "0xb3654dc3d10ea7645f8319668e8f54d2574fbdc8": true,
+    "0x04068da6c83afcfa0e13ba15a6696662335d5b75": true,
+    "0x321162cd933e2be498cd2267a90534a804051b11": true,
+    "0x74b23882a30290451a17c44f4f05243b6b58c76d": true,
+    "0x049d68029688eabf473097a2fc38ef61633a3c7a": true,
+    "0x6a07a792ab2965c72a5b8088d3a069a7ac3a993b": true,
+    "0xae75a438b2e0cb8bb01ec1e1e376de11d44477cc": false, // sushi
+    "0x1e4f97b9f9f913c46f1632781732927b9019c68b": true,
   },
   [ChainId.polygon]: {
-    '0x4e3decbb3645551b8a19f0ea1678079fcb33fb4c': true,
+    "0x4e3decbb3645551b8a19f0ea1678079fcb33fb4c": true,
   },
   [ChainId.harmony]: {},
   [ChainId.avalanche]: {
-    '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7': true,
+    "0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7": true,
   },
   [ChainId.optimism]: {
-    '0x76fb31fb4af56892a25e32cfc43de717950c9278': false, // aave
+    "0x76fb31fb4af56892a25e32cfc43de717950c9278": false, // aave
   },
-  [ChainId.mumbai]: {}
+  [ChainId.mumbai]: {},
 };

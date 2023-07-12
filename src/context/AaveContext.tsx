@@ -21,8 +21,10 @@ import {
   getMarkets,
   getPools,
   getUserSummary,
+  getUserSummaryAndIncentives,
 } from "../servcies/aave.service";
 import { useCurrentTimestamp } from "../hooks/useCurrentTimestamp";
+import dayjs from "dayjs";
 
 export type ComputedReserveData = ReturnType<
   typeof formatReservesAndIncentives
@@ -53,8 +55,8 @@ type AaveContextType = {
   userSummary: FormatUserSummaryAndIncentivesResponse<
     ReserveDataHumanized & FormatReserveUSDResponse
   > | null;
+  userSummaryAndIncentives: FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>|null;
   totalTVL: number | null;
-  // user: ExtendedFormattedUser|null;
   refresh: () => Promise<void>;
 };
 
@@ -63,7 +65,7 @@ const AaveContextDefault: AaveContextType = {
   poolReserves: null,
   userSummary: null,
   totalTVL: null,
-  // user: null,
+  userSummaryAndIncentives: null,
   refresh: stub,
 };
 
@@ -77,7 +79,7 @@ export const useAave = () => useContext(AaveContext);
 export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   const { ethereumProvider } = useEthersProvider();
   const { user } = useUser();
-  const currentTimestamp = useCurrentTimestamp(5);
+  const currentTimestamp = dayjs().unix(); // useCurrentTimestamp(5);
   const [state, setState] = useState<AaveContextType>(AaveContextDefault);
 
   useEffect(() => {
@@ -86,6 +88,13 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       setState((prev) => ({
         ...prev,
         markets,
+      }));
+    }
+    if (ethereumProvider && !user) {
+      setState((prev) => ({
+        ...prev,
+        userSummary: null,
+        userSummaryAndIncentives: null,
       }));
     }
 
@@ -124,18 +133,18 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
     }
     if (ethereumProvider && state.markets && user) {
       promises.push(
-        getUserSummary({
+        getUserSummaryAndIncentives({
           provider: ethereumProvider,
           market: state.markets,
           user,
           currentTimestamp,
         })
-          .then(userSummary =>  {
+          .then(userSummaryAndIncentives =>  {
             setState((prev) => ({
               ...prev,
-              userSummary,
+              userSummaryAndIncentives,
             }));
-            return { userSummary };
+            return { userSummaryAndIncentives };
           })
           .catch((error) => {
             console.error("[ERROR] {{AAVEService}} fetchUserSummary: ", error);
@@ -152,7 +161,7 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("[INFO] {{AAVEService}} fetchPools done", { results });
       });
     return () => {};
-  }, [ethereumProvider, user, state.markets]);
+  }, [ethereumProvider?.network?.chainId, user, state.markets]);
 
   return (
     <AaveContext.Provider

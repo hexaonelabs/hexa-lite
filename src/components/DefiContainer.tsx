@@ -25,10 +25,12 @@ import {
 } from "@ionic/react";
 import { informationCircleOutline, closeSharp, openOutline } from "ionicons/icons";
 import { useAave } from "../context/AaveContext";
-import { Pool, ReserveDataHumanized } from "@aave/contract-helpers";
+import { ChainId, InterestRate, Pool, ReserveDataHumanized } from "@aave/contract-helpers";
 import {
   ComputedUserReserve,
   FormatReserveUSDResponse,
+  FormatUserSummaryAndIncentivesResponse,
+  calculateHealthFactorFromBalancesBigUnits,
   valueToBigNumber,
 } from "@aave/math-utils";
 import { useEffect, useRef, useState } from "react";
@@ -48,6 +50,15 @@ import { useLoader } from "../context/LoaderContext";
 import { FormattedNumber } from "./FormattedNumber";
 import { CircularProgressbar, CircularProgressbarWithChildren, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import { getAssetIconUrl } from "../utils/getAssetIconUrl";
+import { getPercent } from "../utils/utils";
+import { getMaxAmountAvailableToSupply } from "../utils/getMaxAmountAvailableToSupply";
+import { getMaxAmountAvailableToBorrow } from "../utils/getMaxAmountAvailableToBorrow";
+
+export const minBaseTokenRemainingByNetwork: Record<number, string> = {
+  [ChainId.optimism]: '0.0001',
+  [ChainId.arbitrum_one]: '0.0001',
+};
 
 const formatCurrencyValue = (
   balance: number,
@@ -76,22 +87,39 @@ const formatCurrencyValue = (
 const FormModal = ({
   onDismiss,
   selectedReserve,
+  user,
 }: {
-  selectedReserve: ReserveDataHumanized & { borrowBalance: number;
+  selectedReserve: {
+    actionType: 'deposit' | 'withdraw' | 'borrow' | 'repay';
+    reserve: ReserveDataHumanized & { borrowBalance: number;
     borrowBalanceUsd: number;
     supplyBalance: number;
     supplyBalanceUsd: number;
     maxAmount: number|undefined;
-    logo: string;} | null;
+    logo: string;
+    priceInUSD: string;} | null;
+  }
   onDismiss: (data?: string | null | undefined | number, role?: string) => void;
+  user: {
+    totalCollateralUSD: string;
+    totalBorrowsUSD: string;
+    currentLiquidationThreshold: string;
+  }
 }) => {
   const inputRef = useRef<HTMLIonInputElement>(null);
+  const {reserve, actionType} = selectedReserve || {reserve: null, actionType: null};
+  // const [ amount, setAmount ] = useState<number|undefined>(0);
+  const [ healthFactor, setHealthFactor ] = useState<number|undefined>(undefined);
+
+  const displayRiskCheckbox =
+    healthFactor && healthFactor < 1.5 && healthFactor?.toString() !== '-1';
+
   return (
       <IonGrid className="ion-padding" style={{ width: "100%" }}>
         <IonRow class="ion-align-items-top ion-margin-bottom">
           <IonCol size="10">
               <h3>
-              Enter a amount
+                {actionType?.toUpperCase()} {reserve?.symbol}
               </h3>
           </IonCol>
           <IonCol size="2" class="ion-text-end">
@@ -102,44 +130,98 @@ const FormModal = ({
         </IonRow>
         <IonRow>
           <IonCol size="12">
-            <IonItem>
-              <IonAvatar slot="start">
-                <IonImg src={selectedReserve?.logo}></IonImg>
-              </IonAvatar>
-              <div>
+            <IonLabel>
+              <IonText color="medium">Amount</IonText>
+            </IonLabel>
+            <IonItem lines="none" className="ion-margin-vertical">
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+              }}>
+                <IonAvatar slot="start">
+                  <IonImg src={reserve?.logo}></IonImg>
+                </IonAvatar>
+                <div className="ion-padding" style={{cursor: 'pointer'}} onClick={() => {
+                  const el = inputRef.current
+                  if (el) {
+                    (el as any).value = reserve?.maxAmount||0;
+                  }
+                }}>
+                  <IonText>
+                    <h3 style={{margin: ' 0'}}>
+                      {reserve?.symbol}
+                    </h3>
+                      <small style={{margin: '0'}}>
+                        Max :{reserve?.maxAmount?.toFixed(6)}
+                      </small>
+                  </IonText>
+                </div>
+              </div>
+              <div slot="end" className="ion-text-end">
                 <IonInput
                   ref={inputRef}
                   style={{fontSize: '1.5rem'}}
                   placeholder="0"
                   type="number"
-                  max={selectedReserve?.maxAmount}
+                  max={reserve?.maxAmount}
                   min={0}
-                  debounce={500}
-                  onIonChange={(e) => {
-                    const value = e.detail.value;
-                    if (selectedReserve?.maxAmount && value && (Number(value) > selectedReserve?.maxAmount)) {
-                      e.target.value = selectedReserve?.maxAmount;
+                  debounce={100}
+                  onKeyUp={(e) => {
+                    const value =( e.target as any).value;
+                    if (reserve?.maxAmount && value && (Number(value) > reserve?.maxAmount)) {
+                      ( e.target as any).value = reserve?.maxAmount;
                     }
                     if (value && (Number(value) < 0)) {
-                      e.target.value = "0";
+                      ( e.target as any).value = "0";
                     }
+                    const newHealthFactor = calculateHealthFactorFromBalancesBigUnits({
+                      collateralBalanceMarketReferenceCurrency: user.totalCollateralUSD,
+                      borrowBalanceMarketReferenceCurrency: valueToBigNumber(user.totalBorrowsUSD).plus(
+                        valueToBigNumber(inputRef.current?.value || 0).times(reserve?.priceInUSD || 0)
+                      ),
+                      currentLiquidationThreshold: user.currentLiquidationThreshold,
+                    });
+                    console.log('>>newHealthFactor.toNumber()', {newHealthFactor, user, v: inputRef.current?.value});
+                    
+                    setHealthFactor( newHealthFactor.toNumber());
                   }}
                 />
-                <span style={{cursor: 'pointer'}} onClick={() => {
-                  const el = inputRef.current
-                  if (el) {
-                    (el as any).value = selectedReserve?.maxAmount||0;
-                  }
-                }}>
-                  <small>
-                    Max {selectedReserve?.symbol}: 
-                    {selectedReserve?.maxAmount?.toFixed(6)}
-                  </small>
-                </span>
               </div>
             </IonItem>
           </IonCol>
         </IonRow>
+        {
+          displayRiskCheckbox && (
+            <IonRow class="ion-justify-content-center">
+              <IonCol size="auto" class="ion-text-center ion-padding-vertical ion-margin-bottom" style={{maxWidth: 400}}>
+                <IonText color="danger">
+                  <small>
+                    Borrowing this amount will reduce your health factor and increase risk of liquidation. 
+                    Add more collateral to increase your health factor.
+                  </small>
+                </IonText>
+                {/* <IonLabel>
+                  Health factor
+                </IonLabel>
+                <IonItem lines="none" className="ion-margin-vertical">
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}>
+                    <div className="ion-padding" style={{cursor: 'pointer'}}>
+                      <IonText>
+                        <h3 style={{margin: ' 0'}}>
+                          {healthFactor?.toString()}
+                        </h3>
+                      </IonText>
+                    </div>
+                  </div>
+                </IonItem> */}
+              </IonCol>
+            </IonRow>
+          )
+        }
+
         <IonRow class="ion-justify-content-between">
           <IonCol size="12">
             <IonButton
@@ -155,18 +237,24 @@ const FormModal = ({
   );
 };
 
-const getPercent = (value: number, max: number): number => {
-  return (value / max) * 100;
-}
-
 export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {detail: {value: string}}) => void}) => {
-  const [selectedReserve, setSelectedReserve] = useState<ReserveDataHumanized & {maxAmount: number|undefined} | null>(null);
+  console.log("[INFO] {{DefiContainer}} rendering...");
+  
+  const [selectedReserve, setSelectedReserve] = useState<{
+    reserve: ReserveDataHumanized & {maxAmount: number|undefined};
+    actionType: 'deposit' | 'withdraw' | 'borrow' | 'repay';
+  } | null>(null);
   const {display: displayLoader, hide: hideLoader} = useLoader();
   const { user, assets } = useUser();
   const { ethereumProvider } = useEthersProvider();
-  const { poolReserves, markets, totalTVL, refresh, userSummary } = useAave();
+  const { poolReserves, markets, totalTVL, refresh, userSummaryAndIncentives } = useAave();
   const [present, dismiss] = useIonModal(FormModal, {
     selectedReserve,
+    user: {
+      totalCollateralUSD: userSummaryAndIncentives?.totalCollateralUSD,
+      totalBorrowsUSD: userSummaryAndIncentives?.totalBorrowsUSD,
+      currentLiquidationThreshold: userSummaryAndIncentives?.currentLiquidationThreshold,
+    },
     onDismiss: (data: string, role: string) => dismiss(data, role),
   });
 
@@ -191,7 +279,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
     }
   }
 
-  function handleOpenModal(type: string, reserve: ReserveDataHumanized & {
+  function handleOpenModal(type: string, reserve: ReserveDataHumanized & FormatReserveUSDResponse & {
     borrowBalance: number;
     borrowBalanceUsd: number;
     supplyBalance: number;
@@ -205,7 +293,16 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
     let maxAmount = undefined
     switch (true) {
       case type === "deposit": {
-        maxAmount = Number(reserve?.walletBalance);
+        const {
+          supplyCap, isFrozen, decimals, debtCeiling, isolationModeTotalDebt, totalLiquidity, underlyingAsset
+        } = reserve;
+        const minBaseTokenRemaining = minBaseTokenRemainingByNetwork[ethereumProvider?.network?.chainId || 137] || '0.001';
+        maxAmount = +getMaxAmountAvailableToSupply(
+          `${Number(reserve?.walletBalance)}`,
+          { supplyCap, totalLiquidity, isFrozen, decimals, debtCeiling, isolationModeTotalDebt },
+          underlyingAsset,
+          minBaseTokenRemaining
+        )
         break;
       }
       case type === "withdraw": {
@@ -213,7 +310,12 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
         break;
       }
       case type === "borrow": {
-        maxAmount = (Number(borrowingCapacity) - Number(totalBorrowsUsd)) / Number(reserve?.priceInUSD);
+        // maxAmount = (Number(borrowingCapacity) - Number(totalBorrowsUsd)) / Number(reserve?.priceInUSD);
+        maxAmount = +getMaxAmountAvailableToBorrow(
+          reserve, 
+          (userSummaryAndIncentives as FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>), 
+          InterestRate.Variable
+        );
         break;
       }
       case type === "repay": {
@@ -226,7 +328,12 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
     }
     console.log("[INFO] maxAmount: ", {type, reserve, maxAmount});
     
-    setSelectedReserve({...reserve, maxAmount});
+    setSelectedReserve({
+      reserve: {
+        ...reserve, maxAmount
+      },
+      actionType: type as any,
+    });
     present({
       cssClass: 'modalAlert ',
       onWillDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
@@ -377,89 +484,41 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
   }
 
   console.log("[INFO] {{DefiContainer}} poolReserves: ", poolReserves);
-  const poolFormated = poolReserves?.map((reserve) => {
-    return {
-      reserve,
-      underlyingBalance: null,
-      scaledATokenBalance: null,
-    };
-  });
+  const pools = userSummaryAndIncentives 
+    ? userSummaryAndIncentives.userReservesData.map(({
+      reserve, 
+      underlyingBalance, 
+      underlyingBalanceUSD,
+      totalBorrows,
+      totalBorrowsUSD,
+    }) => {
+        return {
+          reserve,
+          underlyingBalance, 
+          underlyingBalanceUSD,
+          totalBorrows,
+          totalBorrowsUSD
+        }
+      })
+    : poolReserves?.map(( reserve ) => ({ 
+        reserve,
+        underlyingBalance: '0',
+        underlyingBalanceUSD: '0',
+        totalBorrows: '0',
+        totalBorrowsUSD: '0'
+      }));
 
-  const reserves = (poolFormated)
-  ?.filter(({ reserve: { usageAsCollateralEnabled, isIsolated }  }) => usageAsCollateralEnabled === true && isIsolated === false)
+  const reserves = (pools)
+  ?.filter(({reserve: { usageAsCollateralEnabled, isIsolated  }}) => usageAsCollateralEnabled === true && isIsolated === false)
   ?.map(
-    ({ reserve }) => {
-      const { aTokenAddress, decimals, variableDebtTokenAddress, underlyingAsset } = reserve;
-      const { balance: borrowBalance = 0, priceUsd: borrowPriceUsd, balanceRawInteger } =
-        assets?.find(
-          ({contractAddress, chain = {}}) =>
-            contractAddress?.toLocaleLowerCase() ===
-            variableDebtTokenAddress?.toLocaleLowerCase() // underlyingAsset ??
-            && chain?.id === markets?.CHAIN_ID
-        ) || {};
-      const { balance: supplyBalance = 0, priceUsd: supplyPriceUsd} =
-        assets?.find(
-          ({contractAddress, chain = {}}) =>
-            contractAddress?.toLocaleLowerCase() ===
-            aTokenAddress?.toLocaleLowerCase()
-            && chain?.id === markets?.CHAIN_ID
-        ) || {};
+    ({reserve, underlyingBalance, underlyingBalanceUSD, totalBorrows, totalBorrowsUSD}) => {
+      const { underlyingAsset } = reserve;
       const { balance: walletBalance = 0 } = assets?.find(
         ({contractAddress, chain = {}}) =>
           contractAddress?.toLocaleLowerCase() ===
           underlyingAsset?.toLocaleLowerCase()
           && chain?.id === markets?.CHAIN_ID
       ) || {};
-      
-      let logo =
-        "./assets/cryptocurrency-icons/" +
-        reserve?.symbol?.toLowerCase() +
-        ".svg";
-      if (reserve.symbol === "WMATIC") {
-        logo = `./assets/icons/wmatic.svg`;
-      }
-      if (reserve.symbol === "aPolWMATIC") {
-        logo = `./assets/icons/awmatic.svg`;
-      }
-      if (reserve.symbol === "stMATIC") {
-        logo = `./assets/icons/stmatic.svg`;
-      }
-      if (reserve.symbol === "wstETH") {
-        logo = `./assets/icons/wsteth.svg`;
-      }
-      if (reserve.symbol === "stETH") {
-        logo = `./assets/icons/steth.svg`;
-      }
-      if (reserve.symbol === "cbETH") {
-        logo = `./assets/icons/cbeth.svg`;
-      }
-      if (reserve.symbol === "ENS") {
-        logo = `./assets/icons/ens.svg`;
-      }
-      if (reserve.symbol === "LDO") {
-        logo = `./assets/icons/ldo.svg`;
-      }
-      if (reserve.symbol === "LUSD") {
-        logo = `./assets/icons/lusd.svg`;
-      }
-      if (reserve.symbol === "rETH") {
-        logo = `./assets/icons/reth.svg`;
-      }
-      if (reserve.symbol === "DPI") {
-        logo = `./assets/icons/dpi.svg`;
-      }
-      if (reserve.symbol === "MaticX") {
-        logo = `./assets/icons/maticx.svg`;
-      }
-      if (reserve.symbol === "MAI") {
-        logo = `./assets/icons/mai.svg`;
-      }
-      if (reserve.symbol === "sUSD") {
-        logo = `./assets/icons/susd.svg`;
-      }
-      if (reserve.symbol === "WETH") {
-        logo = `./assets/icons/weth.svg`;
-      }
       
       const supplyPoolRatioInPercent = getPercent(
         valueToBigNumber(reserve.totalLiquidityUSD).toNumber(),
@@ -471,32 +530,26 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
       );
       return {
         ...reserve,
-        borrowBalance,
-        borrowBalanceUsd: borrowBalance * (borrowPriceUsd||0),
-        supplyBalance,
-        supplyBalanceUsd: supplyBalance * (supplyPriceUsd||0),
+        borrowBalance: Number(totalBorrows),
+        borrowBalanceUsd: Number(totalBorrowsUSD),
+        supplyBalance: Number(underlyingBalance),
+        supplyBalanceUsd: Number(underlyingBalanceUSD),
         walletBalance,
-        logo,
+        logo: getAssetIconUrl(reserve),
         supplyPoolRatioInPercent,
         borrowPoolRatioInPercent
       };
     }
   );
 
-  const totalBorrowsUsd = (reserves||[])?.reduce(
-    (acc, reserve) => acc + reserve.borrowBalance * (Number(reserve?.priceInUSD)||0),
-    0
-  )
-  const totalCollateralUsd = (reserves||[])?.reduce(
-    (acc, reserve) => acc + reserve.supplyBalance * (Number(reserve?.priceInUSD)||0),
-    0
-  )
+  const totalBorrowsUsd = Number(userSummaryAndIncentives?.totalBorrowsUSD);
+  const totalCollateralUsd = Number(userSummaryAndIncentives?.totalCollateralUSD);
 
   // calcule 70% of totalCollateralUsd
-  const borrowingCapacity = totalCollateralUsd * 0.70;
+  const borrowingCapacity = Number(userSummaryAndIncentives?.netWorthUSD);
 
   // calcule percentage of totalBorrowsUsd
-  const percentageBorrowingCapacity = (totalBorrowsUsd / (borrowingCapacity||1)) * 100;
+  const percentageBorrowingCapacity = totalBorrowsUsd / borrowingCapacity * 100;
   const progressBarFormatedValue = Number((percentageBorrowingCapacity / 100).toFixed(2));
   let getProgressBarFormatedColor = (value: number) => {
     let color = "primary";
@@ -574,7 +627,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                     >
                       <h3>
                         {currencyFormat(
-                          totalCollateralUsd
+                          +totalCollateralUsd
                         )}
                       </h3>
                       <IonText color="medium">
@@ -611,7 +664,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                           <br />
                           <small>
                           {currencyFormat(
-                          totalBorrowsUsd
+                          +totalBorrowsUsd
                         )} of {currencyFormat(
                           borrowingCapacity
                         )}
@@ -720,7 +773,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
               {reserves
                 .filter((reserve) => Number(reserve.borrowCapUSD) > 0)
                 .sort((a, b) => b.borrowBalance - a.borrowBalance)
-                .sort((a, b) => b.supplyBalance - a.supplyBalance)
+                .sort((a, b) => (+b.supplyBalance) - (+a.supplyBalance))
                 .map((reserve, index) => (
                   <IonAccordion key={index}>
 
@@ -744,9 +797,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                                 <small>{reserve?.name}</small>
                                 <br/>
                                 <IonText color="dark">
-                                  <small>Wallet balance:  {formatCurrencyValue(
-                                  Number(reserve.walletBalance)
-                                )}</small>
+                                  <small>Wallet balance:  {Number(reserve.walletBalance)}</small>
                                 </IonText>
                               </p>
                             </IonLabel>
@@ -768,12 +819,12 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                           </IonCol>
                           <IonCol size="2" class="ion-text-end">
                             <IonLabel>
-                              {reserve?.supplyBalance.toFixed(6) || "0.00"}
+                              {(+reserve?.supplyBalance).toFixed(6) || "0.00"}
                               <br />
                               <IonText color="medium">
                                 <small>
                                   {formatCurrencyValue(
-                                    reserve?.supplyBalance,
+                                    (+reserve?.supplyBalance),
                                     Number(reserve?.priceInUSD),
                                     "No deposit"
                                   )}
@@ -818,6 +869,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
 
                     <IonGrid className="ion-padding" slot="content">
                       <IonRow class="ion-padding-top">
+
                         <IonCol size="6" class="ion-padding ion-text-center">
                           <div style={{ maxWidth: 200, maxHeight: 200, margin: 'auto' }}>
                             <CircularProgressbarWithChildren 
@@ -840,6 +892,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                             </CircularProgressbarWithChildren>
                           </div>
                         </IonCol>
+
                         <IonCol size="6" class="ion-padding ion-text-center">
                           <div style={{ maxWidth: 200, maxHeight: 200, margin: 'auto' }}>
                             <CircularProgressbarWithChildren 
@@ -862,28 +915,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                             </CircularProgressbarWithChildren>
                           </div>
                         </IonCol>
-                        {/* <IonCol size="12">
-                          <IonItem style={{ "--background": "transparent" }}>
-                            <IonLabel color="medium">
-                              Liquidity protocol
-                            </IonLabel>
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                alignContent: "center",
-                              }}
-                            >
-                              <IonImg
-                                style={{ width: "18px", heigth: "18px" }}
-                                src="./assets/cryptocurrency-icons/aave.svg"
-                              ></IonImg>
-                              <IonText class="ion-margin-start" color="medium">
-                                <small>Aave</small>
-                              </IonText>
-                            </div>
-                          </IonItem>
-                        </IonCol> */}
+                        
                         <IonCol size="6" class="ion-padding">
                           <IonItem lines="none" style={{ "--background": "transparent" }}>
                             <IonLabel class="ion-text-center">
@@ -907,7 +939,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                               My deposit
                             </IonLabel>
                             <IonText color="medium">
-                            {reserve?.supplyBalance > 0 ? reserve?.supplyBalance.toFixed(6): undefined || "0"}
+                            {(+reserve?.supplyBalance) > 0 ? (+reserve?.supplyBalance).toFixed(6): undefined || "0"}
                             </IonText>
                           </IonItem>
                           <IonItem style={{ "--background": "transparent" }}>
@@ -950,6 +982,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                             </IonText>
                           </IonItem>
                         </IonCol>
+
                         <IonCol size="6" class="ion-padding">
                           <IonItem lines="none" style={{ "--background": "transparent" }}>
                             <IonLabel class="ion-text-center">
@@ -1019,7 +1052,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                         <IonRow class="ion-justify-content-center ion-padding-vertical">
                           <IonCol size="6" class="ion-padding-horizontal ion-text-center">
                             {
-                              (!reserve?.supplyBalance||reserve.supplyBalance <= 0)
+                              (!reserve?.walletBalance||(+reserve.walletBalance) <= 0)
                                 ? (<>
                                     <IonButton
                                       fill="solid"
@@ -1048,7 +1081,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                                       fill="solid"
                                       color="primary"
                                       size="small"
-                                      disabled={(!reserve?.supplyBalance||reserve.supplyBalance <= 0) ? true : false}
+                                      disabled={(!reserve?.supplyBalance||(+reserve.supplyBalance) <= 0) ? true : false}
                                       onClick={() =>
                                         handleOpenModal("withdraw", reserve)
                                       }

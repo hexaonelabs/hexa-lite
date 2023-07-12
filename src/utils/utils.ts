@@ -12,3 +12,7 @@ export const roundToTokenDecimals = (inputValue: string, tokenDecimals: number) 
   // Combine the whole and adjusted decimal parts
   return whole + '.' + adjustedDecimals;
 };
+
+export const getPercent = (value: number, max: number): number => {
+  return (value / max) * 100;
+};
