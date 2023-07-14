@@ -258,6 +258,8 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
     },
     onDismiss: (data: string, role: string) => dismiss(data, role),
   });
+  console.log("[INFO] {{DefiContainer}} userSummaryAndIncentives: ", {userSummaryAndIncentives});
+  
 
   function handleEvents(type: string, reserve: ReserveDataHumanized & {
     borrowBalance: number;
@@ -314,9 +316,9 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
           },
           {
             eModeCategoryId: 0,
-            formattedEModeLiquidationThreshold: reserve?.eModeLiquidationThreshold.toString(),
-            formattedPriceInMarketReferenceCurrency: reserve?.priceInMarketReferenceCurrency,
-            formattedReserveLiquidationThreshold: reserve?.reserveLiquidationThreshold,
+            formattedEModeLiquidationThreshold: reserve?.formattedEModeLiquidationThreshold,
+            formattedPriceInMarketReferenceCurrency: reserve?.formattedPriceInMarketReferenceCurrency,
+            formattedReserveLiquidationThreshold: reserve?.formattedReserveLiquidationThreshold,
             reserveLiquidationThreshold: reserve?.reserveLiquidationThreshold,
             unborrowedLiquidity: reserve.unborrowedLiquidity
           },
@@ -514,6 +516,7 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
       underlyingBalanceUSD,
       totalBorrows,
       totalBorrowsUSD,
+      
     }) => {
         return {
           reserve,
