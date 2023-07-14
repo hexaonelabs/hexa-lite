@@ -174,7 +174,8 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
           });
           console.log("[INFO] {{AAVEService}} refresh... ");
           clearTimeout(t);
-          throw new Error("Not implemented");
+          alert('Refresh application to see updated amounts.')
+          // throw new Error("Not implemented");
           // const chainId = await getNetwork();
           // const markets = await fetchMarkets(chainId);
           // await fetchPools(markets);

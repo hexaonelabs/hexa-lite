@@ -11,7 +11,7 @@ export function Swap() {
     return {
       // integrator: "cra-example",
       integrator: "hexa-lite",
-      fee: 0.01,
+      fee: 0.005,
       variant: "expandable",
       insurance: true,
       containerStyle: {

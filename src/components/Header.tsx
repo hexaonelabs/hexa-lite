@@ -63,7 +63,7 @@ export function Header({
       <IonToolbar style={{ "--background": "transparent" }}>
         <IonGrid class="ion-no-padding">
           <IonRow class="ion-align-items-center ion-justify-content-between">
-            {currentSegment === "welcome" ? (
+            {!currentSegment || currentSegment === "welcome" ? (
                <></>
             ) : (
               <>

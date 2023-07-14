@@ -38,11 +38,11 @@ export const LoaderProvider = ({ children }: { children: React.ReactNode }) => {
           translucent: true,
           showBackdrop: true,
           spinner: "lines",
-          onDidPresent: () => setIsVisible(true)
+          onDidPresent: () => setIsVisible( () => true)
         }),
         hide: async () => {
           await dismiss();
-          setIsVisible(false);
+          setIsVisible(() => false);
         },
       }}
     >

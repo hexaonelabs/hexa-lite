@@ -45,7 +45,6 @@ export const supply = async (ops: {
   });
   const signer = provider.getSigner();
   const user = await signer?.getAddress();
-  const network = await provider.getNetwork();
   const tokenAdress = reserve.underlyingAsset;
 
   const txs: EthereumTransactionTypeExtended[] = await pool.supply({
@@ -65,7 +64,9 @@ export const supply = async (ops: {
     })
   );
   console.log("result: ", txResponses);
-  return await Promise.all(txResponses.map((tx) => tx.wait()));
+  const txReceipts = await Promise.all(txResponses.map((tx) => tx.wait()));
+  console.log("txReceipts: ", txReceipts);
+  return txReceipts;
 };
 
 export const supplyWithPermit = async (ops: {
@@ -90,11 +91,11 @@ export const supplyWithPermit = async (ops: {
   // create timestamp of 10 minutes from now
   const deadline = `${new Date().setMinutes(new Date().getMinutes() + 10)}`;
 
-  const isNotTestnet = network.chainId !== 5 && network.chainId !== 80001;
+  const isTestnet = provider.network?.chainId === 5 || provider.network?.chainId === 80001 || false;
   const havePermitConfig =
     permitByChainAndToken[network.chainId]?.[tokenAdress] || false;
-  if (!havePermitConfig && isNotTestnet) {
-    console.log("no permit config");
+  if (!havePermitConfig || isTestnet) {
+    console.log("no permit config: ", { havePermitConfig, isTestnet });
     const txReceipts = await supply(ops);
     return txReceipts;
   }

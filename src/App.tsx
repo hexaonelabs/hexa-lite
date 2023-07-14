@@ -40,8 +40,18 @@ setupIonicReact({
 
 function App() {
 
+  // get params from url `s=`
+  const urlParams = new URLSearchParams(window.location.search);
+  let segment = urlParams.get("s") || "welcome";
+  // handle unsupported segment
+  if (segment && ['welcome', 'swap', 'fiat', 'defi'].indexOf(segment) === -1) {
+    urlParams.delete('s');
+    segment = '';
+    // reload window with correct segment
+    window.location.href = `${window.location.origin}?${urlParams.toString()}`;
+  }
   // use state to handle segment change
-  const [currentSegment, setSegment] = useState("defi");
+  const [currentSegment, setSegment] = useState(segment);
   const handleSegmentChange = (e: any) => {
     setSegment(e.detail.value);
   };
@@ -61,7 +71,8 @@ function App() {
           </AaveProvider>
         );
       default:
-        return (
+        return currentSegment ?
+          (
           <div
             style={{
               textAlign: "center",
@@ -76,7 +87,8 @@ function App() {
             </IonText>
             <IonChip color="primary">Coming soon</IonChip>
           </div>
-        );
+        )
+        : (<></>)
     }
   };
 

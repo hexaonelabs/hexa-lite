@@ -54,6 +54,7 @@ import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { getPercent } from "../utils/utils";
 import { getMaxAmountAvailableToSupply } from "../utils/getMaxAmountAvailableToSupply";
 import { getMaxAmountAvailableToBorrow } from "../utils/getMaxAmountAvailableToBorrow";
+import { getMaxAmountAvailableToWithdraw } from "../utils/getMaxAmountAvailableToWithdraw";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: '0.0001',
@@ -306,7 +307,26 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
         break;
       }
       case type === "withdraw": {
-        maxAmount = Number(reserve?.supplyBalance);
+        maxAmount = +getMaxAmountAvailableToWithdraw(
+          {
+            underlyingBalance: reserve?.supplyBalance.toString(),
+            usageAsCollateralEnabledOnUser: true,
+          },
+          {
+            eModeCategoryId: 0,
+            formattedEModeLiquidationThreshold: reserve?.eModeLiquidationThreshold.toString(),
+            formattedPriceInMarketReferenceCurrency: reserve?.priceInMarketReferenceCurrency,
+            formattedReserveLiquidationThreshold: reserve?.reserveLiquidationThreshold,
+            reserveLiquidationThreshold: reserve?.reserveLiquidationThreshold,
+            unborrowedLiquidity: reserve.unborrowedLiquidity
+          },
+          {
+            healthFactor: `${userSummaryAndIncentives?.healthFactor||0}`,
+            isInEmode: false,
+            userEmodeCategoryId: 0,
+            totalBorrowsMarketReferenceCurrency: `${userSummaryAndIncentives?.totalBorrowsUSD||0}`,
+          }
+        );
         break;
       }
       case type === "borrow": {
@@ -337,8 +357,8 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
     present({
       cssClass: 'modalAlert ',
       onWillDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
+        console.log(`onWillDismiss: ${ev.detail.data}!`);
         if (ev.detail.role === "confirm") {
-          console.log(`${ev.detail.data}!`);
           if (!ethereumProvider) {
             throw new Error("No ethereumProvider provider found");
           }
@@ -366,9 +386,10 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
               try {
                 const txReceipts = await supplyWithPermit(params);
                 console.log("TX result: ", txReceipts);
-                refresh();
+                await hideLoader();
+                await refresh();
               } catch (error) {
-                hideLoader();
+                await hideLoader();
               }
               break;
             }
@@ -395,10 +416,11 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                 const txReceipts = await withdraw(params);
                 console.log("TX result: ", txReceipts);
                 await hideLoader();
+                await refresh();
                 refresh();
               } catch (error) {
                 console.log("error: ", error);
-                hideLoader();
+                await hideLoader();
               }
               break;
             }
@@ -428,7 +450,8 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                 refresh();
               } catch (error) {
                 console.log("[ERROR]: ", error);
-                hideLoader();
+                await hideLoader();
+                // await refresh();
               }
               break;
             }
@@ -455,17 +478,17 @@ export const DefiContainer = ({handleSegmentChange}: {handleSegmentChange: (e: {
                 const txReceipts = await repay(params);
                 console.log("TX result: ", txReceipts);
                 await hideLoader();
-                refresh();
+                await refresh();
               } catch (error) {
                 console.log("[ERROR]: ", error);
-                hideLoader();
+                await hideLoader();
+                // await refresh();
               }
               break;
             }
             default:
               break;
           }
-          hideLoader();
         }
       }
     });
