@@ -23,7 +23,7 @@ import { AuthBadge } from "./AuthBadge";
 import ConnectButton from "./ConnectButton";
 import DisconnectButton from "./DisconnectButton";
 import { useUser } from "../context/UserContext";
-import { useRef } from "react";
+import { MutableRefObject, useEffect, useRef } from "react";
 import { MenuPopover } from "./MenuPopover";
 
 const styleLogo = {
@@ -48,15 +48,20 @@ const styleChip = {
 
 export function Header({
   currentSegment,
+  scrollToTop,
   handleSegmentChange,
 }: {
   currentSegment: string;
+  scrollToTop: () => void,
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
   // define states
   const popoverRef = useRef<HTMLIonPopoverElement>(null);
   const { user } = useUser();
 
+  useEffect(()=>{
+    scrollToTop();
+  }, [currentSegment]);
   // render component
   return (
     <IonHeader translucent={true} class="ion-no-border">
@@ -101,9 +106,9 @@ export function Header({
                   <IonSegmentButton value="defi">
                     Lending & Borrow
                   </IonSegmentButton>
-                  <IonSegmentButton value="stacking">
+                  {/* <IonSegmentButton value="earn">
                     Earn Interest
-                  </IonSegmentButton>
+                  </IonSegmentButton> */}
                   <IonSegmentButton value="fiat">Buy</IonSegmentButton>
                 </IonSegment>
               </IonCol>

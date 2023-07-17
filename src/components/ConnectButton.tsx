@@ -1,4 +1,5 @@
 
+import { useLoader } from "../context/LoaderContext";
 import { useEthersProvider } from "../context/Web3Context"
 import { connect } from "../servcies/magic"
 import { IonButton, useIonAlert } from "@ionic/react"
@@ -11,6 +12,7 @@ const ConnectButton = (props: {
   const [present, dismiss] = useIonAlert();
   // Get the initializeWeb3 function from the Web3 context
   const { initializeWeb3 } = useEthersProvider()
+  const { display: displayLoader, hide: hideLoader } = useLoader();
   // Define the event handler for the button click
   const handleConnect = async () => {
     // present({ 
@@ -34,12 +36,18 @@ const ConnectButton = (props: {
     // });
 
     try {
+      // Display the loader while the connection is being made
+      await displayLoader()
       await connect();
       // If connection to the wallet was successful, initialize new Web3 instance
       await initializeWeb3()
+      // Hide the loader
+      await hideLoader()
     } catch (error) {
       // Log any errors that occur during the connection process
       console.error("handleConnect:", error)
+      // Hide the loader
+      await hideLoader()
     }
   }
 

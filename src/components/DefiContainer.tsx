@@ -27,6 +27,7 @@ import {
   informationCircleOutline,
   closeSharp,
   openOutline,
+  warningOutline,
 } from "ionicons/icons";
 import { useAave } from "../context/AaveContext";
 import {
@@ -620,10 +621,10 @@ export const DefiContainer = ({
       }));
 
   const reserves = pools
-    ?.filter(
-      ({ reserve: { usageAsCollateralEnabled, isIsolated } }) =>
-        usageAsCollateralEnabled === true && isIsolated === false
-    )
+    // ?.filter(
+    //   ({ reserve: { usageAsCollateralEnabled, isIsolated } }) =>
+    //     isIsolated === false
+    // )
     ?.map(
       ({
         reserve,
@@ -675,29 +676,6 @@ export const DefiContainer = ({
   const percentBorrowingCapacity =
     100 - getPercent(totalBorrowsUsd, totalCollateralUsd);
   const progressBarFormatedValue = percentBorrowingCapacity / 100;
-
-  let getProgressBarFormatedColor = (value: number) => {
-    debugger
-    let color = "primary";
-    switch (true) {
-      case value > 0 && value < 15:
-        color = "danger";
-        break;
-      case value >= 15 && value < 50:
-        color = "warning";
-        break;
-      case value >= 50:
-        color = "success";
-        break;
-      default:
-        break;
-    }
-    console.log("[INFO] {{DefiContainer}} getProgressBarFormatedColor: ", {
-      value,
-      color,
-    });
-    return color;
-  };
 
   return !reserves || reserves.length === 0 ? (
     <IonGrid class="ion-padding">
@@ -854,32 +832,32 @@ export const DefiContainer = ({
             </h3>
             <IonGrid>
               <IonRow class="ion-align-items-center ion-justify-content-between">
-                <IonCol size="3" class="ion-padding-start">
+                <IonCol size-md="3" class="ion-padding-start">
                   <IonLabel color="medium">
                     <h3>Asset</h3>
                   </IonLabel>
                 </IonCol>
-                <IonCol size="1" class="ion-text-center">
+                <IonCol size="auto" size-md="1" class="ion-text-center ion-hide-md-down">
                   <IonLabel color="medium">
                     <h3>Protocol</h3>
                   </IonLabel>
                 </IonCol>
-                <IonCol size="2" class="ion-text-end">
+                <IonCol size="auto" size-md="2" class="ion-text-end  ion-hide-md-down">
                   <IonLabel color="medium">
                     <h3 style={{ marginRight: "0.6rem" }}>Deposits</h3>
                   </IonLabel>
                 </IonCol>
-                <IonCol size="2" class="ion-text-end">
+                <IonCol size="auto" size-md="2" class="ion-text-end  ion-hide-md-down">
                   <IonLabel color="medium">
                     <h3 style={{ marginRight: "1.2rem" }}>Borrows</h3>
                   </IonLabel>
                 </IonCol>
-                <IonCol size="2" class="ion-text-end">
+                <IonCol size="auto" size-md="2" class="ion-text-end">
                   <IonLabel color="medium">
                     <h3 style={{ marginRight: "1.8rem" }}>Deposit APY</h3>
                   </IonLabel>
                 </IonCol>
-                <IonCol size="2" class="ion-text-end">
+                <IonCol size="auto" size-md="2" class="ion-text-end ion-hide-sm-down">
                   <IonLabel color="medium">
                     <h3 style={{ paddingRight: "2rem" }}>Borrow APY</h3>
                   </IonLabel>
@@ -888,7 +866,7 @@ export const DefiContainer = ({
             </IonGrid>
             <IonAccordionGroup>
               {reserves
-                .filter((reserve) => Number(reserve.borrowCapUSD) > 0)
+                //.filter((reserve) => Number(reserve.borrowCapUSD) > 0)
                 .sort((a, b) => b.borrowBalance - a.borrowBalance)
                 .sort((a, b) => +b.supplyBalance - +a.supplyBalance)
                 .map((reserve, index) => (
@@ -897,7 +875,7 @@ export const DefiContainer = ({
                       <IonGrid onClick={() => console.log(reserve)}>
                         <IonRow class="ion-align-items-center ion-justify-content-between ion-padding-vertical">
                           <IonCol
-                            size="3"
+                            size-md="3"
                             class="ion-text-start"
                             style={{
                               display: "flex",
@@ -916,7 +894,12 @@ export const DefiContainer = ({
                               <IonImg src={reserve?.logo}></IonImg>
                             </IonAvatar>
                             <IonLabel class="ion-padding-start">
-                              {reserve?.symbol}
+                              {reserve?.symbol} 
+                              {
+                                ((reserve?.usageAsCollateralEnabled === false) || (reserve.isIsolated === true)) && (
+                                  <IonIcon icon={warningOutline} color="warning" style={{marginLeft: '0.5rem'}}></IonIcon>
+                                )
+                              }
                               <p>
                                 <small>{reserve?.name}</small>
                                 <br />
@@ -931,7 +914,7 @@ export const DefiContainer = ({
                           </IonCol>
                           <IonCol
                             size="1"
-                            class="ion-text-center"
+                            class="ion-text-center ion-hide-md-down"
                             style={{
                               display: "flex",
                               justifyContent: "center",
@@ -948,7 +931,7 @@ export const DefiContainer = ({
                             <a
                               href="https://aave.com/"
                               target="_blank"
-                              rel="noreferrer"
+                              rel="noreferrer noopener"
                             >
                               <IonIcon
                                 color="medium"
@@ -960,7 +943,7 @@ export const DefiContainer = ({
                               ></IonIcon>
                             </a>
                           </IonCol>
-                          <IonCol size="2" class="ion-text-end">
+                          <IonCol size="2" class="ion-text-end ion-hide-md-down">
                             <IonLabel>
                               {(+reserve?.supplyBalance).toFixed(6) || "0.00"}
                               <br />
@@ -975,7 +958,7 @@ export const DefiContainer = ({
                               </IonText>
                             </IonLabel>
                           </IonCol>
-                          <IonCol size="2" class="ion-text-end">
+                          <IonCol size="2" class="ion-text-end ion-hide-md-down">
                             <IonLabel>
                               {reserve?.borrowBalance.toFixed(6) || "0.00"}
                               <br />
@@ -990,7 +973,7 @@ export const DefiContainer = ({
                               </IonText>
                             </IonLabel>
                           </IonCol>
-                          <IonCol size="2" class="ion-text-end">
+                          <IonCol size="auto" size-md="2" class="ion-text-end">
                             <IonLabel>
                               {(Number(reserve?.supplyAPY || 0) * 100).toFixed(
                                 2
@@ -998,7 +981,7 @@ export const DefiContainer = ({
                               %
                             </IonLabel>
                           </IonCol>
-                          <IonCol size="2" class="ion-text-end">
+                          <IonCol  size="2" class="ion-text-end ion-hide-sm-down">
                             <IonLabel>
                               {(
                                 Number(reserve?.variableBorrowAPY || 0) * 100
@@ -1012,7 +995,20 @@ export const DefiContainer = ({
 
                     <IonGrid className="ion-padding" slot="content">
                       <IonRow class="ion-padding-top">
-                        <IonCol size="6" class="ion-padding ion-text-center">
+                        {!reserve.usageAsCollateralEnabled && (
+                          <IonCol size-md="12" class="ion-padding ion-margin-bottom ion-text-center">
+                            <IonText color="warning">
+                              This asset can not be used as collateral. Providing liquidity with this asset will not incrase your borrowing capacity.
+                            </IonText>
+                          </IonCol>)}
+                        {reserve.isIsolated === true && (
+                        <IonCol size-md="12" class="ion-padding ion-margin-bottom ion-text-center">
+                          <IonText color="warning">
+                            This asset can only be used as collateral in isolation mode only. <br/>
+                            In Isolation mode you cannot supply other assets as collateral for borrowing. Assets used as collateral in Isolation mode can only be borrowed to a specific debt ceiling
+                          </IonText>
+                        </IonCol>)}
+                        <IonCol size-md="6" class="ion-padding ion-text-center">
                           <div
                             style={{
                               maxWidth: 200,
@@ -1042,188 +1038,83 @@ export const DefiContainer = ({
                               </div>
                             </CircularProgressbarWithChildren>
                           </div>
-                        </IonCol>
-
-                        <IonCol size="6" class="ion-padding ion-text-center">
-                          <div
-                            style={{
-                              maxWidth: 200,
-                              maxHeight: 200,
-                              margin: "auto",
-                            }}
-                          >
-                            <CircularProgressbarWithChildren
-                              styles={buildStyles({
-                                textColor: "var(--ion-text-color)",
-                                pathColor:
-                                  reserve.borrowPoolRatioInPercent < 80
-                                    ? "var(--ion-color-primary)"
-                                    : "var(--ion-color-danger)",
-                                trailColor:
-                                  "rgba(var(--ion-color-primary-rgb), 0.2)",
-                              })}
-                              value={reserve.borrowPoolRatioInPercent}
+                          <div className="ion-padding">
+                            <IonItem
+                              lines="none"
+                              style={{ "--background": "transparent" }}
                             >
-                              <div>
-                                <h3>{`${reserve.borrowPoolRatioInPercent.toFixed(
+                              <IonLabel class="ion-text-center">
+                                Deposit liquidity
+                              </IonLabel>
+                            </IonItem>
+                            <IonItem style={{ "--background": "transparent" }}>
+                              <IonLabel color="medium">APY</IonLabel>
+                              <IonText color="medium">
+                                {(Number(reserve?.supplyAPY || 0) * 100).toFixed(
                                   2
-                                )}%`}</h3>
-                                <IonText color="medium">
-                                  <small>Total debits</small>
-                                </IonText>
-                              </div>
-                            </CircularProgressbarWithChildren>
+                                )}
+                                %
+                              </IonText>
+                            </IonItem>
+                            <IonItem style={{ "--background": "transparent" }}>
+                              <IonLabel color="medium">My deposit</IonLabel>
+                              <IonText color="medium">
+                                {+reserve?.supplyBalance > 0
+                                  ? (+reserve?.supplyBalance).toFixed(6)
+                                  : undefined || "0"}
+                              </IonText>
+                            </IonItem>
+                            <IonItem style={{ "--background": "transparent" }}>
+                              <IonLabel color="medium">
+                                Deposit liquidity
+                              </IonLabel>
+                              <IonText color="medium">
+                                {/* <FormattedNumber
+                                  compact
+                                  value={reserve.totalLiquidityUSD}
+                                  symbolsVariant="secondary12"
+                                  symbolsColor="text.secondary"
+                                  symbol="USD"
+                                /> */}
+                                {/* {formatCurrencyValue(
+                                  Number(reserve.totalLiquidityUSD )
+                                )} */}
+                                {/* {formatCurrencyValue(+reserve.totalLiquidityUSD)} */}
+                                {/* <FormattedNumber
+                                  compact={true}
+                                  value={Math.max(Number(reserve.totalLiquidityUSD), 0)}
+                                  symbol="USD"
+                                /> */}
+                                {formatCurrencyValue(
+                                  valueToBigNumber(
+                                    reserve.totalLiquidityUSD
+                                  ).toNumber()
+                                )}
+                              </IonText>
+                            </IonItem>
+                            <IonItem
+                              lines="none"
+                              style={{ "--background": "transparent" }}
+                            >
+                              <IonLabel color="medium">
+                                Deposit capitalisation
+                              </IonLabel>
+                              <IonText color="medium">
+                                {formatCurrencyValue(
+                                  Number(reserve.supplyCapUSD)
+                                )}
+                              </IonText>
+                            </IonItem>
                           </div>
-                        </IonCol>
-
-                        <IonCol size="6" class="ion-padding">
-                          <IonItem
-                            lines="none"
-                            style={{ "--background": "transparent" }}
-                          >
-                            <IonLabel class="ion-text-center">
-                              Deposit liquidity
-                            </IonLabel>
-                          </IonItem>
-                          <IonItem style={{ "--background": "transparent" }}>
-                            <IonLabel color="medium">APY</IonLabel>
-                            <IonText color="medium">
-                              {(Number(reserve?.supplyAPY || 0) * 100).toFixed(
-                                2
-                              )}
-                              %
-                            </IonText>
-                          </IonItem>
-                          <IonItem style={{ "--background": "transparent" }}>
-                            <IonLabel color="medium">My deposit</IonLabel>
-                            <IonText color="medium">
-                              {+reserve?.supplyBalance > 0
-                                ? (+reserve?.supplyBalance).toFixed(6)
-                                : undefined || "0"}
-                            </IonText>
-                          </IonItem>
-                          <IonItem style={{ "--background": "transparent" }}>
-                            <IonLabel color="medium">
-                              Deposit liquidity
-                            </IonLabel>
-                            <IonText color="medium">
-                              {/* <FormattedNumber
-                                compact
-                                value={reserve.totalLiquidityUSD}
-                                symbolsVariant="secondary12"
-                                symbolsColor="text.secondary"
-                                symbol="USD"
-                              /> */}
-                              {/* {formatCurrencyValue(
-                                Number(reserve.totalLiquidityUSD )
-                              )} */}
-                              {/* {formatCurrencyValue(+reserve.totalLiquidityUSD)} */}
-                              {/* <FormattedNumber
-                                compact={true}
-                                value={Math.max(Number(reserve.totalLiquidityUSD), 0)}
-                                symbol="USD"
-                              /> */}
-                              {formatCurrencyValue(
-                                valueToBigNumber(
-                                  reserve.totalLiquidityUSD
-                                ).toNumber()
-                              )}
-                            </IonText>
-                          </IonItem>
-                          <IonItem
-                            lines="none"
-                            style={{ "--background": "transparent" }}
-                          >
-                            <IonLabel color="medium">
-                              Deposit capitalisation
-                            </IonLabel>
-                            <IonText color="medium">
-                              {formatCurrencyValue(
-                                Number(reserve.supplyCapUSD)
-                              )}
-                            </IonText>
-                          </IonItem>
-                        </IonCol>
-
-                        <IonCol size="6" class="ion-padding">
-                          <IonItem
-                            lines="none"
-                            style={{ "--background": "transparent" }}
-                          >
-                            <IonLabel class="ion-text-center">
-                              Borrow liquidity
-                            </IonLabel>
-                          </IonItem>
-                          <IonItem style={{ "--background": "transparent" }}>
-                            <IonLabel color="medium">APY</IonLabel>
-                            <IonText color="medium">
-                              {(
-                                Number(reserve?.variableBorrowAPY || 0) * 100
-                              ).toFixed(2)}
-                              %
-                            </IonText>
-                          </IonItem>
-                          <IonItem style={{ "--background": "transparent" }}>
-                            <IonLabel color="medium">My debit</IonLabel>
-                            <IonText color="medium">
-                              {reserve?.borrowBalance > 0
-                                ? reserve?.borrowBalance.toFixed(6)
-                                : undefined || "0"}
-                            </IonText>
-                          </IonItem>
-                          <IonItem style={{ "--background": "transparent" }}>
-                            <IonLabel color="medium">Debit liquidity</IonLabel>
-                            <IonText color="medium">
-                              {formatCurrencyValue(
-                                Number(reserve.totalDebtUSD)
-                              )}
-                              {/* {formatCurrencyValue(+reserve.totalLiquidityUSD)} */}
-                              {/* <FormattedNumber
-                                compact={true}
-                                value={Math.max(Number(reserve.totalLiquidityUSD), 0)}
-                                symbol="USD"
-                              /> */}
-                              {/* {valueToBigNumber(reserve.supplyCapUSD).toNumber()} */}
-                            </IonText>
-                          </IonItem>
-                          <IonItem
-                            lines="none"
-                            style={{ "--background": "transparent" }}
-                          >
-                            <IonLabel color="medium">
-                              Borrow capitalisation
-                            </IonLabel>
-                            <IonText color="medium">
-                              {formatCurrencyValue(
-                                Number(reserve.borrowCapUSD)
-                              )}
-                            </IonText>
-                          </IonItem>
-                        </IonCol>
-                      </IonRow>
-
-                      {!user ? (
-                        <IonRow class="ion-justify-content-center ion-align-item-center ion-padding-vertical">
-                          <IonCol
-                            size="auto"
-                            class="ion-margin-bottom ion-padding-vertical"
-                          >
-                            <ConnectButton></ConnectButton>
-                          </IonCol>
-                        </IonRow>
-                      ) : (
-                        <IonRow class="ion-justify-content-center ion-padding-vertical">
-                          <IonCol
-                            size="6"
-                            class="ion-padding-horizontal ion-text-center"
-                          >
-                            {!reserve?.walletBalance ||
-                            +reserve.walletBalance <= 0 ? (
+                          <div className="ion-margin-vertical ion-padding-vertical">
+                            {user && (
+                              <>
+                                {(!reserve?.walletBalance ||
+                            +reserve.walletBalance <= 0) ? (
                               <>
                                 <IonButton
                                   fill="solid"
                                   color="primary"
-                                  size="small"
                                   onClick={() => handleEvents("swap", reserve)}
                                 >
                                   Exchange assets
@@ -1231,18 +1122,17 @@ export const DefiContainer = ({
                                 <IonButton
                                   fill="solid"
                                   color="primary"
-                                  size="small"
                                   onClick={() => handleEvents("fiat", reserve)}
                                 >
                                   Buy assets
                                 </IonButton>
                               </>
-                            ) : (
-                              <>
+                            )
+                            : (
+<>
                                 <IonButton
                                   fill="solid"
                                   color="primary"
-                                  size="small"
                                   disabled={
                                     !reserve?.supplyBalance ||
                                     +reserve.supplyBalance <= 0
@@ -1258,7 +1148,6 @@ export const DefiContainer = ({
                                 <IonButton
                                   fill="solid"
                                   color="primary"
-                                  size="small"
                                   disabled={
                                     reserve.supplyPoolRatioInPercent > 99
                                       ? true
@@ -1274,44 +1163,144 @@ export const DefiContainer = ({
                                   Deposit
                                 </IonButton>
                               </>
+                            )
+                          }
+                              </>
                             )}
-                          </IonCol>
-                          <IonCol
-                            size="6"
-                            class="ion-padding-horizontal ion-text-center"
-                          >
-                            <IonButton
-                              fill="solid"
-                              color="primary"
-                              size="small"
-                              disabled={
-                                !reserve?.borrowBalance ||
-                                reserve.borrowBalance <= 0
-                                  ? true
-                                  : false
-                              }
-                              onClick={() => handleOpenModal("repay", reserve)}
+                          </div>
+                        </IonCol>
+
+                        {reserve.borrowingEnabled && (
+                          <IonCol size-md="6" class="ion-padding ion-text-center">
+                            <div
+                              style={{
+                                maxWidth: 200,
+                                maxHeight: 200,
+                                margin: "auto",
+                              }}
                             >
-                              Repay
-                            </IonButton>
-                            <IonButton
-                              fill="solid"
-                              color="primary"
-                              size="small"
-                              disabled={
-                                reserve.borrowPoolRatioInPercent > 99
-                                  ? true
-                                  : borrowingCapacity - totalBorrowsUsd <= 0
-                                  ? true
-                                  : false
-                              }
-                              onClick={() => handleOpenModal("borrow", reserve)}
-                            >
-                              Borrow
-                            </IonButton>
+                              <CircularProgressbarWithChildren
+                                styles={buildStyles({
+                                  textColor: "var(--ion-text-color)",
+                                  pathColor:
+                                    reserve.borrowPoolRatioInPercent < 80
+                                      ? "var(--ion-color-primary)"
+                                      : "var(--ion-color-danger)",
+                                  trailColor:
+                                    "rgba(var(--ion-color-primary-rgb), 0.2)",
+                                })}
+                                value={reserve.borrowPoolRatioInPercent}
+                              >
+                                <div>
+                                  <h3>{`${reserve.borrowPoolRatioInPercent.toFixed(
+                                    2
+                                  )}%`}</h3>
+                                  <IonText color="medium">
+                                    <small>Total debits</small>
+                                  </IonText>
+                                </div>
+                              </CircularProgressbarWithChildren>
+                            </div>
+                            <div className="ion-padding">
+                              <IonItem
+                                lines="none"
+                                style={{ "--background": "transparent" }}
+                              >
+                                <IonLabel class="ion-text-center">
+                                  Borrow liquidity
+                                </IonLabel>
+                              </IonItem>
+                              <IonItem style={{ "--background": "transparent" }}>
+                                <IonLabel color="medium">APY</IonLabel>
+                                <IonText color="medium">
+                                  {(
+                                    Number(reserve?.variableBorrowAPY || 0) * 100
+                                  ).toFixed(2)}
+                                  %
+                                </IonText>
+                              </IonItem>
+                              <IonItem style={{ "--background": "transparent" }}>
+                                <IonLabel color="medium">My debit</IonLabel>
+                                <IonText color="medium">
+                                  {reserve?.borrowBalance > 0
+                                    ? reserve?.borrowBalance.toFixed(6)
+                                    : undefined || "0"}
+                                </IonText>
+                              </IonItem>
+                              <IonItem style={{ "--background": "transparent" }}>
+                                <IonLabel color="medium">Debit liquidity</IonLabel>
+                                <IonText color="medium">
+                                  {formatCurrencyValue(
+                                    Number(reserve.totalDebtUSD)
+                                  )}
+                                  {/* {formatCurrencyValue(+reserve.totalLiquidityUSD)} */}
+                                  {/* <FormattedNumber
+                                    compact={true}
+                                    value={Math.max(Number(reserve.totalLiquidityUSD), 0)}
+                                    symbol="USD"
+                                  /> */}
+                                  {/* {valueToBigNumber(reserve.supplyCapUSD).toNumber()} */}
+                                </IonText>
+                              </IonItem>
+                              <IonItem
+                                lines="none"
+                                style={{ "--background": "transparent" }}
+                              >
+                                <IonLabel color="medium">
+                                  Borrow capitalisation
+                                </IonLabel>
+                                <IonText color="medium">
+                                  {formatCurrencyValue(
+                                    Number(reserve.borrowCapUSD)
+                                  )}
+                                </IonText>
+                              </IonItem>
+                            </div>
+                            <div className="ion-margin-vertical ion-padding-vertical">
+                              {
+                              user 
+                              ? (<>
+                                <IonButton
+                                  fill="solid"
+                                  color="primary"
+                                  disabled={
+                                    !reserve?.borrowBalance ||
+                                    reserve.borrowBalance <= 0
+                                      ? true
+                                      : false
+                                  }
+                                  onClick={() => handleOpenModal("repay", reserve)}
+                                >
+                                  Repay
+                                </IonButton>
+                                <IonButton
+                                  fill="solid"
+                                  color="primary"
+                                  disabled={
+                                    reserve.borrowPoolRatioInPercent > 99
+                                      ? true
+                                      : borrowingCapacity - totalBorrowsUsd <= 0
+                                      ? true
+                                      : false
+                                  }
+                                  onClick={() => handleOpenModal("borrow", reserve)}
+                                >
+                                  Borrow
+                                </IonButton>
+                              </>
+                              )
+                              : (<></>)}
+                            </div>
                           </IonCol>
-                        </IonRow>
-                      )}
+                        )}
+
+                        {!user && (
+                          <IonCol size="12" class="ion-padding">
+                            <ConnectButton></ConnectButton>
+                          </IonCol>
+                        )}
+
+                      </IonRow>
                     </IonGrid>
                   </IonAccordion>
                 ))}

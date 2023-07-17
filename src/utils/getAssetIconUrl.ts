@@ -46,5 +46,41 @@ export const getAssetIconUrl = ({ symbol }: { symbol: string }) => {
   if (symbol === "WETH") {
     logoUrl = `./assets/icons/weth.svg`;
   }
+  if (symbol === "GHO") {
+    logoUrl = `./assets/icons/gho.svg`;
+  }
+  if (symbol === "FRAX") {
+    logoUrl = `./assets/icons/frax.svg`;
+  }
+  if (symbol === "agEUR") {
+    logoUrl = `./assets/icons/ageur.svg`;
+  }
+  if (symbol === "jEUR") {
+    logoUrl = `./assets/icons/jeur.svg`;
+  }
+  if (symbol === "GHST") {
+    logoUrl = `./assets/icons/ghst.svg`;
+  }
+  if (symbol === "miMATIC") {
+    logoUrl = `./assets/icons/mai.svg`;
+  }
+  if (symbol === "EURS") {
+    logoUrl = `./assets/icons/eurs.svg`;
+  }
+  if (symbol === "OP") {
+    logoUrl = `./assets/icons/op.svg`;
+  }
+  if (symbol === "1INCH") {
+    logoUrl = `./assets/icons/1inch.svg`;
+  }
+  if (symbol === "UNI") {
+    logoUrl = `./assets/icons/uni.svg`;
+  }
+  if (symbol === "CRV") {
+    logoUrl = `./assets/icons/crv.svg`;
+  }
+  if (symbol === "SNX") {
+    logoUrl = `./assets/icons/snx.svg`;
+  }
   return logoUrl;
 };

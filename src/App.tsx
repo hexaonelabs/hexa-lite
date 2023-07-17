@@ -32,6 +32,7 @@ import { Welcome } from "./components/Welcome";
 import { Swap } from "./components/Swap";
 import { Fiat } from "./components/Fiat";
 import { Header } from "./components/Header";
+import { Earn } from "./components/Earn";
 
 setupIonicReact({
   mode: "ios",
@@ -44,7 +45,7 @@ function App() {
   const urlParams = new URLSearchParams(window.location.search);
   let segment = urlParams.get("s") || "welcome";
   // handle unsupported segment
-  if (segment && ['welcome', 'swap', 'fiat', 'defi'].indexOf(segment) === -1) {
+  if (segment && ['welcome', 'swap', 'fiat', 'defi', 'earn'].indexOf(segment) === -1) {
     urlParams.delete('s');
     segment = '';
     // reload window with correct segment
@@ -55,6 +56,11 @@ function App() {
   const handleSegmentChange = (e: any) => {
     setSegment(e.detail.value);
   };
+  const contentRef = useRef<HTMLIonContentElement|null>(null);
+  const scrollToTop= () => {
+    // @ts-ignore
+    contentRef.current.scrollToTop();
+};
 
   const renderSwitch = (param: string) => {
     switch (param) {
@@ -70,6 +76,13 @@ function App() {
             <DefiContainer handleSegmentChange={handleSegmentChange} />
           </AaveProvider>
         );
+      case "earn": {
+        return (
+          <AaveProvider>
+            <Earn />
+          </AaveProvider>
+        )
+      }
       default:
         return currentSegment ?
           (
@@ -95,8 +108,8 @@ function App() {
   return (
     <IonApp>
       <IonRouterOutlet>
-        <Header currentSegment={currentSegment} handleSegmentChange={handleSegmentChange} />
-        <IonContent fullscreen={true} className="ion-padding">
+        <Header currentSegment={currentSegment} handleSegmentChange={handleSegmentChange} scrollToTop={scrollToTop} />
+        <IonContent ref={contentRef} scrollEvents={true} fullscreen={true} className="ion-padding">
           <IonGrid class="ion-no-padding" style={{ minHeight: "95vh" }}>
             <IonRow
               style={{

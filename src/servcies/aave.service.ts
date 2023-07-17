@@ -31,7 +31,7 @@ export const fetchTVL = async () => {
 
 export const supply = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: ReserveDataHumanized;
+  reserve: {underlyingAsset: string;};
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -46,13 +46,18 @@ export const supply = async (ops: {
   const signer = provider.getSigner();
   const user = await signer?.getAddress();
   const tokenAdress = reserve.underlyingAsset;
-
-  const txs: EthereumTransactionTypeExtended[] = await pool.supply({
-    user,
-    reserve: tokenAdress,
-    amount,
-    onBehalfOf,
-  });
+  let txs: EthereumTransactionTypeExtended[];
+  try {
+    txs = await pool.supply({
+      user,
+      reserve: tokenAdress,
+      amount,
+      onBehalfOf,
+    });
+  } catch (error) {
+    console.log('aprouval suit..........');
+    throw error;
+  }
   console.log("txs: ", txs);
   const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(
     txs.map(async (tx) => {
@@ -71,7 +76,7 @@ export const supply = async (ops: {
 
 export const supplyWithPermit = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: ReserveDataHumanized;
+  reserve: {underlyingAsset: string;};
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -344,7 +349,7 @@ export const getPools = async (ops: {
     marketReferenceCurrencyDecimals,
     marketReferencePriceInUsd,
   });
-  return formattedPoolReserves;
+  return formattedPoolReserves.filter((pool) => pool.isActive && !pool.isFrozen);
 };
 
 export const getUserSummary = async (ops: {
@@ -572,7 +577,12 @@ export const getUserSummaryAndIncentives = async (ops: {
     userEmodeCategoryId: userReserves.userEmodeCategoryId,
   });
 
-  return formatedUserSummaryAndIncentives;
+  return {
+    ...formatedUserSummaryAndIncentives,
+    userReservesData: formatedUserSummaryAndIncentives.userReservesData.filter(
+      ({reserve}) => reserve.isActive && !reserve.isFrozen
+    )
+  };
 };
 
 // deprecated

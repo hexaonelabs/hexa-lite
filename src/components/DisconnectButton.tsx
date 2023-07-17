@@ -17,6 +17,7 @@ import { useUser } from "../context/UserContext";
 import { copyOutline, closeSharp } from "ionicons/icons";
 import { getAvatarFromEVMAddress } from "../servcies/avatar";
 import ShowUIButton from "./ShowUIButton";
+import { useLoader } from "../context/LoaderContext";
 
 const splitAddress = (address: string) => {
   return address.slice(0, 6) + "..." + address.slice(-4);
@@ -69,7 +70,7 @@ function DisconnectPopover({
           </IonListHeader>
           <IonItem className="ion-margin-vertical" lines="none">
             <IonAvatar slot="start">
-              <img src={avatarUrl} />
+              <img src={avatarUrl} alt="avatar" />
             </IonAvatar>
             <IonLabel>{splitAddress(user)}</IonLabel>
             <IonIcon 
@@ -111,18 +112,25 @@ const DisconnectButton = (props: {
 }) => {
   const { user } = useUser();
   const popoverRef = useRef<HTMLIonPopoverElement>(null);
+  const { display: displayLoader, hide: hideLoader } = useLoader();
   // Get the initializeWeb3 function from the Web3 context
   const { initializeWeb3 } = useEthersProvider();
 
   // Define the event handler for the button click
   const handleDisconnect = async () => {
     try {
+      // Display the loader while the disconnection is being made
+      await displayLoader();
       await disconnect();
       // After successful disconnection, re-initialize the Web3 instance
       await initializeWeb3();
+      // Hide the loader
+      await hideLoader();
     } catch (error) {
       // Log any errors that occur during the disconnection process
       console.log("handleDisconnect:", error);
+      // Hide the loader
+      await hideLoader();
     }
   };
 
