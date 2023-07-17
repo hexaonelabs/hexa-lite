@@ -1,33 +1,67 @@
 import { IonButton, IonCard, IonCol, IonGrid, IonImg, IonInput, IonItem, IonLabel, IonRow, IonText, IonThumbnail, useIonModal } from "@ionic/react";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import { ethers } from "ethers";
 import { getMaxAmountAvailableToSupply } from "../utils/getMaxAmountAvailableToSupply";
-import { supplyWithPermit } from "../servcies/aave.service";
+import { borrow, supplyWithPermit } from "../servcies/aave.service";
 import { useLoader } from "../context/LoaderContext";
 import { useUser } from "../context/UserContext";
 import { useAave } from "../context/AaveContext";
 import { useEthersProvider } from "../context/Web3Context";
-import { ChainId } from "@aave/contract-helpers";
+import { ChainId, InterestRate, ReserveDataHumanized } from "@aave/contract-helpers";
+import { getMaxAmountAvailableToBorrow } from "../utils/getMaxAmountAvailableToBorrow";
+import { FormatReserveUSDResponse, FormatUserSummaryAndIncentivesResponse } from "@aave/math-utils";
+import { as } from "@bgd-labs/aave-address-book/dist/AaveV2EthereumAssets-3aae4284";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
   [ChainId.arbitrum_one]: "0.0001",
 };
 
+interface IStrategy {
+  chainId: number;
+  name: string;
+  icon: string;
+  apys: string[];
+  locktime: number,
+  providers: string[],
+  assets: string[],
+  isStable: boolean,
+  details: {
+    description: string;
+  },
+  poolAddress: string;
+  gateway: string;
+  reserve: (ReserveDataHumanized & FormatReserveUSDResponse);
+  userSummaryAndIncentives: FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>;
+  step: {
+      type: string;
+      from: string;
+      to: string;
+      title:string;
+      description: string;
+      protocol: string
+    }[]
+}
 
 function StrategyModal({
   strategy,
   onDismiss,
   onDeposit,
+  onBorrow,
 }: {
-  strategy: any,
+  strategy: IStrategy,
   onDismiss: (data?: string | null | undefined | number, role?: string) => void;
   onDeposit: (ops: {
-    underlyingAsset: string;
-    poolAddress: string;
-    gatewayAddress: string;
+    strategy: IStrategy;
+    provider: ethers.providers.Web3Provider;
+    amount: number;
+  }) => Promise<{
+    txReceipts: ethers.providers.TransactionReceipt[];
+  }>;
+  onBorrow: (ops: {
+    strategy: IStrategy;
     provider: ethers.providers.Web3Provider;
     amount: number;
   }) => Promise<{
@@ -37,17 +71,47 @@ function StrategyModal({
   const { ethereumProvider } = useEthersProvider();
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const [step, setStep] = useState(0);  
+  // create ref for input deposit, borrow, swap
+  const inputDepositRef = useRef<HTMLIonInputElement>(null);
+  const inputBorrowRef = useRef<HTMLIonInputElement>(null);
+  const inputSwapRef = useRef<HTMLIonInputElement>(null);
+
   const noticeMessage = (name: string) => `Our strategies leverage and connect to ${name?.toUpperCase()} protocol smart contracts without any third-party involvement, providing a trustless and completely transparent experience.
   Rest assured, our solutions are non-custodial, allowing you to withdraw your assets at any time. Control remains in your hands!`;
 
+  const { user, assets } = useUser();
 
+  const minBaseTokenRemaining =
+          minBaseTokenRemainingByNetwork[
+            ethereumProvider?.network?.chainId || 137
+          ] || "0.001";
+  const { balance: walletBalance = 0 } =
+    assets?.find(
+      ({ contractAddress, chain = {} }) =>
+        contractAddress?.toLocaleLowerCase() ===
+        strategy.reserve.underlyingAsset?.toLocaleLowerCase() &&
+        chain?.id === ethereumProvider?.network?.chainId
+    ) || {};
+  const maxToDeposit = +getMaxAmountAvailableToSupply(
+    `${Number(walletBalance)}`,
+    strategy.reserve,
+    strategy.reserve.underlyingAsset,
+    minBaseTokenRemaining
+  );
+  const maxToBorrow = +getMaxAmountAvailableToBorrow(
+    strategy.reserve,
+    strategy.userSummaryAndIncentives,
+    InterestRate.Variable
+  );
+  console.log({maxToDeposit, maxToBorrow, walletBalance});
+  
   return (
     <IonGrid>
       
       {/* <!-- Steps Proccess Component --> */}
       <IonRow class="ion-text-center ion-padding-top ion-padding-horizontal">
         <IonCol size="12" class="ion-text-center">
-          <IonLabel>Steps</IonLabel>
+          <IonLabel>Strategy Steps <small>({step + 1}/{4})</small></IonLabel>
         </IonCol>
       </IonRow>
 
@@ -74,6 +138,7 @@ function StrategyModal({
         </IonGrid>
       </IonRow>
 
+      {/* Swap */}
       {(step === 0  || step === 3) && (
         <IonRow class="ion-text-center ion-padding-horizontal ion-padding-bottom">
           <IonCol size="12" class="ion-padding-start ion-padding-end ion-padding-bottom">
@@ -91,9 +156,10 @@ function StrategyModal({
               </IonThumbnail>
               <IonLabel slot="start" class="ion-hide-md-down">
                 <h2>{strategy.step[0].from}</h2>
-                <p>Balance: {0}</p>
+                <p>Balance: {walletBalance}</p>
               </IonLabel>
               <IonInput
+                ref={inputSwapRef}
                 class="ion-text-end"
                 slot="end"
                 type="number"
@@ -102,7 +168,7 @@ function StrategyModal({
                 enterkeyhint="done"
                 inputmode="numeric"
                 min="0"
-                max={1}
+                max={walletBalance}
               ></IonInput>
             </IonItem>
           </IonCol>
@@ -136,13 +202,19 @@ function StrategyModal({
             </IonText>
           </IonCol>
           <IonCol size="12" className="ion-padding-top">
-            <IonButton className="ion-margin-top" expand="block">
+            <IonButton className="ion-margin-top" expand="block" onClick={() => {
+              if (!ethereumProvider) {
+                return;
+              }
+              setStep(() => 1);
+            }}>
               Swap
             </IonButton>
           </IonCol>
         </IonRow>
       )}
 
+      {/* Deposit */}
       {step === 1 && (
         <IonRow class="ion-text-center ion-padding" >
           <IonCol size="12" size-md="10" offset-md="1" size-xl="8" offset-xl="2" class="ion-padding-start ion-padding-end">
@@ -160,9 +232,10 @@ function StrategyModal({
               </IonThumbnail>
               <IonLabel slot="start" class="ion-hide-md-down">
                 <h2>{strategy.step[1].from}</h2>
-                <p>Balance: {0}</p>
+                <p>Balance: {maxToDeposit}</p>
               </IonLabel>
               <IonInput
+                ref={inputDepositRef}
                 class="ion-text-end"
                 slot="end"
                 type="number"
@@ -171,6 +244,7 @@ function StrategyModal({
                 enterkeyhint="done"
                 inputmode="numeric"
                 min="0"
+                max={maxToDeposit}
               ></IonInput>
             </IonItem>
           </IonCol>
@@ -180,33 +254,27 @@ function StrategyModal({
             </IonText>
           </IonCol>
           <IonCol size="12" className="ion-padding-top">
+            {/* Event Button */}
             <IonButton className="ion-margin-top" expand="block" onClick={async ()=> {
               if (!ethereumProvider) {
                 return;
               }
               await displayLoader();
               const {txReceipts, ...error} = await onDeposit({
-                underlyingAsset: strategy.step[1].underlyingAsset,
-                poolAddress: strategy.step[1].poolAddress,
-                gatewayAddress: strategy.gatewayAddress,
+                strategy,
                 provider: ethereumProvider,
-                amount: 1
-              })
-              .then(result => {
-                hideLoader();
-                return result;
+                amount: inputDepositRef.current?.value ? +inputDepositRef.current?.value : 0
               })
               .catch(error => {
                 hideLoader();
                 return error
               });
               console.log('xxxxx', {txReceipts, error});
-              
               if (error) {
                 console.error({error});
                 return
               }
-              setStep(() => 1);
+              setStep(() => 2);
             }}>
               Deposit
             </IonButton>
@@ -214,7 +282,7 @@ function StrategyModal({
         </IonRow>
       )}
 
-
+      {/* Borrow */}
       {step === 2 && (
         <IonRow class="ion-text-center ion-padding" >
           <IonCol size="12" size-md="10" offset-md="1" size-xl="8" offset-xl="2" class="ion-padding-start ion-padding-end">
@@ -232,9 +300,15 @@ function StrategyModal({
               </IonThumbnail>
               <IonLabel slot="start" class="ion-hide-md-down">
                 <h2>{strategy.step[2].from}</h2>
-                <p>Max amount: </p>
+                <p style={{cursor: 'pointer'}} onClick={()=> {
+                  console.log('>',inputBorrowRef?.current?.value);
+                  if (inputBorrowRef?.current?.value) {
+                    (inputBorrowRef.current.value = maxToBorrow.toString())
+                  }
+                }}>Max amount: {maxToBorrow}</p>
               </IonLabel>
               <IonInput
+                ref={inputBorrowRef}
                 class="ion-text-end"
                 slot="end"
                 type="number"
@@ -243,6 +317,7 @@ function StrategyModal({
                 enterkeyhint="done"
                 inputmode="numeric"
                 min="0"
+                max={maxToBorrow}
               ></IonInput>
             </IonItem>
           </IonCol>        
@@ -252,9 +327,45 @@ function StrategyModal({
             </IonText>
           </IonCol>
           <IonCol size="12" className="ion-padding-top">
-            <IonButton className="ion-margin-top" expand="block" onClick={()=> {}}>
+            {/* Event Button */}
+            <IonButton className="ion-margin-top" expand="block" onClick={async ()=> {
+              if (!ethereumProvider) {
+                return;
+              }
+              await displayLoader();
+              const { txReceipts, ...error} = await onBorrow({
+                strategy,
+                provider: ethereumProvider,
+                amount: inputBorrowRef.current?.value ? +inputBorrowRef.current?.value : 0
+              })
+              .catch(error => {
+                hideLoader();
+                return error
+              });
+              console.log('[INFO] Borrow:', {txReceipts, error});
+              if (error) {
+                console.error({error});
+                return
+              }
+              setStep(() => 3);
+            }}>
               Borrow
             </IonButton>
+          </IonCol>
+        </IonRow>
+      )}
+
+      {step === 4 && (
+        <IonRow class="ion-text-center ion-padding" >
+          <IonCol size="12" size-md="10" offset-md="1" size-xl="8" offset-xl="2" class="ion-padding-start ion-padding-end">
+          <IonText>
+              <h2>Congratulation</h2>
+            </IonText>
+            <IonText color="medium">
+              <p>
+                You have successfully completed the {strategy.name} strategy.
+              </p>
+            </IonText>
           </IonCol>
         </IonRow>
       )}
@@ -268,15 +379,14 @@ export function Earn() {
   const { 
     poolReserves, 
     markets, 
-    totalTVL, 
     refresh, 
     userSummaryAndIncentives 
   } = useAave();
 
-  const underlyingAsset = poolReserves?.find(p => p.symbol === 'ETH' || p.symbol === 'WETH')?.underlyingAsset;
-  const strategies = [
+  const poolReserveWETH = poolReserves?.find(p => p.symbol === 'ETH' || p.symbol === 'WETH');
+  const strategies: IStrategy[] = [
     {
-      chainId: 137,
+      chainId: markets?.CHAIN_ID as number,
       name: "ETH",
       icon: getAssetIconUrl({symbol: 'ETH'}),
       apys: ["4.00%", "15.00%"],
@@ -287,7 +397,10 @@ export function Earn() {
       details:{
         description: `This strategy will swap your ETH for wstETH and stake it in Aave to create collateral for the protocol that allow you to borrow ETH to leveraged against standard ETH to gain an increased amount of ETH POS staking reward.`
       },
-      wethGateway: markets?.WETH_GATEWAY,
+      poolAddress: markets?.POOL as string,
+      gateway: markets?.WETH_GATEWAY as string,
+      reserve: poolReserveWETH as (ReserveDataHumanized & FormatReserveUSDResponse),
+      userSummaryAndIncentives: userSummaryAndIncentives as FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>,
       step: [
         {
           type: 'swap',
@@ -301,32 +414,28 @@ export function Earn() {
           type: 'deposit',
           from: 'wstETH',
           to: 'WETH',
-          underlyingAsset,
-          poolAddress: markets?.POOL,
           title: 'Deposit wstETH as collateral',
           description: 'By deposit wstETH as collateral on AAVE you will be able to borrow up to 75% of your wstETH value in WETH',
           protocol: 'aave'
         }, {
           type: 'borrow',
           from: 'WETH',
-          underlyingAsset,
-          poolAddress: markets?.POOL,
+          to: poolReserveWETH?.aTokenAddress as string,
           title: 'Borrow WETH',
           description: 'By borrowing WETH on AAVE you will be able to increase your WETH holdings and use it for laverage stacking with wstETH.',
-          protocol: 'aave'
+          protocol: 'aave',
         }
       ]
     }
   ];
 
   const onDepositToAAVE = async (
-    ops: {underlyingAsset: string,
-    poolAddress: string,
-    gatewayAddress: string,
+    ops: {
+    strategy: IStrategy,
     provider: ethers.providers.Web3Provider,
     amount: number},
   ) => {
-    const { underlyingAsset, poolAddress, gatewayAddress, provider, amount } = ops;
+    const { strategy, provider, amount } = ops;
     // handle invalid amount
     if (isNaN(amount) || amount <= 0) {
       throw new Error(
@@ -336,11 +445,11 @@ export function Earn() {
     // call method
     const params = {
       provider,
-      reserve: {underlyingAsset},
+      reserve: strategy.reserve,
       amount: amount.toString(),
       onBehalfOf: undefined,
-      poolAddress,
-      gatewayAddress,
+      poolAddress: strategy.poolAddress,
+      gatewayAddress: strategy.gateway,
     };
     console.log("params: ", params);
     try {
@@ -352,9 +461,42 @@ export function Earn() {
     }
   }
 
+  const onBorrowFromAAVE = async (
+    ops: {
+    strategy: IStrategy,
+    provider: ethers.providers.Web3Provider,
+    amount: number},
+  ) => {
+    const { strategy, provider, amount } = ops;
+    // handle invalid amount
+    if (isNaN(amount) || amount <= 0) {
+      throw new Error(
+        "Invalid amount. Value must be greater than 0."
+      );
+    }
+    // call method
+    const params = {
+      provider,
+      reserve: strategy.reserve,
+      amount: amount.toString(),
+      onBehalfOf: undefined,
+      poolAddress: strategy.poolAddress,
+      gatewayAddress: strategy.gateway,
+    };
+    console.log("params: ", params);
+    try {
+      const txReceipts = await borrow(params);
+      console.log("TX result: ", txReceipts);
+      return { txReceipts };
+    } catch (error) {
+      throw error;
+    }
+  }
+
   const [present, dismiss] = useIonModal(StrategyModal, {
     strategy: strategies[0],
     onDeposit: async ({...args}) => await onDepositToAAVE(args as any),
+    onBorrow: async ({...args}) => await onBorrowFromAAVE(args as any),
     onDismiss: (data: string, role: string) => dismiss(data, role),
   });
 
@@ -419,6 +561,7 @@ export function Earn() {
                               cssClass: "modalAlert ",
                               onWillDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
                                 console.log("will dismiss", ev.detail);
+                                
                               }
                             })} expand="block" color="primary" >Start Earning</IonButton>
                           </IonCol>

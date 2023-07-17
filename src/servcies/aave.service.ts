@@ -192,7 +192,7 @@ export const withdraw = async (ops: {
 
 export const borrow = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: ReserveDataHumanized;
+  reserve: {underlyingAsset: string;};
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -231,7 +231,7 @@ export const borrow = async (ops: {
   );
   console.log("result: ", txResponses);
 
-  const txReceipts = await Promise.all(txResponses.map((tx) => tx.wait()));
+  const txReceipts = await Promise.all(txResponses.map(async(tx) => (await tx.wait())));
   return txReceipts;
 };
 
