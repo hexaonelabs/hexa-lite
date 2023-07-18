@@ -72,7 +72,7 @@ export function MenuPopover({
         onClick={() => {
           popoverRef.current?.dismiss();
           handleSegmentChange({
-            detail: { value: "stack" },
+            detail: { value: "earn" },
           });
         }}
       >

@@ -1,6 +1,6 @@
-import { IonButton, IonCard, IonCol, IonGrid, IonImg, IonInput, IonItem, IonLabel, IonRow, IonText, IonThumbnail, useIonModal } from "@ionic/react";
+import { IonButton, IonCard, IonCol, IonGrid, IonImg, IonInput, IonItem, IonLabel, IonRow, IonText, IonThumbnail, useIonModal, IonSkeletonText } from "@ionic/react";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import { ethers } from "ethers";
 import { getMaxAmountAvailableToSupply } from "../utils/getMaxAmountAvailableToSupply";
@@ -12,8 +12,9 @@ import { useEthersProvider } from "../context/Web3Context";
 import { ChainId, InterestRate, ReserveDataHumanized } from "@aave/contract-helpers";
 import { getMaxAmountAvailableToBorrow } from "../utils/getMaxAmountAvailableToBorrow";
 import { FormatReserveUSDResponse, FormatUserSummaryAndIncentivesResponse, valueToBigNumber } from "@aave/math-utils";
-import { as } from "@bgd-labs/aave-address-book/dist/AaveV2EthereumAssets-3aae4284";
 import { getPercent } from "../utils/utils";
+import { swapWithLiFi } from "../servcies/lifi.service";
+import { getBaseAPRstETH } from "../servcies/lido.service";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -46,11 +47,22 @@ interface IStrategy {
     }[]
 }
 
+// Function that calcule maximum borrow/supply multiplicator user can do based on 
+// The Maximum LTV ratio represents the maximum borrowing power of a specific collateral. 
+// For example, if a collateral has an LTV of 75%, the user can borrow up to 0.75 worth of ETH in the principal currency for every 1 ETH worth of collateral.
+const getMaxLeverageFactor = (ltv: number) => {
+  // The Maximum LTV ratio is calculated as follows:
+  // Maximum LTV = 1 / (1 - LTV)
+  // For example, if the LTV is 75%, the maximum LTV is 1 / (1 - 0.75) = 4.
+  return 1 / (1 - ltv);
+}
+
 function StrategyModal({
   strategy,
   onDismiss,
   onDeposit,
   onBorrow,
+  onSwap,
 }: {
   strategy: IStrategy,
   onDismiss: (data?: string | null | undefined | number, role?: string) => void;
@@ -62,6 +74,13 @@ function StrategyModal({
     txReceipts: ethers.providers.TransactionReceipt[];
   }>;
   onBorrow: (ops: {
+    strategy: IStrategy;
+    provider: ethers.providers.Web3Provider;
+    amount: number;
+  }) => Promise<{
+    txReceipts: ethers.providers.TransactionReceipt[];
+  }>;
+  onSwap: (ops: {
     strategy: IStrategy;
     provider: ethers.providers.Web3Provider;
     amount: number;
@@ -214,9 +233,29 @@ function StrategyModal({
             </IonText>
           </IonCol>
           <IonCol size="12" className="ion-padding-top">
-            <IonButton className="ion-margin-top" expand="block" onClick={() => {
+            <IonButton className="ion-margin-top" expand="block" onClick={async () => {
               if (!ethereumProvider) {
                 return;
+              }
+              // verify max amount
+              if (inputSwapRef.current?.value && +inputSwapRef.current?.value >= walletBalanceWETH) {
+                console.error({message:`Invalid amount: ${inputSwapRef.current?.value}. Value must be less or equal than your balance.`});
+                return;
+              }
+              await displayLoader();
+              const {txReceipts, ...error} = await onSwap({
+                strategy,
+                provider: ethereumProvider,
+                amount: inputSwapRef.current?.value ? +inputSwapRef.current?.value : 0
+              })
+              .catch((error: any) => {
+                return {txReceipts: undefined, message: error?.message||error}
+              })
+              console.log('xxxxx', {txReceipts, error});
+              hideLoader();
+              if (error) {
+                console.error({error});
+                return
               }
               setStep(() => 1);
             }}>
@@ -278,9 +317,9 @@ function StrategyModal({
                 amount: inputDepositRef.current?.value ? +inputDepositRef.current?.value : 0
               })
               .catch(error => {
-                hideLoader();
                 return error
               });
+              hideLoader();
               console.log('xxxxx', {txReceipts, error});
               if (error) {
                 console.error({error});
@@ -394,16 +433,27 @@ export function Earn() {
     refresh, 
     userSummaryAndIncentives 
   } = useAave();
+  const [baseAPRstETH, setBaseAPRstETH] = useState(0);
 
   const poolReserveWSTETH = poolReserves?.find(p => p.symbol === 'wstETH');
   const poolReserveWETH = poolReserves?.find(p => p.symbol === 'WETH');
+  // calcul apr using `baseAPRstETH` and `poolReserveWETH.variableBorrowAPR * 100`
+  const diffAPR = baseAPRstETH - Number(poolReserveWETH?.variableBorrowAPR||0) * 100;
+  const threshold = Number(userSummaryAndIncentives?.currentLiquidationThreshold||0);
+  const userLiquidationThreshold = Number( threshold === 0 
+    ? poolReserveWETH?.formattedReserveLiquidationThreshold
+    : userSummaryAndIncentives?.currentLiquidationThreshold
+  );
+  
+  const maxLeverageFactor = getMaxLeverageFactor(userLiquidationThreshold);
+  const maxAPRstETH = (diffAPR * maxLeverageFactor) + baseAPRstETH;
 
   const strategies: IStrategy[] = [
     {
       chainId: markets?.CHAIN_ID as number,
-      name: "ETH",
+      name: "ETH Optimized",
       icon: getAssetIconUrl({symbol: 'ETH'}),
-      apys: ["4.00%", "15.00%"],
+      apys: [`${baseAPRstETH.toFixed(2)}%`, `${maxAPRstETH.toFixed(2)}%`],
       locktime: 0,
       providers: ['aave', 'lido'],
       assets: ['WETH', 'wstETH'],
@@ -520,14 +570,49 @@ export function Earn() {
     }
   }
 
+  const onSwapWithLiFi = async (
+    ops: {
+    strategy: IStrategy,
+    provider: ethers.providers.Web3Provider,
+    amount: number},
+  ) => {
+    const { strategy, provider, amount } = ops;
+    const stepDeposit = strategy.step.find(s => s.type === 'deposit');
+    const stepBorrow = strategy.step.find(s => s.type === 'borrow');
+    if (!stepDeposit||!stepBorrow) {
+      throw new Error(
+        "Invalid step"
+      );
+    }
+    // handle invalid amount
+    if (isNaN(amount) || amount <= 0) {
+      throw new Error(
+        "Invalid amount. Value must be greater than 0."
+      );
+    }
+    // call method
+    const fromAddress = await provider?.getSigner().getAddress();
+    const receipt = await swapWithLiFi({
+      fromAddress,
+      fromAmount: amount.toString(),
+      fromChain: provider.network.chainId.toString(),
+      fromToken: stepBorrow.reserve?.underlyingAsset as string, // WETH
+      toChain: provider.network.chainId.toString(),
+      toToken: stepDeposit.reserve?.underlyingAsset as string, // wstETH
+    }, provider);
+    console.log("TX result: ", receipt);
+    return { txReceipts: [receipt] };
+  }
+
   const [present, dismiss] = useIonModal(StrategyModal, {
     strategy: strategies[0],
+    onSwap: async ({...args}) => await onSwapWithLiFi(args as any),
     onDeposit: async ({...args}) => await onDepositToAAVE(args as any),
     onBorrow: async ({...args}) => await onBorrowFromAAVE(args as any),
     onDismiss: (data: string, role: string) => dismiss(data, role),
   });
 
-  console.log('poolReserveWETH: ',{poolReserveWSTETH, markets});
+  console.log('poolReserveWETH: ',{poolReserveWSTETH, poolReserveWETH, markets});
   
   const supplyPoolRatioInPercent = !poolReserveWSTETH
     ? 100
@@ -535,6 +620,10 @@ export function Earn() {
       valueToBigNumber(poolReserveWSTETH.totalLiquidityUSD).toNumber(),
       valueToBigNumber(poolReserveWSTETH.supplyCapUSD).toNumber()
     );
+
+  useEffect(() => {
+    getBaseAPRstETH().then(({apr}) => setBaseAPRstETH(() => apr));
+  }, []);
 
   return (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
@@ -565,7 +654,7 @@ export function Earn() {
               {strategies.map((strategy, index) => {
                 return (
                   <IonCol size="auto" key={index}>
-                    <IonCard style={{ maxWidth: 300 }}>
+                    <IonCard style={{ maxWidth: 350 }}>
                       <IonGrid>
                         <IonRow class="ion-text-center">
                           <IonCol size="12" class="ion-padding">
@@ -580,11 +669,13 @@ export function Earn() {
                             />
                           </IonCol>
                           <IonCol size="12" class="ion-padding-top">
-                            <IonText color="primary">
                               <h1 className="ion-no-margin">
-                                {strategy.name} Strategy
+                                <IonText color="primary">
+                                    {strategy.name}
+                                </IonText>
+                                <br />
+                                <small>Strategy</small>
                               </h1>
-                            </IonText>
                           </IonCol>
                         </IonRow>
                         <IonRow class="ion-padding">
@@ -629,9 +720,14 @@ export function Earn() {
                               }}
                             >
                               <IonLabel>APY</IonLabel>
+                              {maxAPRstETH > 0 
+                              ? (
                               <IonText slot="end">
                                 {strategy.apys.join(" - ")}
                               </IonText>
+                              ):  (
+                                <IonSkeletonText animated style={{width: '6rem'}} slot="end"></IonSkeletonText>
+                              )}
                             </IonItem>
                           </IonCol>
                         </IonRow>
@@ -657,7 +753,7 @@ export function Earn() {
                             >
                               Start Earning
                             </IonButton>
-                              {supplyPoolRatioInPercent >= 99 && (
+                              {maxAPRstETH > 0 && supplyPoolRatioInPercent >= 99 && (
                                 <div className="ion-margin-top">
                                   <IonText color="warning">
                                     Reserve liquidity pool is full on this network. Try again later or switch to another network.
@@ -678,3 +774,4 @@ export function Earn() {
     </IonGrid>
   )
 } 
+
