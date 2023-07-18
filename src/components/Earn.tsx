@@ -11,8 +11,9 @@ import { useAave } from "../context/AaveContext";
 import { useEthersProvider } from "../context/Web3Context";
 import { ChainId, InterestRate, ReserveDataHumanized } from "@aave/contract-helpers";
 import { getMaxAmountAvailableToBorrow } from "../utils/getMaxAmountAvailableToBorrow";
-import { FormatReserveUSDResponse, FormatUserSummaryAndIncentivesResponse } from "@aave/math-utils";
+import { FormatReserveUSDResponse, FormatUserSummaryAndIncentivesResponse, valueToBigNumber } from "@aave/math-utils";
 import { as } from "@bgd-labs/aave-address-book/dist/AaveV2EthereumAssets-3aae4284";
+import { getPercent } from "../utils/utils";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -33,15 +34,15 @@ interface IStrategy {
   },
   poolAddress: string;
   gateway: string;
-  reserve: (ReserveDataHumanized & FormatReserveUSDResponse);
   userSummaryAndIncentives: FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>;
   step: {
-      type: string;
-      from: string;
-      to: string;
-      title:string;
-      description: string;
-      protocol: string
+    type: string;
+    from: string;
+    to: string;
+    title:string;
+    description: string;
+    protocol: string
+    reserve?: (ReserveDataHumanized & FormatReserveUSDResponse);
     }[]
 }
 
@@ -85,25 +86,36 @@ function StrategyModal({
           minBaseTokenRemainingByNetwork[
             ethereumProvider?.network?.chainId || 137
           ] || "0.001";
-  const { balance: walletBalance = 0 } =
+  const { balance: walletBalanceWSTETH = 0 } =
     assets?.find(
       ({ contractAddress, chain = {} }) =>
         contractAddress?.toLocaleLowerCase() ===
-        strategy.reserve.underlyingAsset?.toLocaleLowerCase() &&
+        strategy.step.find(s => s.type === 'deposit')?.reserve?.underlyingAsset?.toLocaleLowerCase() &&
         chain?.id === ethereumProvider?.network?.chainId
     ) || {};
-  const maxToDeposit = +getMaxAmountAvailableToSupply(
-    `${Number(walletBalance)}`,
-    strategy.reserve,
-    strategy.reserve.underlyingAsset,
-    minBaseTokenRemaining
-  );
-  const maxToBorrow = +getMaxAmountAvailableToBorrow(
-    strategy.reserve,
-    strategy.userSummaryAndIncentives,
-    InterestRate.Variable
-  );
-  console.log({maxToDeposit, maxToBorrow, walletBalance});
+  const { balance: walletBalanceWETH = 0 } =
+  assets?.find(
+    ({ contractAddress, chain = {} }) =>
+      contractAddress?.toLocaleLowerCase() ===
+      strategy.step.find(s => s.type === 'borrow')?.reserve?.underlyingAsset?.toLocaleLowerCase() &&
+      chain?.id === ethereumProvider?.network?.chainId
+  ) || {};
+  const maxToDeposit = !strategy.step[1].reserve
+    ? 0
+    : +getMaxAmountAvailableToSupply(
+      `${Number(walletBalanceWSTETH)}`,
+      strategy.step[1].reserve,
+      strategy.step[1].reserve.underlyingAsset,
+      minBaseTokenRemaining
+    );
+  const maxToBorrow = !strategy.step[2].reserve
+    ? 0
+    : +getMaxAmountAvailableToBorrow(
+        strategy.step[2].reserve,
+        strategy.userSummaryAndIncentives,
+        InterestRate.Variable
+      );
+  console.log({maxToDeposit, maxToBorrow, walletBalanceWSTETH, walletBalanceWETH});
   
   return (
     <IonGrid>
@@ -156,7 +168,7 @@ function StrategyModal({
               </IonThumbnail>
               <IonLabel slot="start" class="ion-hide-md-down">
                 <h2>{strategy.step[0].from}</h2>
-                <p>Balance: {walletBalance}</p>
+                <p>Balance: {walletBalanceWETH}</p>
               </IonLabel>
               <IonInput
                 ref={inputSwapRef}
@@ -168,7 +180,7 @@ function StrategyModal({
                 enterkeyhint="done"
                 inputmode="numeric"
                 min="0"
-                max={walletBalance}
+                max={walletBalanceWETH}
               ></IonInput>
             </IonItem>
           </IonCol>
@@ -383,7 +395,9 @@ export function Earn() {
     userSummaryAndIncentives 
   } = useAave();
 
-  const poolReserveWETH = poolReserves?.find(p => p.symbol === 'ETH' || p.symbol === 'WETH');
+  const poolReserveWSTETH = poolReserves?.find(p => p.symbol === 'wstETH');
+  const poolReserveWETH = poolReserves?.find(p => p.symbol === 'WETH');
+
   const strategies: IStrategy[] = [
     {
       chainId: markets?.CHAIN_ID as number,
@@ -399,7 +413,6 @@ export function Earn() {
       },
       poolAddress: markets?.POOL as string,
       gateway: markets?.WETH_GATEWAY as string,
-      reserve: poolReserveWETH as (ReserveDataHumanized & FormatReserveUSDResponse),
       userSummaryAndIncentives: userSummaryAndIncentives as FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>,
       step: [
         {
@@ -408,7 +421,7 @@ export function Earn() {
           to: 'wstETH',
           title: `Swap WETH to wstETH`,
           description: 'By swapping WETH to wstETH you will incrase your WETH holdings by 5% APY revard from staking WETH on Lido.',
-          protocol: 'lido'
+          protocol: 'lido',
         },
         {
           type: 'deposit',
@@ -416,14 +429,16 @@ export function Earn() {
           to: 'WETH',
           title: 'Deposit wstETH as collateral',
           description: 'By deposit wstETH as collateral on AAVE you will be able to borrow up to 75% of your wstETH value in WETH',
-          protocol: 'aave'
+          protocol: 'aave',
+          reserve: poolReserveWSTETH as (ReserveDataHumanized & FormatReserveUSDResponse),
         }, {
           type: 'borrow',
           from: 'WETH',
-          to: poolReserveWETH?.aTokenAddress as string,
+          to: 'WETH',
           title: 'Borrow WETH',
           description: 'By borrowing WETH on AAVE you will be able to increase your WETH holdings and use it for laverage stacking with wstETH.',
           protocol: 'aave',
+          reserve: poolReserveWETH as (ReserveDataHumanized & FormatReserveUSDResponse),
         }
       ]
     }
@@ -436,6 +451,12 @@ export function Earn() {
     amount: number},
   ) => {
     const { strategy, provider, amount } = ops;
+    const reserve = strategy.step.find(s => s.type === 'deposit')?.reserve
+    if (!reserve) {
+      throw new Error(
+        "Invalid reserve"
+      );
+    }
     // handle invalid amount
     if (isNaN(amount) || amount <= 0) {
       throw new Error(
@@ -445,7 +466,7 @@ export function Earn() {
     // call method
     const params = {
       provider,
-      reserve: strategy.reserve,
+      reserve,
       amount: amount.toString(),
       onBehalfOf: undefined,
       poolAddress: strategy.poolAddress,
@@ -468,6 +489,12 @@ export function Earn() {
     amount: number},
   ) => {
     const { strategy, provider, amount } = ops;
+    const reserve = strategy.step.find(s => s.type === 'borrow')?.reserve
+    if (!reserve) {
+      throw new Error(
+        "Invalid reserve"
+      );
+    }
     // handle invalid amount
     if (isNaN(amount) || amount <= 0) {
       throw new Error(
@@ -477,7 +504,7 @@ export function Earn() {
     // call method
     const params = {
       provider,
-      reserve: strategy.reserve,
+      reserve,
       amount: amount.toString(),
       onBehalfOf: undefined,
       poolAddress: strategy.poolAddress,
@@ -499,6 +526,15 @@ export function Earn() {
     onBorrow: async ({...args}) => await onBorrowFromAAVE(args as any),
     onDismiss: (data: string, role: string) => dismiss(data, role),
   });
+
+  console.log('poolReserveWETH: ',{poolReserveWSTETH, markets});
+  
+  const supplyPoolRatioInPercent = !poolReserveWSTETH
+    ? 100
+    : getPercent(
+      valueToBigNumber(poolReserveWSTETH.totalLiquidityUSD).toNumber(),
+      valueToBigNumber(poolReserveWSTETH.supplyCapUSD).toNumber()
+    );
 
   return (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
@@ -529,47 +565,111 @@ export function Earn() {
               {strategies.map((strategy, index) => {
                 return (
                   <IonCol size="auto" key={index}>
-                    <IonCard style={{maxWidth: 300}}>
+                    <IonCard style={{ maxWidth: 300 }}>
                       <IonGrid>
                         <IonRow class="ion-text-center">
                           <IonCol size="12" class="ion-padding">
-                            <IonImg style={{padding: '0 2rem', maxWidth: 200, maxHeight: 200, margin: '1rem auto 0'}} src={strategy.icon} />
+                            <IonImg
+                              style={{
+                                padding: "0 2rem",
+                                maxWidth: 200,
+                                maxHeight: 200,
+                                margin: "1rem auto 0",
+                              }}
+                              src={strategy.icon}
+                            />
                           </IonCol>
                           <IonCol size="12" class="ion-padding-top">
                             <IonText color="primary">
-                              <h1 className="ion-no-margin">{strategy.name} Strategy</h1>
+                              <h1 className="ion-no-margin">
+                                {strategy.name} Strategy
+                              </h1>
                             </IonText>
                           </IonCol>
                         </IonRow>
                         <IonRow class="ion-padding">
                           <IonCol class="ion-padding">
-                            <IonItem style={{'--background': 'transparent', '--inner-padding-end': 'none', '--padding-start': 'none'}} >
-                              <IonLabel>Assets <small>{strategy.isStable ? '(stable)' : null}</small></IonLabel>
-                              <div slot="end" style={{display: 'flex'}}>
-                                {strategy.assets.map((symbol, index) => (<IonImg key={index} style={{width: 28, height: 28, transform: index === 0 ? 'translateX(5px)' : 'none'}} src={getAssetIconUrl({symbol})} alt={symbol} />))}
+                            <IonItem
+                              style={{
+                                "--background": "transparent",
+                                "--inner-padding-end": "none",
+                                "--padding-start": "none",
+                              }}
+                            >
+                              <IonLabel>
+                                Assets{" "}
+                                <small>
+                                  {strategy.isStable ? "(stable)" : null}
+                                </small>
+                              </IonLabel>
+                              <div slot="end" style={{ display: "flex" }}>
+                                {strategy.assets.map((symbol, index) => (
+                                  <IonImg
+                                    key={index}
+                                    style={{
+                                      width: 28,
+                                      height: 28,
+                                      transform:
+                                        index === 0
+                                          ? "translateX(5px)"
+                                          : "none",
+                                    }}
+                                    src={getAssetIconUrl({ symbol })}
+                                    alt={symbol}
+                                  />
+                                ))}
                               </div>
                             </IonItem>
-                            <IonItem lines="none" style={{'--background': 'transparent', '--inner-padding-end': 'none', '--padding-start': 'none'}} >
+                            <IonItem
+                              lines="none"
+                              style={{
+                                "--background": "transparent",
+                                "--inner-padding-end": "none",
+                                "--padding-start": "none",
+                              }}
+                            >
                               <IonLabel>APY</IonLabel>
-                              <IonText slot="end">{strategy.apys.join(' - ')}</IonText>
+                              <IonText slot="end">
+                                {strategy.apys.join(" - ")}
+                              </IonText>
                             </IonItem>
                           </IonCol>
                         </IonRow>
                         <IonRow>
-                          <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
-                            <IonButton onClick={() => present({
-                              cssClass: "modalAlert ",
-                              onWillDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
-                                console.log("will dismiss", ev.detail);
-                                
+                          <IonCol
+                            size="12"
+                            class="ion-padding-horizontal ion-padding-bottom"
+                          >
+                            <IonButton
+                              disabled={supplyPoolRatioInPercent >= 99}
+                              onClick={() =>
+                                present({
+                                  cssClass: "modalAlert ",
+                                  onWillDismiss: async (
+                                    ev: CustomEvent<OverlayEventDetail>
+                                  ) => {
+                                    console.log("will dismiss", ev.detail);
+                                  },
+                                })
                               }
-                            })} expand="block" color="primary" >Start Earning</IonButton>
+                              expand="block"
+                              color="primary"
+                            >
+                              Start Earning
+                            </IonButton>
+                              {supplyPoolRatioInPercent >= 99 && (
+                                <div className="ion-margin-top">
+                                  <IonText color="warning">
+                                    Reserve liquidity pool is full on this network. Try again later or switch to another network.
+                                  </IonText>
+                                </div>
+                              )}
                           </IonCol>
                         </IonRow>
                       </IonGrid>
                     </IonCard>
                   </IonCol>
-                )
+                );
               })}
             </IonRow>
           </IonGrid>
