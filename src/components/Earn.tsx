@@ -17,6 +17,8 @@ import { swapWithLiFi } from "../servcies/lifi.service";
 import { getBaseAPRstETH } from "../servcies/lido.service";
 import { connect } from "../servcies/magic";
 import { StrategyModal } from "./StrategyModal";
+import { EthOptimizedStrategyProvider } from "../context/EthOptimizedContext";
+import { EthOptimizedStrategyCard } from "./ETHOptimizedStrategy";
 
 
 export interface IStrategy {
@@ -57,206 +59,7 @@ const getMaxLeverageFactor = (ltv: number) => {
 
 export function Earn() {
 
-  const { user, assets } = useUser();
-  const { 
-    poolReserves, 
-    markets, 
-    refresh, 
-    userSummaryAndIncentives 
-  } = useAave();
-  const [baseAPRstETH, setBaseAPRstETH] = useState(0);
-  const { initializeWeb3 } = useEthersProvider()
-
-  const poolReserveWSTETH = poolReserves?.find(p => p.symbol === 'wstETH');
-  const poolReserveWETH = poolReserves?.find(p => p.symbol === 'WETH');
-  // calcul apr using `baseAPRstETH` and `poolReserveWETH.variableBorrowAPR * 100`
-  const diffAPR = baseAPRstETH - Number(poolReserveWETH?.variableBorrowAPR||0) * 100;
-  const threshold = Number(userSummaryAndIncentives?.currentLiquidationThreshold||0);
-  const userLiquidationThreshold = Number( threshold === 0 
-    ? poolReserveWETH?.formattedReserveLiquidationThreshold
-    : userSummaryAndIncentives?.currentLiquidationThreshold
-  );
   
-  const maxLeverageFactor = getMaxLeverageFactor(userLiquidationThreshold);
-  const maxAPRstETH = (diffAPR * maxLeverageFactor) + baseAPRstETH;
-
-  const strategies: IStrategy[] = [
-    {
-      chainId: markets?.CHAIN_ID as number,
-      name: "ETH Optimized",
-      icon: getAssetIconUrl({symbol: 'ETH'}),
-      apys: [`${baseAPRstETH.toFixed(2)}%`, `${maxAPRstETH.toFixed(2)}%`],
-      locktime: 0,
-      providers: ['aave', 'lido'],
-      assets: ['WETH', 'wstETH'],
-      isStable: true,
-      details:{
-        description: `This strategy will swap your ETH for wstETH and stake it in Aave to create collateral for the protocol that allow you to borrow ETH to leveraged against standard ETH to gain an increased amount of ETH POS staking reward.`
-      },
-      poolAddress: markets?.POOL as string,
-      gateway: markets?.WETH_GATEWAY as string,
-      userSummaryAndIncentives: userSummaryAndIncentives as FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>,
-      step: [
-        {
-          type: 'swap',
-          from: 'WETH',
-          to: 'wstETH',
-          title: `Swap WETH to wstETH`,
-          description: 'By swapping WETH to wstETH you will incrase your WETH holdings by 5% APY revard from staking WETH on Lido.',
-          protocol: 'lido',
-        },
-        {
-          type: 'deposit',
-          from: 'wstETH',
-          to: 'WETH',
-          title: 'Deposit wstETH as collateral',
-          description: `By deposit wstETH as collateral on AAVE you will be able to borrow up to ${userLiquidationThreshold*100}% of your wstETH value in WETH`,
-          protocol: 'aave',
-          reserve: poolReserveWSTETH as (ReserveDataHumanized & FormatReserveUSDResponse),
-        }, {
-          type: 'borrow',
-          from: 'WETH',
-          to: 'WETH',
-          title: 'Borrow WETH',
-          description: 'By borrowing WETH on AAVE you will be able to increase your WETH holdings and use it for laverage stacking with wstETH.',
-          protocol: 'aave',
-          reserve: poolReserveWETH as (ReserveDataHumanized & FormatReserveUSDResponse),
-        }
-      ]
-    }
-  ];
-
-  const onDepositToAAVE = async (
-    ops: {
-    strategy: IStrategy,
-    provider: ethers.providers.Web3Provider,
-    amount: number},
-  ) => {
-    const { strategy, provider, amount } = ops;
-    const reserve = strategy.step.find(s => s.type === 'deposit')?.reserve
-    if (!reserve) {
-      throw new Error(
-        "Invalid reserve"
-      );
-    }
-    // handle invalid amount
-    if (isNaN(amount) || amount <= 0) {
-      throw new Error(
-        "Invalid amount. Value must be greater than 0."
-      );
-    }
-    // call method
-    const params = {
-      provider,
-      reserve,
-      amount: amount.toString(),
-      onBehalfOf: undefined,
-      poolAddress: strategy.poolAddress,
-      gatewayAddress: strategy.gateway,
-    };
-    console.log("params: ", params);
-    try {
-      const txReceipts = await supplyWithPermit(params);
-      console.log("TX result: ", txReceipts);
-      return { txReceipts };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  const onBorrowFromAAVE = async (
-    ops: {
-    strategy: IStrategy,
-    provider: ethers.providers.Web3Provider,
-    amount: number},
-  ) => {
-    const { strategy, provider, amount } = ops;
-    const reserve = strategy.step.find(s => s.type === 'borrow')?.reserve
-    if (!reserve) {
-      throw new Error(
-        "Invalid reserve"
-      );
-    }
-    // handle invalid amount
-    if (isNaN(amount) || amount <= 0) {
-      throw new Error(
-        "Invalid amount. Value must be greater than 0."
-      );
-    }
-    // call method
-    const params = {
-      provider,
-      reserve,
-      amount: amount.toString(),
-      onBehalfOf: undefined,
-      poolAddress: strategy.poolAddress,
-      gatewayAddress: strategy.gateway,
-    };
-    console.log("params: ", params);
-    try {
-      const txReceipts = await borrow(params);
-      console.log("TX result: ", txReceipts);
-      return { txReceipts };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  const onSwapWithLiFi = async (
-    ops: {
-    strategy: IStrategy,
-    provider: ethers.providers.Web3Provider,
-    amount: number},
-  ) => {
-    const { strategy, provider, amount } = ops;
-    const stepDeposit = strategy.step.find(s => s.type === 'deposit');
-    const stepBorrow = strategy.step.find(s => s.type === 'borrow');
-    if (!stepDeposit||!stepBorrow) {
-      throw new Error(
-        "Invalid step"
-      );
-    }
-    // handle invalid amount
-    if (isNaN(amount) || amount <= 0) {
-      throw new Error(
-        "Invalid amount. Value must be greater than 0."
-      );
-    }
-    // call method
-    const fromAddress = await provider?.getSigner().getAddress();
-    const receipt = await swapWithLiFi({
-      fromAddress,
-      fromAmount: amount.toString(),
-      fromChain: provider.network.chainId.toString(),
-      fromToken: stepBorrow.reserve?.underlyingAsset as string, // WETH
-      toChain: provider.network.chainId.toString(),
-      toToken: stepDeposit.reserve?.underlyingAsset as string, // wstETH
-    }, provider);
-    console.log("TX result: ", receipt);
-    return { txReceipts: [receipt] };
-  }
-
-  const [present, dismiss] = useIonModal(StrategyModal, {
-    strategy: strategies[0], // TODO: replace with state that contain current selected strategy
-    onSwap: async ({...args}) => await onSwapWithLiFi(args as any),
-    onDeposit: async ({...args}) => await onDepositToAAVE(args as any),
-    onBorrow: async ({...args}) => await onBorrowFromAAVE(args as any),
-    onDismiss: (data: string, role: string) => dismiss(data, role),
-  });
-
-  console.log('poolReserveWETH: ',{poolReserveWSTETH, poolReserveWETH, markets});
-  
-  const supplyPoolRatioInPercent = !poolReserveWSTETH
-    ? 100
-    : getPercent(
-      valueToBigNumber(poolReserveWSTETH.totalLiquidityUSD).toNumber(),
-      valueToBigNumber(poolReserveWSTETH.supplyCapUSD).toNumber()
-    );
-
-  useEffect(() => {
-    getBaseAPRstETH().then(({apr}) => setBaseAPRstETH(() => apr));
-  }, []);
-
   return (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
       <IonRow class="ion-justify-content-center" >
@@ -283,7 +86,10 @@ export function Earn() {
         <IonCol class="ion-padding ion-text-center" size-md="12" size-lg="10" size-xl="10">
           <IonGrid class="ion-no-padding">
             <IonRow class="ion-justify-content-center">
-              {strategies.map((strategy, index) => {
+              <EthOptimizedStrategyProvider>
+                <EthOptimizedStrategyCard></EthOptimizedStrategyCard>
+              </EthOptimizedStrategyProvider>
+              {/* {strategies.map((strategy, index) => {
                 return (
                   <IonCol size="auto" key={index}>
                     <IonCard style={{ maxWidth: 350 }}>
@@ -400,7 +206,7 @@ export function Earn() {
                     </IonCard>
                   </IonCol>
                 );
-              })}
+              })} */}
             </IonRow>
           </IonGrid>
         </IonCol>

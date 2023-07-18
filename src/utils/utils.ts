@@ -1,3 +1,6 @@
+import { ReserveDataHumanized } from "@aave/contract-helpers";
+import { FormatReserveUSDResponse, valueToBigNumber } from "@aave/math-utils";
+
 export const roundToTokenDecimals = (inputValue: string, tokenDecimals: number) => {
   const [whole, decimals] = inputValue.split('.');
 
@@ -16,3 +19,29 @@ export const roundToTokenDecimals = (inputValue: string, tokenDecimals: number) 
 export const getPercent = (value: number, max: number): number => {
   return (value / max) * 100;
 };
+
+export const isAavePoolActive = ({
+  poolReserveWSTETH,
+  poolReserveWETH,
+}: {
+  poolReserveWSTETH?: (ReserveDataHumanized & FormatReserveUSDResponse),
+  poolReserveWETH?: (ReserveDataHumanized & FormatReserveUSDResponse),
+}) => {
+  const isWSTETHActive = Number(!poolReserveWSTETH
+    ? 100
+    : getPercent(
+        valueToBigNumber(poolReserveWSTETH.totalLiquidityUSD).toNumber(),
+        valueToBigNumber(poolReserveWSTETH.supplyCapUSD).toNumber()
+      )
+  ) < 99;
+  const isWETHActive = Number(!poolReserveWETH
+    ? 100
+    : getPercent(
+        valueToBigNumber(poolReserveWETH.totalDebtUSD).toNumber(),
+        valueToBigNumber(poolReserveWETH.borrowCapUSD).toNumber()
+      )
+  ) < 99;
+  console.log({isWSTETHActive, isWETHActive, poolReserveWSTETH, poolReserveWETH });
+  
+  return (isWSTETHActive && isWETHActive) || false;
+}

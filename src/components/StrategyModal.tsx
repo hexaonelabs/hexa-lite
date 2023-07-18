@@ -1,4 +1,10 @@
-import { IonButton, IonCol, IonGrid, IonImg, IonInput, IonItem, IonLabel, IonRow, IonText, IonThumbnail } from "@ionic/react";
+import { IonButton, IonCol, IonGrid, IonIcon, IonImg, IonInput, IonItem, IonLabel, IonRow, IonText, IonThumbnail } from "@ionic/react";
+import {
+  informationCircleOutline,
+  closeSharp,
+  openOutline,
+  warningOutline,
+} from "ionicons/icons";
 import { IStrategy } from "./Earn";
 import { useEthersProvider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
@@ -15,13 +21,7 @@ export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.arbitrum_one]: "0.0001",
 };
 
-export function StrategyModal({
-  strategy,
-  onDismiss,
-  onDeposit,
-  onBorrow,
-  onSwap,
-}: {
+export interface IStrategyModalProps {
   strategy: IStrategy,
   onDismiss: (data?: string | null | undefined | number, role?: string) => void;
   onDeposit: (ops: {
@@ -45,12 +45,20 @@ export function StrategyModal({
   }) => Promise<{
     txReceipts: ethers.providers.TransactionReceipt[];
   }>;
-}) {  
+}
+
+export function StrategyModal({
+  strategy,
+  onDismiss,
+  onDeposit,
+  onBorrow,
+  onSwap,
+}: IStrategyModalProps) {  
   const { ethereumProvider } = useEthersProvider();
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const { user, assets } = useUser();
 
-  const [step, setStep] = useState(0);  
+  const [stepIndex, setStepIndex] = useState(0);  
   // create ref for input deposit, borrow, swap
   const inputDepositRef = useRef<HTMLIonInputElement>(null);
   const inputBorrowRef = useRef<HTMLIonInputElement>(null);
@@ -71,15 +79,13 @@ export function StrategyModal({
           minBaseTokenRemainingByNetwork[
             ethereumProvider?.network?.chainId || 137
           ] || "0.001";
-  const { balance: walletBalanceWSTETH = 0 } =
-    assets?.find(
+  const { balance: walletBalanceWSTETH = 0 } = assets?.find(
       ({ contractAddress, chain = {} }) =>
         contractAddress?.toLocaleLowerCase() ===
         strategy.step.find(s => s.type === 'deposit' && s.from.toLocaleLowerCase() === 'wsteth')?.reserve?.underlyingAsset?.toLocaleLowerCase() &&
         chain?.id === ethereumProvider?.network?.chainId
     ) || {};
-  const { balance: walletBalanceWETH = 0 } =
-  assets?.find(
+  const { balance: walletBalanceWETH = 0 } = assets?.find(
     ({ contractAddress, chain = {} }) =>
       contractAddress?.toLocaleLowerCase() ===
       strategy.step.find(s => s.type === 'borrow' && s.from.toLocaleLowerCase() === 'weth')?.reserve?.underlyingAsset?.toLocaleLowerCase() &&
@@ -108,7 +114,16 @@ export function StrategyModal({
       {/* <!-- Steps Proccess Component --> */}
       <IonRow class="ion-text-center ion-padding-top ion-padding-horizontal">
         <IonCol size="12" class="ion-text-center">
-          <IonLabel>Strategy Steps <small>({(step + 1) > 4 ? 4 : step + 1}/{4})</small></IonLabel>
+          <IonLabel>Strategy Steps <small>({(stepIndex + 1) > 4 ? 4 : stepIndex + 1}/{4})</small></IonLabel>
+          <IonCol size="2" class="ion-text-end">
+          <IonButton
+            size="small"
+            fill="clear"
+            onClick={() => onDismiss(null, "cancel")}
+          >
+            <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
+          </IonButton>
+        </IonCol>
         </IonCol>
       </IonRow>
       <IonRow class="ion-text-center ion-padding-horizontal stepsProccess ion-margin-bottom">
@@ -116,17 +131,17 @@ export function StrategyModal({
           <IonRow>
             <IonCol size="12" size-md="8" offset-md="2" size-xl="8" offset-xl="2">
               <IonRow>
-                <IonCol onClick={()=> setStep(() => 0)} size="3" class={step >= 0 ? 'checked' : ''}>
-                  <span className={step === 0 ? 'stepNumber active' : 'stepNumber'}>1</span>
+                <IonCol onClick={()=> setStepIndex(() => 0)} size="3" class={stepIndex >= 0 ? 'checked' : ''}>
+                  <span className={stepIndex === 0 ? 'stepNumber active' : 'stepNumber'}>1</span>
                 </IonCol>
-                <IonCol onClick={()=> setStep(() => 1)} size="3" class={step >= 1 ? 'checked' : ''}>
-                  <span className={ step === 1 ? 'stepNumber active' : 'stepNumber'}>2</span>
+                <IonCol onClick={()=> setStepIndex(() => 1)} size="3" class={stepIndex >= 1 ? 'checked' : ''}>
+                  <span className={ stepIndex === 1 ? 'stepNumber active' : 'stepNumber'}>2</span>
                 </IonCol>
-                <IonCol onClick={() => setStep(() => 2)} size="3" class={ step >= 2 ? 'checked' : ''}>
-                  <span className={ step === 2 ? 'stepNumber active' : 'stepNumber'}>3</span>
+                <IonCol onClick={() => setStepIndex(() => 2)} size="3" class={ stepIndex >= 2 ? 'checked' : ''}>
+                  <span className={ stepIndex === 2 ? 'stepNumber active' : 'stepNumber'}>3</span>
                 </IonCol>
-                <IonCol onClick={() => setStep(() => 3)} size="3" class={ step >= 3 ? 'checked' : ''}>
-                  <span className={ step === 3 ? 'stepNumber active' : 'stepNumber'}>4</span>
+                <IonCol onClick={() => setStepIndex(() => 3)} size="3" class={ stepIndex >= 3 ? 'checked' : ''}>
+                  <span className={ stepIndex === 3 ? 'stepNumber active' : 'stepNumber'}>4</span>
                 </IonCol>
               </IonRow>
             </IonCol>
@@ -135,7 +150,7 @@ export function StrategyModal({
       </IonRow>
 
       {/* Swap */}
-      {(step === 0  || step === 3) && (
+      {(stepIndex === 0 || stepIndex === 3) && (
         <IonRow class="ion-text-center ion-padding-horizontal ion-padding-bottom">
           <IonCol size="12" class="ion-padding-start ion-padding-end ion-padding-bottom">
             <IonText>
@@ -222,10 +237,10 @@ export function StrategyModal({
                 console.error({error});
                 return
               }
-              if (step === 3) {
-                setStep(() => 4);
+              if (stepIndex === 3) {
+                setStepIndex(() => 4);
               } else {
-                setStep(() => 1);
+                setStepIndex(() => 1);
               }
             }}>
               Swap
@@ -235,7 +250,7 @@ export function StrategyModal({
       )}
 
       {/* Deposit */}
-      {step === 1 && (
+      {stepIndex === 1 && (
         <IonRow class="ion-text-center ion-padding" >
           <IonCol size="12" size-md="10" offset-md="1" size-xl="8" offset-xl="2" class="ion-padding-start ion-padding-end">
             <IonText>
@@ -294,7 +309,7 @@ export function StrategyModal({
                 console.error({error});
                 return
               }
-              setStep(() => 2);
+              setStepIndex(() => 2);
             }}>
               Deposit
             </IonButton>
@@ -303,7 +318,7 @@ export function StrategyModal({
       )}
 
       {/* Borrow */}
-      {step === 2 && (
+      {stepIndex === 2 && (
         <IonRow class="ion-text-center ion-padding" >
           <IonCol size="12" size-md="10" offset-md="1" size-xl="8" offset-xl="2" class="ion-padding-start ion-padding-end">
           <IonText>
@@ -367,7 +382,7 @@ export function StrategyModal({
                 console.error({error});
                 return
               }
-              setStep(() => 3);
+              setStepIndex(() => 3);
             }}>
               Borrow
             </IonButton>
@@ -376,7 +391,7 @@ export function StrategyModal({
       )}
 
       {/* Congratulation */}
-      {step === 4 && (
+      {stepIndex === 4 && (
         <IonRow class="ion-text-center ion-padding" >
           <IonCol size="12" size-md="10" offset-md="1" size-xl="8" offset-xl="2" class="ion-padding-start ion-padding-end">
           <IonText>
@@ -401,13 +416,14 @@ export function StrategyModal({
               if (!ethereumProvider) {
                 return;
               }
-              setStep(() => 1);
+              setStepIndex(() => 1);
             }}>
               Repeat Strategy
             </IonButton>
           </IonCol>
         </IonRow>
       )}
+
     </IonGrid>
   )
 }
