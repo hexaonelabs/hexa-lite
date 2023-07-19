@@ -82,84 +82,63 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   const currentTimestamp = dayjs().unix(); // useCurrentTimestamp(5);
   const [state, setState] = useState<AaveContextType>(AaveContextDefault);
 
-  useEffect(() => {
+  const init = async () => {
+    console.log("[INFO] {{AaveProvider}} init context... ");
+    const updatedState: AaveContextType = {
+      totalTVL: await fetchTVL().catch((error) => {
+        console.error("[ERROR] {{AaveProvider}} fetchTVL: ", error);
+        return -1;
+      }),
+    } as AaveContextType;
+
     if (ethereumProvider?.network?.chainId) {
-      const markets = getMarkets(ethereumProvider.network.chainId);
-      setState((prev) => ({
-        ...prev,
-        markets,
-      }));
-    }
-    if (ethereumProvider && !user) {
-      setState((prev) => ({
-        ...prev,
-        userSummary: null,
-        userSummaryAndIncentives: null,
-      }));
+      updatedState.markets = getMarkets(ethereumProvider.network.chainId);;
+    } else {
+      updatedState.markets = null;
     }
 
-    const promises = [];
-    promises.push(
-      fetchTVL().then((tvl) => {
-        setState((prev) => ({
-          ...prev,
-          totalTVL: tvl,
-        }));
-        return { tvl };
-      })
-    );
+    if (ethereumProvider && !user) {
+      updatedState.userSummary = null;
+      updatedState.userSummaryAndIncentives = null;
+    }
+
     if (ethereumProvider && state.markets) {
-      promises.push(
-        getPools({
-          provider: ethereumProvider,
-          market: state.markets,
-          currentTimestamp,
-        })
-        .then((poolReserves) => {
-          setState((prev) => ({
-            ...prev,
-            poolReserves,
-          }));
-          return { poolReserves };
-        })
-        .catch((error) => {
-          console.error("[ERROR] {{AAVEService}} fetchPools: ", error);
-          setState((prev) => ({
-            ...prev,
-            poolReserves: null,
-          }));
-        })
-      );
-    }
-    if (ethereumProvider && state.markets && user) {
-      promises.push(
-        getUserSummaryAndIncentives({
-          provider: ethereumProvider,
-          market: state.markets,
-          user,
-          currentTimestamp,
-        })
-          .then(userSummaryAndIncentives =>  {
-            setState((prev) => ({
-              ...prev,
-              userSummaryAndIncentives,
-            }));
-            return { userSummaryAndIncentives };
-          })
-          .catch((error) => {
-            console.error("[ERROR] {{AAVEService}} fetchUserSummary: ", error);
-            setState((prev) => ({
-              ...prev,
-              userSummary: null,
-            }));
-          })
-      );
-    }
-    Promise
-      .all(promises)
-      .then((results) => {
-        console.log("[INFO] {{AAVEService}} fetchPools done", { results });
+      updatedState.poolReserves = await getPools({
+        provider: ethereumProvider,
+        market: state.markets,
+        currentTimestamp,
+      })
+      .catch((error) => {
+        console.error("[ERROR] {{AaveProvider}} fetchPools: ", error);
+        return null;
       });
+    } else {
+      updatedState.poolReserves = null;
+    }
+    
+    if (ethereumProvider && state.markets && user) {
+      updatedState.userSummaryAndIncentives = await getUserSummaryAndIncentives({
+        provider: ethereumProvider,
+        market: state.markets,
+        user,
+        currentTimestamp,
+      })
+      .catch((error) => {
+        console.error("[ERROR] {{AaveProvider}} fetchUserSummary: ", error);
+        return null;
+      });
+    } else {
+      updatedState.userSummaryAndIncentives = null;
+    }
+
+    setState((prev) => ({
+      ...prev,
+      ...updatedState,
+    }));
+  };
+
+  useEffect(() => {
+    init();
     return () => {};
   }, [ethereumProvider?.network?.chainId, user, state.markets]);
 
@@ -168,18 +147,14 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         ...state,
         refresh: async () => {
+          console.log("[INFO] {{AaveProvider}} refresh... ");
           let t = undefined;
           await new Promise((resolve) => {
             t = setTimeout(resolve, 10000);
           });
-          console.log("[INFO] {{AAVEService}} refresh... ");
           clearTimeout(t);
-          alert('Refresh application to see updated amounts.')
-          // throw new Error("Not implemented");
-          // const chainId = await getNetwork();
-          // const markets = await fetchMarkets(chainId);
-          // await fetchPools(markets);
-          // await fetchUserSummary(user, markets);
+          await init();
+          console.log("[INFO] {{AaveProvider}} refresh done");
         },
       }}
     >

@@ -15,6 +15,8 @@ import {
   IonSpinner,
   IonIcon,
   IonModal,
+  useIonToast,
+  IonContent,
 } from "@ionic/react";
 import {
   informationCircleOutline,
@@ -46,6 +48,7 @@ import { borrow, supplyWithPermit } from "../servcies/aave.service";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { getETHByWstETH } from "../servcies/lido.service";
 import { BigNumberZeroDecimal } from "@aave/math-utils";
+import { useAave } from "../context/AaveContext";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -54,7 +57,6 @@ export const minBaseTokenRemainingByNetwork: Record<number, string> = {
 
 export interface IStrategyModalProps {
   dismiss?: (data?: any, role?: string | undefined) => Promise<boolean> | undefined;
-  // onDismiss: (data?: string | null | undefined | number, role?: string) => void;
 }
 
 const ACTIONS = {
@@ -70,7 +72,7 @@ const ACTIONS = {
       return {};
     }
     // verify max amount
-    if (amount >= balanceWETH) {
+    if (amount > balanceWETH) {
       console.error({
         message: `Invalid amount: ${amount}. Value must be less or equal than your balance.`,
       });
@@ -188,11 +190,12 @@ const ACTIONS = {
 
 export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
   const strategy = useEthOptimizedStrategy();
+  const { refresh: refreshAAVE } = useAave();
   const { ethereumProvider } = useEthersProvider();
-  const { assets } = useUser();
+  const { assets, refresh: refreshUser } = useUser();
   const { display: displayLoader, hide: hideLoader } = useLoader();
 
-  console.log('strategy: ',{ strategy , dismiss});
+  console.log('strategy: ',{ strategy , dismiss, refreshAAVE, refreshUser});
   
   const [stepIndex, setStepIndex] = useState(0);
   const [wstToEthAmount, setWstToEthAmount] = useState(-1);
@@ -201,7 +204,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
   const inputBorrowRef = useRef<HTMLIonInputElement>(null);
   // const inputSwapRef = useRef<HTMLIonInputElement>(null);
   const [inputSwapValue, setInputSwapValue] = useState(0);
-  // const strategy = useEthOptimizedStrategy();
+  const presentToast = useIonToast()[0];
 
   const noticeMessage = (
     name: string
@@ -299,7 +302,9 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                 right: 0,
                 top: 0,
               }}
-              onClick={() =>  dismiss(null, "cancel")}
+              onClick={async () =>  {
+                dismiss(null, "cancel");
+              }}
             >
               <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
             </IonButton>
@@ -445,7 +450,6 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
             size-xs="12"
             size-md="6"
             class="ion-padding-horizontal ion-text-end"
-            onClick={() => console.log({ strategy })}
           >
             <IonItem lines="none" style={{ opacity: 1, '--padding-start': 0, '--inner-padding-end': 0 }} disabled={true}>
               <IonThumbnail slot="start" style={{
@@ -503,7 +507,14 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                   console.log("handleSwap:", { error });
                   return error;
                 });
+                await refreshUser();
+                await refreshAAVE();
                 if ((txReceipts?.length || 0) > 0) {
+                  await presentToast({
+                    message: `Swap completed successfully`,
+                    duration: 5000,
+                    color: "success",
+                  });
                   setStepIndex(() => (stepIndex === 3 ? 4 : 1));
                 }
                 await hideLoader();
@@ -568,7 +579,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
               </small>
             </IonText>
           </IonCol>
-          <IonCol size="12" className="ion-padding-top">
+          <IonCol size="12" className="ion-padding-top" >
             {/* Event Button */}
             <IonButton
               className="ion-margin-top"
@@ -580,6 +591,13 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                   Number(inputDepositRef.current?.value || -1),
                   ethereumProvider as ethers.providers.Web3Provider
                 ).catch((err) => err);
+                await refreshUser();
+                await refreshAAVE();
+                await presentToast({
+                  message: `Deposit completed successfully`,
+                  duration: 5000,
+                  color: "success",
+                });
                 if ((txReceipts?.length || 0) > 0) {
                   setStepIndex(() => 2);
                 }
@@ -667,6 +685,13 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                   Number(inputBorrowRef.current?.value || -1),
                   ethereumProvider as ethers.providers.Web3Provider
                 ).catch((err) => err);
+                await refreshUser();
+                await refreshAAVE();
+                await presentToast({
+                  message: `Borrow completed successfully`,
+                  duration: 5000,
+                  color: "success",
+                });
                 if ((txReceipts?.length || 0) > 0) {
                   setStepIndex(() => 3);
                 }
@@ -763,12 +788,6 @@ export function EthOptimizedStrategyCard() {
         {
           modal.current?.present();
         }
-        // present({
-        //   cssClass: "modalAlert ",
-        //   onWillDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
-        //     console.log("will dismiss", ev.detail);
-        //   },
-        // })
       }
       expand="block"
       color="primary"
@@ -870,9 +889,17 @@ export function EthOptimizedStrategyCard() {
         </IonGrid>
       </IonCard>
 
-      <IonModal ref={modal} trigger="open-modal" onWillDismiss={async (ev: CustomEvent<OverlayEventDetail>) => {
-        console.log("will dismiss", ev.detail);
-      }}>
+      <IonModal 
+        ref={modal} 
+        trigger="open-modal" 
+        onWillDismiss={async (ev: CustomEvent<OverlayEventDetail>) => {
+          console.log("will dismiss", ev.detail);
+        }}
+        style={{
+          '--height': 'auto',
+          '--max-height': '90vh',
+          '--border-radius': '32px',
+        }}>
         <EthOptimizedStrategyModal dismiss={
           (data?: any, role?: string | undefined) => modal.current?.dismiss(data, role)
         } />
