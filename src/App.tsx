@@ -40,7 +40,7 @@ setupIonicReact({
 
 
 function App() {
-
+  console.log(`[INFO] HexaLite v${process.env.REACT_APP_VERSION}`);
   // get params from url `s=`
   const urlParams = new URLSearchParams(window.location.search);
   let segment = urlParams.get("s") || "welcome";
@@ -124,6 +124,22 @@ function App() {
             >
               <IonCol size="12" class="ion-no-padding">
                 {renderSwitch(currentSegment)}
+                { currentSegment !== "welcome" && (
+                  <div style={{
+                    position: 'fixed',
+                    bottom: '0.5rem',
+                    margin: 'auto',
+                    width: '100%',
+                    left: 0,
+                    textAlign: 'center',
+                    zIndex: -1,
+                    opacity: 0.6
+                  }}>
+                    <small>
+                      {`HexaLite v${process.env.REACT_APP_VERSION}`}
+                    </small>
+                  </div>
+                )}
               </IonCol>
             </IonRow>
           </IonGrid>
