@@ -14,6 +14,7 @@ import {
   IonSkeletonText,
   IonSpinner,
   IonIcon,
+  IonModal,
 } from "@ionic/react";
 import {
   informationCircleOutline,
@@ -52,8 +53,8 @@ export const minBaseTokenRemainingByNetwork: Record<number, string> = {
 };
 
 export interface IStrategyModalProps {
-  strategy: EthOptimizedContextType,
-  onDismiss: (data?: string | null | undefined | number, role?: string) => void;
+  dismiss?: (data?: any, role?: string | undefined) => Promise<boolean> | undefined;
+  // onDismiss: (data?: string | null | undefined | number, role?: string) => void;
 }
 
 const ACTIONS = {
@@ -185,11 +186,14 @@ const ACTIONS = {
   },
 };
 
-export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModalProps) {
+export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
+  const strategy = useEthOptimizedStrategy();
   const { ethereumProvider } = useEthersProvider();
   const { assets } = useUser();
   const { display: displayLoader, hide: hideLoader } = useLoader();
 
+  console.log('strategy: ',{ strategy , dismiss});
+  
   const [stepIndex, setStepIndex] = useState(0);
   const [wstToEthAmount, setWstToEthAmount] = useState(-1);
   // create ref for input deposit, borrow, swap
@@ -284,21 +288,23 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
     <IonGrid>
       {/* <!-- Steps Proccess Component --> */}
       <IonRow class="ion-text-center ion-padding-top ion-padding-horizontal"  style={{position: 'relative'}}>
-        <IonCol size="12" class="ion-text-end" style={{marginBottom: '-2rem'}}>
-          <IonButton
-            size="small"
-            fill="clear"
-            style={{
-              zIndex: '1',
-              position: 'absolute',
-              right: 0,
-              top: 0,
-            }}
-            onClick={() => onDismiss(null, "cancel")}
-          >
-            <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
-          </IonButton>
-        </IonCol>
+        {dismiss && (
+          <IonCol size="12" class="ion-text-end" style={{marginBottom: '-2rem'}}>
+            <IonButton
+              size="small"
+              fill="clear"
+              style={{
+                zIndex: '1',
+                position: 'absolute',
+                right: 0,
+                top: 0,
+              }}
+              onClick={() =>  dismiss(null, "cancel")}
+            >
+              <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
+            </IonButton>
+          </IonCol>
+        )}
         <IonCol size="12" class="ion-text-center">
           <IonLabel>
             Strategy Steps{" "}
@@ -726,10 +732,11 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
 export function EthOptimizedStrategyCard() {
   const strategy = useEthOptimizedStrategy();
   const { user, assets } = useUser();
-  const [present, dismiss] = useIonModal(EthOptimizedStrategyModal, {
-    strategy,
-    onDismiss: (data: string, role: string) => dismiss(data, role),
-  });
+  // const [present, dismiss] = useIonModal(EthOptimizedStrategyModal, {
+  //   strategy,
+  //   onDismiss: (data: string, role: string) => dismiss(data, role),
+  // });
+  const modal = useRef<HTMLIonModalElement>(null);
   const baseAPRstETH = !strategy ? -1 : Number(strategy.apys[0]);
   const maxAPRstETH = !strategy ? -1 : Number(strategy.apys[1]);
   const poolReserveWSTETH = strategy?.step?.find(
@@ -752,13 +759,16 @@ export function EthOptimizedStrategyCard() {
   ) : (
     <IonButton
       disabled={isDisabled}
-      onClick={() =>
-        present({
-          cssClass: "modalAlert ",
-          onWillDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
-            console.log("will dismiss", ev.detail);
-          },
-        })
+      onClick={() => 
+        {
+          modal.current?.present();
+        }
+        // present({
+        //   cssClass: "modalAlert ",
+        //   onWillDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
+        //     console.log("will dismiss", ev.detail);
+        //   },
+        // })
       }
       expand="block"
       color="primary"
@@ -859,6 +869,15 @@ export function EthOptimizedStrategyCard() {
           </IonRow>
         </IonGrid>
       </IonCard>
+
+      <IonModal ref={modal} trigger="open-modal" onWillDismiss={async (ev: CustomEvent<OverlayEventDetail>) => {
+        console.log("will dismiss", ev.detail);
+      }}>
+        <EthOptimizedStrategyModal dismiss={
+          (data?: any, role?: string | undefined) => modal.current?.dismiss(data, role)
+        } />
+      </IonModal>
+
     </IonCol>
   );
 }
