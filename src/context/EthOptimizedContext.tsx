@@ -18,6 +18,7 @@ export type EthOptimizedContextType = {
   details: {
     description: string;
   },
+  chainId: number;
   poolAddress: string;
   gateway: string;
   userSummaryAndIncentives: FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>;
@@ -89,6 +90,7 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
       details:{
         description: `This strategy will swap your ETH for wstETH and stake it in Aave to create collateral for the protocol that allow you to borrow ETH to leveraged against standard ETH to gain an increased amount of ETH POS staking reward.`
       },
+      chainId: markets?.CHAIN_ID as number,
       poolAddress: markets?.POOL as string,
       gateway: markets?.WETH_GATEWAY as string,
       userSummaryAndIncentives: userSummaryAndIncentives as FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>,
@@ -98,7 +100,7 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
           from: 'WETH',
           to: 'wstETH',
           title: `Swap WETH to wstETH`,
-          description: 'By swapping WETH to wstETH you will incrase your WETH holdings by 5% APY revard from staking WETH on Lido.',
+          description: `By swapping WETH to wstETH you will incrase your WETH holdings by ${baseAPRstETH.toFixed(2)}% APY revard from staking WETH on Lido.`,
           protocol: 'lido',
         },
         {
@@ -114,7 +116,7 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
           from: 'WETH',
           to: 'WETH',
           title: 'Borrow WETH',
-          description: 'By borrowing WETH on AAVE you will be able to increase your WETH holdings and use it for laverage stacking with wstETH.',
+          description: `By borrowing WETH on AAVE you will be able to increase your WETH holdings and use it for laverage stacking with wstETH APY reward.`,
           protocol: 'aave',
           reserve: poolReserveWETH as (ReserveDataHumanized & FormatReserveUSDResponse),
         }
@@ -129,7 +131,8 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
     poolReserveWETH,
     poolReserveWSTETH,
     userLiquidationThreshold,
-    maxLeverageFactor
+    maxLeverageFactor,
+    diffAPR
   ]);
 
   useEffect(() => {

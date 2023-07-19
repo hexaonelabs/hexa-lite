@@ -23,7 +23,7 @@ import {
 } from "ionicons/icons";
 import { useEthersProvider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getMaxAmountAvailableToBorrow } from "../utils/getMaxAmountAvailableToBorrow";
 import { getMaxAmountAvailableToSupply } from "../utils/getMaxAmountAvailableToSupply";
 import { ethers } from "ethers";
@@ -39,9 +39,12 @@ import {
 } from "../context/EthOptimizedContext";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import ConnectButton from "./ConnectButton";
-import { isAavePoolActive } from "../utils/utils";
+import { isAavePoolDisabled } from "../utils/utils";
 import { swapWithLiFi } from "../servcies/lifi.service";
 import { borrow, supplyWithPermit } from "../servcies/aave.service";
+import { CHAIN_AVAILABLES } from "../constants/chains";
+import { getETHByWstETH } from "../servcies/lido.service";
+import { BigNumberZeroDecimal } from "@aave/math-utils";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -179,10 +182,12 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
   const { display: displayLoader, hide: hideLoader } = useLoader();
 
   const [stepIndex, setStepIndex] = useState(0);
+  const [wstToEthAmount, setWstToEthAmount] = useState(-1);
   // create ref for input deposit, borrow, swap
   const inputDepositRef = useRef<HTMLIonInputElement>(null);
   const inputBorrowRef = useRef<HTMLIonInputElement>(null);
-  const inputSwapRef = useRef<HTMLIonInputElement>(null);
+  // const inputSwapRef = useRef<HTMLIonInputElement>(null);
+  const [inputSwapValue, setInputSwapValue] = useState(0);
   // const strategy = useEthOptimizedStrategy();
 
   const noticeMessage = (
@@ -245,6 +250,22 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
     walletBalanceWETH,
     strategy,
   });
+  
+  useEffect(()=> {
+    if (!ethereumProvider) {
+      return;
+    }
+    getETHByWstETH(1)
+      .then(value => {
+        console.log({ value });
+        // convert ethers.BigNumber to decimal
+        setWstToEthAmount(()=> Number(value));
+      });
+  }, [ethereumProvider]);
+
+  useEffect(()=> {
+    setInputSwapValue(()=> 0);
+  }, [stepIndex]);
 
   if (!strategy) {
     return <IonSpinner name="dots" />;
@@ -366,8 +387,14 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
             size-md="6"
             class="ion-padding-horizontal ion-text-start"
           >
-            <IonItem lines="none">
-              <IonThumbnail slot="start">
+            <IonItem lines="none" style={{'--padding-start': 0, '--inner-padding-end': 0}}>
+              <IonThumbnail slot="start" style={{
+                width: '48px',
+                height: '48px',
+                marginTop: '0.5rem',
+                marginBottom: '0.5rem', 
+                marginLeft: '0.5rem', 
+              }}>
                 <IonImg
                   src={getAssetIconUrl({ symbol: strategy.step[0].from })}
                   alt={strategy.step[0].from}
@@ -375,10 +402,14 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
               </IonThumbnail>
               <IonLabel slot="start" class="ion-hide-md-down">
                 <h2>{strategy.step[0].from}</h2>
-                <p>Balance: {walletBalanceWETH}</p>
+                <p>
+                  <small>
+                  Balance: {walletBalanceWETH}
+                  </small>
+                </p>
               </IonLabel>
               <IonInput
-                ref={inputSwapRef}
+                // ref={inputSwapRef}
                 class="ion-text-end"
                 slot="end"
                 type="number"
@@ -388,6 +419,10 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
                 inputmode="numeric"
                 min="0"
                 max={walletBalanceWETH}
+                onInput={(e) => {
+                  const value = Number(e.currentTarget.value);
+                  setInputSwapValue(() => value);
+                }}
               ></IonInput>
             </IonItem>
           </IonCol>
@@ -397,29 +432,39 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
             class="ion-padding-horizontal ion-text-end"
             onClick={() => console.log({ strategy })}
           >
-            <IonItem lines="none" style={{ opacity: 1 }} disabled={true}>
-              <IonThumbnail slot="start">
+            <IonItem lines="none" style={{ opacity: 1, '--padding-start': 0, '--inner-padding-end': 0 }} disabled={true}>
+              <IonThumbnail slot="start" style={{
+                width: '48px',
+                height: '48px',
+                marginTop: '0.5rem',
+                marginBottom: '0.5rem',
+                marginLeft: '0.5rem', 
+              }}>
                 <IonImg
                   src={getAssetIconUrl({ symbol: strategy.step[0].to })}
                   alt={strategy.step[0].to}
                 ></IonImg>
               </IonThumbnail>
-              <IonLabel slot="start" class="ion-hide-md-down">
+              <IonLabel slot="start" class="ion-hide-md-down" style={{marginRight: 0}}>
                 <h2>{strategy.step[0].to}</h2>
                 <p>
-                  1 {strategy.step[0].from} = 1 {strategy.step[0].to}
+                  <small>
+                  1 {strategy.step[0].to} = ~{wstToEthAmount > 0 ? wstToEthAmount.toFixed(4) : 0} {strategy.step[0].from}
+                  </small>
                 </p>
               </IonLabel>
               <IonInput
                 class="ion-text-end"
-                slot="end"
                 type="number"
                 debounce={500}
                 placeholder="0"
                 enterkeyhint="done"
                 inputmode="numeric"
                 min="0"
-                value={0}
+                value={((inputSwapValue||0) * wstToEthAmount) > 0 
+                  ? ((inputSwapValue||0) * wstToEthAmount).toFixed(4)
+                  : 0
+                }
               ></IonInput>
             </IonItem>
           </IonCol>
@@ -436,7 +481,7 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
                 await displayLoader();
                 const { txReceipts } = await ACTIONS.handleSwap(
                   strategy,
-                  Number(inputSwapRef.current?.value || -1),
+                  Number(inputSwapValue || -1),
                   walletBalanceWETH,
                   ethereumProvider as ethers.providers.Web3Provider
                 ).catch((error) => {
@@ -457,14 +502,10 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
 
       {/* Deposit */}
       {stepIndex === 1 && (
-        <IonRow class="ion-text-center ion-padding">
+        <IonRow class="ion-text-center ion-padding-horizontal ion-padding-bottom">
           <IonCol
             size="12"
-            size-md="10"
-            offset-md="1"
-            size-xl="8"
-            offset-xl="2"
-            class="ion-padding-start ion-padding-end"
+            class="ion-padding-start ion-padding-end ion-padding-bottom"
           >
             <IonText>
               <h2>{strategy.step[1].title}</h2>
@@ -474,8 +515,14 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
             </IonText>
           </IonCol>
           <IonCol size="12" class="ion-padding-horizontal ion-text-end">
-            <IonItem lines="none">
-              <IonThumbnail slot="start">
+            <IonItem lines="none" style={{'--padding-start': 0, '--inner-padding-end': 0}}>
+              <IonThumbnail slot="start" style={{
+                width: '48px',
+                height: '48px',
+                marginTop: '0.5rem',
+                marginBottom: '0.5rem',
+                marginLeft: '0.5rem', 
+              }}>
                 <IonImg
                   src={getAssetIconUrl({ symbol: strategy.step[1].from })}
                   alt={strategy.step[1].from}
@@ -532,14 +579,10 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
 
       {/* Borrow */}
       {stepIndex === 2 && (
-        <IonRow class="ion-text-center ion-padding">
+        <IonRow class="ion-text-center ion-padding-horizontal ion-padding-bottom">
           <IonCol
             size="12"
-            size-md="10"
-            offset-md="1"
-            size-xl="8"
-            offset-xl="2"
-            class="ion-padding-start ion-padding-end"
+            class="ion-padding-start ion-padding-end ion-padding-bottom"
           >
             <IonText>
               <h2>{strategy.step[2].title}</h2>
@@ -549,8 +592,14 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
             </IonText>
           </IonCol>
           <IonCol size="12" class="ion-padding-horizontal ion-text-end">
-            <IonItem lines="none">
-              <IonThumbnail slot="start">
+            <IonItem lines="none" style={{'--padding-start': 0, '--inner-padding-end': 0}}>
+              <IonThumbnail slot="start" style={{
+                width: '48px',
+                height: '48px',
+                marginTop: '0.5rem',
+                marginBottom: '0.5rem',
+                marginLeft: '0.5rem', 
+              }}>
                 <IonImg
                   src={getAssetIconUrl({ symbol: strategy.step[2].from })}
                   alt={strategy.step[2].from}
@@ -617,14 +666,10 @@ export function EthOptimizedStrategyModal({ strategy, onDismiss }: IStrategyModa
 
       {/* Congratulation */}
       {stepIndex === 4 && (
-        <IonRow class="ion-text-center ion-padding">
+        <IonRow class="ion-text-center ion-padding-horizontal ion-padding-bottom">
           <IonCol
             size="12"
-            size-md="10"
-            offset-md="1"
-            size-xl="8"
-            offset-xl="2"
-            class="ion-padding-start ion-padding-end"
+            class="ion-padding-start ion-padding-end ion-padding-bottom"
           >
             <IonText>
               <h2>Congratulation</h2>
@@ -688,7 +733,8 @@ export function EthOptimizedStrategyCard() {
       s?.reserve?.symbol?.toLocaleLowerCase() === "weth" && 
       s?.type === "borrow"
   )?.reserve;
-  const isActive = isAavePoolActive({ poolReserveWSTETH, poolReserveWETH });
+  const chain = CHAIN_AVAILABLES.find(c => c.id === strategy?.chainId);
+  const isDisabled = isAavePoolDisabled({ poolReserveWSTETH, poolReserveWETH });
 
   // UI Component utils
   const Loader = <IonSpinner name="dots" />;
@@ -696,7 +742,7 @@ export function EthOptimizedStrategyCard() {
     <ConnectButton expand="block" />
   ) : (
     <IonButton
-      disabled={!isActive}
+      disabled={isDisabled}
       onClick={() =>
         present({
           cssClass: "modalAlert ",
@@ -776,7 +822,7 @@ export function EthOptimizedStrategyCard() {
               >
                 <IonLabel>APY</IonLabel>
                 {maxAPRstETH > 0 ? (
-                  <IonText slot="end">{strategy.apys.join(" - ")}</IonText>
+                  <IonText slot="end">{strategy.apys.map(a => (`${a}%`)).join(" - ")}</IonText>
                 ) : (
                   <IonSkeletonText
                     animated
@@ -790,10 +836,12 @@ export function EthOptimizedStrategyCard() {
           <IonRow>
             <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
               {CardButton}
-              {!isActive && (
+              {isDisabled && (
                 <div className="ion-margin-top">
                   <IonText color="warning">
-                    Reserve liquidity pool is full on this network. Try again
+                    Reserve liquidity pool is full on  {
+                      chain && (chain?.name[0].toUpperCase() + chain?.name.slice(1))
+                    }. Try again
                     later or switch to another network.
                   </IonText>
                 </div>

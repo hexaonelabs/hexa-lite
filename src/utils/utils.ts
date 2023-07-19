@@ -20,28 +20,28 @@ export const getPercent = (value: number, max: number): number => {
   return (value / max) * 100;
 };
 
-export const isAavePoolActive = ({
+export const isAavePoolDisabled = ({
   poolReserveWSTETH,
   poolReserveWETH,
 }: {
   poolReserveWSTETH?: (ReserveDataHumanized & FormatReserveUSDResponse),
   poolReserveWETH?: (ReserveDataHumanized & FormatReserveUSDResponse),
 }) => {
-  const isWSTETHActive = Number(!poolReserveWSTETH
-    ? 100
+  const isWSTETHDisabled = Number(!poolReserveWSTETH
+    ? 0
     : getPercent(
         valueToBigNumber(poolReserveWSTETH.totalLiquidityUSD).toNumber(),
         valueToBigNumber(poolReserveWSTETH.supplyCapUSD).toNumber()
       )
-  ) < 99;
-  const isWETHActive = Number(!poolReserveWETH
-    ? 100
+  ) >= 99;
+  const isWETHDisabled = Number(!poolReserveWETH
+    ? 0
     : getPercent(
         valueToBigNumber(poolReserveWETH.totalDebtUSD).toNumber(),
         valueToBigNumber(poolReserveWETH.borrowCapUSD).toNumber()
       )
-  ) < 99;
-  console.log({isWSTETHActive, isWETHActive, poolReserveWSTETH, poolReserveWETH });
+  ) >= 99;
+  console.log({isWSTETHDisabled, isWETHDisabled, poolReserveWSTETH, poolReserveWETH });
   
-  return (isWSTETHActive && isWETHActive) || false;
+  return (isWSTETHDisabled || isWETHDisabled) || false;
 }

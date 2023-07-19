@@ -22,6 +22,45 @@ import {
 } from "@aave/math-utils";
 import { ChainId } from "@aave/contract-helpers";
 
+const submitTransaction = async (ops: {
+  provider: ethers.providers.Web3Provider; // Signing transactions requires a wallet provider
+  tx: EthereumTransactionTypeExtended;
+}) => {
+  const { provider, tx } = ops;
+  const extendedTxData = await tx.tx();
+  const { from, ...txData } = extendedTxData;
+  const signer = provider.getSigner(from);
+  const txResponse = await signer.sendTransaction({
+    ...txData,
+    value: txData.value || undefined,
+    // value: txData.value ? BigNumber.from(txData.value) : undefined,
+  });
+  return txResponse;
+};
+
+/**
+ * Loop through txs and submit each one by one waiting for confirmation befor looping to the next
+ * @param ops 
+ * @returns 
+ */
+const submitMultiplesTransaction = async (ops: {
+  provider: ethers.providers.Web3Provider; // Signing transactions requires a wallet provider
+  txs: EthereumTransactionTypeExtended[];
+}) => {
+  const { provider, txs } = ops;
+  let txResponses: ethers.providers.TransactionResponse[] = [];
+  for (let i = 0; i < txs.length; i++) {
+    const tx = txs[i];
+    console.log("submit tx: ", i, tx);
+    const txResponse = await submitTransaction({
+      provider,
+      tx,
+    });
+    txResponses.push(txResponse);
+  }
+  return txResponses;
+};
+
 export const fetchTVL = async () => {
   const response = await fetch("https://api.llama.fi/tvl/aave");
   const data = await response.json();
@@ -59,15 +98,10 @@ export const supply = async (ops: {
     throw error;
   }
   console.log("txs: ", txs);
-  const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(
-    txs.map(async (tx) => {
-      const txResponse = await submitTransaction({
-        provider,
-        tx,
-      });
-      return txResponse;
-    })
-  );
+  const txResponses: ethers.providers.TransactionResponse[] = await submitMultiplesTransaction({
+    provider,
+    txs,
+  });
   console.log("result: ", txResponses);
   const txReceipts = await Promise.all(txResponses.map((tx) => tx.wait()));
   console.log("txReceipts: ", txReceipts);
@@ -128,17 +162,21 @@ export const supplyWithPermit = async (ops: {
   });
   console.log("txs: ", txs);
 
-  const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(
-    txs.map(async (tx) => {
-      const txResponse = await submitTransaction({
-        provider,
-        tx,
-      });
-      return txResponse;
-    })
-  );
-  console.log("result: ", txResponses);
+  const txResponses: ethers.providers.TransactionResponse[] = await submitMultiplesTransaction({
+    provider,
+    txs,
+  });
 
+  // const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(
+  //   txs.map(async (tx) => {
+  //     const txResponse = await submitTransaction({
+  //       provider,
+  //       tx,
+  //     });
+  //     return txResponse;
+  //   })
+  // );
+  console.log("result: ", txResponses);
   const txReceipts = await Promise.all(txResponses.map((tx) => tx.wait()));
   return txReceipts;
 };
@@ -177,15 +215,10 @@ export const withdraw = async (ops: {
     onBehalfOf,
   });
 
-  const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(
-    txs.map(async (tx) => {
-      const txResponse = await submitTransaction({
-        provider,
-        tx,
-      });
-      return txResponse;
-    })
-  );
+  const txResponses: ethers.providers.TransactionResponse[] = await submitMultiplesTransaction({
+    provider,
+    txs,
+  });
   console.log("result: ", txResponses);
   return await Promise.all(txResponses.map((tx) => tx.wait()));
 };
@@ -220,15 +253,10 @@ export const borrow = async (ops: {
   });
   console.log("txs: ", txs);
 
-  const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(
-    txs.map(async (tx) => {
-      const txResponse = await submitTransaction({
-        provider,
-        tx,
-      });
-      return txResponse;
-    })
-  );
+  const txResponses: ethers.providers.TransactionResponse[] = await submitMultiplesTransaction({
+    provider,
+    txs,
+  });
   console.log("result: ", txResponses);
 
   const txReceipts = await Promise.all(txResponses.map(async(tx) => (await tx.wait())));
@@ -265,35 +293,14 @@ export const repay = async (ops: {
   });
   console.log("txs: ", txs);
 
-  const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(
-    txs.map(async (tx) => {
-      const txResponse = await submitTransaction({
-        provider,
-        tx,
-      });
-      return txResponse;
-    })
-  );
+  const txResponses: ethers.providers.TransactionResponse[] = await submitMultiplesTransaction({
+    provider,
+    txs,
+  });
   console.log("result: ", txResponses);
 
   const txReceipts = await Promise.all(txResponses.map((tx) => tx.wait()));
   return txReceipts;
-};
-
-export const submitTransaction = async (ops: {
-  provider: ethers.providers.Web3Provider; // Signing transactions requires a wallet provider
-  tx: EthereumTransactionTypeExtended;
-}) => {
-  const { provider, tx } = ops;
-  const extendedTxData = await tx.tx();
-  const { from, ...txData } = extendedTxData;
-  const signer = provider.getSigner(from);
-  const txResponse = await signer.sendTransaction({
-    ...txData,
-    value: txData.value || undefined,
-    // value: txData.value ? BigNumber.from(txData.value) : undefined,
-  });
-  return txResponse;
 };
 
 export const getMarkets = (chainId: number) => {

@@ -51,7 +51,6 @@ import { ethers } from "ethers";
 import {
   borrow,
   repay,
-  submitTransaction,
   supplyWithPermit,
   withdraw,
 } from "../servcies/aave.service";
