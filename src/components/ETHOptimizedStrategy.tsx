@@ -84,17 +84,26 @@ const ACTIONS = {
     if (isNaN(amount) || amount <= 0) {
       throw new Error("Invalid amount. Value must be greater than 0.");
     }
+    // convert decimal amount to bigNumber string using token decimals
+    const amountInWei = ethers.utils.parseUnits(
+      amount.toString(),
+      stepBorrow.reserve?.decimals || 18
+    ).toString();
+
     // call method
     const fromAddress = await provider?.getSigner().getAddress();
+    const params = {
+      fromAddress,
+      fromAmount: amountInWei, 
+      fromChain: provider.network.chainId.toString(),
+      fromToken: stepBorrow.reserve?.underlyingAsset as string, // WETH
+      toChain: provider.network.chainId.toString(),
+      toToken: stepDeposit.reserve?.underlyingAsset as string, // wstETH
+    };
+    console.log("params: ", {params});
+    
     const receipt = await swapWithLiFi(
-      {
-        fromAddress,
-        fromAmount: amount.toString(),
-        fromChain: provider.network.chainId.toString(),
-        fromToken: stepBorrow.reserve?.underlyingAsset as string, // WETH
-        toChain: provider.network.chainId.toString(),
-        toToken: stepDeposit.reserve?.underlyingAsset as string, // wstETH
-      },
+      params,
       provider
     );
     console.log("TX result: ", receipt);
