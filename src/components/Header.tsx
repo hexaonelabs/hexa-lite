@@ -106,9 +106,9 @@ export function Header({
                   <IonSegmentButton value="defi">
                     Lending & Borrow
                   </IonSegmentButton>
-                  {/* <IonSegmentButton value="earn">
+                  <IonSegmentButton value="earn">
                     Earn Interest
-                  </IonSegmentButton> */}
+                  </IonSegmentButton>
                   <IonSegmentButton value="fiat">Buy</IonSegmentButton>
                 </IonSegment>
               </IonCol>
