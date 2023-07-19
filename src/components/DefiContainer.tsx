@@ -1108,8 +1108,8 @@ export const DefiContainer = ({
                           <div className="ion-margin-vertical ion-padding-vertical">
                             {user && (
                               <>
-                                {(!reserve?.walletBalance ||
-                            +reserve.walletBalance <= 0) ? (
+                                {(Number(reserve.walletBalance||0) <= 0 && reserve.supplyBalance <= 0)  
+                                ? (
                               <>
                                 <IonButton
                                   fill="solid"
