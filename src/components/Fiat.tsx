@@ -11,7 +11,7 @@ export function Fiat() {
           <IonText color="medium">
             <p
               style={{
-                lineHeight: "1.3rem",
+                lineHeight: "1.5rem",
               }}
             >
               Use your credit card, Google Pay or Apple Pay to buy crypto

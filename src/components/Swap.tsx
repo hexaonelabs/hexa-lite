@@ -1,11 +1,17 @@
-import { IonCol, IonGrid, IonRow, IonSpinner, IonText } from "@ionic/react";
+import { IonCol, IonGrid, IonRow, IonSpinner, IonText, useIonToast } from "@ionic/react";
 import { HiddenUI, LiFiWidget, WidgetConfig } from "@lifi/widget";
 import { useEffect, useMemo, useState } from "react";
 import { connect, disconnect, getMagic } from "../servcies/magic";
 import { useEthersProvider } from "../context/Web3Context";
+import { useLoader } from "../context/LoaderContext";
 
 export function Swap() {
   const { initializeWeb3 } = useEthersProvider();
+  const { display: displayLoader, hide: hideLoader } = useLoader();
+  const toastContext = useIonToast();
+  const presentToast = toastContext[0];
+  const dismissToast = toastContext[1];
+
   // load environment config
   const widgetConfig = useMemo((): WidgetConfig => {
     return {
@@ -45,6 +51,7 @@ export function Swap() {
       walletManagement: {
         connect: async () => {
           try {
+            await displayLoader();
             await connect();
             // If connection to the wallet was successful, initialize new Web3 instance
             const provider = await initializeWeb3();
@@ -54,21 +61,43 @@ export function Swap() {
               throw new Error("Signer not found");
             }
             // return signer instance from JsonRpcSigner
+            hideLoader();
             return signer;
           } catch (error: any) {
             // Log any errors that occur during the connection process
-            console.error("handleConnect:", error);
+            hideLoader();
+            await presentToast({
+              message: `[ERROR] Connect Failed with reason: ${error?.message||error}`,
+              color: "danger",
+              buttons: [
+                { text: 'x', role: 'cancel', handler: () => {
+                  dismissToast();
+                }}
+              ]
+            });
             throw new Error("handleConnect:" + error?.message);
           }
         },
         disconnect: async () => {
           try {
+            displayLoader();
             await disconnect();
             // After successful disconnection, re-initialize the Web3 instance
-            initializeWeb3();
-          } catch (error) {
+            await initializeWeb3();
+            hideLoader();
+          } catch (error:any) {
             // Log any errors that occur during the disconnection process
             console.log("handleDisconnect:", error);
+            hideLoader();
+            await presentToast({
+              message: `[ERROR] Disconnect Failed with reason: ${error?.message||error}`,
+              color: "danger",
+              buttons: [
+                { text: 'x', role: 'cancel', handler: () => {
+                  dismissToast();
+                }}
+              ]
+            });
           }
         },
       },
@@ -118,7 +147,7 @@ export function Swap() {
           <IonText color="medium">
             <p
               style={{
-                lineHeight: "1.3rem",
+                lineHeight: "1.5rem",
               }}
             >
               Crosschain swap assets instantly at the best rates and

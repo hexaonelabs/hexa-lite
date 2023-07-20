@@ -2,14 +2,16 @@
 import { useLoader } from "../context/LoaderContext";
 import { useEthersProvider } from "../context/Web3Context"
 import { connect } from "../servcies/magic"
-import { IonButton, useIonAlert } from "@ionic/react"
+import { IonButton, useIonToast } from "@ionic/react"
 
 const ConnectButton = (props: {
   style?: any;
   size?: "small" | "default" | "large";
   expand?: "full" | "block";
 }) => {
-  const [present, dismiss] = useIonAlert();
+  const toastContext = useIonToast();
+  const presentToast = toastContext[0];
+  const dismissToast = toastContext[1];
   // Get the initializeWeb3 function from the Web3 context
   const { initializeWeb3 } = useEthersProvider()
   const { display: displayLoader, hide: hideLoader } = useLoader();
@@ -43,11 +45,20 @@ const ConnectButton = (props: {
       await initializeWeb3()
       // Hide the loader
       await hideLoader()
-    } catch (error) {
+    } catch (error:any) {
       // Log any errors that occur during the connection process
-      console.error("handleConnect:", error)
+      // console.error("handleConnect:", error);
+      await presentToast({
+        message: `[ERROR] Connect Failed with reason: ${error?.message||error}`,
+        color: "danger",
+        buttons: [
+          { text: 'x', role: 'cancel', handler: () => {
+            dismissToast();
+          }}
+        ]
+      });
       // Hide the loader
-      await hideLoader()
+      await hideLoader();
     }
   }
 

@@ -133,7 +133,7 @@ function App() {
                     left: 0,
                     textAlign: 'center',
                     zIndex: -1,
-                    opacity: 0.6
+                    opacity: 0.4
                   }}>
                     <small>
                       {`HexaLite v${process.env.REACT_APP_VERSION}`}

@@ -15,7 +15,7 @@ export function Earn() {
           <IonText color="medium">
             <p
               style={{
-                lineHeight: "1.3rem",
+                lineHeight: "1.5rem",
               }}
             >
               <span style={{ maxWidth: "800px", display: "inline-block" }}>

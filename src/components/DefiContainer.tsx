@@ -685,7 +685,7 @@ export const DefiContainer = ({
       </IonRow>
     </IonGrid>
   ) : (
-    <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
+    <IonGrid class="ion-no-padding" style={{ marginBottom: "8rem" }}>
       <IonRow class="ion-justify-content-center">
         <IonCol size="12" class="ion-text-center">
           <IonText>
@@ -694,7 +694,7 @@ export const DefiContainer = ({
           <IonText color="medium">
             <p
               style={{
-                lineHeight: "1.3rem",
+                lineHeight: "1.5rem",
               }}
             >
               <span style={{ maxWidth: "600px", display: "inline-block" }}>
@@ -749,7 +749,10 @@ export const DefiContainer = ({
                     <IonProgressBar
                       color="success"
                       value={progressBarFormatedValue}
-                      style={{background: 'var(--ion-color-danger)'}}
+                      style={{
+                        background: 'var(--ion-color-danger)',
+                        height: '0.5rem'
+                      }}
                     ></IonProgressBar>
                   </div>
                   <IonText color="medium">
@@ -901,13 +904,15 @@ export const DefiContainer = ({
                               }
                               <p>
                                 <small>{reserve?.name}</small>
-                                <br />
-                                <IonText color="dark">
-                                  <small>
-                                    Wallet balance:{" "}
-                                    {Number(reserve.walletBalance)}
-                                  </small>
-                                </IonText>
+                                {user && (
+                                  <IonText color="dark">
+                                    <br />
+                                    <small>
+                                      Wallet balance:{" "}
+                                      {Number(reserve.walletBalance)}
+                                    </small>
+                                  </IonText>
+                                )}
                               </p>
                             </IonLabel>
                           </IonCol>
@@ -944,7 +949,9 @@ export const DefiContainer = ({
                           </IonCol>
                           <IonCol size="2" class="ion-text-end ion-hide-md-down">
                             <IonLabel>
-                              {(+reserve?.supplyBalance).toFixed(6) || "0.00"}
+                              {+reserve?.supplyBalance > 0
+                                ? (reserve?.supplyBalance).toFixed(6)
+                                : "0.00"}
                               <br />
                               <IonText color="medium">
                                 <small>
@@ -959,33 +966,48 @@ export const DefiContainer = ({
                           </IonCol>
                           <IonCol size="2" class="ion-text-end ion-hide-md-down">
                             <IonLabel>
-                              {reserve?.borrowBalance.toFixed(6) || "0.00"}
-                              <br />
-                              <IonText color="medium">
-                                <small>
-                                  {formatCurrencyValue(
-                                    reserve?.borrowBalance,
-                                    Number(reserve?.priceInUSD),
-                                    "No debit"
-                                  )}
-                                </small>
-                              </IonText>
+                              {
+                                +reserve?.borrowBalance > 0
+                                  ? reserve?.borrowBalance.toFixed(6)
+                                  : (reserve?.borrowingEnabled === false) 
+                                    ? '-'
+                                    : "0.00"
+                              }
+                              {(reserve?.borrowingEnabled === true) && (
+                                <IonText color="medium">
+                                  <br />
+                                  <small>
+                                    {formatCurrencyValue(
+                                      reserve?.borrowBalance,
+                                      Number(reserve?.priceInUSD),
+                                      "No debit"
+                                    )}
+                                  </small>
+                                </IonText>
+                              )}
                             </IonLabel>
                           </IonCol>
                           <IonCol size="auto" size-md="2" class="ion-text-end">
                             <IonLabel>
-                              {(Number(reserve?.supplyAPY || 0) * 100).toFixed(
-                                2
-                              )}
+                              {(Number(reserve?.supplyAPY || 0) * 100) === 0 
+                                ? '0'
+                                : (Number(reserve?.supplyAPY || 0) * 100) < 0.01
+                                  ? '< 0.01'
+                                  : (Number(reserve?.supplyAPY || 0) * 100).toFixed(2)
+                              }
                               %
                             </IonLabel>
                           </IonCol>
-                          <IonCol  size="2" class="ion-text-end ion-hide-sm-down">
+                          <IonCol size="2" class="ion-text-end ion-hide-sm-down">
                             <IonLabel>
-                              {(
-                                Number(reserve?.variableBorrowAPY || 0) * 100
-                              ).toFixed(2)}
-                              %
+                              {(Number(reserve?.variableBorrowAPY || 0) * 100) === 0 
+                                ? (reserve?.borrowingEnabled === false) 
+                                  ? '- '
+                                  : `0%`
+                                : (Number(reserve?.variableBorrowAPY || 0) * 100) < 0.01
+                                  ? `< 0.01%`
+                                  : (Number(reserve?.variableBorrowAPY || 0) * 100).toFixed(2) + '%'
+                              }
                             </IonLabel>
                           </IonCol>
                         </IonRow>
@@ -993,7 +1015,7 @@ export const DefiContainer = ({
                     </IonItem>
 
                     <IonGrid className="ion-padding" slot="content">
-                      <IonRow class="ion-padding-top">
+                      <IonRow class="ion-padding-top ion-justify-content-center">
                         {!reserve.usageAsCollateralEnabled && (
                           <IonCol size-md="12" class="ion-padding ion-margin-bottom ion-text-center">
                             <IonText color="warning">
@@ -1068,22 +1090,6 @@ export const DefiContainer = ({
                                 Deposit liquidity
                               </IonLabel>
                               <IonText color="medium">
-                                {/* <FormattedNumber
-                                  compact
-                                  value={reserve.totalLiquidityUSD}
-                                  symbolsVariant="secondary12"
-                                  symbolsColor="text.secondary"
-                                  symbol="USD"
-                                /> */}
-                                {/* {formatCurrencyValue(
-                                  Number(reserve.totalLiquidityUSD )
-                                )} */}
-                                {/* {formatCurrencyValue(+reserve.totalLiquidityUSD)} */}
-                                {/* <FormattedNumber
-                                  compact={true}
-                                  value={Math.max(Number(reserve.totalLiquidityUSD), 0)}
-                                  symbol="USD"
-                                /> */}
                                 {formatCurrencyValue(
                                   valueToBigNumber(
                                     reserve.totalLiquidityUSD
@@ -1294,7 +1300,7 @@ export const DefiContainer = ({
                         )}
 
                         {!user && (
-                          <IonCol size="12" class="ion-padding">
+                          <IonCol size="12" class="ion-padding ion-margin-bottom ion-text-center">
                             <ConnectButton></ConnectButton>
                           </IonCol>
                         )}
