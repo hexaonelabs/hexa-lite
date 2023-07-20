@@ -223,16 +223,16 @@ ion-accordion {
   
   ion-col.checked {
     span {
-      border: solid 2px var(--ion-color-primary);
-      color: var(--ion-color-primary);
+      border: solid 2px var(--ion-color-success);
+      color: var(--ion-color-success);
     }
   }
   ion-col.checked::before {
-    background: var(--ion-color-primary);
+    background: var(--ion-color-success);
   }
 
   span.active {
-    color: var(--ion-color-primary)!important;
+    color: var(--ion-color-success)!important;
   }
   ion-col.checked span.active::after {
     content: '';
@@ -254,7 +254,7 @@ ion-accordion {
     width: 100%;
     opacity: 0.3;
     border-radius: 100%;
-    background: var(--ion-color-primary);
+    background: var(--ion-color-success);
   }
 
   ion-text {
@@ -267,4 +267,10 @@ ion-accordion {
   ion-col:last-of-type::before {
     content: none;
   }
+}
+
+.prevent-select {
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 }

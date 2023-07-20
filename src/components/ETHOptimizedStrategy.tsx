@@ -41,13 +41,15 @@ import {
 } from "../context/EthOptimizedContext";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import ConnectButton from "./ConnectButton";
-import { isAavePoolDisabled } from "../utils/utils";
+import { isAavePoolDisabled, roundToTokenDecimals } from "../utils/utils";
 import { swapWithLiFi } from "../servcies/lifi.service";
 import { borrow, supplyWithPermit } from "../servcies/aave.service";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { getETHByWstETH } from "../servcies/lido.service";
 import { BigNumberZeroDecimal } from "@aave/math-utils";
 import { useAave } from "../context/AaveContext";
+import { FormattedNumber } from "./FormattedNumber";
+import { AssetInput } from "./AssetInput";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -198,11 +200,13 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
   
   const [stepIndex, setStepIndex] = useState(0);
   const [wstToEthAmount, setWstToEthAmount] = useState(-1);
+  const [inputDepositValue, setInputDepositValue] = useState(-1);
+  const [inputBorrowtValue, setInputBorrowtValue] = useState(-1);
+  const [inputSwapValue, setInputSwapValue] = useState(0);
   // create ref for input deposit, borrow, swap
-  const inputDepositRef = useRef<HTMLIonInputElement>(null);
+  // const inputDepositRef = useRef<HTMLIonInputElement>(null);
   const inputBorrowRef = useRef<HTMLIonInputElement>(null);
   // const inputSwapRef = useRef<HTMLIonInputElement>(null);
-  const [inputSwapValue, setInputSwapValue] = useState(0);
   const toastContext = useIonToast();
   const presentToast = toastContext[0];
   const dismissToast = toastContext[1];
@@ -274,8 +278,6 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
     }
     getETHByWstETH(1)
       .then(value => {
-        console.log({ value });
-        // convert ethers.BigNumber to decimal
         setWstToEthAmount(()=> Number(value));
       });
   }, [ethereumProvider]);
@@ -408,7 +410,16 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
             size-md="6"
             class="ion-padding-horizontal ion-text-start"
           >
-            <IonItem lines="none" style={{'--padding-start': 0, '--inner-padding-end': 0}}>
+            <AssetInput 
+              symbol={strategy.step[0].from } 
+              balance={inputSwapValue} 
+              maxBalance={walletBalanceWETH.toString()} 
+              textBalance={'Balance'}
+              onChange={(value) => {
+                const amount = Number(value);
+                setInputSwapValue(() => amount);
+              }} />
+            {/* <IonItem lines="none" style={{'--padding-start': 0, '--inner-padding-end': 0}}>
               <IonThumbnail slot="start" style={{
                 width: '48px',
                 height: '48px',
@@ -445,14 +456,25 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                   setInputSwapValue(() => value);
                 }}
               ></IonInput>
-            </IonItem>
+            </IonItem> */}
           </IonCol>
           <IonCol
             size-xs="12"
             size-md="6"
             class="ion-padding-horizontal ion-text-end"
           >
-            <IonItem lines="none" style={{ opacity: 1, '--padding-start': 0, '--inner-padding-end': 0 }} disabled={true}>
+            <AssetInput 
+              disabled={true}
+              symbol={strategy.step[0].to } 
+              balance={((inputSwapValue||0) * wstToEthAmount) > 0 
+                ? +((inputSwapValue||0) * wstToEthAmount).toFixed(4)
+                : 0
+              } 
+              onChange={(value) => {
+                const amount = Number(value);
+                setInputSwapValue(() => amount);
+            }} />
+            {/* <IonItem lines="none" style={{ opacity: 1, '--padding-start': 0, '--inner-padding-end': 0 }} disabled={true}>
               <IonThumbnail slot="start" style={{
                 width: '48px',
                 height: '48px',
@@ -486,9 +508,16 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                   : 0
                 }
               ></IonInput>
-            </IonItem>
+            </IonItem> */}
           </IonCol>
-          <IonCol size="12" class="ion-padding ion-margin-top">
+          <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
+          <IonText color="primary">
+              <p style={{margin: '0 0 1rem'}}>
+                <small>
+                  {`1 ${strategy.step[0].to} = ~${wstToEthAmount > 0 ? wstToEthAmount.toFixed(4) : 0} ${strategy.step[0].from}`}
+                </small>
+              </p>
+            </IonText>
             <IonText color="medium">
               <small>{noticeMessage("AAVE")}</small>
             </IonText>
@@ -521,6 +550,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                   await presentToast({
                     message: `[ERROR] Exchange Failed with reason: ${error?.message||error}`,
                     color: "danger",
+                    duration: 5000,
                     buttons: [
                       { text: 'x', role: 'cancel', handler: () => {
                         dismissToast();
@@ -552,7 +582,16 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
             </IonText>
           </IonCol>
           <IonCol size="12" class="ion-padding-horizontal ion-text-end">
-            <IonItem lines="none" style={{'--padding-start': 0, '--inner-padding-end': 0}}>
+            <AssetInput 
+              symbol={strategy.step[1].from } 
+              balance={inputDepositValue} 
+              maxBalance={maxToDeposit.toString()} 
+              textBalance={'Balance'}
+              onChange={(value) => {
+                const amount = Number(value);
+                setInputDepositValue(() => amount);
+              }} />
+            {/* <IonItem lines="none" style={{'--padding-start': 0, '--inner-padding-end': 0}}>
               <IonThumbnail slot="start" style={{
                 width: '48px',
                 height: '48px',
@@ -565,23 +604,29 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                   alt={strategy.step[1].from}
                 ></IonImg>
               </IonThumbnail>
-              <IonLabel slot="start" class="ion-hide-md-down">
-                <h2>{strategy.step[1].from}</h2>
-                <p>Balance: {maxToDeposit}</p>
-              </IonLabel>
+              <div slot="start" className="ion-hide-md-down">
+                <h2 style={{fontSize: '1.2rem'}} className="ion-no-margin">{strategy.step[1].from}</h2>
+                <IonText color="medium" style={{display: 'flex', fontSize: '70%', cursor: 'pointer'}} onClick={() => {
+                  console.log('hii', maxToDeposit.toString());
+                  (inputDepositRef.current as any).value = maxToDeposit.toString();
+                }}>
+                  <span style={{paddingRight: '0.25rem'}}>Balance:</span>
+                  <FormattedNumber value={maxToDeposit} />
+                </IonText>
+              </div>
               <IonInput
                 ref={inputDepositRef}
                 class="ion-text-end"
-                slot="end"
                 type="number"
                 debounce={500}
                 placeholder="0"
                 enterkeyhint="done"
                 inputmode="numeric"
-                min="0"
+                min={0}
                 max={maxToDeposit}
+                style={{fontSize: '1.25rem'}}
               ></IonInput>
-            </IonItem>
+            </IonItem> */}
           </IonCol>
           <IonCol size="12" class="ion-padding ion-margin-top">
             <IonText color="medium">
@@ -596,11 +641,13 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
               className="ion-margin-top"
               expand="block"
               onClick={async () => {
+                console.log('inputDepositValue', inputDepositValue);
+                // return;
                 await displayLoader();
                 try {
                   const { txReceipts } = await ACTIONS.handleDeposit(
                     strategy,
-                    Number(inputDepositRef.current?.value || -1),
+                    Number(inputDepositValue || -1),
                     ethereumProvider as ethers.providers.Web3Provider
                   );
                   await refreshUser();
@@ -612,12 +659,14 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                       color: "success",
                     });
                     setStepIndex(() => 2);
+                    setInputDepositValue(0)
                   }
                 } catch (error: any) {
                   console.log("handleDeposit:", { error });
                   await presentToast({
-                    message: `[ERROR] Deposit Failed with reason: ${error?.message||error}`,
+                    message: `[ERROR] Deposit Failed with reason: ${error?.reason||error?.message||error}`,
                     color: "danger",
+                    duration: 5000,
                     buttons: [
                       { text: 'x', role: 'cancel', handler: () => {
                         dismissToast();
@@ -649,7 +698,17 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
             </IonText>
           </IonCol>
           <IonCol size="12" class="ion-padding-horizontal ion-text-end">
-            <IonItem lines="none" style={{'--padding-start': 0, '--inner-padding-end': 0}}>
+            <AssetInput 
+              symbol={strategy.step[2].from } 
+              balance={inputBorrowtValue} 
+              maxBalance={maxToBorrow.toString()} 
+              textBalance={'Balance'}
+              onChange={(value) => {
+                console.log('onChange', {value, maxToBorrow});
+                const amount = Number(value);
+                setInputBorrowtValue(() => amount);
+              }} />
+            {/* <IonItem lines="none" style={{'--padding-start': 0, '--inner-padding-end': 0}}>
               <IonThumbnail slot="start" style={{
                 width: '48px',
                 height: '48px',
@@ -688,7 +747,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                 min="0"
                 max={maxToBorrow}
               ></IonInput>
-            </IonItem>
+            </IonItem> */}
           </IonCol>
           <IonCol size="12" class="ion-padding ion-margin-top">
             <IonText color="medium">
@@ -707,7 +766,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                 try {
                   const { txReceipts } = await ACTIONS.handleBorrow(
                     strategy,
-                    Number(inputBorrowRef.current?.value || -1),
+                    Number(inputBorrowtValue || -1),
                     ethereumProvider as ethers.providers.Web3Provider
                   );
                   await refreshUser();
@@ -719,11 +778,13 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                       color: "success",
                     });
                     setStepIndex(() => 3);
+                    setInputBorrowtValue(0);
                   }
                 } catch (error: any) {
                   await presentToast({
                     message: `[ERROR] Borrow Failed with reason: ${error?.message||error}`,
                     color: "danger",
+                    duration: 5000,
                     buttons: [
                       { text: 'x', role: 'cancel', handler: () => {
                         dismissToast();

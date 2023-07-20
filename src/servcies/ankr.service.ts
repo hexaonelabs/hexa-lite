@@ -25,7 +25,7 @@ const formatingTokensBalances = (assets: IAnkrTokenReponse[], address: string, c
       decimals: asset.tokenDecimals,
       type: asset.tokenType,
       balance: parseFloat(
-        (Number(asset.balanceRawInteger) / 10 ** asset.tokenDecimals).toFixed(4)
+        (Number(asset.balanceRawInteger) / 10 ** asset.tokenDecimals).toString()
       ),
       balanceRawInteger: asset.balanceRawInteger,
       balanceUsd: Number(asset.balanceUsd),
