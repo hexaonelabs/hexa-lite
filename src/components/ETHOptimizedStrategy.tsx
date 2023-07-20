@@ -10,7 +10,6 @@ import {
   IonRow,
   IonText,
   IonThumbnail,
-  useIonModal,
   IonSkeletonText,
   IonSpinner,
   IonIcon,
@@ -204,7 +203,9 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
   const inputBorrowRef = useRef<HTMLIonInputElement>(null);
   // const inputSwapRef = useRef<HTMLIonInputElement>(null);
   const [inputSwapValue, setInputSwapValue] = useState(0);
-  const presentToast = useIonToast()[0];
+  const toastContext = useIonToast();
+  const presentToast = toastContext[0];
+  const dismissToast = toastContext[1];
 
   const noticeMessage = (
     name: string
@@ -498,24 +499,34 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
               expand="block"
               onClick={async () => {
                 await displayLoader();
-                const { txReceipts } = await ACTIONS.handleSwap(
-                  strategy,
-                  Number(inputSwapValue || -1),
-                  walletBalanceWETH,
-                  ethereumProvider as ethers.providers.Web3Provider
-                ).catch((error) => {
+                try {
+                  const { txReceipts } = await ACTIONS.handleSwap(
+                    strategy,
+                    Number(inputSwapValue || -1),
+                    walletBalanceWETH,
+                    ethereumProvider as ethers.providers.Web3Provider
+                  )
+                  await refreshUser();
+                  await refreshAAVE();
+                  if ((txReceipts?.length || 0) > 0) {
+                    await presentToast({
+                      message: `Swap completed successfully`,
+                      duration: 5000,
+                      color: "success",
+                    });
+                    setStepIndex(() => (stepIndex === 3 ? 4 : 1));
+                  }
+                } catch (error: any) {
                   console.log("handleSwap:", { error });
-                  return error;
-                });
-                await refreshUser();
-                await refreshAAVE();
-                if ((txReceipts?.length || 0) > 0) {
                   await presentToast({
-                    message: `Swap completed successfully`,
-                    duration: 5000,
-                    color: "success",
+                    message: `[ERROR] Exchange Failed with reason: ${error?.message||error}`,
+                    color: "danger",
+                    buttons: [
+                      { text: 'x', role: 'cancel', handler: () => {
+                        dismissToast();
+                      }}
+                    ]
                   });
-                  setStepIndex(() => (stepIndex === 3 ? 4 : 1));
                 }
                 await hideLoader();
               }}
@@ -586,20 +597,33 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
               expand="block"
               onClick={async () => {
                 await displayLoader();
-                const { txReceipts } = await ACTIONS.handleDeposit(
-                  strategy,
-                  Number(inputDepositRef.current?.value || -1),
-                  ethereumProvider as ethers.providers.Web3Provider
-                ).catch((err) => err);
-                await refreshUser();
-                await refreshAAVE();
-                await presentToast({
-                  message: `Deposit completed successfully`,
-                  duration: 5000,
-                  color: "success",
-                });
-                if ((txReceipts?.length || 0) > 0) {
-                  setStepIndex(() => 2);
+                try {
+                  const { txReceipts } = await ACTIONS.handleDeposit(
+                    strategy,
+                    Number(inputDepositRef.current?.value || -1),
+                    ethereumProvider as ethers.providers.Web3Provider
+                  );
+                  await refreshUser();
+                  await refreshAAVE();
+                  if ((txReceipts?.length || 0) > 0) {
+                    await presentToast({
+                      message: `Deposit completed successfully`,
+                      duration: 5000,
+                      color: "success",
+                    });
+                    setStepIndex(() => 2);
+                  }
+                } catch (error: any) {
+                  console.log("handleDeposit:", { error });
+                  await presentToast({
+                    message: `[ERROR] Deposit Failed with reason: ${error?.message||error}`,
+                    color: "danger",
+                    buttons: [
+                      { text: 'x', role: 'cancel', handler: () => {
+                        dismissToast();
+                      }}
+                    ]
+                  });
                 }
                 await hideLoader();
               }}
@@ -680,20 +704,32 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
               expand="block"
               onClick={async () => {
                 await displayLoader();
-                const { txReceipts } = await ACTIONS.handleBorrow(
-                  strategy,
-                  Number(inputBorrowRef.current?.value || -1),
-                  ethereumProvider as ethers.providers.Web3Provider
-                ).catch((err) => err);
-                await refreshUser();
-                await refreshAAVE();
-                await presentToast({
-                  message: `Borrow completed successfully`,
-                  duration: 5000,
-                  color: "success",
-                });
-                if ((txReceipts?.length || 0) > 0) {
-                  setStepIndex(() => 3);
+                try {
+                  const { txReceipts } = await ACTIONS.handleBorrow(
+                    strategy,
+                    Number(inputBorrowRef.current?.value || -1),
+                    ethereumProvider as ethers.providers.Web3Provider
+                  );
+                  await refreshUser();
+                  await refreshAAVE();
+                  if ((txReceipts?.length || 0) > 0) {
+                    await presentToast({
+                      message: `Borrow completed successfully`,
+                      duration: 5000,
+                      color: "success",
+                    });
+                    setStepIndex(() => 3);
+                  }
+                } catch (error: any) {
+                  await presentToast({
+                    message: `[ERROR] Borrow Failed with reason: ${error?.message||error}`,
+                    color: "danger",
+                    buttons: [
+                      { text: 'x', role: 'cancel', handler: () => {
+                        dismissToast();
+                      }}
+                    ]
+                  });
                 }
                 await hideLoader();
               }}
