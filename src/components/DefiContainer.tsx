@@ -135,7 +135,7 @@ const FormModal = ({
   );
 
   const displayRiskCheckbox =
-    healthFactor && healthFactor < 1.5 && healthFactor?.toString() !== "-1";
+   actionType.toLocaleLowerCase() === 'borrow' && healthFactor && healthFactor < 1.3 && healthFactor?.toString() !== "-1";
 
   return (
     <IonGrid className="ion-padding" style={{ width: "100%" }}>
@@ -177,6 +177,28 @@ const FormModal = ({
                   const el = inputRef.current;
                   if (el) {
                     (el as any).value = reserve?.maxAmount || 0;
+
+                    const newHealthFactor =
+                      calculateHealthFactorFromBalancesBigUnits({
+                        collateralBalanceMarketReferenceCurrency:
+                          user.totalCollateralUSD,
+                        borrowBalanceMarketReferenceCurrency: valueToBigNumber(
+                          user.totalBorrowsUSD
+                        ).plus(
+                          valueToBigNumber(inputRef.current?.value || 0).times(
+                            reserve?.priceInUSD || 0
+                          )
+                        ),
+                        currentLiquidationThreshold:
+                          user.currentLiquidationThreshold,
+                      });
+                    console.log(">>newHealthFactor.toNumber()", {
+                      newHealthFactor,
+                      user,
+                      v: inputRef.current?.value,
+                    });
+  
+                    setHealthFactor(newHealthFactor.toNumber());
                   }
                 }}
               >
@@ -197,7 +219,7 @@ const FormModal = ({
                 max={reserve?.maxAmount}
                 min={0}
                 debounce={100}
-                onKeyUp={(e) => {
+                onIonInput={(e) => {
                   const value = (e.target as any).value;
                   if (
                     reserve?.maxAmount &&
@@ -414,7 +436,6 @@ export const DefiContainer = ({
         break;
       }
       case type === "borrow": {
-        // maxAmount = (Number(borrowingCapacity) - Number(totalBorrowsUsd)) / Number(reserve?.priceInUSD);
         maxAmount = +getMaxAmountAvailableToBorrow(
           reserve,
           userSummaryAndIncentives as FormatUserSummaryAndIncentivesResponse<
@@ -667,11 +688,9 @@ export const DefiContainer = ({
   const totalCollateralUsd = Number(
     userSummaryAndIncentives?.totalCollateralUSD
   );
-  const borrowingCapacity = Number(userSummaryAndIncentives?.netWorthUSD);
 
   // The % of your total borrowing power used.
   // This is based on the amount of your collateral supplied (totalCollateralUSD) and the total amount that you can borrow (totalCollateralUSD - totalBorrowsUsd).
-
   const percentBorrowingCapacity =
     100 - getPercent(totalBorrowsUsd, totalCollateralUsd);
   const progressBarFormatedValue = percentBorrowingCapacity / 100;
@@ -723,7 +742,7 @@ export const DefiContainer = ({
       <IonRow class="ion-justify-content-center">
         <IonCol class="ion-padding" size-md="12" size-lg="10" size-xl="10">
           <IonGrid class="ion-no-padding">
-            {user && borrowingCapacity > 0 ? (
+            {user && percentBorrowingCapacity > 0 ? (
               <IonRow class="ion-text-center widgetWrapper">
                 <IonCol
                   size="12"
@@ -1284,7 +1303,7 @@ export const DefiContainer = ({
                                   disabled={
                                     reserve.borrowPoolRatioInPercent > 99
                                       ? true
-                                      : borrowingCapacity - totalBorrowsUsd <= 0
+                                      : percentBorrowingCapacity <= 0
                                       ? true
                                       : false
                                   }

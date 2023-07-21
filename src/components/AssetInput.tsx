@@ -5,7 +5,8 @@ import { useRef } from "react";
 
 interface IAssetInputPros {
   symbol: string;
-  balance: number;
+  value?: number;
+  balance?: number;
   usdBalance?: string;
   maxBalance?: string;
   textBalance?: string;
@@ -14,6 +15,7 @@ interface IAssetInputPros {
 }
 
 export function AssetInput({
+  value,
   symbol,
   balance,
   maxBalance,
@@ -51,27 +53,56 @@ export function AssetInput({
           </IonText>
         )}
       </div>
-      <IonInput
-        ref={inputDepositRef}
-        class="ion-text-end"
-        type="number"
-        debounce={500}
-        placeholder="0"
-        enterkeyhint="done"
-        inputmode="numeric"
-        min={0}
-        max={maxBalance||balance}
-        style={{fontSize: '1.25rem'}}
-        onIonInput={(e) => {
-          console.log('onIonInput', e);
-          if (onChange) {
-            const value = (e.target as any).value;
-            const amount = Number(value) > Number(maxBalance||balance) ? maxBalance||balance : value
-            e.target.value = amount;
-            onChange(amount);
-          }
-        }}
-      ></IonInput>
+      {value 
+        ? (
+          <IonInput
+            ref={inputDepositRef}
+            class="ion-text-end"
+            type="number"
+            debounce={500}
+            placeholder="0"
+            enterkeyhint="done"
+            inputmode="numeric"
+            min={0}
+            max={maxBalance||balance}
+            style={{fontSize: '1.25rem'}}
+            value={value}
+            onIonInput={(e) => {
+              console.log('onIonInput', e);
+              if (onChange) {
+                const value = (e.target as any).value;
+                const amount = Number(value) > Number(maxBalance||balance) ? maxBalance||balance : value
+                e.target.value = amount;
+                onChange(amount);
+              }
+            }}
+          ></IonInput>
+        )
+        : (
+          <IonInput
+            ref={inputDepositRef}
+            class="ion-text-end"
+            type="number"
+            debounce={500}
+            placeholder="0"
+            enterkeyhint="done"
+            inputmode="numeric"
+            min={0}
+            max={maxBalance||balance}
+            style={{fontSize: '1.25rem'}}
+            onIonInput={(e) => {
+              console.log('onIonInput', e);
+              if (onChange) {
+                const value = (e.target as any).value;
+                const amount = Number(value) > Number(maxBalance||balance) ? maxBalance||balance : value
+                e.target.value = amount;
+                onChange(amount);
+              }
+            }}
+        ></IonInput>
+        )
+      }
+
     </IonItem>
   )
 }

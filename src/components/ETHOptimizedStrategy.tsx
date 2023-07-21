@@ -46,7 +46,7 @@ import { swapWithLiFi } from "../servcies/lifi.service";
 import { borrow, supplyWithPermit } from "../servcies/aave.service";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { getETHByWstETH } from "../servcies/lido.service";
-import { BigNumberZeroDecimal } from "@aave/math-utils";
+import { BigNumberZeroDecimal, calculateHealthFactorFromBalancesBigUnits, valueToBigNumber } from "@aave/math-utils";
 import { useAave } from "../context/AaveContext";
 import { FormattedNumber } from "./FormattedNumber";
 import { AssetInput } from "./AssetInput";
@@ -193,7 +193,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
   const strategy = useEthOptimizedStrategy();
   const { refresh: refreshAAVE } = useAave();
   const { ethereumProvider } = useEthersProvider();
-  const { assets, refresh: refreshUser } = useUser();
+  const { user, assets, refresh: refreshUser } = useUser();
   const { display: displayLoader, hide: hideLoader } = useLoader();
 
   console.log('strategy: ',{ strategy , dismiss, refreshAAVE, refreshUser});
@@ -203,10 +203,9 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
   const [inputDepositValue, setInputDepositValue] = useState(-1);
   const [inputBorrowtValue, setInputBorrowtValue] = useState(-1);
   const [inputSwapValue, setInputSwapValue] = useState(0);
-  // create ref for input deposit, borrow, swap
-  // const inputDepositRef = useRef<HTMLIonInputElement>(null);
-  const inputBorrowRef = useRef<HTMLIonInputElement>(null);
-  // const inputSwapRef = useRef<HTMLIonInputElement>(null);
+  const [healthFactor, setHealthFactor] = useState<number | undefined>(
+    undefined
+  );
   const toastContext = useIonToast();
   const presentToast = toastContext[0];
   const dismissToast = toastContext[1];
@@ -263,13 +262,16 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
         strategy.userSummaryAndIncentives,
         InterestRate.Variable
       );
-
+  const displayRiskCheckbox = healthFactor && healthFactor < 1.105 && healthFactor?.toString() !== "-1";
+   
   console.log({
     maxToDeposit,
     maxToBorrow,
     walletBalanceWSTETH,
     walletBalanceWETH,
     strategy,
+    displayRiskCheckbox, 
+    healthFactor
   });
   
   useEffect(()=> {
@@ -466,14 +468,10 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
             <AssetInput 
               disabled={true}
               symbol={strategy.step[0].to } 
-              balance={((inputSwapValue||0) * wstToEthAmount) > 0 
+              value={((inputSwapValue||0) * wstToEthAmount) > 0 
                 ? +((inputSwapValue||0) * wstToEthAmount).toFixed(4)
                 : 0
-              } 
-              onChange={(value) => {
-                const amount = Number(value);
-                setInputSwapValue(() => amount);
-            }} />
+              } />
             {/* <IonItem lines="none" style={{ opacity: 1, '--padding-start': 0, '--inner-padding-end': 0 }} disabled={true}>
               <IonThumbnail slot="start" style={{
                 width: '48px',
@@ -511,7 +509,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
             </IonItem> */}
           </IonCol>
           <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
-          <IonText color="primary">
+            <IonText color="primary">
               <p style={{margin: '0 0 1rem'}}>
                 <small>
                   {`1 ${strategy.step[0].to} = ~${wstToEthAmount > 0 ? wstToEthAmount.toFixed(4) : 0} ${strategy.step[0].from}`}
@@ -705,6 +703,26 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
               textBalance={'Balance'}
               onChange={(value) => {
                 console.log('onChange', {value, maxToBorrow});
+                const newHealthFactor =
+                    calculateHealthFactorFromBalancesBigUnits({
+                      collateralBalanceMarketReferenceCurrency:
+                      strategy.userSummaryAndIncentives.totalCollateralUSD,
+                      borrowBalanceMarketReferenceCurrency: valueToBigNumber(
+                        strategy.userSummaryAndIncentives.totalBorrowsUSD
+                      ).plus(
+                        valueToBigNumber(value || 0).times(
+                          strategy.step.find((s) => s.type === "borrow")?.reserve?.priceInUSD || 0
+                        )
+                      ),
+                      currentLiquidationThreshold: strategy.userSummaryAndIncentives.currentLiquidationThreshold,
+                    });
+                  console.log(">>newHealthFactor.toNumber()", {
+                    newHealthFactor,
+                    user,
+                    v: value,
+                  });
+
+                  setHealthFactor(newHealthFactor.toNumber());
                 const amount = Number(value);
                 setInputBorrowtValue(() => amount);
               }} />
@@ -749,7 +767,18 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
               ></IonInput>
             </IonItem> */}
           </IonCol>
-          <IonCol size="12" class="ion-padding ion-margin-top">
+          <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
+            {displayRiskCheckbox && (
+              <IonText color="danger">
+                <p style={{margin: '0 0 1rem'}}>
+                  <small>
+                    Borrowing this amount will reduce your health factor and
+                    increase risk of liquidation. Add more collateral to increase
+                    your health factor.
+                  </small>
+                </p>
+              </IonText>
+            )}
             <IonText color="medium">
               <small>
                 {noticeMessage(strategy.step[2].protocol.toUpperCase())}
