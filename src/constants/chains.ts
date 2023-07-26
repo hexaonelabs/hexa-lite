@@ -5,6 +5,7 @@ export interface IChain {
   name: string;
   nativeSymbol?: string;
   logo?: string;
+  testnet?: boolean;
 };
 
 export const CHAIN_AVAILABLES: IChain[] = [
@@ -60,11 +61,13 @@ export const CHAIN_AVAILABLES: IChain[] = [
     id: 5,
     value: 'eth_goerli',
     name: 'Goerli',
+    testnet: true,
   },
   {
     id: 80001,
     value: 'polygon_mumbai',
     name: 'mumbai',
+    testnet: true,
   },
   {
     id: 43113,

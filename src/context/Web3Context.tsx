@@ -31,6 +31,8 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
     // Get the provider from the Magic instance
     const magic = await getMagic(true);
     const onboardProvider = await magic.wallet.getProvider();
+    console.log({onboardProvider});
+    
     // Create a new instance of Web3 with the provider
     const provider = new ethers.providers.Web3Provider(onboardProvider, "any");
     // const network = await provider.getNetwork();

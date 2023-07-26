@@ -19,6 +19,7 @@ import ConnectButton from "./ConnectButton";
 import DisconnectButton from "./DisconnectButton";
 import { useEthersProvider } from "../context/Web3Context";
 import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "../constants/chains";
+import { NetworkButton } from "./NetworkButton";
 
 const styleFixed = {
   // position: "fixed",
@@ -92,15 +93,6 @@ export const AuthBadge = ({ user }: { user: string | null }) => {
   const { ethereumProvider } = useEthersProvider();
   // use user address to get the avatar url using getAvatarFromEVMAddress()
 
-  const getChainData = (chainId: number) => {
-    console.log('>>>>>> chainId', chainId);
-    
-    const chain = CHAIN_AVAILABLES.find((chain) => chain.id === chainId);
-    return {
-      ...chain
-    };
-  };
-
   useEffect(() => {
     const getAvatar = async () => {
       if (!user) return;
@@ -121,16 +113,9 @@ export const AuthBadge = ({ user }: { user: string | null }) => {
     
   };
 
-  const chain = getChainData(ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id);
-  const NetworkButton = (
-    <IonButton disabled={true} style={{opacity: 1}} fill="clear" className="ion-hide-lg-down" >
-      <IonIcon src={chain.logo}></IonIcon>
-    </IonButton>
-  );
-
   return (
     <>
-      {NetworkButton}
+      <NetworkButton />
       {
         user
           ? <DisconnectButton style={styleFixed} />
