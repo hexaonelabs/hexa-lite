@@ -68,6 +68,7 @@ import { getPercent } from "../utils/utils";
 import { getMaxAmountAvailableToSupply } from "../utils/getMaxAmountAvailableToSupply";
 import { getMaxAmountAvailableToBorrow } from "../utils/getMaxAmountAvailableToBorrow";
 import { getMaxAmountAvailableToWithdraw } from "../utils/getMaxAmountAvailableToWithdraw";
+import { CHAIN_DEFAULT } from "../constants/chains";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -390,7 +391,7 @@ export const DefiContainer = ({
         } = reserve;
         const minBaseTokenRemaining =
           minBaseTokenRemainingByNetwork[
-            ethereumProvider?.network?.chainId || 137
+            ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id
           ] || "0.001";
         maxAmount = +getMaxAmountAvailableToSupply(
           `${Number(reserve?.walletBalance)}`,

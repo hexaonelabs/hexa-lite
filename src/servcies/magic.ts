@@ -30,7 +30,7 @@ const getRPCNodeOptions = async () => {
       chainId: 10
     }
   ];
-  const defaultChainId = 137;
+  const defaultChainId = 10;
   const {chainId = defaultChainId} = (window as any)?.ethereum||{};
   console.log(`[INFO] {getRPCNodeOptions} - chainId: `, chainId||defaultChainId);
   const chainIdAsDecimal = Number(BigInt(chainId||defaultChainId).toString());

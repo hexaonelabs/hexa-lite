@@ -44,7 +44,7 @@ import ConnectButton from "./ConnectButton";
 import { isAavePoolDisabled, roundToTokenDecimals } from "../utils/utils";
 import { swapWithLiFi } from "../servcies/lifi.service";
 import { borrow, supplyWithPermit } from "../servcies/aave.service";
-import { CHAIN_AVAILABLES } from "../constants/chains";
+import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "../constants/chains";
 import { getETHByWstETH } from "../servcies/lido.service";
 import { BigNumberZeroDecimal, calculateHealthFactorFromBalancesBigUnits, valueToBigNumber } from "@aave/math-utils";
 import { useAave } from "../context/AaveContext";
@@ -217,7 +217,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
   const { userLiquidationThreshold = 0 } = strategy || {};
 
   const minBaseTokenRemaining =
-    minBaseTokenRemainingByNetwork[ethereumProvider?.network?.chainId || 137] ||
+    minBaseTokenRemainingByNetwork[ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id] ||
     "0.001";
 
   const { balance: walletBalanceWSTETH = 0 } =

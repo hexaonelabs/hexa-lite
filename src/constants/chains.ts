@@ -72,3 +72,5 @@ export const CHAIN_AVAILABLES: IChain[] = [
     name: 'Fuji',
   },
 ];
+
+export const CHAIN_DEFAULT = CHAIN_AVAILABLES.find(c => c.id === 10) || {id: 10};

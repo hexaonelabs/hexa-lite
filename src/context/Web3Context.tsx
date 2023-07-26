@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getMagic } from "../servcies/magic";
 import { ethers } from "ethers";
+import { CHAIN_DEFAULT } from "../constants/chains";
 
 // Define the structure of the Web3 context state
 type Web3ContextType = {
@@ -22,7 +23,7 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
   // State variable to hold an instance of Web3
   const [ethereumProvider, setEthersProvider] =
     useState<ethers.providers.Web3Provider | null>(null);
-  const [chainId, setChainId] = useState<number >(137);
+  const [chainId, setChainId] = useState<number >(CHAIN_DEFAULT.id);
 
   // Initialize Web3
   const initializeWeb3 = async () => {

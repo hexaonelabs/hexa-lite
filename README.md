@@ -1,8 +1,8 @@
-# ⚡ Hexa Lite - Web3 DeFi services aggregator for everyone
-> Buy assets with fiats, exchange assets at best rate, lend and borrow money on DeFi protocols and earn interest
+# ⚡ Hexa Lite - Onboard to DeFi
+> Buy assets with fiats, exchange assets at best rate, lend and borrow money on DeFi protocols and earn interest with custom loans strategies.
 
 ## Project Description
-Hexa Lite is an open-source and non-custodial decentralized finance (DeFi) service aggregator that allows users to onboard with blockchain and buy assets with fiats, exchange assets at best rate, lend and borrow money on DeFi protocols and earn interest with custom farming strategies. Hexa Lite is built on top of latest web technologie and use the best API to interract with major EVM compatible blockchains such as Ethereum, Binance Smart Chain, Polygon, Optimism or Arbitrum and provides a simple and secure interface for users to interact with DeFi protocols and services without intermediates smart contracts or third-party services and without the need to leave the platform.
+Hexa Lite is an open-source and non-custodial decentralized finance (DeFi) service aggregator that allows users to onboard in minute with blockchain and buy assets with fiats, exchange assets at best rate, lend and borrow money on DeFi protocols and earn interest with custom farming strategies. Hexa Lite is built on top of latest web technologie and use the best API to interract with major EVM compatible blockchains such as Ethereum, Optimism or Poolygon and provides a simple and secure interface for users to interact with DeFi protocols and services without intermediates smart contracts or third-party services and without the need to leave the platform.
 
 ## Value Proposition
 Hexa Lite is frictionless, secure, and reliable for everyone to use and enjoy the benefits of blockchain technology & DeFi services without the need to understand the complexity of the underlying technology and protocols involved or the web3 onboarding with the need to manage private keys or seed phrases. 

@@ -18,7 +18,7 @@ import { getAvatarFromEVMAddress } from "../servcies/avatar";
 import ConnectButton from "./ConnectButton";
 import DisconnectButton from "./DisconnectButton";
 import { useEthersProvider } from "../context/Web3Context";
-import { CHAIN_AVAILABLES } from "../constants/chains";
+import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "../constants/chains";
 
 const styleFixed = {
   // position: "fixed",
@@ -121,7 +121,7 @@ export const AuthBadge = ({ user }: { user: string | null }) => {
     
   };
 
-  const chain = getChainData(ethereumProvider?.network?.chainId || 137);
+  const chain = getChainData(ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id);
   const NetworkButton = (
     <IonButton disabled={true} style={{opacity: 1}} fill="clear" className="ion-hide-lg-down" >
       <IonIcon src={chain.logo}></IonIcon>

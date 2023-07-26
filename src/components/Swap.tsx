@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { connect, disconnect, getMagic } from "../servcies/magic";
 import { useEthersProvider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
+import { CHAIN_DEFAULT } from "../constants/chains";
 
 export function Swap() {
   const { initializeWeb3, ethereumProvider } = useEthersProvider();
@@ -102,7 +103,7 @@ export function Swap() {
         },
       },
       // set source chain to Polygon
-      fromChain: ethereumProvider?.network?.chainId || 137,
+      fromChain: ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id,
       // set destination chain to Optimism
       toChain: 10,
       // set source token to ETH (Ethereum)
