@@ -6,10 +6,10 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
   return (
     <IonGrid
       class="ion-no-padding welcomeSection"
-      style={{ marginBottom: "3rem" }}
+      style={{ marginBottom: "2rem" }}
     >
       <IonRow
-        class="ion-justify-content-center"
+        class="ion-justify-content-center ion-padding"
         style={{ minHeight: "90vh", marginBottom: "20vh" }}
       >
         <IonCol size="12" class="ion-text-center"></IonCol>
@@ -27,6 +27,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
               style={{
                 fontWeight: "bold",
                 marginTop: "2rem",
+                letterSpacing: "-0.1rem",
               }}
             >
               <span
@@ -67,24 +68,29 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
       </IonRow>
 
       <IonRow
-        class="ion-justify-content-center ion-align-items-center"
-        style={{ minHeight: "80vh" }}
+        class="ion-justify-content-center ion-align-items-center  ion-padding"
+        style={{ 
+          minHeight: "100vh", 
+          background: "#272747",
+          paddingTop: "5rem",
+          paddingBottom: "5rem",
+        }}
       >
         <IonCol size="12" class="ion-text-center ">
           <IonText>
             <h2
               style={{
-                fontSize: "2.5rem",
-                lineHeight: "2.8rem",
+                fontSize: "3.5rem",
+                lineHeight: "3.8rem",
                 fontWeight: "bold",
               }}
             >
-              Manage your digitals assets <IonText color="primary">in one place</IonText>
+              Onboard on <IonText color="primary">Web3</IonText>
             </h2>
           </IonText>
           <IonText>
             <p>
-              Onboard on Web3 to take full controls of your portfolio.
+              to take full controls of your digitals assets.
             </p>
           </IonText>
         </IonCol>
@@ -161,7 +167,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
       </IonRow>
 
       <IonRow
-        class="ion-justify-content-center ion-align-items-center"
+        class="ion-justify-content-center ion-align-items-center ion-padding"
         style={{ minHeight: "100vh", marginBottom: "-4rem", }}
       >
         <IonCol size="12" class="ion-text-center ">
@@ -204,7 +210,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
           <a
             href="https://github.com/hexaonelabs"
             target="_blank"
-            rel="noreferrer"
+            rel="noreferrer noopener"
           >
             <IonIcon
               style={{

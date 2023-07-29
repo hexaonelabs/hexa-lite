@@ -706,7 +706,7 @@ export const DefiContainer = ({
     </IonGrid>
   ) : (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "8rem" }}>
-      <IonRow class="ion-justify-content-center">
+      <IonRow class="ion-justify-content-center ion-padding">
         <IonCol size="12" class="ion-text-center">
           <IonText>
             <h1>DeFi liquidity protocol</h1>
@@ -717,7 +717,7 @@ export const DefiContainer = ({
                 lineHeight: "1.5rem",
               }}
             >
-              <span style={{ maxWidth: "600px", display: "inline-block" }}>
+              <span style={{ maxWidth: "800px", display: "inline-block" }}>
                 Connect to the best DeFi liquidity protocols, borrow assets
                 using your crypto as collateral and earn interest by providing
                 liquidity over

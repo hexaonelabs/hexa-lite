@@ -109,8 +109,8 @@ function App() {
     <IonApp>
       <IonRouterOutlet>
         <Header currentSegment={currentSegment} handleSegmentChange={handleSegmentChange} scrollToTop={scrollToTop} />
-        <IonContent ref={contentRef} scrollEvents={true} fullscreen={true} className="ion-padding">
-          <IonGrid class="ion-no-padding" style={{ minHeight: "95vh" }}>
+        <IonContent ref={contentRef} scrollEvents={true} fullscreen={true}>
+          <IonGrid class="ion-no-padding" style={{ minHeight: "100vh" }}>
             <IonRow
               style={{
                 minHeight: "100%",

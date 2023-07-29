@@ -5,9 +5,9 @@ import { EthOptimizedStrategyCard } from "./ETHOptimizedStrategy";
 export function Earn() {
   return (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
-      <IonRow class="ion-justify-content-center" >
+      <IonRow class="ion-justify-content-center ion-padding" >
         <IonCol size="12" size-md="12" size-lg="10" size-xl="10" class="ion-text-center">
-        <IonText>
+          <IonText>
             <h1>
               Earn interest
             </h1>

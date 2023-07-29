@@ -140,24 +140,26 @@ export function Swap() {
 
   return (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
-      <IonRow class="ion-justify-content-center">
+      <IonRow class="ion-justify-content-center ion-padding">
         <IonCol size="12" class="ion-text-center">
           <IonText>
-            <h1>Swap Assets</h1>
+            <h1>Exchange Assets</h1>
           </IonText>
           <IonText color="medium">
             <p
               style={{
-                lineHeight: "1.5rem",
+                lineHeight: "1.5rem"
               }}
             >
-              Crosschain swap assets instantly at the best rates and
-              lowest fees
+              <span style={{ maxWidth: "650px", display: "inline-block" }}>
+                Crosschain swap assets instantly at the best rates and
+                lowest fees using AMM and DEX liquidity.
+              </span>
             </p>
           </IonText>
         </IonCol>
       </IonRow>
-      <IonRow>
+      <IonRow class=" ion-padding">
         <IonCol size="12">
           <div
             style={{

@@ -9,6 +9,7 @@ export type EthOptimizedContextType = {
   maxLeverageFactor: number;
   userLiquidationThreshold: number;
   name: string;
+  type: string;
   icon: string;
   apys: string[];
   locktime: number,
@@ -81,6 +82,7 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
       maxLeverageFactor,
       userLiquidationThreshold,
       name: "ETH Optimized",
+      type: 'staking',
       icon: getAssetIconUrl({symbol: 'ETH'}),
       apys: [baseAPRstETH.toFixed(2), maxAPRstETH.toFixed(2)],
       locktime: 0,

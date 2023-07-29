@@ -929,7 +929,7 @@ export function EthOptimizedStrategyCard() {
     <IonCol size="auto">
       <IonCard style={{ maxWidth: 350 }}>
         <IonGrid>
-          <IonRow class="ion-text-center">
+          <IonRow class="ion-text-center ion-padding">
             <IonCol size="12" class="ion-padding">
               <IonImg
                 style={{
@@ -945,10 +945,11 @@ export function EthOptimizedStrategyCard() {
               <h1 className="ion-no-margin">
                 <IonText color="primary">{strategy.name}</IonText>
                 <br />
-                <small>Strategy</small>
+                <small>{strategy.type}</small>
               </h1>
             </IonCol>
           </IonRow>
+
           <IonRow class="ion-padding">
             <IonCol class="ion-padding">
               <IonItem
@@ -997,6 +998,7 @@ export function EthOptimizedStrategyCard() {
               </IonItem>
             </IonCol>
           </IonRow>
+          
           <IonRow>
             <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
               {CardButton}
