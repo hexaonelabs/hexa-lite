@@ -1082,12 +1082,34 @@ export const DefiContainer = ({
                           <div className="ion-padding">
                             <IonItem
                               lines="none"
-                              style={{ "--background": "transparent" }}
+                              style={{ "--background": "transparent", marginBottom: '1.5rem' }}
                             >
                               <IonLabel class="ion-text-center">
-                                Deposit liquidity
+                                Deposit details
                               </IonLabel>
                             </IonItem>
+                            {user && (
+                              <IonItem style={{ "--background": "transparent" }}>
+                                <IonLabel color="medium">My deposit</IonLabel>
+                                <div className="ion-text-end">
+                                  <IonText color="medium">
+                                    {+reserve?.supplyBalance > 0
+                                      ? (+reserve?.supplyBalance).toFixed(6)
+                                      : undefined || "0"}
+                                  </IonText>
+                                  <br/>
+                                  <IonText color="medium">
+                                    <small>
+                                      {formatCurrencyValue(
+                                        +reserve?.supplyBalance,
+                                        Number(reserve?.priceInUSD),
+                                        "No deposit"
+                                      )}
+                                    </small>
+                                  </IonText>
+                                </div>
+                              </IonItem>
+                            )}
                             <IonItem style={{ "--background": "transparent" }}>
                               <IonLabel color="medium">APY</IonLabel>
                               <IonText color="medium">
@@ -1097,14 +1119,7 @@ export const DefiContainer = ({
                                 %
                               </IonText>
                             </IonItem>
-                            <IonItem style={{ "--background": "transparent" }}>
-                              <IonLabel color="medium">My deposit</IonLabel>
-                              <IonText color="medium">
-                                {+reserve?.supplyBalance > 0
-                                  ? (+reserve?.supplyBalance).toFixed(6)
-                                  : undefined || "0"}
-                              </IonText>
-                            </IonItem>
+
                             <IonItem style={{ "--background": "transparent" }}>
                               <IonLabel color="medium">
                                 Deposit liquidity
@@ -1229,12 +1244,34 @@ export const DefiContainer = ({
                             <div className="ion-padding">
                               <IonItem
                                 lines="none"
-                                style={{ "--background": "transparent" }}
+                                style={{ "--background": "transparent", marginBottom: '1.5rem' }}
                               >
                                 <IonLabel class="ion-text-center">
-                                  Borrow liquidity
+                                  Borrow details
                                 </IonLabel>
                               </IonItem>
+                              {user && (
+                                <IonItem style={{ "--background": "transparent" }}>
+                                  <IonLabel color="medium">My debit</IonLabel>
+                                  <div className="ion-text-end">
+                                    <IonText color="medium">
+                                      {reserve?.borrowBalance > 0
+                                        ? reserve?.borrowBalance.toFixed(6)
+                                        : undefined || "0"}
+                                    </IonText>
+                                    <br/>
+                                    <IonText color="medium">
+                                      <small>
+                                        {formatCurrencyValue(
+                                          +reserve?.borrowBalance,
+                                          Number(reserve?.priceInUSD),
+                                          "No deposit"
+                                        )}
+                                      </small>
+                                    </IonText>
+                                  </div>
+                                </IonItem>
+                              )}
                               <IonItem style={{ "--background": "transparent" }}>
                                 <IonLabel color="medium">APY</IonLabel>
                                 <IonText color="medium">
@@ -1242,14 +1279,6 @@ export const DefiContainer = ({
                                     Number(reserve?.variableBorrowAPY || 0) * 100
                                   ).toFixed(2)}
                                   %
-                                </IonText>
-                              </IonItem>
-                              <IonItem style={{ "--background": "transparent" }}>
-                                <IonLabel color="medium">My debit</IonLabel>
-                                <IonText color="medium">
-                                  {reserve?.borrowBalance > 0
-                                    ? reserve?.borrowBalance.toFixed(6)
-                                    : undefined || "0"}
                                 </IonText>
                               </IonItem>
                               <IonItem style={{ "--background": "transparent" }}>
