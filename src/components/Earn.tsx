@@ -1,6 +1,7 @@
 import { IonCol, IonGrid,  IonRow, IonText } from "@ionic/react";
 import { EthOptimizedStrategyProvider } from "../context/EthOptimizedContext";
 import { EthOptimizedStrategyCard } from "./ETHOptimizedStrategy";
+import { ETHLiquidStakingstrategyCard } from "./ETHLiquidStakingstrategy";
 
 export function Earn() {
   return (
@@ -31,13 +32,11 @@ export function Earn() {
             <IonRow class="ion-justify-content-center">
 
               {/* ETH Staking Strategy */}
-              {/* <EthStakingStrategyProvider>
-                <EthStakingStrategyCard></EthStakingStrategyCard>
-              </EthStakingStrategyProvider> */}
+              {/* <ETHLiquidStakingstrategyCard /> */}
 
               {/* ETH Optimized Strategy */}
               <EthOptimizedStrategyProvider>
-                <EthOptimizedStrategyCard></EthOptimizedStrategyCard>
+                <EthOptimizedStrategyCard />
               </EthOptimizedStrategyProvider>
               
             </IonRow>
