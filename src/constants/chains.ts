@@ -1,3 +1,4 @@
+import { ChainId } from "@aave/contract-helpers";
 
 export interface IChain {
   id: number;
@@ -77,3 +78,8 @@ export const CHAIN_AVAILABLES: IChain[] = [
 ];
 
 export const CHAIN_DEFAULT = CHAIN_AVAILABLES.find(c => c.id === 10) || {id: 10};
+
+export const minBaseTokenRemainingByNetwork: Record<number, string> = {
+  [ChainId.optimism]: "0.0001",
+  [ChainId.arbitrum_one]: "0.0001",
+};
