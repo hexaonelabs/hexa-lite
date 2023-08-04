@@ -1,38 +1,22 @@
 import {
   IonApp,
-  IonButton,
   IonChip,
   IonCol,
   IonContent,
-  IonFooter,
   IonGrid,
-  IonHeader,
-  IonIcon,
-  IonImg,
-  IonItem,
-  IonItemDivider,
-  IonLabel,
-  IonListHeader,
-  IonPage,
-  IonPopover,
   IonRouterOutlet,
   IonRow,
-  IonSegment,
-  IonSegmentButton,
-  IonSpinner,
   IonText,
-  IonToolbar,
 } from "@ionic/react";
-import { useUser } from "./context/UserContext";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { setupIonicReact } from "@ionic/react";
 import { AaveProvider } from "./context/AaveContext";
-import { DefiContainer } from "./components/DefiContainer";
+import { DefiContainer } from "./containers/DefiContainer";
 import { Welcome } from "./components/Welcome";
-import { Swap } from "./components/Swap";
-import { Fiat } from "./components/Fiat";
+import { SwapContainer } from "./containers/SwapContainer";
+import { FiatContainer } from "./containers/FiatContainer";
 import { Header } from "./components/Header";
-import { Earn } from "./components/Earn";
+import { EarnContainer } from "./containers/EarnContainer";
 
 setupIonicReact({
   mode: "ios",
@@ -67,9 +51,9 @@ function App() {
       case "welcome":
         return <Welcome handleSegmentChange={handleSegmentChange} />;
       case "swap":
-        return <Swap />;
+        return <SwapContainer />;
       case "fiat":
-        return (<Fiat />);
+        return (<FiatContainer />);
       case "defi":
         return (
           <AaveProvider>
@@ -79,7 +63,7 @@ function App() {
       case "earn": {
         return (
           <AaveProvider>
-            <Earn />
+            <EarnContainer />
           </AaveProvider>
         )
       }

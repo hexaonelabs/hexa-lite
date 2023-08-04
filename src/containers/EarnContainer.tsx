@@ -1,17 +1,21 @@
-import { IonCol, IonGrid,  IonRow, IonText } from "@ionic/react";
+import { IonCol, IonGrid, IonRow, IonText } from "@ionic/react";
 import { EthOptimizedStrategyProvider } from "../context/EthOptimizedContext";
-import { EthOptimizedStrategyCard } from "./ETHOptimizedStrategy";
-import { ETHLiquidStakingstrategyCard } from "./ETHLiquidStakingstrategy";
+import { EthOptimizedStrategyCard } from "../components/ETHOptimizedStrategy";
+import { ETHLiquidStakingstrategyCard } from "../components/ETHLiquidStakingstrategy";
 
-export function Earn() {
+export function EarnContainer() {
   return (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
-      <IonRow class="ion-justify-content-center ion-padding" >
-        <IonCol size="12" size-md="12" size-lg="10" size-xl="10" class="ion-text-center">
+      <IonRow class="ion-justify-content-center ion-padding">
+        <IonCol
+          size="12"
+          size-md="12"
+          size-lg="10"
+          size-xl="10"
+          class="ion-text-center"
+        >
           <IonText>
-            <h1>
-              Earn interest
-            </h1>
+            <h1>Earn interest</h1>
           </IonText>
           <IonText color="medium">
             <p
@@ -20,17 +24,23 @@ export function Earn() {
               }}
             >
               <span style={{ maxWidth: "800px", display: "inline-block" }}>
-              Unlock the full potential of your assets by earning interest through optimized liquid staking while simultaneously contributing to the network's security. 
+                Unlock the full potential of your assets by earning interest
+                through optimized liquid staking while simultaneously
+                contributing to the network's security.
               </span>
             </p>
           </IonText>
         </IonCol>
       </IonRow>
       <IonRow class="ion-justify-content-center">
-        <IonCol class="ion-padding ion-text-center" size-md="12" size-lg="10" size-xl="10">
+        <IonCol
+          class="ion-padding ion-text-center"
+          size-md="12"
+          size-lg="10"
+          size-xl="10"
+        >
           <IonGrid class="ion-no-padding">
             <IonRow class="ion-justify-content-center">
-
               {/* ETH Staking Strategy */}
               {/* <ETHLiquidStakingstrategyCard /> */}
 
@@ -38,12 +48,10 @@ export function Earn() {
               <EthOptimizedStrategyProvider>
                 <EthOptimizedStrategyCard />
               </EthOptimizedStrategyProvider>
-              
             </IonRow>
           </IonGrid>
         </IonCol>
       </IonRow>
     </IonGrid>
-  )
-} 
-
+  );
+}

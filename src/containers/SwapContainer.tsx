@@ -1,12 +1,12 @@
-import { IonCol, IonGrid, IonRow, IonSpinner, IonText, useIonToast } from "@ionic/react";
+import { IonCol, IonGrid, IonRow, IonText, useIonToast } from "@ionic/react";
 import { HiddenUI, LiFiWidget, WidgetConfig } from "@lifi/widget";
-import { useEffect, useMemo, useState } from "react";
-import { connect, disconnect, getMagic } from "../servcies/magic";
+import { useMemo } from "react";
+import { connect, disconnect } from "../servcies/magic";
 import { useEthersProvider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
 import { CHAIN_DEFAULT } from "../constants/chains";
 
-export function Swap() {
+export function SwapContainer() {
   const { initializeWeb3, ethereumProvider } = useEthersProvider();
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const toastContext = useIonToast();
@@ -68,13 +68,19 @@ export function Swap() {
             // Log any errors that occur during the connection process
             hideLoader();
             await presentToast({
-              message: `[ERROR] Connect Failed with reason: ${error?.message||error}`,
+              message: `[ERROR] Connect Failed with reason: ${
+                error?.message || error
+              }`,
               color: "danger",
               buttons: [
-                { text: 'x', role: 'cancel', handler: () => {
-                  dismissToast();
-                }}
-              ]
+                {
+                  text: "x",
+                  role: "cancel",
+                  handler: () => {
+                    dismissToast();
+                  },
+                },
+              ],
             });
             throw new Error("handleConnect:" + error?.message);
           }
@@ -86,18 +92,24 @@ export function Swap() {
             // After successful disconnection, re-initialize the Web3 instance
             await initializeWeb3();
             hideLoader();
-          } catch (error:any) {
+          } catch (error: any) {
             // Log any errors that occur during the disconnection process
             console.log("handleDisconnect:", error);
             hideLoader();
             await presentToast({
-              message: `[ERROR] Disconnect Failed with reason: ${error?.message||error}`,
+              message: `[ERROR] Disconnect Failed with reason: ${
+                error?.message || error
+              }`,
               color: "danger",
               buttons: [
-                { text: 'x', role: 'cancel', handler: () => {
-                  dismissToast();
-                }}
-              ]
+                {
+                  text: "x",
+                  role: "cancel",
+                  handler: () => {
+                    dismissToast();
+                  },
+                },
+              ],
             });
           }
         },
@@ -148,12 +160,12 @@ export function Swap() {
           <IonText color="medium">
             <p
               style={{
-                lineHeight: "1.5rem"
+                lineHeight: "1.5rem",
               }}
             >
               <span style={{ maxWidth: "650px", display: "inline-block" }}>
-                Crosschain swap assets instantly at the best rates and
-                lowest fees using AMM and DEX liquidity.
+                Crosschain swap assets instantly at the best rates and lowest
+                fees using AMM and DEX liquidity.
               </span>
             </p>
           </IonText>

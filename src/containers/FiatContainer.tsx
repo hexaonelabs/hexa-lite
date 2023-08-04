@@ -1,6 +1,6 @@
 import { IonCol, IonGrid, IonRow, IonText } from "@ionic/react";
 
-export function Fiat() {
+export function FiatContainer() {
   return (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
       <IonRow class="ion-justify-content-center">
@@ -32,8 +32,7 @@ export function Fiat() {
             <iframe
               style={{
                 maxWidth: "100vw",
-                border:
-                  "solid 1px rgba(var(--ion-color-primary-rgb), 0.4)",
+                border: "solid 1px rgba(var(--ion-color-primary-rgb), 0.4)",
                 borderRadius: "32px",
                 overflow: "hidden",
                 display: "inline-block",
