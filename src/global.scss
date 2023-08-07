@@ -125,6 +125,16 @@ ion-popover.profil-popover {
   .ion-accordion-toggle-icon {
     display: none;
   }
+
+  &.infoAPY {
+    --min-width: 200px!important;
+
+    ion-item {
+      --padding-start: none;
+      --inner-padding-end: none;
+      --background: none;
+    }
+  }
 }
 
 
