@@ -35,18 +35,35 @@ export type EthOptimizedContextType = {
 };
 
 /**
- * Function that calcule maximum borrow/supply multiplicator user can do based on 
- * The Maximum LTV ratio represents the maximum borrowing power of a specific collateral. 
- * For example, if a collateral has an LTV of 75%, the user can borrow up to 0.75 worth of ETH in the principal currency for every 1 ETH worth of collateral.
- * @param ltv 
- * @returns 
+ * Function that calcule maximum borrow/supply multiplicator user can do based on
+ * The Maximum Threshold ratio represents the maximum borrowing power of a specific collateral.
+ * For example, if a collateral has an Threshold of 75%, the user can borrow up to 0.75 worth of ETH in the principal currency for every 1 ETH worth of collateral.
+ * Example: 
+ * 10 ETH => 7.5 ETH
+ * 7.5 ETH => 5.625 ETH
+ * 5.625 ETH => 4.21875 ETH
+ * 4.21875 ETH => 3.1640625 ETH
+ * 3.1640625 ETH => 2.373046875 ETH
+ * 2.373046875 ETH => 1.77978515625 ETH
+ * 1.77978515625 ETH => 1.3348388671875 ETH
+ * 1.3348388671875 ETH => 1 ETH
+ * 1 ETH => 0.75 ETH
+ * 0.75 ETH => 0.5625 ETH
+ * 0.5625 ETH => 0.421875 ETH
+ * 0.421875 ETH => 0.31640625 ETH
+ * 0.31640625 ETH => 0.2373046875 ETH
+ * 0.2373046875 ETH => 0.177978515625 ETH
+ * 0.177978515625 ETH => 0.13348388671875 ETH
+ * 0.13348388671875 ETH => 0.1 ETH
+ * For a total of ~39.5 ETH, so the multiplier is ~3.95
+ * Formula: 
+ * (1 - (1 - liquidationThreshold) ^ 8) / (1 - liquidationThreshold) / 10
+ * With condition that total result is less than 1 will return 1
  */
-export const getMaxLeverageFactor = (ltv: number) => {
-  // The Maximum LTV ratio is calculated as follows:
-  // Maximum LTV = 1 / (1 - LTV)
-  // For example, if the LTV is 75%, the maximum LTV is 1 / (1 - 0.75) = 4.
-  return 1 / (1 - ltv);
-};
+export const getMaxLeverageFactor = (liquidationThreshold: number) => {
+  const result = (1 - (1 - liquidationThreshold) ^ 8) / (1 - liquidationThreshold) / 10;
+  return result < 1 ? 1 : result;
+}
 
 // Create a context for user data.
 const EthOptimizedContext = createContext<EthOptimizedContextType|undefined>(undefined);
@@ -75,7 +92,7 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
     : Number(userSummaryAndIncentives?.currentLiquidationThreshold);
   const maxLeverageFactor = getMaxLeverageFactor(userLiquidationThreshold);
   // const maxAPRstETH = (diffAPR * maxLeverageFactor) + baseAPRstETH;
-  const superMaxAPRstETH = (baseAPRstETH * maxLeverageFactor) - (Number(poolReserveWETH?.variableBorrowAPR||0) * 100);
+  const superMaxAPRstETH = (baseAPRstETH * (maxLeverageFactor)) - (Number(poolReserveWETH?.variableBorrowAPR||0) * 100);
   console.log('APY details:', {maxLeverageFactor, baseAPRstETH, superMaxAPRstETH});
   
   useEffect(() => {

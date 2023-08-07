@@ -24,6 +24,7 @@ import {
   closeSharp,
   openOutline,
   warningOutline,
+  helpOutline,
 } from "ionicons/icons";
 import { useEthersProvider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
@@ -884,6 +885,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
 
 export function EthOptimizedStrategyCard() {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isDisplayAPYDef, setIsDisplayAPYDef] = useState(false);
   const strategy = useEthOptimizedStrategy();
   const { user, assets } = useUser();
   // const [present, dismiss] = useIonModal(EthOptimizedStrategyModal, {
@@ -1003,11 +1005,22 @@ export function EthOptimizedStrategyCard() {
                     <IonRow class="ion-align-items-top ion-margin-bottom">
                       <IonCol size="10">
                         <IonText>                   
-                          <h3>Details APY</h3>
+                          <h3>{!isDisplayAPYDef ? 'Details APY' : 'APY Definition'}</h3>
                           <p className="ion-no-margin">
-                            <small>
-                              Here you can see how the APY is calculated.
-                            </small> 
+                            { !isDisplayAPYDef && (
+                              <small>
+                                Here you can see how the  APY <IonIcon 
+                                  size="small" 
+                                  color="primary" 
+                                  icon={helpOutline} 
+                                  style={{
+                                    marginLeft: '-0.4rem',
+                                    transform: 'scale(0.6)',
+                                    cursor: 'pointer'
+                                  }}
+                                  onClick={() => setIsDisplayAPYDef(true)} /> is calculated.
+                              </small> 
+                            )}
                           </p>
                         </IonText>
                       </IonCol>
@@ -1015,58 +1028,70 @@ export function EthOptimizedStrategyCard() {
                         <IonButton
                           size="small"
                           fill="clear"
-                          onClick={() => setIsInfoOpen(false)}
+                          onClick={() => !isDisplayAPYDef ? setIsInfoOpen(false) : setIsDisplayAPYDef(false)}
                         >
                           <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
                         </IonButton>
                       </IonCol>
+
+                      {isDisplayAPYDef && (
+                        <IonCol size="12">
+                          <p>
+                            <small>
+                              The annual percentage yield (APY) is the real rate of return earned on an investment, taking into account the effect of compounding interest. Unlike simple interest, compounding interest is calculated periodically and the amount is immediately added to the balance. With each period going forward, the account balance gets a little bigger, so the interest paid on the balance gets bigger as well.
+                            </small>
+                          </p>
+                        </IonCol>
+                      )}
                     </IonRow>
-                    <IonRow>
-                      <IonCol>
-                        <IonItem lines="none">
-                          <IonLabel color="medium">
-                            <h2>Base APY <small>(stETH)</small></h2>
-                          </IonLabel>
-                          <IonText slot="end">
-                            {strategy.apys[0]}%
-                          </IonText>
-                        </IonItem>
-                        <IonItem>
-                          <IonLabel color="medium">
-                            <h2>Leverage factor</h2>
-                          </IonLabel>
-                          <IonText slot="end">
-                            x {strategy.maxLeverageFactor.toFixed(2)}
-                          </IonText>
-                        </IonItem>
-                        <IonItem lines="none">
-                          <IonLabel color="medium">
-                            <h2>Sub total</h2>
-                          </IonLabel>
-                          <IonText slot="end">
-                            {(strategy.maxLeverageFactor * Number(strategy.apys[0])).toFixed(2)}%
-                          </IonText>
-                        </IonItem>
-                        <IonItem>
-                          <IonLabel color="medium">
-                            <h2>Borrow APY</h2>
-                          </IonLabel>
-                          <IonText slot="end">
-                            - {(Number(strategy.step[2].reserve?.variableBorrowAPR) * 100).toFixed(2) }%
-                          </IonText>
-                        </IonItem>
-                        <IonItem lines="none">
-                          <IonLabel>
-                            <h2>
-                              <b>Total APY</b>
-                            </h2>
-                          </IonLabel>
-                          <IonText slot="end">
-                            <b>{((strategy.maxLeverageFactor * Number(strategy.apys[0])) - (Number(strategy.step[2].reserve?.variableBorrowAPR) * 100)).toFixed(2)}%</b>
-                          </IonText>
-                        </IonItem>
-                      </IonCol>
-                    </IonRow>
+                    {!isDisplayAPYDef && (
+                      <IonRow>
+                        <IonCol>
+                          <IonItem lines="none">
+                            <IonLabel color="medium">
+                              <h2>Base APY <small>(stETH)</small></h2>
+                            </IonLabel>
+                            <IonText slot="end">
+                              {strategy.apys[0]}%
+                            </IonText>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel color="medium">
+                              <h2>Leverage factor</h2>
+                            </IonLabel>
+                            <IonText slot="end">
+                              x {strategy.maxLeverageFactor.toFixed(2)}
+                            </IonText>
+                          </IonItem>
+                          <IonItem lines="none">
+                            <IonLabel color="medium">
+                              <h2>Sub total</h2>
+                            </IonLabel>
+                            <IonText slot="end">
+                              {(strategy.maxLeverageFactor * Number(strategy.apys[0])).toFixed(2)}%
+                            </IonText>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel color="medium">
+                              <h2>Borrow APY</h2>
+                            </IonLabel>
+                            <IonText slot="end">
+                              - {(Number(strategy.step[2].reserve?.variableBorrowAPR) * 100).toFixed(2) }%
+                            </IonText>
+                          </IonItem>
+                          <IonItem lines="none">
+                            <IonLabel>
+                              <h2>
+                                <b>Total variable APY</b>
+                              </h2>
+                            </IonLabel>
+                            <IonText slot="end">
+                              <b>{((strategy.maxLeverageFactor * Number(strategy.apys[0])) - (Number(strategy.step[2].reserve?.variableBorrowAPR) * 100)).toFixed(2)}%</b>
+                            </IonText>
+                          </IonItem>
+                        </IonCol>
+                      </IonRow>
+                    )}
                   </IonGrid>
                 </IonModal>
                 
