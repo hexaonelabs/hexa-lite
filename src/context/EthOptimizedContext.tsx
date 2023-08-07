@@ -74,8 +74,10 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
     ? Number(poolReserveWETH?.formattedReserveLiquidationThreshold)
     : Number(userSummaryAndIncentives?.currentLiquidationThreshold);
   const maxLeverageFactor = getMaxLeverageFactor(userLiquidationThreshold);
-  const maxAPRstETH = (diffAPR * maxLeverageFactor) + baseAPRstETH;
-
+  // const maxAPRstETH = (diffAPR * maxLeverageFactor) + baseAPRstETH;
+  const superMaxAPRstETH = (baseAPRstETH * maxLeverageFactor) - (Number(poolReserveWETH?.variableBorrowAPR||0) * 100);
+  console.log('APY details:', {maxLeverageFactor, baseAPRstETH, superMaxAPRstETH});
+  
   useEffect(() => {
     setState((prev) => ({
       ...prev,
@@ -84,7 +86,7 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
       name: "ETH Optimized",
       type: 'staking',
       icon: getAssetIconUrl({symbol: 'ETH'}),
-      apys: [baseAPRstETH.toFixed(2), maxAPRstETH.toFixed(2)],
+      apys: [baseAPRstETH.toFixed(2), superMaxAPRstETH.toFixed(2)],
       locktime: 0,
       providers: ['aave', 'lido'],
       assets: ['WETH', 'wstETH'],
@@ -129,7 +131,7 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
     markets,
     userSummaryAndIncentives,
     baseAPRstETH,
-    maxAPRstETH,
+    superMaxAPRstETH,
     poolReserveWETH,
     poolReserveWSTETH,
     userLiquidationThreshold,

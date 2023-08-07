@@ -16,6 +16,8 @@ import {
   IonModal,
   useIonToast,
   IonContent,
+  IonPopover,
+  IonNote,
 } from "@ionic/react";
 import {
   informationCircleOutline,
@@ -985,7 +987,70 @@ export function EthOptimizedStrategyCard() {
                   "--padding-start": "none",
                 }}
               >
-                <IonLabel>APY</IonLabel>
+                <IonLabel>
+                  APY
+                  <small>
+                    <IonIcon color="primary" id="info-trigger" style={{
+                      marginLeft: '0.2rem', 
+                      transform: 'scale(0.8)',
+                      cursor: 'pointer'}} size="small" icon={informationCircleOutline} />
+                  </small>
+                </IonLabel>
+                <IonPopover trigger="info-trigger" triggerAction="click">
+                  <IonContent class="ion-padding">
+                    <IonText>
+                      <h2>Details APY</h2>
+                      <p>
+                        <small>
+                          Here you can see how the APY is calculated.
+                        </small> 
+                      </p>
+                    </IonText>
+                    <IonItem lines="none">
+                      <IonLabel color="medium">
+                        <h2>Base APY</h2>
+                      </IonLabel>
+                      <IonText slot="end">
+                        {strategy.apys[0]}%
+                      </IonText>
+                    </IonItem>
+                    <IonItem>
+                      <IonLabel color="medium">
+                        <h2>Leverage factor</h2>
+                      </IonLabel>
+                      <IonText slot="end">
+                        x {strategy.maxLeverageFactor.toFixed(2)}x
+                      </IonText>
+                    </IonItem>
+                    <IonItem lines="none">
+                      <IonLabel color="medium">
+                        <h2>Sub total</h2>
+                      </IonLabel>
+                      <IonText slot="end">
+                        {(strategy.maxLeverageFactor * Number(strategy.apys[0])).toFixed(2)}%
+                      </IonText>
+                    </IonItem>
+                    <IonItem>
+                      <IonLabel color="medium">
+                        <h2>Borrow APY</h2>
+                      </IonLabel>
+                      <IonText slot="end">
+                        - {(Number(strategy.step[2].reserve?.variableBorrowAPR) * 100).toFixed(2) }%
+                      </IonText>
+                    </IonItem>
+                    <IonItem lines="none">
+                      <IonLabel color="medium">
+                        <h2>
+                          <b>Total APY</b>
+                        </h2>
+                      </IonLabel>
+                      <IonText slot="end">
+                        <b>{((strategy.maxLeverageFactor * Number(strategy.apys[0])) - (Number(strategy.step[2].reserve?.variableBorrowAPR) * 100)).toFixed(2)}%</b>
+                      </IonText>
+                    </IonItem>
+                  </IonContent>
+                </IonPopover>
+                
                 {maxAPRstETH > 0 ? (
                   <IonText slot="end">{strategy.apys.map(a => (`${a}%`)).join(" - ")}</IonText>
                 ) : (
