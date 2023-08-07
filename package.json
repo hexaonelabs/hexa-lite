@@ -37,6 +37,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "predeploy:gh": "npm run build",
+    "predeploy:fb": "npm run build",
     "deploy:gh": "gh-pages -d build",
     "deploy:fb": "firebase deploy --only hosting:hexa-lite",
     "test": "react-scripts test",
