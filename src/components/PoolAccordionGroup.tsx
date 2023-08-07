@@ -644,7 +644,7 @@ export function PoolAccordion(props: IPoolAccordionProps) {
                           {getReadableAmount(
                             +reserve?.borrowBalance,
                             Number(reserve?.priceInUSD),
-                            "No deebit"
+                            "No debit"
                           )}
                         </small>
                       </IonText>
