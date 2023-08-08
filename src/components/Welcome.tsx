@@ -90,7 +90,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
           </IonText>
           <IonText>
             <p className="ion-no-margin">
-              to take full controls of your digitals assets.
+              Take full controls of your digitals assets
             </p>
           </IonText>
         </IonCol>
@@ -109,7 +109,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                     Frictionless onBoarding
                   </h3>
                   <p>
-                    Hexa Lite is secure, and reliable for everyone to use and
+                    Hexa Lite is secure and reliable for everyone to use and
                     enjoy the benefits of blockchain technology & DeFi services
                     without the need to manage private keys or seed phrases.
                   </p>
@@ -119,11 +119,12 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                 <div className="ion-padding">
                   <IonImg 
                     style={{
-                      cursor: 'pointer',
                       margin: '0 auto', 
                       borderRadius: '32px', 
                       overflow: 'hidden',
                       maxWidth: 'fit-content',
+                      border: 'solid 2px var(--ion-color-primary)',
+                      boxShadow: '0 0px 100px -30px var(--ion-color-primary)',
                       transform: 'matrix3d(1, 0.0, 0, -0.0004, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
                     }} src="./assets/images/onboarding.png" />
                 </div>
@@ -163,8 +164,9 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                 <div className="homeIconsEVM">
                   <IonIcon src="./assets/icons/op.svg" />
                   {/* <IonIcon src="./assets/icons/arb.svg" /> */}
-                  <IonIcon src="./assets/cryptocurrency-icons/bnb.svg" style={{transform: 'translateY(2rem)'}} />
-                  <IonIcon src="./assets/cryptocurrency-icons/matic.svg" />
+                  <IonIcon src="./assets/cryptocurrency-icons/bnb.svg" style={{transform: 'translateY(2.5rem)'}} />
+                  <IonIcon src="./assets/cryptocurrency-icons/matic.svg" style={{transform: 'translateY(2.5rem)'}} />
+                  <IonIcon src="./assets/icons/arb.svg" />
                 </div>
               </IonCol>
             </IonRow>
