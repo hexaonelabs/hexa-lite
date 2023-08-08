@@ -1,5 +1,5 @@
 import { IonButton, IonCol, IonGrid, IonIcon, IonImg, IonRow, IonText } from "@ionic/react";
-import { logoGithub } from "ionicons/icons";
+import { logoGithub, checkmarkCircle, chevronForwardCircle, chevronForward } from "ionicons/icons";
 
 export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail: {value: string}}) => void}) {
 
@@ -89,67 +89,124 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
             </h2>
           </IonText>
           <IonText>
-            <p>
+            <p className="ion-no-margin">
               to take full controls of your digitals assets.
             </p>
           </IonText>
         </IonCol>
-        <IonCol size="12" size-md="6">
-          <IonText>
-            <h3
-              style={{
-                fontWeight: 'bold',
-                fontSize: "1.8rem",
-                lineHeight: "2rem",
-              }}
-            >
-              Frictionless onBoarding
-            </h3>
-            <p>
-              Hexa Lite is secure, and reliable for everyone to use and
-              enjoy the benefits of blockchain technology & DeFi services
-              without the need to manage private keys or seed phrases.
-            </p>
-          </IonText>
-          <IonText>
-            <br />
-            <h3
-              style={{
-                fontWeight: 'bold',
-                fontSize: "1.8rem",
-                lineHeight: "2rem",
-              }}
-            >
-              EVM-Compatible Chains
-            </h3>
-            <p>
-              Hexa Lite support 20 EVM-Compatible blockchain such as
-              Ethereum, Polygon, Binance Smart Chain, Optimism, Arbitrum,
-              etc. without have to care about how to manage networks
-              changes.
-            </p>
-          </IonText>
-          <br />
-          <IonText>
-            <h3
-              style={{
-                fontWeight: 'bold',
-                fontSize: "1.8rem",
-                lineHeight: "2rem",
-              }}
-            >
-              Security & Privacy
-            </h3>
-            <p>
-              Hexa Lite is open-source, non-custodial and does not store any user data
-              or private keys. Users are in full control of their assets
-              and can interact with DeFi protocols and services without
-              intermediates smart contracts or any third-party services
-              without need to leave the platform.
-            </p>
-          </IonText>
+        <IonCol size="12">
+          <IonGrid>
+            <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '5rem 0'}}>
+              <IonCol size="12" size-md="6">
+                <IonText>
+                  <h3
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: "2rem",
+                      lineHeight: "2rem",
+                    }}
+                  >
+                    Frictionless onBoarding
+                  </h3>
+                  <p>
+                    Hexa Lite is secure, and reliable for everyone to use and
+                    enjoy the benefits of blockchain technology & DeFi services
+                    without the need to manage private keys or seed phrases.
+                  </p>
+                </IonText>
+              </IonCol>
+              <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
+                <div className="ion-padding">
+                  <IonImg 
+                    style={{
+                      cursor: 'pointer',
+                      margin: '0 auto', 
+                      borderRadius: '32px', 
+                      overflow: 'hidden',
+                      maxWidth: 'fit-content',
+                      transform: 'matrix3d(1, 0.0, 0, -0.0004, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
+                    }} src="./assets/images/onboarding.png" />
+                </div>
+              </IonCol>
+            </IonRow>
+            <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '20vh 0'}}>
+              <IonCol size="12" size-md="6">
+                <IonText>
+                  <h3
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: "2rem",
+                      lineHeight: "2rem",
+                    }}
+                  >
+                    EVM-Compatible Chains
+                  </h3>
+                  <p>
+                    Hexa Lite support 20 EVM-Compatible blockchain such as
+                    Ethereum, Polygon, Binance Smart Chain, Optimism, Arbitrum,
+                    etc. without have to care about how to manage networks
+                    changes.
+                  </p>
+                </IonText>
+              </IonCol>
+              <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
+                <svg width="256px" height="417px" viewBox="0 0 256 417" version="1.1" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid">
+                  <g>
+                    <polygon fill="#999" points="127.9611 0 125.1661 9.5 125.1661 285.168 127.9611 287.958 255.9231 212.32"/>
+                    <polygon fill="#fff" points="127.962 0 0 212.32 127.962 287.959 127.962 154.158"/>
+                    <polygon fill="#999" points="127.9611 312.1866 126.3861 314.1066 126.3861 412.3056 127.9611 416.9066 255.9991 236.5866"/>
+                    <polygon fill="#fff" points="127.962 416.9052 127.962 312.1852 0 236.5852"/>
+                    <polygon fill="#777" points="127.9611 287.9577 255.9211 212.3207 127.9611 154.1587"/>
+                    <polygon fill="#999" points="0.0009 212.3208 127.9609 287.9578 127.9609 154.1588"/>
+                  </g>
+                </svg>
+                <div className="homeIconsEVM">
+                  <IonIcon src="./assets/icons/op.svg" />
+                  {/* <IonIcon src="./assets/icons/arb.svg" /> */}
+                  <IonIcon src="./assets/cryptocurrency-icons/bnb.svg" style={{transform: 'translateY(2rem)'}} />
+                  <IonIcon src="./assets/cryptocurrency-icons/matic.svg" />
+                </div>
+              </IonCol>
+            </IonRow>
+            <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '5rem 0'}}>
+              <IonCol size="12" size-md="6">
+                <IonText>      
+                  <h3
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: "2rem",
+                      lineHeight: "2rem",
+                    }}
+                  >                    
+                    Security & Privacy
+                  </h3>
+                  <p>
+                    Hexa Lite is open-source, non-custodial and does not store any user data
+                    or private keys. Users are in full control of their assets
+                    and can interact with DeFi protocols and services without
+                    intermediates smart contracts or any third-party services
+                    without need to leave the platform.
+                  </p>
+                </IonText>
+              </IonCol>
+              <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
+                <IonIcon
+                    style={{
+                      color: "#fff",
+                      width: '256px',
+                      height: '256px',
+                      cursor: 'pointer'
+                    }}
+                    icon={logoGithub}
+                    onClick={() => {
+                      window.open('https://github.com/hexaonelabs/hexa-lite', '_blank')
+                    }}
+                  ></IonIcon>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
         </IonCol>
-        <IonCol size="4">
+        {/* <IonCol size="4">
         <svg fill="#fff" height="800px" width="800px" version="1.1"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 55 55">
           <path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
             s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
@@ -163,7 +220,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
             s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
             s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"/>
           </svg>
-        </IonCol>
+        </IonCol> */}
       </IonRow>
 
       <IonRow

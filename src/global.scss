@@ -187,6 +187,21 @@ ion-accordion {
   background-color: #131313;
 }
 
+.welcomeSection {
+
+  p {
+    font-size: 1.4rem;
+    line-height: 1.8rem;
+  }
+
+  .homeIconsEVM {
+    ion-icon {
+      width: 84px;
+      height: 84px;
+      padding: 0.5rem;
+    }
+  }
+}
 
 .MuiBox-root header > p {
   font-weight: 400!important;
