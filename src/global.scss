@@ -203,6 +203,21 @@ ion-accordion {
   }
 }
 
+.bulletStep {
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 50%;
+    background-color: var(--ion-color-primary);
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 1rem 0 0;
+}
+
 .MuiBox-root header > p {
   font-weight: 400!important;
   text-align: center!important;

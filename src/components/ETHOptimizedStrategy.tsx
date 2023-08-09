@@ -886,12 +886,9 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
 export function EthOptimizedStrategyCard() {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isDisplayAPYDef, setIsDisplayAPYDef] = useState(false);
+  const [isDisplayHowItWork, setIsDisplayHowItWork] = useState(false);
   const strategy = useEthOptimizedStrategy();
   const { user, assets } = useUser();
-  // const [present, dismiss] = useIonModal(EthOptimizedStrategyModal, {
-  //   strategy,
-  //   onDismiss: (data: string, role: string) => dismiss(data, role),
-  // });
   const modal = useRef<HTMLIonModalElement>(null);
   const baseAPRstETH = !strategy ? -1 : Number(strategy.apys[0]);
   const maxAPRstETH = !strategy ? -1 : Number(strategy.apys[1]);
@@ -910,6 +907,94 @@ export function EthOptimizedStrategyCard() {
 
   // UI Component utils
   const Loader = <IonSpinner name="dots" />;
+  const InfoButton = <>
+    <IonButton size="small" fill="clear" onClick={() => setIsDisplayHowItWork(true)}>
+      how it work
+    </IonButton>
+    <IonModal className="modalAlert" isOpen={isDisplayHowItWork} onWillDismiss={() => setIsDisplayHowItWork(false)}>
+      <IonGrid className="ion-padding">
+        <IonRow class="ion-align-items-top ion-margin-bottom">
+          <IonCol size="10">
+            <IonText>                   
+              <h3>How it work</h3>
+            </IonText>
+          </IonCol>
+          <IonCol size="2" class="ion-text-end">
+            <IonButton
+              size="small"
+              fill="clear"
+              onClick={() => !isDisplayAPYDef ? setIsDisplayHowItWork(false) : setIsDisplayHowItWork(false)}
+            >
+              <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
+            </IonButton>
+          </IonCol>
+          <IonCol size="12">
+            <p>
+              Strategy setps process below explained how you can incrase your APY revard.
+            </p>
+          </IonCol>
+        </IonRow>
+        <IonRow>
+          <IonCol size="12">
+            <IonItem lines="none" className="ion-margin-bottom">
+              <div className="bulletStep">
+                1
+              </div>
+              <IonText>
+                <h4>
+                  <b>Staking WETH with Lido</b>
+                </h4>
+                <p>
+                  By swapping WETH to wstETH you will incrase your WETH holdings by {baseAPRstETH}% APY revard from staking WETH using <a href="https://lido.fi/" target="_blank" rel="noopener noreferrer">Lido</a>.
+                </p>
+              </IonText>
+            </IonItem>
+            <IonItem lines="none" className="ion-margin-bottom">
+              <div className="bulletStep">
+                2
+              </div>
+              <IonText>
+                <h4>
+                  <b>
+                    Deposit wstETH to AAVE
+                  </b>
+                </h4>
+                <p>
+                  By deposit wstETH as collateral on <a href="https://aave.com/" target="_blank" rel="noopener noreferrer">AAVE</a> you will be able to borrow up to {Number(strategy?.userLiquidationThreshold)*100}% of your wstETH value in WETH.
+                </p>
+              </IonText>
+            </IonItem>
+            <IonItem lines="none" className="ion-margin-bottom">
+            <div className="bulletStep">
+                3
+              </div>
+              <IonText>
+                <h4>
+                  <b>Borrow WETH from AAVE</b>
+                </h4>
+                <p>
+                  By borrowing WETH from AAVE you will incrase your WETH holdings by {Number(strategy?.userLiquidationThreshold)*100}%.
+                </p>
+              </IonText>
+            </IonItem>
+            <IonItem lines="none" className="ion-margin-bottom">
+              <div className="bulletStep">
+                4
+              </div>
+              <IonText>
+                <h4>
+                  <b>Swap WETH to wstETH</b>
+                </h4>
+                <p>
+                  By repeating step 1, you will incrase your wstETH holdings by {Number(strategy?.userLiquidationThreshold)*100}% and you will cumulate {baseAPRstETH}% APY. You can now repeat again all process untill you reach the maximum AAVE user threshold liquidation.
+                </p>
+              </IonText>
+            </IonItem>
+          </IonCol>
+        </IonRow>
+      </IonGrid>
+    </IonModal>
+  </>;
   const CardButton = !user ? (
     <ConnectButton expand="block" />
   ) : (
@@ -1105,11 +1190,26 @@ export function EthOptimizedStrategyCard() {
                   ></IonSkeletonText>
                 )}
               </IonItem>
+              <IonItem
+                style={{
+                  "--background": "transparent",
+                  "--inner-padding-end": "none",
+                  "--padding-start": "none",
+                }}
+              >
+                <IonLabel>
+                  Protocols
+                </IonLabel>
+                <div slot="end" style={{ display: "flex" }}>
+                  {strategy.providers.map((p, index) => p.toLocaleUpperCase()).join(' + ')}
+                </div>
+              </IonItem>
             </IonCol>
           </IonRow>
           
           <IonRow>
             <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
+              {InfoButton}
               {CardButton}
               {isDisabled && (
                 <div className="ion-margin-top">
