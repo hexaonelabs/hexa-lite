@@ -67,6 +67,7 @@ const ConnectButton = (props: {
     size={props?.size||'default'} 
     style={props.style||{}} 
     expand={props?.expand||undefined}
+    color="gradient"
     onClick={handleConnect}>Connect</IonButton>
 }
 

@@ -1,5 +1,8 @@
-import { IonButton, IonCol, IonGrid, IonIcon, IonImg, IonRow, IonText } from "@ionic/react";
+import { IonButton, IonCard, IonCol, IonGrid, IonIcon, IonImg, IonItem, IonLabel, IonRow, IonText } from "@ionic/react";
 import { logoGithub, checkmarkCircle, chevronForwardCircle, chevronForward } from "ionicons/icons";
+import { getAssetIconUrl } from "../utils/getAssetIconUrl";
+import { EthOptimizedStrategyProvider } from "../context/EthOptimizedContext";
+import { EthOptimizedStrategyCard } from "./ETHOptimizedStrategy";
 
 export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail: {value: string}}) => void}) {
 
@@ -47,7 +50,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
               style={{
                 fontSize: "1.2rem",
                 lineHeight: "1.6rem",
-                margin: "0.5rem 0 2.5rem 0",
+                margin: "1rem 0 2.5rem 0",
               }}
             >
               Buy digitals assets with fiats, exchange at best rate, lend
@@ -58,8 +61,9 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
           </IonText>
           <IonButton
             size="large"
+            color="gradient"
             onClick={(e) =>
-              handleSegmentChange({ detail: { value: "swap" } })
+              handleSegmentChange({ detail: { value: "earn" } })
             }
           >
             Launch App
@@ -88,7 +92,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
               Onboard on <IonText color="primary">Web3</IonText>
             </h2>
           </IonText>
-          <IonText>
+          <IonText color="medium">
             <p className="ion-no-margin">
               Take full controls of your digitals assets
             </p>
@@ -124,9 +128,38 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                       overflow: 'hidden',
                       maxWidth: 'fit-content',
                       border: 'solid 2px var(--ion-color-primary)',
-                      boxShadow: '0 0px 100px -30px var(--ion-color-primary)',
+                      boxShadow: '0 0px 100px -30px var(--ion-color-tertiary)',
                       transform: 'matrix3d(1, 0.0, 0, -0.0004, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
                     }} src="./assets/images/onboarding.png" />
+                </div>
+              </IonCol>
+            </IonRow>
+            <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '20vh 0'}}>
+              <IonCol size="12" size-md="6">
+                <IonText>
+                  <h3
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: "2rem",
+                      lineHeight: "2rem",
+                    }}
+                  >
+                    Increase digital assets yield 
+                  </h3>
+                  <p>
+                    Hexa Lite level up your strategy to earn interest on leading crypto assets at the click of a button.
+                  </p>
+                </IonText>
+              </IonCol>
+              <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
+                <div className="ion-padding" style={{
+                  margin: 'auto', 
+                  display: 'inline-block',
+                  transform: 'matrix3d(1, 0.0, 0, -0.0004, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
+                  }}>
+                  <EthOptimizedStrategyProvider>
+                    <EthOptimizedStrategyCard asImage={true} />
+                  </EthOptimizedStrategyProvider>
                 </div>
               </IonCol>
             </IonRow>
@@ -230,6 +263,11 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         style={{ minHeight: "100vh", marginBottom: "-4rem", }}
       >
         <IonCol size="12" class="ion-text-center ">
+          <IonText color="tertiary">
+            <p>
+              Earn interest with your assets
+            </p>
+          </IonText>
           <IonText>
             <h2
               style={{
@@ -244,8 +282,9 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
           <IonButton
             className="ion-margin-top"
             size="large"
+            color="gradient"
             onClick={(e) =>
-              handleSegmentChange({ detail: { value: "swap" } })
+              handleSegmentChange({ detail: { value: "earn" } })
             }>
             Launch App
             </IonButton>
@@ -255,10 +294,8 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
       <IonRow class="ion-align-items-center ion-justify-content-between">
         <IonCol size="auto" class="ion-padding-horizontal">
           <IonText color="medium">
-            <p>
-              <small>
-                Open source software powered by HexaOneLabs
-              </small>
+            <p style={{fontSize: '12px'}}>
+              Open source software by HexaOneLabs
             </p>
           </IonText>
         </IonCol>

@@ -92,7 +92,8 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
     : Number(userSummaryAndIncentives?.currentLiquidationThreshold);
   const maxLeverageFactor = getMaxLeverageFactor(userLiquidationThreshold);
   // const maxAPRstETH = (diffAPR * maxLeverageFactor) + baseAPRstETH;
-  const superMaxAPRstETH = (baseAPRstETH * (maxLeverageFactor)) - (Number(poolReserveWETH?.variableBorrowAPR||0) * 100);
+  const DEFAULT_MAX_APY = 14.01;
+  const superMaxAPRstETH = ((baseAPRstETH * (maxLeverageFactor)) - (Number(poolReserveWETH?.variableBorrowAPR||0) * 100)) || DEFAULT_MAX_APY;
   console.log('APY details:', {maxLeverageFactor, baseAPRstETH, superMaxAPRstETH});
   
   useEffect(() => {

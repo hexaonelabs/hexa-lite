@@ -8,6 +8,10 @@ html, body, ion-content {
   --background: var(--background-gradient);
 }
 
+h1 {
+  font-weight: 600;
+}
+
 h1, h2, h3, h4 {
   font-family: $font-family;
 }
@@ -188,7 +192,21 @@ ion-accordion {
 }
 
 .welcomeSection {
+  h3 {
+    position: relative;
+    display: inline-block;
+  }
 
+  h3::after {
+    content: '';
+    position: absolute;
+    bottom: -0.8rem;
+    left: 0;
+    width: 100px;
+    height: 3px;
+    background: var(--ion-color-gradient);
+  
+  }
   p {
     font-size: 1.4rem;
     line-height: 1.8rem;
@@ -201,6 +219,24 @@ ion-accordion {
       padding: 0.5rem;
     }
   }
+
+  .asImage {
+
+    box-shadow: 0 0px 100px -40px var(--ion-color-tertiary);
+    
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      z-index: 1
+    }
+  }
+  
 }
 
 .bulletStep {
@@ -318,4 +354,8 @@ ion-accordion {
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
+}
+
+.css-nub5al-MuiScopedCssBaseline-root {
+  // background-color: #515173!important;
 }

@@ -89,6 +89,7 @@ function DisconnectPopover({
             <IonButton
               style={{cursor: 'pointer'}}
               expand="block"
+              color="gradient"
               onClick={(e) => {
                 // disable button
                 e.currentTarget.disabled = true;
@@ -141,6 +142,7 @@ const DisconnectButton = (props: {
         id="click-trigger-disconnect"
         size={props?.size || "default"}
         style={props.style || {}}
+        color="gradient"
         expand={props?.expand || undefined}
       >
         {splitAddress(`${user}`)}

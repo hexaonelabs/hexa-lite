@@ -102,13 +102,13 @@ export function Header({
                   value={currentSegment}
                   onIonChange={(e: any) => handleSegmentChange(e)}
                 >
-                  <IonSegmentButton value="swap">Exchange</IonSegmentButton>
-                  <IonSegmentButton value="defi">
-                    Lending & Borrow
-                  </IonSegmentButton>
                   <IonSegmentButton value="earn">
                     Earn Interest
                   </IonSegmentButton>
+                  <IonSegmentButton value="defi">
+                    Lending & Borrow
+                  </IonSegmentButton>
+                  <IonSegmentButton value="swap">Exchange</IonSegmentButton>
                   <IonSegmentButton value="fiat">Buy</IonSegmentButton>
                 </IonSegment>
               </IonCol>

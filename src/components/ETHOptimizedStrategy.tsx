@@ -32,10 +32,7 @@ import { useEffect, useRef, useState } from "react";
 import { getMaxAmountAvailableToBorrow } from "../utils/getMaxAmountAvailableToBorrow";
 import { getMaxAmountAvailableToSupply } from "../utils/getMaxAmountAvailableToSupply";
 import { ethers } from "ethers";
-import {
-  ChainId,
-  InterestRate,
-} from "@aave/contract-helpers";
+import { ChainId, InterestRate } from "@aave/contract-helpers";
 import { useUser } from "../context/UserContext";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import {
@@ -49,7 +46,11 @@ import { swapWithLiFi } from "../servcies/lifi.service";
 import { borrow, supplyWithPermit } from "../servcies/aave.service";
 import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "../constants/chains";
 import { getETHByWstETH } from "../servcies/lido.service";
-import { BigNumberZeroDecimal, calculateHealthFactorFromBalancesBigUnits, valueToBigNumber } from "@aave/math-utils";
+import {
+  BigNumberZeroDecimal,
+  calculateHealthFactorFromBalancesBigUnits,
+  valueToBigNumber,
+} from "@aave/math-utils";
 import { useAave } from "../context/AaveContext";
 import { FormattedNumber } from "./FormattedNumber";
 import { AssetInput } from "./AssetInput";
@@ -60,7 +61,10 @@ export const minBaseTokenRemainingByNetwork: Record<number, string> = {
 };
 
 export interface IStrategyModalProps {
-  dismiss?: (data?: any, role?: string | undefined) => Promise<boolean> | undefined;
+  dismiss?: (
+    data?: any,
+    role?: string | undefined
+  ) => Promise<boolean> | undefined;
 }
 
 const ACTIONS = {
@@ -92,27 +96,23 @@ const ACTIONS = {
       throw new Error("Invalid amount. Value must be greater than 0.");
     }
     // convert decimal amount to bigNumber string using token decimals
-    const amountInWei = ethers.utils.parseUnits(
-      amount.toString(),
-      stepBorrow.reserve?.decimals || 18
-    ).toString();
+    const amountInWei = ethers.utils
+      .parseUnits(amount.toString(), stepBorrow.reserve?.decimals || 18)
+      .toString();
 
     // call method
     const fromAddress = await provider?.getSigner().getAddress();
     const params = {
       fromAddress,
-      fromAmount: amountInWei, 
+      fromAmount: amountInWei,
       fromChain: provider.network.chainId.toString(),
       fromToken: stepBorrow.reserve?.underlyingAsset as string, // WETH
       toChain: provider.network.chainId.toString(),
       toToken: stepDeposit.reserve?.underlyingAsset as string, // wstETH
     };
-    console.log("params: ", {params});
-    
-    const receipt = await swapWithLiFi(
-      params,
-      provider
-    );
+    console.log("params: ", { params });
+
+    const receipt = await swapWithLiFi(params, provider);
     console.log("TX result: ", receipt);
     return { txReceipts: [receipt] };
   },
@@ -192,15 +192,15 @@ const ACTIONS = {
   },
 };
 
-export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
+export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
   const strategy = useEthOptimizedStrategy();
   const { refresh: refreshAAVE } = useAave();
   const { ethereumProvider } = useEthersProvider();
   const { user, assets, refresh: refreshUser } = useUser();
   const { display: displayLoader, hide: hideLoader } = useLoader();
 
-  console.log('strategy: ',{ strategy , dismiss, refreshAAVE, refreshUser});
-  
+  console.log("strategy: ", { strategy, dismiss, refreshAAVE, refreshUser });
+
   const [stepIndex, setStepIndex] = useState(0);
   const [wstToEthAmount, setWstToEthAmount] = useState(-1);
   const [inputDepositValue, setInputDepositValue] = useState(-1);
@@ -220,8 +220,9 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
   const { userLiquidationThreshold = 0 } = strategy || {};
 
   const minBaseTokenRemaining =
-    minBaseTokenRemainingByNetwork[ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id] ||
-    "0.001";
+    minBaseTokenRemainingByNetwork[
+      ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id
+    ] || "0.001";
 
   const { balance: walletBalanceWSTETH = 0 } =
     assets?.find(
@@ -265,30 +266,30 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
         strategy.userSummaryAndIncentives,
         InterestRate.Variable
       );
-  const displayRiskCheckbox = healthFactor && healthFactor < 1.105 && healthFactor?.toString() !== "-1";
-   
+  const displayRiskCheckbox =
+    healthFactor && healthFactor < 1.105 && healthFactor?.toString() !== "-1";
+
   console.log({
     maxToDeposit,
     maxToBorrow,
     walletBalanceWSTETH,
     walletBalanceWETH,
     strategy,
-    displayRiskCheckbox, 
-    healthFactor
+    displayRiskCheckbox,
+    healthFactor,
   });
-  
-  useEffect(()=> {
+
+  useEffect(() => {
     if (!ethereumProvider) {
       return;
     }
-    getETHByWstETH(1)
-      .then(value => {
-        setWstToEthAmount(()=> Number(value));
-      });
+    getETHByWstETH(1).then((value) => {
+      setWstToEthAmount(() => Number(value));
+    });
   }, [ethereumProvider]);
 
-  useEffect(()=> {
-    setInputSwapValue(()=> 0);
+  useEffect(() => {
+    setInputSwapValue(() => 0);
   }, [stepIndex]);
 
   if (!strategy) {
@@ -298,19 +299,26 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
   return (
     <IonGrid>
       {/* <!-- Steps Proccess Component --> */}
-      <IonRow class="ion-text-center ion-padding-top ion-padding-horizontal"  style={{position: 'relative'}}>
+      <IonRow
+        class="ion-text-center ion-padding-top ion-padding-horizontal"
+        style={{ position: "relative" }}
+      >
         {dismiss && (
-          <IonCol size="12" class="ion-text-end" style={{marginBottom: '-2rem'}}>
+          <IonCol
+            size="12"
+            class="ion-text-end"
+            style={{ marginBottom: "-2rem" }}
+          >
             <IonButton
               size="small"
               fill="clear"
               style={{
-                zIndex: '1',
-                position: 'absolute',
+                zIndex: "1",
+                position: "absolute",
                 right: 0,
                 top: 0,
               }}
-              onClick={async () =>  {
+              onClick={async () => {
                 dismiss(null, "cancel");
               }}
             >
@@ -415,15 +423,16 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
             size-md="6"
             class="ion-padding-horizontal ion-text-start"
           >
-            <AssetInput 
-              symbol={strategy.step[0].from } 
-              balance={inputSwapValue} 
-              maxBalance={walletBalanceWETH.toString()} 
-              textBalance={'Balance'}
+            <AssetInput
+              symbol={strategy.step[0].from}
+              balance={inputSwapValue}
+              maxBalance={walletBalanceWETH.toString()}
+              textBalance={"Balance"}
               onChange={(value) => {
                 const amount = Number(value);
                 setInputSwapValue(() => amount);
-              }} />
+              }}
+            />
             {/* <IonItem lines="none" style={{'--padding-start': 0, '--inner-padding-end': 0}}>
               <IonThumbnail slot="start" style={{
                 width: '48px',
@@ -468,13 +477,15 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
             size-md="6"
             class="ion-padding-horizontal ion-text-end"
           >
-            <AssetInput 
+            <AssetInput
               disabled={true}
-              symbol={strategy.step[0].to } 
-              value={((inputSwapValue||0) * wstToEthAmount) > 0 
-                ? +((inputSwapValue||0) * wstToEthAmount).toFixed(4)
-                : 0
-              } />
+              symbol={strategy.step[0].to}
+              value={
+                (inputSwapValue || 0) * wstToEthAmount > 0
+                  ? +((inputSwapValue || 0) * wstToEthAmount).toFixed(4)
+                  : 0
+              }
+            />
             {/* <IonItem lines="none" style={{ opacity: 1, '--padding-start': 0, '--inner-padding-end': 0 }} disabled={true}>
               <IonThumbnail slot="start" style={{
                 width: '48px',
@@ -513,9 +524,11 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
           </IonCol>
           <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
             <IonText color="primary">
-              <p style={{margin: '0 0 1rem'}}>
+              <p style={{ margin: "0 0 1rem" }}>
                 <small>
-                  {`1 ${strategy.step[0].to} = ~${wstToEthAmount > 0 ? wstToEthAmount.toFixed(4) : 0} ${strategy.step[0].from}`}
+                  {`1 ${strategy.step[0].to} = ~${
+                    wstToEthAmount > 0 ? wstToEthAmount.toFixed(4) : 0
+                  } ${strategy.step[0].from}`}
                 </small>
               </p>
             </IonText>
@@ -527,6 +540,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
             <IonButton
               className="ion-margin-top"
               expand="block"
+              color='gradient'
               onClick={async () => {
                 await displayLoader();
                 try {
@@ -535,7 +549,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                     Number(inputSwapValue || -1),
                     walletBalanceWETH,
                     ethereumProvider as ethers.providers.Web3Provider
-                  )
+                  );
                   await refreshUser();
                   await refreshAAVE();
                   if ((txReceipts?.length || 0) > 0) {
@@ -549,14 +563,20 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                 } catch (error: any) {
                   console.log("handleSwap:", { error });
                   await presentToast({
-                    message: `[ERROR] Exchange Failed with reason: ${error?.message||error}`,
+                    message: `[ERROR] Exchange Failed with reason: ${
+                      error?.message || error
+                    }`,
                     color: "danger",
                     duration: 5000,
                     buttons: [
-                      { text: 'x', role: 'cancel', handler: () => {
-                        dismissToast();
-                      }}
-                    ]
+                      {
+                        text: "x",
+                        role: "cancel",
+                        handler: () => {
+                          dismissToast();
+                        },
+                      },
+                    ],
                   });
                 }
                 await hideLoader();
@@ -583,15 +603,16 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
             </IonText>
           </IonCol>
           <IonCol size="12" class="ion-padding-horizontal ion-text-end">
-            <AssetInput 
-              symbol={strategy.step[1].from } 
-              balance={inputDepositValue} 
-              maxBalance={maxToDeposit.toString()} 
-              textBalance={'Balance'}
+            <AssetInput
+              symbol={strategy.step[1].from}
+              balance={inputDepositValue}
+              maxBalance={maxToDeposit.toString()}
+              textBalance={"Balance"}
               onChange={(value) => {
                 const amount = Number(value);
                 setInputDepositValue(() => amount);
-              }} />
+              }}
+            />
             {/* <IonItem lines="none" style={{'--padding-start': 0, '--inner-padding-end': 0}}>
               <IonThumbnail slot="start" style={{
                 width: '48px',
@@ -636,13 +657,14 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
               </small>
             </IonText>
           </IonCol>
-          <IonCol size="12" className="ion-padding-top" >
+          <IonCol size="12" className="ion-padding-top">
             {/* Event Button */}
             <IonButton
               className="ion-margin-top"
               expand="block"
+              color='gradient'
               onClick={async () => {
-                console.log('inputDepositValue', inputDepositValue);
+                console.log("inputDepositValue", inputDepositValue);
                 // return;
                 await displayLoader();
                 try {
@@ -660,19 +682,25 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                       color: "success",
                     });
                     setStepIndex(() => 2);
-                    setInputDepositValue(0)
+                    setInputDepositValue(0);
                   }
                 } catch (error: any) {
                   console.log("handleDeposit:", { error });
                   await presentToast({
-                    message: `[ERROR] Deposit Failed with reason: ${error?.reason||error?.message||error}`,
+                    message: `[ERROR] Deposit Failed with reason: ${
+                      error?.reason || error?.message || error
+                    }`,
                     color: "danger",
                     duration: 5000,
                     buttons: [
-                      { text: 'x', role: 'cancel', handler: () => {
-                        dismissToast();
-                      }}
-                    ]
+                      {
+                        text: "x",
+                        role: "cancel",
+                        handler: () => {
+                          dismissToast();
+                        },
+                      },
+                    ],
                   });
                 }
                 await hideLoader();
@@ -699,36 +727,40 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
             </IonText>
           </IonCol>
           <IonCol size="12" class="ion-padding-horizontal ion-text-end">
-            <AssetInput 
-              symbol={strategy.step[2].from } 
-              balance={inputBorrowtValue} 
-              maxBalance={maxToBorrow.toString()} 
-              textBalance={'Balance'}
+            <AssetInput
+              symbol={strategy.step[2].from}
+              balance={inputBorrowtValue}
+              maxBalance={maxToBorrow.toString()}
+              textBalance={"Balance"}
               onChange={(value) => {
-                console.log('onChange', {value, maxToBorrow});
+                console.log("onChange", { value, maxToBorrow });
                 const newHealthFactor =
-                    calculateHealthFactorFromBalancesBigUnits({
-                      collateralBalanceMarketReferenceCurrency:
+                  calculateHealthFactorFromBalancesBigUnits({
+                    collateralBalanceMarketReferenceCurrency:
                       strategy.userSummaryAndIncentives.totalCollateralUSD,
-                      borrowBalanceMarketReferenceCurrency: valueToBigNumber(
-                        strategy.userSummaryAndIncentives.totalBorrowsUSD
-                      ).plus(
-                        valueToBigNumber(value || 0).times(
-                          strategy.step.find((s) => s.type === "borrow")?.reserve?.priceInUSD || 0
-                        )
-                      ),
-                      currentLiquidationThreshold: strategy.userSummaryAndIncentives.currentLiquidationThreshold,
-                    });
-                  console.log(">>newHealthFactor.toNumber()", {
-                    newHealthFactor,
-                    user,
-                    v: value,
+                    borrowBalanceMarketReferenceCurrency: valueToBigNumber(
+                      strategy.userSummaryAndIncentives.totalBorrowsUSD
+                    ).plus(
+                      valueToBigNumber(value || 0).times(
+                        strategy.step.find((s) => s.type === "borrow")?.reserve
+                          ?.priceInUSD || 0
+                      )
+                    ),
+                    currentLiquidationThreshold:
+                      strategy.userSummaryAndIncentives
+                        .currentLiquidationThreshold,
                   });
+                console.log(">>newHealthFactor.toNumber()", {
+                  newHealthFactor,
+                  user,
+                  v: value,
+                });
 
-                  setHealthFactor(newHealthFactor.toNumber());
+                setHealthFactor(newHealthFactor.toNumber());
                 const amount = Number(value);
                 setInputBorrowtValue(() => amount);
-              }} />
+              }}
+            />
             {/* <IonItem lines="none" style={{'--padding-start': 0, '--inner-padding-end': 0}}>
               <IonThumbnail slot="start" style={{
                 width: '48px',
@@ -773,11 +805,11 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
           <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
             {displayRiskCheckbox && (
               <IonText color="danger">
-                <p style={{margin: '0 0 1rem'}}>
+                <p style={{ margin: "0 0 1rem" }}>
                   <small>
                     Borrowing this amount will reduce your health factor and
-                    increase risk of liquidation. Add more collateral to increase
-                    your health factor.
+                    increase risk of liquidation. Add more collateral to
+                    increase your health factor.
                   </small>
                 </p>
               </IonText>
@@ -793,6 +825,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
             <IonButton
               className="ion-margin-top"
               expand="block"
+              color='gradient'
               onClick={async () => {
                 await displayLoader();
                 try {
@@ -814,14 +847,20 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
                   }
                 } catch (error: any) {
                   await presentToast({
-                    message: `[ERROR] Borrow Failed with reason: ${error?.message||error}`,
+                    message: `[ERROR] Borrow Failed with reason: ${
+                      error?.message || error
+                    }`,
                     color: "danger",
                     duration: 5000,
                     buttons: [
-                      { text: 'x', role: 'cancel', handler: () => {
-                        dismissToast();
-                      }}
-                    ]
+                      {
+                        text: "x",
+                        role: "cancel",
+                        handler: () => {
+                          dismissToast();
+                        },
+                      },
+                    ],
                   });
                 }
                 await hideLoader();
@@ -867,6 +906,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
             <IonButton
               className="ion-margin-top"
               expand="block"
+              color='gradient'
               onClick={async () => {
                 if (!ethereumProvider) {
                   return;
@@ -883,7 +923,7 @@ export function EthOptimizedStrategyModal({dismiss}: IStrategyModalProps) {
   );
 }
 
-export function EthOptimizedStrategyCard() {
+export function EthOptimizedStrategyCard(props: {asImage?: boolean}) {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isDisplayAPYDef, setIsDisplayAPYDef] = useState(false);
   const [isDisplayHowItWork, setIsDisplayHowItWork] = useState(false);
@@ -899,114 +939,154 @@ export function EthOptimizedStrategyCard() {
   )?.reserve;
   const poolReserveWETH = strategy?.step?.find(
     (s) =>
-      s?.reserve?.symbol?.toLocaleLowerCase() === "weth" && 
-      s?.type === "borrow"
+      s?.reserve?.symbol?.toLocaleLowerCase() === "weth" && s?.type === "borrow"
   )?.reserve;
-  const chain = CHAIN_AVAILABLES.find(c => c.id === strategy?.chainId);
+  const chain = CHAIN_AVAILABLES.find((c) => c.id === strategy?.chainId);
   const isDisabled = isAavePoolDisabled({ poolReserveWSTETH, poolReserveWETH });
 
   // UI Component utils
   const Loader = <IonSpinner name="dots" />;
-  const InfoButton = <>
-    <IonButton size="small" fill="clear" onClick={() => setIsDisplayHowItWork(true)}>
-      how it work
-    </IonButton>
-    <IonModal className="modalAlert" isOpen={isDisplayHowItWork} onWillDismiss={() => setIsDisplayHowItWork(false)}>
-      <IonGrid className="ion-padding">
-        <IonRow class="ion-align-items-top ion-margin-bottom">
-          <IonCol size="10">
-            <IonText>                   
-              <h3>How it work</h3>
-            </IonText>
-          </IonCol>
-          <IonCol size="2" class="ion-text-end">
-            <IonButton
-              size="small"
-              fill="clear"
-              onClick={() => !isDisplayAPYDef ? setIsDisplayHowItWork(false) : setIsDisplayHowItWork(false)}
-            >
-              <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
-            </IonButton>
-          </IonCol>
-          <IonCol size="12">
-            <p>
-              Strategy setps process below explained how you can incrase your APY revard.
-            </p>
-          </IonCol>
-        </IonRow>
-        <IonRow>
-          <IonCol size="12">
-            <IonItem lines="none" className="ion-margin-bottom">
-              <div className="bulletStep">
-                1
-              </div>
+  const InfoButton = (
+    <>
+      <IonButton
+        size="small"
+        fill="clear"
+        onClick={() => setIsDisplayHowItWork(true)}
+      >
+        how it work
+      </IonButton>
+      <IonModal
+        className="modalAlert"
+        isOpen={isDisplayHowItWork}
+        onWillDismiss={() => setIsDisplayHowItWork(false)}
+      >
+        <IonGrid className="ion-padding">
+          <IonRow class="ion-align-items-top">
+            <IonCol size="10">
               <IonText>
-                <h4>
-                  <b>Staking WETH with Lido</b>
-                </h4>
-                <p>
-                  By swapping WETH to wstETH you will incrase your WETH holdings by {baseAPRstETH}% APY revard from staking WETH using <a href="https://lido.fi/" target="_blank" rel="noopener noreferrer">Lido</a>.
+                <h3 className="ion-no-margin">How it work</h3>
+              </IonText>
+            </IonCol>
+            <IonCol size="2" class="ion-text-end">
+              <IonButton
+                size="small"
+                fill="clear"
+                onClick={() =>
+                  !isDisplayAPYDef
+                    ? setIsDisplayHowItWork(false)
+                    : setIsDisplayHowItWork(false)
+                }
+              >
+                <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
+              </IonButton>
+            </IonCol>
+            <IonCol size="12">
+              <IonText color="medium">
+                <p className="ion-no-margin ion-margin-bottom">
+                  <small>
+                    Strategy setps process below explained how you can incrase
+                    your APY revard.
+                  </small>
                 </p>
               </IonText>
-            </IonItem>
-            <IonItem lines="none" className="ion-margin-bottom">
-              <div className="bulletStep">
-                2
-              </div>
-              <IonText>
-                <h4>
-                  <b>
-                    Deposit wstETH to AAVE
-                  </b>
-                </h4>
-                <p>
-                  By deposit wstETH as collateral on <a href="https://aave.com/" target="_blank" rel="noopener noreferrer">AAVE</a> you will be able to borrow up to {Number(strategy?.userLiquidationThreshold)*100}% of your wstETH value in WETH.
-                </p>
-              </IonText>
-            </IonItem>
-            <IonItem lines="none" className="ion-margin-bottom">
-            <div className="bulletStep">
-                3
-              </div>
-              <IonText>
-                <h4>
-                  <b>Borrow WETH from AAVE</b>
-                </h4>
-                <p>
-                  By borrowing WETH from AAVE you will incrase your WETH holdings by {Number(strategy?.userLiquidationThreshold)*100}%.
-                </p>
-              </IonText>
-            </IonItem>
-            <IonItem lines="none" className="ion-margin-bottom">
-              <div className="bulletStep">
-                4
-              </div>
-              <IonText>
-                <h4>
-                  <b>Swap WETH to wstETH</b>
-                </h4>
-                <p>
-                  By repeating step 1, you will incrase your wstETH holdings by {Number(strategy?.userLiquidationThreshold)*100}% and you will cumulate {baseAPRstETH}% APY. You can now repeat again all process untill you reach the maximum AAVE user threshold liquidation.
-                </p>
-              </IonText>
-            </IonItem>
-          </IonCol>
-        </IonRow>
-      </IonGrid>
-    </IonModal>
-  </>;
-  const CardButton = !user ? (
+            </IonCol>
+          </IonRow>
+          <IonRow>
+            <IonCol size="12">
+              <IonItem lines="none" className="ion-margin-bottom">
+                <div className="bulletStep">1</div>
+                <IonText>
+                  <h4>
+                    <b>Staking WETH with Lido</b>
+                  </h4>
+                  <p className="ion-no-margin ion-margin-bottom">
+                    <small>
+                      By swapping WETH to wstETH you will incrase your WETH
+                      holdings by {baseAPRstETH}% APY revard from staking WETH
+                      using{" "}
+                      <a
+                        href="https://lido.fi/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Lido
+                      </a>
+                      .
+                    </small>
+                  </p>
+                </IonText>
+              </IonItem>
+              <IonItem lines="none" className="ion-margin-bottom">
+                <div className="bulletStep">2</div>
+                <IonText>
+                  <h4>
+                    <b>Deposit wstETH to AAVE</b>
+                  </h4>
+                  <p className="ion-no-margin ion-margin-bottom">
+                    <small>
+                      By deposit wstETH as collateral on{" "}
+                      <a
+                        href="https://aave.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        AAVE
+                      </a>{" "}
+                      you will be able to borrow up to{" "}
+                      {Number(strategy?.userLiquidationThreshold) * 100}% of
+                      your wstETH value in WETH.
+                    </small>
+                  </p>
+                </IonText>
+              </IonItem>
+              <IonItem lines="none" className="ion-margin-bottom">
+                <div className="bulletStep">3</div>
+                <IonText>
+                  <h4>
+                    <b>Borrow WETH from AAVE</b>
+                  </h4>
+                  <p className="ion-no-margin ion-margin-bottom">
+                    <small>
+                      By borrowing WETH from AAVE you will incrase your WETH
+                      holdings by{" "}
+                      {Number(strategy?.userLiquidationThreshold) * 100}%.
+                    </small>
+                  </p>
+                </IonText>
+              </IonItem>
+              <IonItem lines="none" className="ion-margin-bottom">
+                <div className="bulletStep">4</div>
+                <IonText>
+                  <h4>
+                    <b>Swap WETH to wstETH</b>
+                  </h4>
+                  <p className="ion-no-margin ion-margin-bottom">
+                    <small>
+                      By repeating step 1, you will incrase your wstETH holdings
+                      by {Number(strategy?.userLiquidationThreshold) * 100}% and
+                      you will cumulate {baseAPRstETH}% APY. You can now repeat
+                      again all process untill you reach the maximum AAVE user
+                      threshold liquidation.
+                    </small>
+                  </p>
+                </IonText>
+              </IonItem>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+      </IonModal>
+    </>
+  );
+  const CardButton = !user && !props.asImage  ? (
     <ConnectButton expand="block" />
   ) : (
     <IonButton
       disabled={isDisabled}
-      onClick={() => 
-        {
-          modal.current?.present();
-        }
-      }
+      onClick={() => {
+        modal.current?.present();
+      }}
       expand="block"
-      color="primary"
+      color="gradient"
     >
       Start Earning
     </IonButton>
@@ -1017,7 +1097,7 @@ export function EthOptimizedStrategyCard() {
     Loader
   ) : (
     <IonCol size="auto">
-      <IonCard style={{ maxWidth: 330 }}>
+      <IonCard className={props.asImage ? 'asImage' : undefined} style={{ maxWidth: 330 }}>
         <IonGrid>
           <IonRow class="ion-text-center ion-padding">
             <IonCol size="12" class="ion-padding">
@@ -1078,33 +1158,50 @@ export function EthOptimizedStrategyCard() {
                 <IonLabel>
                   APY
                   <small>
-                    <IonIcon color="primary" style={{
-                      marginLeft: '0.2rem', 
-                      transform: 'scale(0.8)',
-                      cursor: 'pointer'}} size="small" icon={informationCircleOutline}
-                      onClick={() => setIsInfoOpen(true)} />
+                    <IonIcon
+                      color="primary"
+                      style={{
+                        marginLeft: "0.2rem",
+                        transform: "scale(0.8)",
+                        cursor: "pointer",
+                      }}
+                      size="small"
+                      icon={informationCircleOutline}
+                      onClick={() => setIsInfoOpen(true)}
+                    />
                   </small>
                 </IonLabel>
-                <IonModal className="modalAlert infoAPY" isOpen={isInfoOpen} onWillDismiss={() => setIsInfoOpen(false)}>
+                <IonModal
+                  className="modalAlert infoAPY"
+                  isOpen={isInfoOpen}
+                  onWillDismiss={() => setIsInfoOpen(false)}
+                >
                   <IonGrid className="ion-padding">
                     <IonRow class="ion-align-items-top ion-margin-bottom">
                       <IonCol size="10">
-                        <IonText>                   
-                          <h3>{!isDisplayAPYDef ? 'Details APY' : 'APY Definition'}</h3>
+                        <IonText>
+                          <h3>
+                            {!isDisplayAPYDef
+                              ? "Details APY"
+                              : "APY Definition"}
+                          </h3>
                           <p className="ion-no-margin">
-                            { !isDisplayAPYDef && (
+                            {!isDisplayAPYDef && (
                               <small>
-                                Here you can see how the  APY <IonIcon 
-                                  size="small" 
-                                  color="primary" 
-                                  icon={helpOutline} 
+                                Here you can see how the APY{" "}
+                                <IonIcon
+                                  size="small"
+                                  color="primary"
+                                  icon={helpOutline}
                                   style={{
-                                    marginLeft: '-0.4rem',
-                                    transform: 'scale(0.6)',
-                                    cursor: 'pointer'
+                                    marginLeft: "-0.4rem",
+                                    transform: "scale(0.6)",
+                                    cursor: "pointer",
                                   }}
-                                  onClick={() => setIsDisplayAPYDef(true)} /> is calculated.
-                              </small> 
+                                  onClick={() => setIsDisplayAPYDef(true)}
+                                />{" "}
+                                is calculated.
+                              </small>
                             )}
                           </p>
                         </IonText>
@@ -1113,7 +1210,11 @@ export function EthOptimizedStrategyCard() {
                         <IonButton
                           size="small"
                           fill="clear"
-                          onClick={() => !isDisplayAPYDef ? setIsInfoOpen(false) : setIsDisplayAPYDef(false)}
+                          onClick={() =>
+                            !isDisplayAPYDef
+                              ? setIsInfoOpen(false)
+                              : setIsDisplayAPYDef(false)
+                          }
                         >
                           <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
                         </IonButton>
@@ -1123,7 +1224,15 @@ export function EthOptimizedStrategyCard() {
                         <IonCol size="12">
                           <p>
                             <small>
-                              The annual percentage yield (APY) is the real rate of return earned on an investment, taking into account the effect of compounding interest. Unlike simple interest, compounding interest is calculated periodically and the amount is immediately added to the balance. With each period going forward, the account balance gets a little bigger, so the interest paid on the balance gets bigger as well.
+                              The annual percentage yield (APY) is the real rate
+                              of return earned on an investment, taking into
+                              account the effect of compounding interest. Unlike
+                              simple interest, compounding interest is
+                              calculated periodically and the amount is
+                              immediately added to the balance. With each period
+                              going forward, the account balance gets a little
+                              bigger, so the interest paid on the balance gets
+                              bigger as well.
                             </small>
                           </p>
                         </IonCol>
@@ -1134,11 +1243,11 @@ export function EthOptimizedStrategyCard() {
                         <IonCol>
                           <IonItem lines="none">
                             <IonLabel color="medium">
-                              <h2>Base APY <small>(stETH)</small></h2>
+                              <h2>
+                                Base APY <small>(stETH)</small>
+                              </h2>
                             </IonLabel>
-                            <IonText slot="end">
-                              {strategy.apys[0]}%
-                            </IonText>
+                            <IonText slot="end">{strategy.apys[0]}%</IonText>
                           </IonItem>
                           <IonItem>
                             <IonLabel color="medium">
@@ -1153,7 +1262,11 @@ export function EthOptimizedStrategyCard() {
                               <h2>Sub total</h2>
                             </IonLabel>
                             <IonText slot="end">
-                              {(strategy.maxLeverageFactor * Number(strategy.apys[0])).toFixed(2)}%
+                              {(
+                                strategy.maxLeverageFactor *
+                                Number(strategy.apys[0])
+                              ).toFixed(2)}
+                              %
                             </IonText>
                           </IonItem>
                           <IonItem>
@@ -1161,7 +1274,13 @@ export function EthOptimizedStrategyCard() {
                               <h2>Borrow APY</h2>
                             </IonLabel>
                             <IonText slot="end">
-                              - {(Number(strategy.step[2].reserve?.variableBorrowAPR) * 100).toFixed(2) }%
+                              -{" "}
+                              {(
+                                Number(
+                                  strategy.step[2].reserve?.variableBorrowAPR
+                                ) * 100
+                              ).toFixed(2)}
+                              %
                             </IonText>
                           </IonItem>
                           <IonItem lines="none">
@@ -1171,7 +1290,17 @@ export function EthOptimizedStrategyCard() {
                               </h2>
                             </IonLabel>
                             <IonText slot="end">
-                              <b>{((strategy.maxLeverageFactor * Number(strategy.apys[0])) - (Number(strategy.step[2].reserve?.variableBorrowAPR) * 100)).toFixed(2)}%</b>
+                              <b>
+                                {(
+                                  strategy.maxLeverageFactor *
+                                    Number(strategy.apys[0]) -
+                                  Number(
+                                    strategy.step[2].reserve?.variableBorrowAPR
+                                  ) *
+                                    100
+                                ).toFixed(2)}
+                                %
+                              </b>
                             </IonText>
                           </IonItem>
                         </IonCol>
@@ -1179,9 +1308,11 @@ export function EthOptimizedStrategyCard() {
                     )}
                   </IonGrid>
                 </IonModal>
-                
+
                 {maxAPRstETH > 0 ? (
-                  <IonText slot="end">{strategy.apys.map(a => (`${a}%`)).join(" - ")}</IonText>
+                  <IonText slot="end">
+                    {strategy.apys.map((a) => `${a}%`).join(" - ")}
+                  </IonText>
                 ) : (
                   <IonSkeletonText
                     animated
@@ -1197,16 +1328,16 @@ export function EthOptimizedStrategyCard() {
                   "--padding-start": "none",
                 }}
               >
-                <IonLabel>
-                  Protocols
-                </IonLabel>
+                <IonLabel>Protocols</IonLabel>
                 <div slot="end" style={{ display: "flex" }}>
-                  {strategy.providers.map((p, index) => p.toLocaleUpperCase()).join(' + ')}
+                  {strategy.providers
+                    .map((p, index) => p.toLocaleUpperCase())
+                    .join(" + ")}
                 </div>
               </IonItem>
             </IonCol>
           </IonRow>
-          
+
           <IonRow>
             <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
               {InfoButton}
@@ -1214,10 +1345,10 @@ export function EthOptimizedStrategyCard() {
               {isDisabled && (
                 <div className="ion-margin-top">
                   <IonText color="warning">
-                    Reserve liquidity pool is full on  {
-                      chain && (chain?.name[0].toUpperCase() + chain?.name.slice(1))
-                    }. Try again
-                    later or switch to another network.
+                    Reserve liquidity pool is full on{" "}
+                    {chain &&
+                      chain?.name[0].toUpperCase() + chain?.name.slice(1)}
+                    . Try again later or switch to another network.
                   </IonText>
                 </div>
               )}
@@ -1226,22 +1357,24 @@ export function EthOptimizedStrategyCard() {
         </IonGrid>
       </IonCard>
 
-      <IonModal 
-        ref={modal} 
-        trigger="open-modal" 
+      <IonModal
+        ref={modal}
+        trigger="open-modal"
         onWillDismiss={async (ev: CustomEvent<OverlayEventDetail>) => {
           console.log("will dismiss", ev.detail);
         }}
         style={{
-          '--height': 'auto',
-          '--max-height': '90vh',
-          '--border-radius': '32px',
-        }}>
-        <EthOptimizedStrategyModal dismiss={
-          (data?: any, role?: string | undefined) => modal.current?.dismiss(data, role)
-        } />
+          "--height": "auto",
+          "--max-height": "90vh",
+          "--border-radius": "32px",
+        }}
+      >
+        <EthOptimizedStrategyModal
+          dismiss={(data?: any, role?: string | undefined) =>
+            modal.current?.dismiss(data, role)
+          }
+        />
       </IonModal>
-
     </IonCol>
   );
 }

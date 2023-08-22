@@ -37,11 +37,12 @@ export function SwapContainer() {
           },
           primary: {
             main: "#428cff",
+            contrastText: "#fff",
           },
-          // grey: {
-          //   300: theme.palette.grey[300],
-          //   800: theme.palette.grey[800],
-          // },
+          secondary: {
+            main: '#0cceea',
+            contrastText: "#fff",
+          }
         },
       },
       languages: {
