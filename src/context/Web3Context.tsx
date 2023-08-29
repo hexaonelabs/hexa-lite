@@ -1,12 +1,17 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { getMagic } from "../servcies/magic";
+import { RPC_NODE_OPTIONS, getMagic } from "../servcies/magic";
 import { ethers } from "ethers";
+import { CHAIN_DEFAULT } from "../constants/chains";
 
 // Define the structure of the Web3 context state
 type Web3ContextType = {
   ethereumProvider: ethers.providers.Web3Provider | null;
   initializeWeb3: () => Promise<ethers.providers.Web3Provider | undefined>;
 };
+
+const defaultProvider = new ethers.providers.JsonRpcProvider(
+  RPC_NODE_OPTIONS.find((rpc) => rpc.chainId === CHAIN_DEFAULT.id)?.rpcUrl||''
+);
 
 // Create the context with default values
 const Web3Context = createContext<Web3ContextType>({
@@ -32,7 +37,7 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
     const onboardProvider = await magic.wallet.getProvider();
     console.log(`[INFO] {{Web3Context}}: `, { onboardProvider });
     // Create a new instance of Web3 with the provider
-    const provider = new ethers.providers.Web3Provider(onboardProvider, "any");
+    const provider = new ethers.providers.Web3Provider(onboardProvider||defaultProvider, "any");
     provider.on("network", (newNetwork, oldNetwork) => {
       // When a Provider makes its initial connection, it emits a "network"
       // event with a null oldNetwork along with the newNetwork. So, if the
