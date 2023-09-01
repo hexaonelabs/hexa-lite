@@ -39,10 +39,10 @@ export function EarnContainer() {
           size-lg="10"
           size-xl="10"
         >
-          <IonGrid class="ion-no-padding">
-            <IonRow class="ion-justify-content-center">
+          <IonGrid class="ion-no-padding" style={{height: '100%'}}>
+            <IonRow class="ion-justify-content-center" style={{height: '100%'}}>
               {/* ETH Staking Strategy */}
-              {/* <ETHLiquidStakingstrategyCard /> */}
+              <ETHLiquidStakingstrategyCard />
 
               {/* ETH Optimized Strategy */}
               <EthOptimizedStrategyProvider>
