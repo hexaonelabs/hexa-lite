@@ -254,6 +254,22 @@ ion-accordion {
     margin: 0 1rem 0 0;
 }
 
+.strategyCard {
+  height: 100%;
+  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+
+  ion-grid {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: stretch;
+    align-content: center;
+  }
+}
+
 .MuiBox-root header > p {
   font-weight: 400!important;
   text-align: center!important;
