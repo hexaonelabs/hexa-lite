@@ -33,6 +33,7 @@ import { CHAIN_DEFAULT } from "../constants/chains";
 import { AssetInput } from "./AssetInput";
 import { ethers } from "ethers";
 import { swapWithLiFi } from "../servcies/lifi.service";
+import { HowItWork } from "./HowItWork";
 
 export interface IStrategyModalProps {
   dismiss?: (
@@ -41,13 +42,12 @@ export interface IStrategyModalProps {
   ) => Promise<boolean> | undefined;
 }
 
-
 const handleSwap = async (
   provider: ethers.providers.Web3Provider,
   amount: number,
   balanceWETH: number,
   toToken: { decimals: number; address: string },
-  fromToken: { decimals: number; address: string },
+  fromToken: { decimals: number; address: string }
 ) => {
   if (!provider) {
     return {};
@@ -61,7 +61,9 @@ const handleSwap = async (
   }
   // handle invalid amount
   if (isNaN(amount) || amount <= 0) {
-    throw new Error("{{handleSwap}} Invalid amount. Value must be greater than 0.");
+    throw new Error(
+      "{{handleSwap}} Invalid amount. Value must be greater than 0."
+    );
   }
   // convert decimal amount to bigNumber string using token decimals
   const amountInWei = ethers.utils
@@ -81,9 +83,11 @@ const handleSwap = async (
   const receipt = await swapWithLiFi(params, provider);
   console.log("{{handleSwap}} TX result: ", receipt);
   return { txReceipts: [receipt] };
-}
+};
 
-export function EthLiquidStakingStrategyModal({ dismiss }: IStrategyModalProps) {
+export function EthLiquidStakingStrategyModal({
+  dismiss,
+}: IStrategyModalProps) {
   const { ethereumProvider } = useEthersProvider();
   const { user, assets, refresh: refreshUser } = useUser();
   const { display: displayLoader, hide: hideLoader } = useLoader();
@@ -96,11 +100,12 @@ export function EthLiquidStakingStrategyModal({ dismiss }: IStrategyModalProps) 
   const presentToast = toastContext[0];
   const dismissToast = toastContext[1];
 
-  const walletBalanceWETH = assets?.find(
-    (a) =>
-      a.symbol === "WETH" &&
-      a.chain?.id === (ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id)
-  )?.balance||0;
+  const walletBalanceWETH =
+    assets?.find(
+      (a) =>
+        a.symbol === "WETH" &&
+        a.chain?.id === (ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id)
+    )?.balance || 0;
 
   useEffect(() => {
     if (!ethereumProvider) {
@@ -155,7 +160,10 @@ export function EthLiquidStakingStrategyModal({ dismiss }: IStrategyModalProps) 
             <h2>Swap</h2>
           </IonText>
           <IonText color="medium">
-            <p>By swapping WETH to wstETH you will incrase your WETH holdings revard from staking WETH on Lido.</p>
+            <p>
+              By swapping WETH to wstETH you will incrase your WETH holdings
+              revard from staking WETH on Lido.
+            </p>
           </IonText>
         </IonCol>
         <IonCol
@@ -164,7 +172,7 @@ export function EthLiquidStakingStrategyModal({ dismiss }: IStrategyModalProps) 
           class="ion-padding-horizontal ion-text-start"
         >
           <AssetInput
-            symbol={'WETH'}
+            symbol={"WETH"}
             balance={inputSwapValue}
             maxBalance={walletBalanceWETH?.toString()}
             textBalance={"Balance"}
@@ -181,7 +189,7 @@ export function EthLiquidStakingStrategyModal({ dismiss }: IStrategyModalProps) 
         >
           <AssetInput
             disabled={true}
-            symbol={'wstETH'}
+            symbol={"wstETH"}
             value={
               (inputSwapValue || 0) * wstToEthAmount > 0
                 ? +((inputSwapValue || 0) * wstToEthAmount).toFixed(4)
@@ -214,9 +222,15 @@ export function EthLiquidStakingStrategyModal({ dismiss }: IStrategyModalProps) 
                 const { txReceipts } = await handleSwap(
                   ethereumProvider as ethers.providers.Web3Provider,
                   Number(inputSwapValue || -1),
-                  walletBalanceWETH||0,
-                  { decimals: 18, address: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0" },
-                  { decimals: 18, address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2" },
+                  walletBalanceWETH || 0,
+                  {
+                    decimals: 18,
+                    address: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+                  },
+                  {
+                    decimals: 18,
+                    address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+                  }
                 );
                 await refreshUser();
                 if ((txReceipts?.length || 0) > 0) {
@@ -266,9 +280,7 @@ export function EthLiquidStakingStrategyModal({ dismiss }: IStrategyModalProps) 
             </IonText>
             <IonText color="medium">
               <p>You have successfully swap yout token.</p>
-              <p>
-                Now you earn revard from staking WETH on Lido.
-              </p>
+              <p>Now you earn revard from staking WETH on Lido.</p>
             </IonText>
           </IonCol>
 
@@ -326,79 +338,6 @@ export function ETHLiquidStakingstrategyCard() {
 
   // UI Component utils
   const Loader = <IonSpinner name="dots" />;
-  const InfoButton = (
-    <>
-      <IonButton
-        size="small"
-        fill="clear"
-        onClick={() => setIsDisplayHowItWork(true)}
-      >
-        how it work
-      </IonButton>
-      <IonModal
-        className="modalAlert"
-        isOpen={isDisplayHowItWork}
-        onWillDismiss={() => setIsDisplayHowItWork(false)}
-      >
-        <IonGrid className="ion-padding">
-          <IonRow class="ion-align-items-top">
-            <IonCol size="10">
-              <IonText>
-                <h3 className="ion-no-margin">How it work</h3>
-              </IonText>
-            </IonCol>
-            <IonCol size="2" class="ion-text-end">
-              <IonButton
-                size="small"
-                fill="clear"
-                onClick={() =>
-                  setIsDisplayHowItWork(false)
-                }
-              >
-                <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
-              </IonButton>
-            </IonCol>
-            <IonCol size="12">
-              <IonText color="medium">
-                <p className="ion-no-margin ion-margin-bottom">
-                  <small>
-                    Strategy process below explained how you can incrase
-                    your APY revard.
-                  </small>
-                </p>
-              </IonText>
-            </IonCol>
-          </IonRow>
-          <IonRow>
-            <IonCol size="12">
-              <IonItem lines="none" className="ion-margin-bottom">
-                <IonText>
-                  <h4>
-                    <b>Staking WETH with Lido</b>
-                  </h4>
-                  <p className="ion-no-margin ion-margin-bottom">
-                    <small>
-                      By swapping WETH to wstETH you will incrase your WETH
-                      holdings by {baseAPRstETH}% APY revard from staking WETH
-                      using{" "}
-                      <a
-                        href="https://lido.fi/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Lido
-                      </a>
-                      .
-                    </small>
-                  </p>
-                </IonText>
-              </IonItem>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
-      </IonModal>
-    </>
-  );
   const CardButton = !user ? (
     <ConnectButton expand="block" />
   ) : (
@@ -505,7 +444,28 @@ export function ETHLiquidStakingstrategyCard() {
 
           <IonRow>
             <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
-              {InfoButton}
+              <HowItWork>
+                <IonText>
+                  <h4>
+                    <b>Staking WETH with Lido</b>
+                  </h4>
+                  <p className="ion-no-margin ion-margin-bottom">
+                    <small>
+                      By swapping WETH to wstETH you will incrase your WETH
+                      holdings by {baseAPRstETH}% APY revard from staking WETH
+                      using{" "}
+                      <a
+                        href="https://lido.fi/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Lido
+                      </a>
+                      .
+                    </small>
+                  </p>
+                </IonText>
+              </HowItWork>
               {CardButton}
             </IonCol>
           </IonRow>
