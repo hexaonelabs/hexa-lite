@@ -447,7 +447,7 @@ export function ETHLiquidStakingstrategyCard() {
               <HowItWork>
                 <IonText>
                   <h4>
-                    <b>Staking WETH with Lido</b>
+                    Staking WETH with Lido
                   </h4>
                   <p className="ion-no-margin ion-margin-bottom">
                     <small>

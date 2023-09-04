@@ -33,7 +33,9 @@ export function HowItWork({ children }: { children?: React.ReactNode }) {
           <IonRow class="ion-align-items-top">
             <IonCol size="10">
               <IonText>
-                <h3 className="ion-no-margin">How it work</h3>
+                <h3 style={{marginBottom: 0}}>
+                  <b>How it work</b>
+                </h3>
               </IonText>
               <IonText color="medium">
                 <p className="ion-no-margin">
