@@ -54,6 +54,7 @@ import {
 import { useAave } from "../context/AaveContext";
 import { FormattedNumber } from "./FormattedNumber";
 import { AssetInput } from "./AssetInput";
+import { ApyDetail } from "./ApyDetail";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -540,7 +541,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
             <IonButton
               className="ion-margin-top"
               expand="block"
-              color='gradient'
+              color="gradient"
               onClick={async () => {
                 await displayLoader();
                 try {
@@ -662,7 +663,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
             <IonButton
               className="ion-margin-top"
               expand="block"
-              color='gradient'
+              color="gradient"
               onClick={async () => {
                 console.log("inputDepositValue", inputDepositValue);
                 // return;
@@ -825,7 +826,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
             <IonButton
               className="ion-margin-top"
               expand="block"
-              color='gradient'
+              color="gradient"
               onClick={async () => {
                 await displayLoader();
                 try {
@@ -906,7 +907,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
             <IonButton
               className="ion-margin-top"
               expand="block"
-              color='gradient'
+              color="gradient"
               onClick={async () => {
                 if (!ethereumProvider) {
                   return;
@@ -923,7 +924,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
   );
 }
 
-export function EthOptimizedStrategyCard(props: {asImage?: boolean}) {
+export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isDisplayAPYDef, setIsDisplayAPYDef] = useState(false);
   const [isDisplayHowItWork, setIsDisplayHowItWork] = useState(false);
@@ -1077,27 +1078,31 @@ export function EthOptimizedStrategyCard(props: {asImage?: boolean}) {
       </IonModal>
     </>
   );
-  const CardButton = !user && !props.asImage  ? (
-    <ConnectButton expand="block" />
-  ) : (
-    <IonButton
-      disabled={isDisabled}
-      onClick={() => {
-        modal.current?.present();
-      }}
-      expand="block"
-      color="gradient"
-    >
-      Start Earning
-    </IonButton>
-  );
+  const CardButton =
+    !user && !props.asImage ? (
+      <ConnectButton expand="block" />
+    ) : (
+      <IonButton
+        disabled={isDisabled}
+        onClick={() => {
+          modal.current?.present();
+        }}
+        expand="block"
+        color="gradient"
+      >
+        Start Earning
+      </IonButton>
+    );
 
   // Component Render
   return !strategy ? (
     Loader
   ) : (
     <IonCol size="auto">
-      <IonCard className={props.asImage ? 'asImage' : 'strategyCard'} style={{ maxWidth: 330 }}>
+      <IonCard
+        className={props.asImage ? "asImage" : "strategyCard"}
+        style={{ maxWidth: 330 }}
+      >
         <IonGrid>
           <IonRow class="ion-text-center ion-padding">
             <IonCol size="12" class="ion-padding">
@@ -1148,7 +1153,6 @@ export function EthOptimizedStrategyCard(props: {asImage?: boolean}) {
                 </div>
               </IonItem>
               <IonItem
-                lines="none"
                 style={{
                   "--background": "transparent",
                   "--inner-padding-end": "none",
@@ -1157,157 +1161,73 @@ export function EthOptimizedStrategyCard(props: {asImage?: boolean}) {
               >
                 <IonLabel>
                   APY
-                  <small>
-                    <IonIcon
-                      color="primary"
-                      style={{
-                        marginLeft: "0.2rem",
-                        transform: "scale(0.8)",
-                        cursor: "pointer",
-                      }}
-                      size="small"
-                      icon={informationCircleOutline}
-                      onClick={() => setIsInfoOpen(true)}
-                    />
-                  </small>
-                </IonLabel>
-                <IonModal
-                  className="modalAlert infoAPY"
-                  isOpen={isInfoOpen}
-                  onWillDismiss={() => setIsInfoOpen(false)}
-                >
-                  <IonGrid className="ion-padding">
-                    <IonRow class="ion-align-items-top ion-margin-bottom">
-                      <IonCol size="10">
-                        <IonText>
-                          <h3>
-                            {!isDisplayAPYDef
-                              ? "Details APY"
-                              : "APY Definition"}
-                          </h3>
-                          <p className="ion-no-margin">
-                            {!isDisplayAPYDef && (
-                              <small>
-                                Here you can see how the APY{" "}
-                                <IonIcon
-                                  size="small"
-                                  color="primary"
-                                  icon={helpOutline}
-                                  style={{
-                                    marginLeft: "-0.4rem",
-                                    transform: "scale(0.6)",
-                                    cursor: "pointer",
-                                  }}
-                                  onClick={() => setIsDisplayAPYDef(true)}
-                                />{" "}
-                                is calculated.
-                              </small>
-                            )}
-                          </p>
+                  <ApyDetail>
+                    <>
+                      <IonItem lines="none">
+                        <IonLabel color="medium">
+                          <h2>
+                            Base APY <small>(stETH)</small>
+                          </h2>
+                        </IonLabel>
+                        <IonText slot="end">{strategy.apys[0]}%</IonText>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel color="medium">
+                          <h2>Leverage factor</h2>
+                        </IonLabel>
+                        <IonText slot="end">
+                          x {strategy.maxLeverageFactor.toFixed(2)}
                         </IonText>
-                      </IonCol>
-                      <IonCol size="2" class="ion-text-end">
-                        <IonButton
-                          size="small"
-                          fill="clear"
-                          onClick={() =>
-                            !isDisplayAPYDef
-                              ? setIsInfoOpen(false)
-                              : setIsDisplayAPYDef(false)
-                          }
-                        >
-                          <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
-                        </IonButton>
-                      </IonCol>
-
-                      {isDisplayAPYDef && (
-                        <IonCol size="12">
-                          <p>
-                            <small>
-                              The annual percentage yield (APY) is the real rate
-                              of return earned on an investment, taking into
-                              account the effect of compounding interest. Unlike
-                              simple interest, compounding interest is
-                              calculated periodically and the amount is
-                              immediately added to the balance. With each period
-                              going forward, the account balance gets a little
-                              bigger, so the interest paid on the balance gets
-                              bigger as well.
-                            </small>
-                          </p>
-                        </IonCol>
-                      )}
-                    </IonRow>
-                    {!isDisplayAPYDef && (
-                      <IonRow>
-                        <IonCol>
-                          <IonItem lines="none">
-                            <IonLabel color="medium">
-                              <h2>
-                                Base APY <small>(stETH)</small>
-                              </h2>
-                            </IonLabel>
-                            <IonText slot="end">{strategy.apys[0]}%</IonText>
-                          </IonItem>
-                          <IonItem>
-                            <IonLabel color="medium">
-                              <h2>Leverage factor</h2>
-                            </IonLabel>
-                            <IonText slot="end">
-                              x {strategy.maxLeverageFactor.toFixed(2)}
-                            </IonText>
-                          </IonItem>
-                          <IonItem lines="none">
-                            <IonLabel color="medium">
-                              <h2>Sub total</h2>
-                            </IonLabel>
-                            <IonText slot="end">
-                              {(
-                                strategy.maxLeverageFactor *
-                                Number(strategy.apys[0])
-                              ).toFixed(2)}
-                              %
-                            </IonText>
-                          </IonItem>
-                          <IonItem>
-                            <IonLabel color="medium">
-                              <h2>Borrow APY</h2>
-                            </IonLabel>
-                            <IonText slot="end">
-                              -{" "}
-                              {(
-                                Number(
-                                  strategy.step[2].reserve?.variableBorrowAPR
-                                ) * 100
-                              ).toFixed(2)}
-                              %
-                            </IonText>
-                          </IonItem>
-                          <IonItem lines="none">
-                            <IonLabel>
-                              <h2>
-                                <b>Total variable APY</b>
-                              </h2>
-                            </IonLabel>
-                            <IonText slot="end">
-                              <b>
-                                {(
-                                  strategy.maxLeverageFactor *
-                                    Number(strategy.apys[0]) -
-                                  Number(
-                                    strategy.step[2].reserve?.variableBorrowAPR
-                                  ) *
-                                    100
-                                ).toFixed(2)}
-                                %
-                              </b>
-                            </IonText>
-                          </IonItem>
-                        </IonCol>
-                      </IonRow>
-                    )}
-                  </IonGrid>
-                </IonModal>
+                      </IonItem>
+                      <IonItem lines="none">
+                        <IonLabel color="medium">
+                          <h2>Sub total</h2>
+                        </IonLabel>
+                        <IonText slot="end">
+                          {(
+                            strategy.maxLeverageFactor *
+                            Number(strategy.apys[0])
+                          ).toFixed(2)}
+                          %
+                        </IonText>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel color="medium">
+                          <h2>Borrow APY</h2>
+                        </IonLabel>
+                        <IonText slot="end">
+                          -{" "}
+                          {(
+                            Number(
+                              strategy.step[2].reserve?.variableBorrowAPR
+                            ) * 100
+                          ).toFixed(2)}
+                          %
+                        </IonText>
+                      </IonItem>
+                      <IonItem lines="none">
+                        <IonLabel>
+                          <h2>
+                            <b>Total variable APY</b>
+                          </h2>
+                        </IonLabel>
+                        <IonText slot="end">
+                          <b>
+                            {(
+                              strategy.maxLeverageFactor *
+                                Number(strategy.apys[0]) -
+                              Number(
+                                strategy.step[2].reserve?.variableBorrowAPR
+                              ) *
+                                100
+                            ).toFixed(2)}
+                            %
+                          </b>
+                        </IonText>
+                      </IonItem>
+                    </>
+                  </ApyDetail>
+                </IonLabel>
 
                 {maxAPRstETH > 0 ? (
                   <IonText slot="end">
