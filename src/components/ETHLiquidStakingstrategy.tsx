@@ -34,6 +34,7 @@ import { AssetInput } from "./AssetInput";
 import { ethers } from "ethers";
 import { swapWithLiFi } from "../servcies/lifi.service";
 import { HowItWork } from "./HowItWork";
+import { ApyDetail } from "./ApyDetail";
 
 export interface IStrategyModalProps {
   dismiss?: (
@@ -309,7 +310,6 @@ export function EthLiquidStakingStrategyModal({
 export function ETHLiquidStakingstrategyCard() {
   const { user } = useUser();
   const [baseAPRstETH, setBaseAPRstETH] = useState(-1);
-  const [isDisplayHowItWork, setIsDisplayHowItWork] = useState(false);
 
   const strategy = {
     name: "ETH Liquid",
@@ -405,25 +405,42 @@ export function ETHLiquidStakingstrategyCard() {
                 </div>
               </IonItem>
               <IonItem
-                lines="none"
                 style={{
                   "--background": "transparent",
                   "--inner-padding-end": "none",
                   "--padding-start": "none",
                 }}
               >
-                <IonLabel>APY</IonLabel>
-                {baseAPRstETH > 0 ? (
-                  <IonText slot="end">
-                    {strategy.apys.map((a) => `${a}%`).join(" - ")}
-                  </IonText>
-                ) : (
-                  <IonSkeletonText
-                    animated
-                    style={{ width: "6rem" }}
-                    slot="end"
-                  ></IonSkeletonText>
-                )}
+                <IonLabel>
+                  APY
+                  <ApyDetail>
+                    <>
+                      <IonItem>
+                        <IonLabel color="medium">
+                          <h2>
+                            Base APY <small>(stETH)</small>
+                          </h2>
+                        </IonLabel>
+                        <IonText slot="end">{strategy.apys[0]}%</IonText>
+                      </IonItem>
+                      <IonItem lines="none">
+                        <IonLabel>
+                          <h2>
+                            <b>Total variable APY</b>
+                          </h2>
+                        </IonLabel>
+                        <IonText slot="end">
+                          <b>{strategy.apys[0]}%</b>
+                        </IonText>
+                      </IonItem>
+                    </>
+                  </ApyDetail>
+                </IonLabel>
+                <div slot="end" style={{ display: "flex" }}>
+                  {strategy.apys.map((apy, index) => (
+                    <IonText key={index}>{apy}%</IonText>
+                  ))}
+                </div>
               </IonItem>
               <IonItem
                 style={{
@@ -446,13 +463,11 @@ export function ETHLiquidStakingstrategyCard() {
             <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
               <HowItWork>
                 <IonText>
-                  <h4>
-                    Staking WETH with Lido
-                  </h4>
+                  <h4>Staking WETH with Lido</h4>
                   <p className="ion-no-margin ion-margin-bottom">
                     <small>
                       By swapping WETH to wstETH you will incrase your WETH
-                      holdings by {baseAPRstETH}% APY revard from staking WETH
+                      holdings by {baseAPRstETH.toFixed(2)}% APY revard from staking WETH
                       using{" "}
                       <a
                         href="https://lido.fi/"
