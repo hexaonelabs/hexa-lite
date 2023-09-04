@@ -1098,7 +1098,7 @@ export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
   return !strategy ? (
     Loader
   ) : (
-    <IonCol size="auto">
+    <IonCol size="auto" className="ion-padding-bottom">
       <IonCard
         className={props.asImage ? "asImage" : "strategyCard"}
         style={{ maxWidth: 330 }}
