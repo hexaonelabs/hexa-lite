@@ -62,6 +62,7 @@
     ]
   },
   "devDependencies": {
+    "firebase-tools": "^12.5.3",
     "sass": "^1.63.6"
   }
 }
