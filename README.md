@@ -25,9 +25,7 @@ Hexa Lite is frictionless, secure, and reliable for everyone to use and enjoy th
 
 - [x] <b>Lend and borrow money on DeFi protocols:</b> Users can lend and borrow money on DeFi protocols and earn interest with by providing liquidity to lending pools from multiple liquidity providers across multiple blockchains.
 
-- [ ] <b>WIP - Earn interest with liquide staking:</b> Users can earn interest with liquide staking by providing liquidity to staking pools from multiple liquidity providers across multiple blockchains.
-
-- [ ] <b>WIP - Custom farming strategies:</b> Users can create custom farming strategies by combining multiple DeFi protocols and services to earn interest with their assets.
+- [x] <b>Earn interest with liquide staking:</b> Users can earn interest with liquide staking by providing liquidity to staking pools from multiple liquidity providers across multiple blockchains.
 
 
 ## 🛠️ Technology Stack
@@ -68,6 +66,8 @@ Hexa Lite uses environment variables to store sensitive data and API keys. The e
 
 ## Contributing
 Contributions are welcome and appreciated. To contribute to Hexa Lite, please fork the repository, create a new branch and submit a pull request. For major changes, please open an issue first to discuss what you would like to change.
+
+You can find more information about contributing to Hexa Lite in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
 ## License
 Hexa Lite is open-source and distributed under the MIT License. See [LICENSE](LICENSE) for more information.
