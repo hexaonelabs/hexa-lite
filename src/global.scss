@@ -141,6 +141,12 @@ ion-popover.profil-popover {
   }
 }
 
+.modalPage {
+  --min-width: 100vw;
+  --min-height: 100vh;
+  --border-radius: 0;
+}
+
 
 .ion-accordion-toggle-icon {
   color: var(--ion-color-primary);
@@ -389,6 +395,7 @@ ion-accordion {
     > ion-grid {
       background: rgba(var(--ion-color-light-rgb), 0.8) !important;
       margin: 0rem;
+      padding: 0.5rem 0;
 
       h3 {
         font-size: 12px!important;
@@ -399,6 +406,8 @@ ion-accordion {
       --background: rgba(var(--ion-color-light-rgb), 0.6) !important;
       --padding-top: 0.4rem;
       --padding-bottom: 0.4rem;
+      --padding-start: 0;
+      --inner-padding-end: 0;
       .poolItemList {
         font-size: 14px;
       }
