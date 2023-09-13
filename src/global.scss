@@ -59,7 +59,7 @@ ion-button.button-default {
   --border-radius: 32px!important;
 }
 ion-button.button-small {
-  --border-radius: 8px!important;
+  --border-radius: 18px!important;
 }
 
 
@@ -410,6 +410,10 @@ ion-accordion {
       --inner-padding-end: 0;
       .poolItemList {
         font-size: 14px;
+      }
+
+      &:hover {
+        --background: rgba(var(--ion-color-light-rgb), 0.1) !important;
       }
     }
 
