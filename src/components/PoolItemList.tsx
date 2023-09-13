@@ -45,7 +45,7 @@ export function PoolItemList(props: IPoolItemListProps) {
               alignContent: "center",
             }}
           >
-            <div style={{ minWidth: "48px" }}>
+            <div>
               <IonAvatar
                 style={{
                   height: iconSize,
@@ -153,7 +153,7 @@ export function PoolItemList(props: IPoolItemListProps) {
             </IonLabel>
           </IonCol>
           <IonCol size="auto" size-md="2" class="ion-text-end ion-hide-md-down">
-            <IonLabel>
+            <IonLabel className="ion-padding-end">
               {Number(reserve?.variableBorrowAPY || 0) * 100 === 0
                 ? reserve?.borrowingEnabled === false
                   ? "- "
@@ -164,13 +164,17 @@ export function PoolItemList(props: IPoolItemListProps) {
                   "%"}
             </IonLabel>
           </IonCol>
-          <IonCol size="3" size-md="1" className="ion-text-end ion-padding-horizontal">
-            <IonButton onClick={()=> present({
-              cssClass: 'modalPage',
-            })}>Details</IonButton>
-          </IonCol>
         </IonRow>
       </IonGrid>
+      <IonButton 
+        slot="end"
+        color="gradient" 
+        size="small"
+        className="ion-margin-horizontal"
+        onClick={()=> present({
+        cssClass: 'modalPage',
+        })}
+      >Details</IonButton>
     </IonItem>
   );
 }
