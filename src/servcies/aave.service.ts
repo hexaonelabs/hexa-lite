@@ -21,6 +21,7 @@ import {
   formatUserSummaryAndIncentives,
 } from "@aave/math-utils";
 import { ChainId } from "@aave/contract-helpers";
+import { CHAIN_AVAILABLES } from "../constants/chains";
 
 const submitTransaction = async (ops: {
   provider: ethers.providers.Web3Provider; // Signing transactions requires a wallet provider
@@ -329,12 +330,15 @@ export const getMarkets = (chainId: number) => {
 };
 
 export const getPools = async (ops: {
-  provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
+  // provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
   currentTimestamp: number;
 }) => {
-  const { provider, market, currentTimestamp } = ops;
+  const { market, currentTimestamp } = ops;
   const chainId = market.CHAIN_ID;
+  const provider = new ethers.providers.JsonRpcProvider(
+    CHAIN_AVAILABLES.find((c) => c.id === chainId)?.rpcUrl||''
+  );
   // View contract used to fetch all reserves data (including market base currency data), and user reserves
   const poolDataProviderContract = new UiPoolDataProvider({
     uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
