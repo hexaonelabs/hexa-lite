@@ -11,12 +11,14 @@ import {
   IonLabel,
   IonRow,
   IonText,
+  useIonModal,
 } from "@ionic/react";
 import { openOutline, warningOutline } from "ionicons/icons";
 import { useUser } from "../context/UserContext";
 import { getReadableAmount } from "../utils/getReadableAmount";
 import { IReserve } from "../interfaces/reserve.interface";
 import { CHAIN_AVAILABLES } from "../constants/chains";
+import { ReserveDetail } from "./ReserveDetail";
 
 interface IPoolItemListProps {
   reserve: IReserve;
@@ -26,6 +28,11 @@ interface IPoolItemListProps {
 export function PoolItemList(props: IPoolItemListProps) {
   const { reserve, iconSize, chainId } = props;
   const { user } = useUser();
+  const [present, dismiss] = useIonModal(ReserveDetail, {
+    reserve,
+    dismiss: () => dismiss(),
+    // onDismiss: (data: string, role: string) => dismiss(data, role),
+  });
   return (
     <IonItem lines="none">
       <IonGrid className="ion-no-padding">
@@ -158,7 +165,9 @@ export function PoolItemList(props: IPoolItemListProps) {
             </IonLabel>
           </IonCol>
           <IonCol size="3" size-md="1" className="ion-text-end ion-padding-horizontal">
-            <IonButton>Details</IonButton>
+            <IonButton onClick={()=> present({
+              cssClass: 'modalPage',
+            })}>Details</IonButton>
           </IonCol>
         </IonRow>
       </IonGrid>
