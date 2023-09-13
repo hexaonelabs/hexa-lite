@@ -1,6 +1,8 @@
 import {
   IonAvatar,
   IonButton,
+  IonCard,
+  IonCardContent,
   IonCol,
   IonContent,
   IonGrid,
@@ -26,6 +28,8 @@ import { LoanFormModal } from "./LoanFormModal";
 import { useState } from "react";
 import { closeOutline, warningOutline } from "ionicons/icons";
 import { CHAIN_AVAILABLES } from "../constants/chains";
+import { position } from "@chakra-ui/react";
+import { WarningBox } from "./WarningBox";
 
 interface IReserveDetailProps {
   reserve: IReserve;
@@ -71,11 +75,23 @@ export function ReserveDetail(props: IReserveDetailProps) {
   };
 
   return (
-    <IonContent>
-      <IonGrid style={{ width: "100%" }}>
+    <IonContent className="ion-padding">
+      <IonGrid style={{ width: "100%", maxWidth: '800px', minHeight: '100%' }}>
         <IonRow>
-          <IonCol
-            size="10"
+          <IonCol size="10"></IonCol>
+          <IonCol size="2" className="ion-text-end">
+            <IonButton
+              fill="clear"
+              color="primary"
+              onClick={() => props.dismiss()}
+            >
+              <IonIcon icon={closeOutline}></IonIcon>
+            </IonButton>
+          </IonCol>
+        </IonRow>
+        <IonRow class="widgetWrapper ion-padding-top ion-justify-content-center">
+        <IonCol
+            size-md="12"
             class="ion-text-start ion-padding"
             style={{
               display: "flex",
@@ -83,23 +99,23 @@ export function ReserveDetail(props: IReserveDetailProps) {
               alignContent: "center",
             }}
           >
-            <div style={{ minWidth: "64px" }}>
+            <div style={{ minWidth: "84px", position: 'relative' }} className="ion-padding-start">
               <IonAvatar
                 style={{
-                  height: "64px",
-                  width: "64px",
-                  minHeight: "64px",
-                  minWidth: "64px",
+                  height: "84px",
+                  width: "84px",
+                  minHeight: "84px",
+                  minWidth: "84px",
                 }}
               >
                 <IonImg src={reserve.logo}></IonImg>
               </IonAvatar>
               <IonIcon
                 style={{
-                  fontSize: "1.3rem",
+                  fontSize: "1.6rem",
                   transform: "translateX(-0.2rem)",
                   position: "absolute",
-                  bottom: "0.15rem",
+                  bottom: "0rem",
                 }}
                 src={
                   CHAIN_AVAILABLES.find((c) => c.id === reserve.chainId)?.logo
@@ -109,7 +125,9 @@ export function ReserveDetail(props: IReserveDetailProps) {
             <IonLabel class="ion-padding-start">
               <h2>
                 {reserve?.symbol}
-                <small style={{ display: "block" }}>{reserve.name}</small>
+                <small style={{ display: "block" }}>
+                  {CHAIN_AVAILABLES.find((c) => c.id === reserve.chainId)?.name} network
+                </small>
               </h2>
               {(reserve?.usageAsCollateralEnabled === false ||
                 reserve.isIsolated === true) && (
@@ -121,26 +139,17 @@ export function ReserveDetail(props: IReserveDetailProps) {
               )}
             </IonLabel>
           </IonCol>
-          <IonCol size="2" className="ion-text-end">
-            <IonButton
-              fill="clear"
-              color="primary"
-              onClick={() => props.dismiss()}
-            >
-              <IonIcon icon={closeOutline}></IonIcon>
-            </IonButton>
-          </IonCol>
-        </IonRow>
-        <IonRow class="ion-padding-top ion-justify-content-center">
           {!reserve.usageAsCollateralEnabled && (
             <IonCol
               size-md="12"
               class="ion-padding ion-margin-bottom ion-text-center"
             >
-              <IonText color="warning">
-                This asset can not be used as collateral. Providing liquidity
-                with this asset will not incrase your borrowing capacity.
-              </IonText>
+              <WarningBox>
+                <>
+                  This asset can not be used as collateral. <br/>Providing liquidity
+                  with this asset will not incrase your borrowing capacity.
+                </>
+              </WarningBox>
             </IonCol>
           )}
           {reserve.isIsolated === true && (
@@ -148,13 +157,16 @@ export function ReserveDetail(props: IReserveDetailProps) {
               size-md="12"
               class="ion-padding ion-margin-bottom ion-text-center"
             >
-              <IonText color="warning">
-                This asset can only be used as collateral in isolation mode
-                only. <br />
-                In Isolation mode you cannot supply other assets as collateral
-                for borrowing. Assets used as collateral in Isolation mode can
-                only be borrowed to a specific debt ceiling
-              </IonText>
+              <WarningBox>
+                <>
+                  This asset can only be used as collateral in isolation mode
+                  only. <br />
+                  In Isolation mode you cannot supply other assets as collateral
+                  for borrowing. <br />
+                  Assets used as collateral in Isolation mode can
+                  only be borrowed to a specific debt ceiling               
+                </>
+              </WarningBox>
             </IonCol>
           )}
           <IonCol size-md="6" class="ion-padding ion-text-center">
