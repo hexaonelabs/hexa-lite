@@ -69,7 +69,9 @@ import { getMaxAmountAvailableToSupply } from "../utils/getMaxAmountAvailableToS
 import { getMaxAmountAvailableToBorrow } from "../utils/getMaxAmountAvailableToBorrow";
 import { getMaxAmountAvailableToWithdraw } from "../utils/getMaxAmountAvailableToWithdraw";
 import { CHAIN_DEFAULT } from "../constants/chains";
-import { PoolAccordion } from "../components/PoolAccordionGroup";
+import { PoolAccordionGroup } from "../components/PoolAccordionGroup";
+import { IReserve } from "../interfaces/reserve.interface";
+import { PoolHeaderList } from "../components/PoolHeaderList";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -114,7 +116,7 @@ export const DefiContainer = ({
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const { user, assets } = useUser();
   const { ethereumProvider } = useEthersProvider();
-  const { poolReserves, markets, totalTVL, refresh, userSummaryAndIncentives } =
+  const { poolGroups, poolReserves, markets, totalTVL, refresh, userSummaryAndIncentives } =
     useAave();
   console.log("[INFO] {{DefiContainer}} userSummaryAndIncentives: ", {
     userSummaryAndIncentives,
@@ -173,13 +175,13 @@ export const DefiContainer = ({
         totalBorrowsUSD,
       }) => {
         const { underlyingAsset } = reserve;
-        const { balance: walletBalance = 0 } =
-          assets?.find(
-            ({ contractAddress, chain = {} }) =>
-              contractAddress?.toLocaleLowerCase() ===
-                underlyingAsset?.toLocaleLowerCase() &&
-              chain?.id === markets?.CHAIN_ID
-          ) || {};
+        // const { balance: walletBalance = 0 } =
+        //   assets?.find(
+        //     ({ contractAddress, chain = {} }) =>
+        //       contractAddress?.toLocaleLowerCase() ===
+        //         underlyingAsset?.toLocaleLowerCase() &&
+        //       chain?.id === markets?.CHAIN_ID
+        //   ) || {};
 
         const supplyPoolRatioInPercent = getPercent(
           valueToBigNumber(reserve.totalLiquidityUSD).toNumber(),
@@ -195,7 +197,7 @@ export const DefiContainer = ({
           borrowBalanceUsd: Number(totalBorrowsUSD),
           supplyBalance: Number(underlyingBalance),
           supplyBalanceUsd: Number(underlyingBalanceUSD),
-          walletBalance,
+          // walletBalance,
           logo: getAssetIconUrl(reserve),
           supplyPoolRatioInPercent,
           borrowPoolRatioInPercent,
@@ -214,7 +216,7 @@ export const DefiContainer = ({
     100 - getPercent(totalBorrowsUsd, totalCollateralUsd);
   const progressBarFormatedValue = percentBorrowingCapacity / 100;
 
-  return !reserves || reserves.length === 0 ? (
+  return !poolGroups || poolGroups.length === 0 ? (
     <IonGrid class="ion-padding">
       <IonRow class="ion-padding">
         <IonCol size="12" class="ion-text-center ion-padding">
@@ -222,7 +224,7 @@ export const DefiContainer = ({
         </IonCol>
       </IonRow>
     </IonGrid>
-  ) : markets && (
+  ) : (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "8rem" }}>
       <IonRow class="ion-justify-content-center ion-padding">
         <IonCol size="12" class="ion-text-center">
@@ -370,69 +372,19 @@ export const DefiContainer = ({
             >
               Available Markets
             </h3>
-            <IonGrid>
-              <IonRow class="ion-align-items-center ion-justify-content-between">
-                <IonCol size-md="3" class="ion-padding-start">
-                  <IonLabel color="medium">
-                    <h3>Asset</h3>
-                  </IonLabel>
-                </IonCol>
-                <IonCol
-                  size="auto"
-                  size-md="1"
-                  class="ion-text-center ion-hide-md-down"
-                >
-                  <IonLabel color="medium">
-                    <h3>Protocol</h3>
-                  </IonLabel>
-                </IonCol>
-                <IonCol
-                  size="auto"
-                  size-md="2"
-                  class="ion-text-end  ion-hide-md-down"
-                >
-                  <IonLabel color="medium">
-                    <h3 style={{ marginRight: "0.6rem" }}>Deposits</h3>
-                  </IonLabel>
-                </IonCol>
-                <IonCol
-                  size="auto"
-                  size-md="2"
-                  class="ion-text-end  ion-hide-md-down"
-                >
-                  <IonLabel color="medium">
-                    <h3 style={{ marginRight: "1.2rem" }}>Borrows</h3>
-                  </IonLabel>
-                </IonCol>
-                <IonCol size="auto" size-md="2" class="ion-text-end">
-                  <IonLabel color="medium">
-                    <h3 style={{ marginRight: "1.8rem" }}>Deposit APY</h3>
-                  </IonLabel>
-                </IonCol>
-                <IonCol
-                  size="auto"
-                  size-md="2"
-                  class="ion-text-end ion-hide-sm-down"
-                >
-                  <IonLabel color="medium">
-                    <h3 style={{ paddingRight: "2rem" }}>Borrow APY</h3>
-                  </IonLabel>
-                </IonCol>
-              </IonRow>
-            </IonGrid>
+            {/* list header */}
+            <PoolHeaderList titles={[
+              'Assets', 'Networks', 'Total deposits', ' Total borrows',  'Best deposit APY', 'Best borrow APY', 
+            ]} />
             <IonAccordionGroup>
-              {reserves
-                //.filter((reserve) => Number(reserve.borrowCapUSD) > 0)
-                .sort((a, b) => b.borrowBalance - a.borrowBalance)
-                .sort((a, b) => +b.supplyBalance - +a.supplyBalance)
-                .map((reserve, index) => (
-                  <PoolAccordion 
+              {
+                poolGroups.map((poolGroup, index) => (
+                  <PoolAccordionGroup 
                     key={index} 
                     handleSegmentChange={handleSegmentChange}
                     refresh={refresh}
-                      reserve={reserve} 
-                      markets={markets}
-                      userSummary={userSummaryAndIncentives} />
+                    poolGroup={poolGroup}
+                    userSummary={userSummaryAndIncentives} />
                 ))}
             </IonAccordionGroup>
           </div>
