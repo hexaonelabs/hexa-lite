@@ -407,7 +407,9 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
 
       <div slot="content">
         <IonGrid className="ion-no-padding">
-          <IonRow class="ion-no-padding ion-padding-start ion-align-items-center ion-justify-content-between">
+          <IonRow 
+            style={{paddingRight: "85px"}}
+            class="ion-no-padding ion-padding-start ion-align-items-center ion-justify-content-between">
             <IonCol size-md="2" class="ion-text-start ion-padding-start">
               <IonLabel color="medium">
                 <h3>Asset</h3>
@@ -451,12 +453,12 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
               class="ion-text-end ion-hide-md-down"
             >
               <IonLabel color="medium">
-                <h3>
+                <h3 className="ion-padding-end">
                   Borrow APY
                 </h3>
               </IonLabel>
             </IonCol>
-            <IonCol size="1" className="ion-text-end"></IonCol>
+            {/* <IonCol size="1" className="ion-text-end"></IonCol> */}
           </IonRow>
         </IonGrid>
         {poolGroup.reserves.map((r, i) => (
