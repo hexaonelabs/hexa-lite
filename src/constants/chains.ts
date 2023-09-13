@@ -11,14 +11,14 @@ export interface IChain {
 };
 
 export const CHAIN_AVAILABLES: IChain[] = [
-  // {
-  //   id: 1,
-  //   value: 'eth',
-  //   name: 'Ethereum',
-  //   nativeSymbol: 'ETH',
-  //   logo: '/assets/cryptocurrency-icons/eth.svg',
-  //   rpcUrl: 'https://eth-mainnet-public.unifra.io' // "https://rpc.ankr.com/eth"
-  // },
+  {
+    id: 1,
+    value: 'eth',
+    name: 'Ethereum',
+    nativeSymbol: 'ETH',
+    logo: '/assets/cryptocurrency-icons/eth.svg',
+    rpcUrl: 'https://eth-mainnet-public.unifra.io' // "https://rpc.ankr.com/eth"
+  },
   // {
   //   id: 56,
   //   value: 'bsc',
