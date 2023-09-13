@@ -96,66 +96,66 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
   const superMaxAPRstETH = ((baseAPRstETH * (maxLeverageFactor)) - (Number(poolReserveWETH?.variableBorrowAPR||0) * 100)) || DEFAULT_MAX_APY;
   console.log('APY details:', {maxLeverageFactor, baseAPRstETH, superMaxAPRstETH});
   
-  useEffect(() => {
-    setState((prev) => ({
-      ...prev,
-      maxLeverageFactor,
-      userLiquidationThreshold,
-      name: "ETH Optimized",
-      type: 'staking',
-      icon: getAssetIconUrl({symbol: 'ETH'}),
-      apys: [baseAPRstETH.toFixed(2), superMaxAPRstETH.toFixed(2)],
-      locktime: 0,
-      providers: ['aave', 'lido'],
-      assets: ['WETH', 'wstETH'],
-      isStable: true,
-      details:{
-        description: `This strategy will swap your ETH for wstETH and stake it in Aave to create collateral for the protocol that allow you to borrow ETH to leveraged against standard ETH to gain an increased amount of ETH POS staking reward.`
-      },
-      chainId: markets?.CHAIN_ID as number,
-      poolAddress: markets?.POOL as string,
-      gateway: markets?.WETH_GATEWAY as string,
-      userSummaryAndIncentives: userSummaryAndIncentives as FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>,
-      step: [
-        {
-          type: 'swap',
-          from: 'WETH',
-          to: 'wstETH',
-          title: `Swap WETH to wstETH`,
-          description: `By swapping WETH to wstETH you will incrase your WETH holdings by ${baseAPRstETH.toFixed(2)}% APY revard from staking WETH on Lido.`,
-          protocol: 'lido',
-        },
-        {
-          type: 'deposit',
-          from: 'wstETH',
-          to: 'WETH',
-          title: 'Deposit wstETH as collateral',
-          description: `By deposit wstETH as collateral on AAVE you will be able to borrow up to ${userLiquidationThreshold*100}% of your wstETH value in WETH`,
-          protocol: 'aave',
-          reserve: poolReserveWSTETH as (ReserveDataHumanized & FormatReserveUSDResponse),
-        }, {
-          type: 'borrow',
-          from: 'WETH',
-          to: 'WETH',
-          title: 'Borrow WETH',
-          description: `By borrowing WETH on AAVE you will be able to increase your WETH holdings and use it for laverage stacking with wstETH APY reward.`,
-          protocol: 'aave',
-          reserve: poolReserveWETH as (ReserveDataHumanized & FormatReserveUSDResponse),
-        }
-      ]
-    }));
-  }, [
-    poolReserves, 
-    markets,
-    userSummaryAndIncentives,
-    baseAPRstETH,
-    superMaxAPRstETH,
-    poolReserveWETH,
-    poolReserveWSTETH,
-    userLiquidationThreshold,
-    maxLeverageFactor,
-    diffAPR
-  ]);
+  // useEffect(() => {
+  //   setState((prev) => ({
+  //     ...prev,
+  //     maxLeverageFactor,
+  //     userLiquidationThreshold,
+  //     name: "ETH Optimized",
+  //     type: 'staking',
+  //     icon: getAssetIconUrl({symbol: 'ETH'}),
+  //     apys: [baseAPRstETH.toFixed(2), superMaxAPRstETH.toFixed(2)],
+  //     locktime: 0,
+  //     providers: ['aave', 'lido'],
+  //     assets: ['WETH', 'wstETH'],
+  //     isStable: true,
+  //     details:{
+  //       description: `This strategy will swap your ETH for wstETH and stake it in Aave to create collateral for the protocol that allow you to borrow ETH to leveraged against standard ETH to gain an increased amount of ETH POS staking reward.`
+  //     },
+  //     chainId: markets?.CHAIN_ID as number,
+  //     poolAddress: markets?.POOL as string,
+  //     gateway: markets?.WETH_GATEWAY as string,
+  //     userSummaryAndIncentives: userSummaryAndIncentives as FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>,
+  //     step: [
+  //       {
+  //         type: 'swap',
+  //         from: 'WETH',
+  //         to: 'wstETH',
+  //         title: `Swap WETH to wstETH`,
+  //         description: `By swapping WETH to wstETH you will incrase your WETH holdings by ${baseAPRstETH.toFixed(2)}% APY revard from staking WETH on Lido.`,
+  //         protocol: 'lido',
+  //       },
+  //       {
+  //         type: 'deposit',
+  //         from: 'wstETH',
+  //         to: 'WETH',
+  //         title: 'Deposit wstETH as collateral',
+  //         description: `By deposit wstETH as collateral on AAVE you will be able to borrow up to ${userLiquidationThreshold*100}% of your wstETH value in WETH`,
+  //         protocol: 'aave',
+  //         reserve: poolReserveWSTETH as (ReserveDataHumanized & FormatReserveUSDResponse),
+  //       }, {
+  //         type: 'borrow',
+  //         from: 'WETH',
+  //         to: 'WETH',
+  //         title: 'Borrow WETH',
+  //         description: `By borrowing WETH on AAVE you will be able to increase your WETH holdings and use it for laverage stacking with wstETH APY reward.`,
+  //         protocol: 'aave',
+  //         reserve: poolReserveWETH as (ReserveDataHumanized & FormatReserveUSDResponse),
+  //       }
+  //     ]
+  //   }));
+  // }, [
+  //   poolReserves, 
+  //   markets,
+  //   userSummaryAndIncentives,
+  //   baseAPRstETH,
+  //   superMaxAPRstETH,
+  //   poolReserveWETH,
+  //   poolReserveWSTETH,
+  //   userLiquidationThreshold,
+  //   maxLeverageFactor,
+  //   diffAPR
+  // ]);
 
   useEffect(() => {
     const {signal, abort} = new AbortController()
