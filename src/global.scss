@@ -142,7 +142,7 @@ ion-popover.profil-popover {
 }
 
 
-.ion-accordion-toggle-icon{
+.ion-accordion-toggle-icon {
   color: var(--ion-color-primary);
   transform: scale(0.8);
 }
@@ -374,4 +374,38 @@ ion-accordion {
 
 .css-nub5al-MuiScopedCssBaseline-root {
   // background-color: #515173!important;
+}
+
+ion-accordion {
+  *[slot="header"] {
+    --padding-top: 0.8rem;
+    --padding-bottom: 0.8rem;
+
+    .poolItemList {
+      font-size: 18px;
+    }
+  }
+  *[slot="content"] {
+    > ion-grid {
+      background: rgba(var(--ion-color-light-rgb), 0.8) !important;
+      margin: 0rem;
+
+      h3 {
+        font-size: 12px!important;
+      }
+    }
+
+    ion-item {
+      --background: rgba(var(--ion-color-light-rgb), 0.6) !important;
+      --padding-top: 0.4rem;
+      --padding-bottom: 0.4rem;
+      .poolItemList {
+        font-size: 14px;
+      }
+    }
+
+    // > ion-item {
+    //   --padding-top: 0.8rem;
+    // }
+  }
 }
