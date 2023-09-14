@@ -21,7 +21,7 @@ import {
 import { closeSharp } from "ionicons/icons";
 import { useRef, useState } from "react";
 import { getMaxAmount } from "../utils/getMaxAmount";
-import { IReserve } from "../interfaces/reserve.interface";
+import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
 import { WarningBox } from "./WarningBox";
 
 export function LoanFormModal({
@@ -34,9 +34,7 @@ export function LoanFormModal({
     reserve: IReserve;
   };
   onDismiss: (data?: string | null | undefined | number, role?: string) => void;
-  userSummary: FormatUserSummaryAndIncentivesResponse<
-    ReserveDataHumanized & FormatReserveUSDResponse
-  >;
+  userSummary: IUserSummary;
 }) {
   const { reserve, actionType } = selectedReserve || {
     reserve: null,
@@ -67,7 +65,7 @@ export function LoanFormModal({
     <IonGrid className="ion-padding" style={{ width: "100%" }}>
       <IonRow class="ion-align-items-top ion-margin-bottom">
         <IonCol size="10">
-          <h3>{readableAction}</h3>
+          <h3>{readableAction} {reserve.symbol}</h3>
         </IonCol>
         <IonCol size="2" class="ion-text-end">
           <IonButton
