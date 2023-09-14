@@ -196,6 +196,7 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const loadUserSummary = async () => {
+    console.log("[INFO] {{AaveProvider}} loadUserSummary... ");
     if (user && state.markets && state.markets.length > 0) {
       const userSummaryAndIncentivesGroup = await Promise.all(
         state.markets.map((market) =>
@@ -270,7 +271,15 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
           userSummaryAndIncentivesGroup,
           poolGroups,
         }));
+        console.log("[INFO] {{AaveProvider}} loadUserSummary loaded " );
       }
+    } else if (!user && state.userSummaryAndIncentivesGroup) {
+      console.log("[INFO] {{AaveProvider}} loadUserSummary user not loged " );
+      setState((prev) => ({
+        ...prev,
+        userSummaryAndIncentivesGroup: null,
+      }));
+      init();
     }
   };
 
