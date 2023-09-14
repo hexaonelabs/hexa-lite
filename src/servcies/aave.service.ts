@@ -22,6 +22,7 @@ import {
 } from "@aave/math-utils";
 import { ChainId } from "@aave/contract-helpers";
 import { CHAIN_AVAILABLES } from "../constants/chains";
+import { IUserSummary } from "../interfaces/reserve.interface";
 
 const submitTransaction = async (ops: {
   provider: ethers.providers.Web3Provider; // Signing transactions requires a wallet provider
@@ -364,13 +365,15 @@ export const getPools = async (ops: {
 };
 
 export const getUserSummary = async (ops: {
-  provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
   user: string;
   currentTimestamp: number;
 }) => {
-  const { provider, market, user, currentTimestamp } = ops;
+  const { market, user, currentTimestamp } = ops;
   const chainId = market.CHAIN_ID;
+  const provider = new ethers.providers.JsonRpcProvider(
+    CHAIN_AVAILABLES.find((c) => c.id === chainId)?.rpcUrl||''
+  );
   const poolDataProviderContract = new UiPoolDataProvider({
     uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
     provider,
@@ -417,12 +420,14 @@ export const getUserSummary = async (ops: {
 };
 
 export const getContractData = async (ops: {
-  provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
   user: string;
 }) => {
-  const { provider, market, user } = ops;
-
+  const { market, user } = ops;
+  const chainId = market.CHAIN_ID;
+  const provider = new ethers.providers.JsonRpcProvider(
+    CHAIN_AVAILABLES.find((c) => c.id === chainId)?.rpcUrl||''
+  );
   // View contract used to fetch all reserves data (including market base currency data), and user reserves
   // Using Aave V3 Eth Mainnet address for demo
   const poolDataProviderContract = new UiPoolDataProvider({
@@ -551,16 +556,15 @@ const getWalletBalance = async (ops: {
 };
 
 export const getUserSummaryAndIncentives = async (ops: {
-  provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
   market: MARKETTYPE;
   currentTimestamp: number;
   user: string;
-}) => {
+}): Promise<IUserSummary|null> => {
   const { currentTimestamp } = ops;
   const { reserveIncentives, reserves, userIncentives, userReserves } =
     await getContractData(ops);
   if (!userReserves || !userIncentives) {
-    return null;
+    throw new Error("userReserves or userIncentives not found");
   }
   const reservesArray = reserves.reservesData;
   const baseCurrencyData = reserves.baseCurrencyData;
@@ -592,7 +596,8 @@ export const getUserSummaryAndIncentives = async (ops: {
     ...formatedUserSummaryAndIncentives,
     userReservesData: formatedUserSummaryAndIncentives.userReservesData.filter(
       ({reserve}) => reserve.isActive && !reserve.isFrozen
-    )
+    ),
+    chainId: ops.market.CHAIN_ID,
   };
 };
 
