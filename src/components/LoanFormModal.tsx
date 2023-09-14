@@ -20,6 +20,9 @@ import {
 } from "@ionic/react";
 import { closeSharp } from "ionicons/icons";
 import { useRef, useState } from "react";
+import { getMaxAmount } from "../utils/getMaxAmount";
+import { IReserve } from "../interfaces/reserve.interface";
+import { WarningBox } from "./WarningBox";
 
 export function LoanFormModal({
   onDismiss,
@@ -28,17 +31,7 @@ export function LoanFormModal({
 }: {
   selectedReserve: {
     actionType: "deposit" | "withdraw" | "borrow" | "repay";
-    reserve:
-      | (ReserveDataHumanized & {
-          borrowBalance: number;
-          borrowBalanceUsd: number;
-          supplyBalance: number;
-          supplyBalanceUsd: number;
-          maxAmount: number | undefined;
-          logo: string;
-          priceInUSD: string;
-        })
-      | null;
+    reserve: IReserve;
   };
   onDismiss: (data?: string | null | undefined | number, role?: string) => void;
   userSummary: FormatUserSummaryAndIncentivesResponse<
@@ -50,9 +43,15 @@ export function LoanFormModal({
     actionType: null,
   };
   const inputRef = useRef<HTMLIonInputElement>(null);
-  // const [ amount, setAmount ] = useState<number|undefined>(0);
+  const [ amount, setAmount ] = useState<number|undefined>(0);
   const [healthFactor, setHealthFactor] = useState<number | undefined>(
     +userSummary.healthFactor
+  );
+  const maxAmount = getMaxAmount(
+    actionType,
+    reserve,
+    userSummary,
+    reserve.chainId
   );
 
   const displayRiskCheckbox =
@@ -101,7 +100,7 @@ export function LoanFormModal({
                 onClick={() => {
                   const el = inputRef.current;
                   if (el) {
-                    (el as any).value = reserve?.maxAmount || 0;
+                    (el as any).value = maxAmount || 0;
 
                     const newHealthFactor =
                       calculateHealthFactorFromBalancesBigUnits({
@@ -132,7 +131,7 @@ export function LoanFormModal({
                 </IonText>
                 <IonText color="medium">
                   <small style={{ margin: "0" }}>
-                    Max :{reserve?.maxAmount?.toFixed(6)}
+                    Max :{maxAmount.toFixed(6)}
                   </small>
                 </IonText>
               </div>
@@ -143,17 +142,17 @@ export function LoanFormModal({
                 style={{ fontSize: "1.5rem" }}
                 placeholder="0"
                 type="number"
-                max={reserve?.maxAmount}
+                max={maxAmount}
                 min={0}
                 debounce={100}
                 onIonInput={(e) => {
                   const value = (e.target as any).value;
                   if (
-                    reserve?.maxAmount &&
+                    maxAmount &&
                     value &&
-                    Number(value) > reserve?.maxAmount
+                    Number(value) > maxAmount
                   ) {
-                    (e.target as any).value = reserve?.maxAmount;
+                    (e.target as any).value = maxAmount;
                   }
                   if (value && Number(value) < 0) {
                     (e.target as any).value = "0";
@@ -192,13 +191,13 @@ export function LoanFormModal({
             class="ion-text-center ion-margin-bottom"
             style={{ maxWidth: 400 }}
           >
-            <IonText color="danger">
-              <small>
+            <WarningBox>
+              <p>
                 {readableAction} this amount will reduce your health factor and
                 increase risk of liquidation. Add more collateral to increase
                 your health factor.
-              </small>
-            </IonText>
+              </p>
+            </WarningBox>
             {/* <IonLabel>
                   Health factor
                 </IonLabel>
@@ -226,6 +225,7 @@ export function LoanFormModal({
             expand="block"
             onClick={() => onDismiss(inputRef.current?.value, "confirm")}
             strong={true}
+            color="gradient"
           >
             Confirm
           </IonButton>
