@@ -16,20 +16,22 @@ import {
 import { openOutline, warningOutline } from "ionicons/icons";
 import { useUser } from "../context/UserContext";
 import { getReadableAmount } from "../utils/getReadableAmount";
-import { IReserve } from "../interfaces/reserve.interface";
+import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { ReserveDetail } from "./ReserveDetail";
 
 interface IPoolItemListProps {
   reserve: IReserve;
+  userSummary: IUserSummary | undefined;
   chainId: number;
   iconSize: string;
 }
 export function PoolItemList(props: IPoolItemListProps) {
-  const { reserve, iconSize, chainId } = props;
+  const { reserve, iconSize, chainId, userSummary } = props;
   const { user } = useUser();
   const [present, dismiss] = useIonModal(ReserveDetail, {
     reserve,
+    userSummary,
     dismiss: () => dismiss(),
     // onDismiss: (data: string, role: string) => dismiss(data, role),
   });
