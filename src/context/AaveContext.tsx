@@ -26,7 +26,7 @@ import {
 import { useCurrentTimestamp } from "../hooks/useCurrentTimestamp";
 import dayjs from "dayjs";
 import { CHAIN_AVAILABLES } from "../constants/chains";
-import { IPoolGroup, IReserve } from "../interfaces/reserve.interface";
+import { IPoolGroup, IReserve, IUserSummary } from "../interfaces/reserve.interface";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 
 export type ComputedReserveData = ReturnType<
@@ -60,6 +60,7 @@ type AaveContextType = {
     ReserveDataHumanized & FormatReserveUSDResponse
   > | null;
   userSummaryAndIncentives: FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>|null;
+  userSummaryAndIncentivesGroup: IUserSummary[] | null;
   totalTVL: number | null;
   refresh: () => Promise<void>;
 };
@@ -71,6 +72,7 @@ const AaveContextDefault: AaveContextType = {
   userSummary: null,
   totalTVL: null,
   userSummaryAndIncentives: null,
+  userSummaryAndIncentivesGroup: null,
   refresh: stub,
 };
 
@@ -82,7 +84,7 @@ export const useAave = () => useContext(AaveContext);
 
 // Provider component that wraps parts of the app that need user context.
 export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
-  // const { user } = useUser();
+  const { user } = useUser();
   const currentTimestamp = dayjs().unix(); // useCurrentTimestamp(5);
   const [state, setState] = useState<AaveContextType>(AaveContextDefault);
 
@@ -182,9 +184,37 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
     }));
   };
 
+  const loadUserSummary = async () => {
+    
+    if (user && state.markets && state.markets.length > 0) {
+      const userSummaryAndIncentivesGroup = await Promise.all(
+        state.markets.map(
+          (market) => getUserSummaryAndIncentives({ market, currentTimestamp, user })
+        )
+      )
+      .then(r => r as IUserSummary[])
+      .catch((error) => {
+        console.error("[ERROR] {{AaveProvider}} fetchUserSummaryAndIncentives: ", error);
+        return null;
+      });
+      console.log('[INFO] {{AaveProvider}} fetchUserSummaryAndIncentives: ', {userSummaryAndIncentivesGroup});
+      if (userSummaryAndIncentivesGroup) {
+        setState((prev) => ({
+          ...prev,
+          userSummaryAndIncentivesGroup
+        }));
+      }
+    }
+  
+  };
+
   useEffect(() => {
     init();
   }, []);
+
+  useEffect(() => {
+    loadUserSummary();
+  }, [user, state.markets]);
 
   return (
     <AaveContext.Provider
