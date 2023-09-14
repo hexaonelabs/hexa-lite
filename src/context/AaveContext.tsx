@@ -299,11 +299,24 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
         userSummaryAndIncentivesGroup: null,
       }));
       init();
+    } else {
+      console.log("[INFO] {{AaveProvider}} loadUserSummary nothing to do " );
     }
   };
 
   useEffect(() => {
     init();
+    fetchTVL()
+    .then((totalTVL) => {
+      setState((prev) => ({
+        ...prev,
+        totalTVL,
+      }));
+    })
+    .catch((error) => {
+      console.error("[ERROR] {{AaveProvider}} fetchTVL: ", error);
+      return -1;
+    });
   }, []);
 
   useEffect(() => {
