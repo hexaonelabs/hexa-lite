@@ -87,19 +87,15 @@ export function ReserveDetail(props: IReserveDetailProps) {
         <IonIcon icon={closeOutline}></IonIcon>
       </IonButton>
       <IonGrid style={{ width: "100%", maxWidth: '800px', minHeight: '100%', marginTop: '2rem'}}>
-        <IonRow>
-          <IonCol size="10"></IonCol>
-          <IonCol size="2" className="ion-text-end">
-          </IonCol>
-        </IonRow>
         <IonRow class="widgetWrapper ion-padding-top ion-justify-content-center">
-        <IonCol
+          <IonCol
             size-md="12"
-            class="ion-text-start ion-padding"
+            class="ion-text-start ion-padding horizontalLineBottom"
             style={{
               display: "flex",
               alignItems: "center",
               alignContent: "center",
+              paddingBottom: '32px'
             }}
           >
             <div style={{ minWidth: "84px", position: 'relative' }} className="ion-padding-start">
@@ -145,7 +141,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
           {!reserve.usageAsCollateralEnabled && (
             <IonCol
               size-md="12"
-              class="ion-padding ion-margin-bottom ion-text-center"
+              class="ion-padding ion-text-center horizontalLineBottom"
             >
               <WarningBox>
                 <>
@@ -158,7 +154,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
           {reserve.isIsolated === true && (
             <IonCol
               size-md="12"
-              class="ion-padding ion-margin-bottom ion-text-center"
+              class="ion-padding ion-text-center horizontalLineBottom"
             >
               <WarningBox>
                 <>
@@ -174,10 +170,12 @@ export function ReserveDetail(props: IReserveDetailProps) {
           )}
           <IonCol size-md="6" class="ion-padding ion-text-center">
             <div
+              className="ion-margin-top"
               style={{
                 maxWidth: 200,
                 maxHeight: 200,
-                margin: "auto",
+                marginLeft: "auto",
+                marginRight: "auto",
               }}
             >
               <CircularProgressbarWithChildren
@@ -261,14 +259,14 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     <>
                       {/* <IonButton
                           fill="solid"
-                          color="primary"
+                          color="gradient"
                           onClick={() => handleEvents("swap", reserve)}
                         >
                           Exchange assets
                         </IonButton> */}
                       {/* <IonButton
                           fill="solid"
-                          color="primary"
+                          color="gradient"
                           onClick={() => handleEvents("fiat", reserve)}
                         >
                           Buy assets
@@ -278,7 +276,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     <>
                       <IonButton
                         fill="solid"
-                        color="primary"
+                        color="gradient"
                         disabled={
                           !reserve?.supplyBalance || +reserve.supplyBalance <= 0
                             ? true
@@ -290,7 +288,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                       </IonButton>
                       <IonButton
                         fill="solid"
-                        color="primary"
+                        color="gradient"
                         disabled={
                           supplyPoolRatioInPercent > 99
                             ? true
@@ -311,12 +309,14 @@ export function ReserveDetail(props: IReserveDetailProps) {
           </IonCol>
 
           {reserve.borrowingEnabled && (
-            <IonCol size-md="6" class="ion-padding ion-text-center">
+            <IonCol size-md="6" class="verticalLineBefore ion-padding ion-text-center">
               <div
+                className="ion-margin-top"
                 style={{
                   maxWidth: 200,
                   maxHeight: 200,
-                  margin: "auto",
+                  marginLeft: "auto",
+                  marginRight: "auto",
                 }}
               >
                 <CircularProgressbarWithChildren
@@ -402,7 +402,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                   <>
                     <IonButton
                       fill="solid"
-                      color="primary"
+                      color="gradient"
                       disabled={
                         !reserve?.borrowBalance || reserve.borrowBalance <= 0
                           ? true
@@ -414,7 +414,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     </IonButton>
                     <IonButton
                       fill="solid"
-                      color="primary"
+                      color="gradient"
                       disabled={
                         borrowPoolRatioInPercent > 99
                           ? true
