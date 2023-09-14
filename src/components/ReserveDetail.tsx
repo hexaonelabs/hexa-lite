@@ -62,11 +62,11 @@ export function ReserveDetail(props: IReserveDetailProps) {
   const borrowPoolRatioInPercent = getPercent(
     valueToBigNumber(reserve.totalDebtUSD).toNumber(),
     valueToBigNumber(reserve.borrowCapUSD).toNumber()
-  );;
+  );
   const supplyPoolRatioInPercent = getPercent(
     valueToBigNumber(reserve.totalLiquidityUSD).toNumber(),
     valueToBigNumber(reserve.supplyCapUSD).toNumber()
-  );;
+  );
   const percentBorrowingCapacity = 100 - getPercent(0, 0);
 
   const handleOpenModal = (type: string, reserve: IReserve) => {
@@ -86,7 +86,14 @@ export function ReserveDetail(props: IReserveDetailProps) {
       >
         <IonIcon icon={closeOutline}></IonIcon>
       </IonButton>
-      <IonGrid style={{ width: "100%", maxWidth: '800px', minHeight: '100%', marginTop: '2rem'}}>
+      <IonGrid
+        style={{
+          width: "100%",
+          maxWidth: "800px",
+          minHeight: "100%",
+          marginTop: "2rem",
+        }}
+      >
         <IonRow class="widgetWrapper ion-padding-top ion-justify-content-center">
           <IonCol
             size-md="12"
@@ -95,10 +102,13 @@ export function ReserveDetail(props: IReserveDetailProps) {
               display: "flex",
               alignItems: "center",
               alignContent: "center",
-              paddingBottom: '32px'
+              paddingBottom: "32px",
             }}
           >
-            <div style={{ minWidth: "84px", position: 'relative' }} className="ion-padding-start">
+            <div
+              style={{ minWidth: "84px", position: "relative" }}
+              className="ion-padding-start"
+            >
               <IonAvatar
                 style={{
                   height: "84px",
@@ -125,7 +135,8 @@ export function ReserveDetail(props: IReserveDetailProps) {
               <h2>
                 {reserve?.symbol}
                 <small style={{ display: "block" }}>
-                  {CHAIN_AVAILABLES.find((c) => c.id === reserve.chainId)?.name} network
+                  {CHAIN_AVAILABLES.find((c) => c.id === reserve.chainId)?.name}{" "}
+                  network
                 </small>
               </h2>
               {(reserve?.usageAsCollateralEnabled === false ||
@@ -145,8 +156,9 @@ export function ReserveDetail(props: IReserveDetailProps) {
             >
               <WarningBox>
                 <>
-                  This asset can not be used as collateral. <br/>Providing liquidity
-                  with this asset will not incrase your borrowing capacity.
+                  This asset can not be used as collateral. <br />
+                  Providing liquidity with this asset will not incrase your
+                  borrowing capacity.
                 </>
               </WarningBox>
             </IonCol>
@@ -162,8 +174,8 @@ export function ReserveDetail(props: IReserveDetailProps) {
                   only. <br />
                   In Isolation mode you cannot supply other assets as collateral
                   for borrowing. <br />
-                  Assets used as collateral in Isolation mode can
-                  only be borrowed to a specific debt ceiling               
+                  Assets used as collateral in Isolation mode can only be
+                  borrowed to a specific debt ceiling
                 </>
               </WarningBox>
             </IonCol>
@@ -309,7 +321,10 @@ export function ReserveDetail(props: IReserveDetailProps) {
           </IonCol>
 
           {reserve.borrowingEnabled && (
-            <IonCol size-md="6" class="verticalLineBefore ion-padding ion-text-center">
+            <IonCol
+              size-md="6"
+              class="verticalLineBefore ion-padding ion-text-center"
+            >
               <div
                 className="ion-margin-top"
                 style={{
