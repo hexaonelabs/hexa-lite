@@ -1,5 +1,5 @@
 import { ReserveDataHumanized } from "@aave/contract-helpers";
-import { FormatReserveUSDResponse } from "@aave/math-utils";
+import { FormatReserveUSDResponse, FormatUserSummaryAndIncentivesResponse } from "@aave/math-utils";
 
 export interface IReserve extends ReserveDataHumanized, FormatReserveUSDResponse {
       chainId: number;
@@ -21,4 +21,8 @@ export interface IPoolGroup {
       totalBorrowBalance: number;
       totalSupplyBalance: number;
       totalWalletBalance: number;
+}
+
+export interface IUserSummary extends FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>{
+      chainId: number;
 }
