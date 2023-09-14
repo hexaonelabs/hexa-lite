@@ -81,25 +81,6 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
   //   onDismiss: (data: string, role: string) => dismiss(data, role),
   // });
 
-  const totalBorrowsUsd = userSummaryAndIncentivesGroup
-  // get all `s.userReservesData` with same symbol from all network
-  ?.map(s => s.userReservesData?.findIndex(({reserve}) => reserve.symbol === poolGroup.symbol)
-      ? s.userReservesData?.find(({reserve}) => reserve.symbol === poolGroup.symbol)?.totalBorrowsUSD
-      : 0
-  )
-  .reduce((acc, cur) => {
-    const value = Number(cur);
-    return Number(acc) + value;
-  }, 0 as Number) || 0;
-
-  const totalSupplyBalance = userSummaryAndIncentivesGroup
-  // get all `s.userReservesData` with same symbol from all network
-  ?.map(s => s.userReservesData?.filter(({reserve}) => reserve.symbol === poolGroup.symbol))
-  ?.flat()
-  .reduce((acc, cur) => {
-    const value = Number(cur.underlyingBalance);
-    return acc + value;
-  }, 0 ) || 0;
 
   // function handleEvents(
   //   type: string,
@@ -358,14 +339,14 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
             </IonCol>
             <IonCol size="2" class="ion-text-end ion-hide-md-down">
               <IonLabel>
-                {totalSupplyBalance > 0
-                  ? (totalSupplyBalance).toFixed(6)
+                {poolGroup.totalSupplyBalance > 0
+                  ? (poolGroup.totalSupplyBalance).toFixed(6)
                   : "0.00"}
                 <br />
                 <IonText color="medium">
                   <small>
                     {getReadableAmount(
-                      totalSupplyBalance,
+                      poolGroup.totalSupplyBalance,
                       Number(poolGroup.reserves?.[0]?.priceInUSD),
                       "No deposit"
                     )}
