@@ -41,7 +41,7 @@ import { getPercent } from "../utils/utils";
 import { useState } from "react";
 import { getMaxAmount } from "../utils/getMaxAmount";
 import { PoolItemList } from "./PoolItemList";
-import { IPoolGroup, IReserve } from "../interfaces/reserve.interface";
+import { IPoolGroup, IReserve, IUserSummary } from "../interfaces/reserve.interface";
 import { PoolHeaderList } from "./PoolHeaderList";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 
@@ -50,13 +50,15 @@ interface IPoolAccordionProps {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
   markets?: MARKETTYPE;
   poolGroup: IPoolGroup;
+  userSummaryAndIncentivesGroup: IUserSummary[]|null;
+
   userSummary: FormatUserSummaryAndIncentivesResponse<
     ReserveDataHumanized & FormatReserveUSDResponse
   > | null;
 }
 
 export function PoolAccordionGroup(props: IPoolAccordionProps) {
-  const { refresh, handleSegmentChange, poolGroup, userSummary } = props;
+  const { refresh, handleSegmentChange, poolGroup, userSummaryAndIncentivesGroup } = props;
   const [state, setState] = useState<
     | {
         actionType: "deposit" | "withdraw" | "borrow" | "repay" | undefined;
@@ -79,211 +81,223 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
   //   onDismiss: (data: string, role: string) => dismiss(data, role),
   // });
 
-  const totalBorrowsUsd = Number(userSummary?.totalBorrowsUSD);
-  const totalCollateralUsd = Number(userSummary?.totalCollateralUSD);
+  const totalBorrowsUsd = userSummaryAndIncentivesGroup
+  // get all `s.userReservesData` with same symbol from all network
+  ?.map(s => s.userReservesData?.findIndex(({reserve}) => reserve.symbol === poolGroup.symbol)
+      ? s.userReservesData?.find(({reserve}) => reserve.symbol === poolGroup.symbol)?.totalBorrowsUSD
+      : 0
+  )
+  .reduce((acc, cur) => {
+    const value = Number(cur);
+    return Number(acc) + value;
+  }, 0 as Number) || 0;
 
-  // The % of your total borrowing power used.
-  // This is based on the amount of your collateral supplied (totalCollateralUSD) and the total amount that you can borrow (totalCollateralUSD - totalBorrowsUsd).
-  const percentBorrowingCapacity =
-    100 - getPercent(totalBorrowsUsd, totalCollateralUsd);
+  const totalSupplyBalance = userSummaryAndIncentivesGroup
+  // get all `s.userReservesData` with same symbol from all network
+  ?.map(s => s.userReservesData?.filter(({reserve}) => reserve.symbol === poolGroup.symbol))
+  ?.flat()
+  .reduce((acc, cur) => {
+    const value = Number(cur.underlyingBalance);
+    return acc + value;
+  }, 0 ) || 0;
 
-  function handleEvents(
-    type: string,
-    reserve: ReserveDataHumanized &
-      FormatReserveUSDResponse & {
-        borrowBalance: number;
-        borrowBalanceUsd: number;
-        supplyBalance: number;
-        supplyBalanceUsd: number;
-        walletBalance: number;
-        logo: string;
-        priceInUSD: string;
-      }
-  ) {
-    switch (true) {
-      case type === "swap":
-        handleSegmentChange({ detail: { value: "swap" } });
-        break;
-      case type === "fiat":
-        handleSegmentChange({ detail: { value: "fiat" } });
-        break;
-      case type === "openModal":
-        handleOpenModal(type, reserve);
-        break;
-      default:
-        break;
-    }
-  }
+  // function handleEvents(
+  //   type: string,
+  //   reserve: ReserveDataHumanized &
+  //     FormatReserveUSDResponse & {
+  //       borrowBalance: number;
+  //       borrowBalanceUsd: number;
+  //       supplyBalance: number;
+  //       supplyBalanceUsd: number;
+  //       walletBalance: number;
+  //       logo: string;
+  //       priceInUSD: string;
+  //     }
+  // ) {
+  //   switch (true) {
+  //     case type === "swap":
+  //       handleSegmentChange({ detail: { value: "swap" } });
+  //       break;
+  //     case type === "fiat":
+  //       handleSegmentChange({ detail: { value: "fiat" } });
+  //       break;
+  //     // case type === "openModal":
+  //     //   handleOpenModal(type, reserve);
+  //     //   break;
+  //     default:
+  //       break;
+  //   }
+  // }
 
-  function handleOpenModal(
-    type: string,
-    reserve: ReserveDataHumanized &
-      FormatReserveUSDResponse & {
-        borrowBalance: number;
-        borrowBalanceUsd: number;
-        supplyBalance: number;
-        supplyBalanceUsd: number;
-        walletBalance: number;
-        logo: string;
-        priceInUSD: string;
-      }
-  ) {
-    if (!userSummary) {
-      throw new Error("No userSummary found");
-    }
-    // // calcul max amount
-    // const maxAmount = getMaxAmount(
-    //   type,
-    //   reserve,
-    //   userSummary,
-    //   markets?.CHAIN_ID
-    // );
-    // // update state
-    // setState({
-    //   actionType: type as "deposit" | "withdraw" | "borrow" | "repay",
-    //   maxAmount,
-    // });
-    // console.log("[INFO] maxAmount: ", { type, reserve, maxAmount });
+  // function handleOpenModal(
+  //   type: string,
+  //   reserve: ReserveDataHumanized &
+  //     FormatReserveUSDResponse & {
+  //       borrowBalance: number;
+  //       borrowBalanceUsd: number;
+  //       supplyBalance: number;
+  //       supplyBalanceUsd: number;
+  //       walletBalance: number;
+  //       logo: string;
+  //       priceInUSD: string;
+  //     }
+  // ) {
+  //   if (!userSummaryAndIncentivesGroup) {
+  //     throw new Error("No userSummary found");
+  //   }
+  //   // // calcul max amount
+  //   // const maxAmount = getMaxAmount(
+  //   //   type,
+  //   //   reserve,
+  //   //   userSummary,
+  //   //   markets?.CHAIN_ID
+  //   // );
+  //   // // update state
+  //   // setState({
+  //   //   actionType: type as "deposit" | "withdraw" | "borrow" | "repay",
+  //   //   maxAmount,
+  //   // });
+  //   // console.log("[INFO] maxAmount: ", { type, reserve, maxAmount });
 
-    // // call method to open modal
-    // present({
-    //   cssClass: "modalAlert ",
-    //   onWillDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
-    //     console.log(`onWillDismiss: ${ev.detail.data}!`);
-    //     if (ev.detail.role === "confirm") {
-    //       if (!ethereumProvider) {
-    //         throw new Error("No ethereumProvider provider found");
-    //       }
-    //       displayLoader();
-    //       switch (true) {
-    //         case type === "deposit": {
-    //           const value = ev.detail.data;
-    //           const amount = Number(value);
-    //           // handle invalid amount
-    //           if (isNaN(amount) || amount <= 0) {
-    //             throw new Error(
-    //               "Invalid amount. Value must be greater than 0."
-    //             );
-    //           }
-    //           // call method
-    //           const params = {
-    //             provider: ethereumProvider,
-    //             reserve,
-    //             amount: amount.toString(),
-    //             onBehalfOf: undefined,
-    //             poolAddress: `${markets?.POOL}`,
-    //             gatewayAddress: `${markets?.WETH_GATEWAY}`,
-    //           };
-    //           console.log("params: ", params);
-    //           try {
-    //             const txReceipts = await supplyWithPermit(params);
-    //             console.log("TX result: ", txReceipts);
-    //             await hideLoader();
-    //             await refresh();
-    //           } catch (error) {
-    //             await hideLoader();
-    //           }
-    //           break;
-    //         }
-    //         case type === "withdraw": {
-    //           const value = ev.detail.data;
-    //           const amount = Number(value);
-    //           // handle invalid amount
-    //           if (isNaN(amount) || amount <= 0) {
-    //             throw new Error(
-    //               "Invalid amount. Value must be greater than 0."
-    //             );
-    //           }
-    //           // call method
-    //           const params = {
-    //             provider: ethereumProvider,
-    //             reserve,
-    //             amount: amount.toString(),
-    //             onBehalfOf: undefined,
-    //             poolAddress: `${markets?.POOL}`,
-    //             gatewayAddress: `${markets?.WETH_GATEWAY}`,
-    //           };
-    //           console.log("params: ", params);
-    //           try {
-    //             const txReceipts = await withdraw(params);
-    //             console.log("TX result: ", txReceipts);
-    //             await hideLoader();
-    //             await refresh();
-    //           } catch (error) {
-    //             console.log("error: ", error);
-    //             await hideLoader();
-    //           }
-    //           break;
-    //         }
-    //         case type === "borrow": {
-    //           const value = ev.detail.data;
-    //           const amount = Number(value);
-    //           // handle invalid amount
-    //           if (isNaN(amount) || amount <= 0) {
-    //             throw new Error(
-    //               "Invalid amount. Value must be greater than 0."
-    //             );
-    //           }
-    //           // call method
-    //           const params = {
-    //             provider: ethereumProvider,
-    //             reserve,
-    //             amount: amount.toString(),
-    //             onBehalfOf: undefined,
-    //             poolAddress: `${markets?.POOL}`,
-    //             gatewayAddress: `${markets?.WETH_GATEWAY}`,
-    //           };
-    //           console.log("params: ", params);
-    //           try {
-    //             const txReceipts = await borrow(params);
-    //             console.log("TX result: ", txReceipts);
-    //             await hideLoader();
-    //             refresh();
-    //           } catch (error) {
-    //             console.log("[ERROR]: ", error);
-    //             await hideLoader();
-    //             // await refresh();
-    //           }
-    //           break;
-    //         }
-    //         case type === "repay": {
-    //           const value = ev.detail.data;
-    //           const amount = Number(value);
-    //           // handle invalid amount
-    //           if (isNaN(amount) || amount <= 0) {
-    //             throw new Error(
-    //               "Invalid amount. Value must be greater than 0."
-    //             );
-    //           }
-    //           // call method
-    //           const params = {
-    //             provider: ethereumProvider,
-    //             reserve,
-    //             amount: amount.toString(),
-    //             onBehalfOf: undefined,
-    //             poolAddress: `${markets?.POOL}`,
-    //             gatewayAddress: `${markets?.WETH_GATEWAY}`,
-    //           };
-    //           console.log("params: ", params);
-    //           try {
-    //             const txReceipts = await repay(params);
-    //             console.log("TX result: ", txReceipts);
-    //             await hideLoader();
-    //             await refresh();
-    //           } catch (error) {
-    //             console.log("[ERROR]: ", error);
-    //             await hideLoader();
-    //             // await refresh();
-    //           }
-    //           break;
-    //         }
-    //         default:
-    //           break;
-    //       }
-    //     }
-    //   },
-    // });
-  }
+  //   // // call method to open modal
+  //   // present({
+  //   //   cssClass: "modalAlert ",
+  //   //   onWillDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
+  //   //     console.log(`onWillDismiss: ${ev.detail.data}!`);
+  //   //     if (ev.detail.role === "confirm") {
+  //   //       if (!ethereumProvider) {
+  //   //         throw new Error("No ethereumProvider provider found");
+  //   //       }
+  //   //       displayLoader();
+  //   //       switch (true) {
+  //   //         case type === "deposit": {
+  //   //           const value = ev.detail.data;
+  //   //           const amount = Number(value);
+  //   //           // handle invalid amount
+  //   //           if (isNaN(amount) || amount <= 0) {
+  //   //             throw new Error(
+  //   //               "Invalid amount. Value must be greater than 0."
+  //   //             );
+  //   //           }
+  //   //           // call method
+  //   //           const params = {
+  //   //             provider: ethereumProvider,
+  //   //             reserve,
+  //   //             amount: amount.toString(),
+  //   //             onBehalfOf: undefined,
+  //   //             poolAddress: `${markets?.POOL}`,
+  //   //             gatewayAddress: `${markets?.WETH_GATEWAY}`,
+  //   //           };
+  //   //           console.log("params: ", params);
+  //   //           try {
+  //   //             const txReceipts = await supplyWithPermit(params);
+  //   //             console.log("TX result: ", txReceipts);
+  //   //             await hideLoader();
+  //   //             await refresh();
+  //   //           } catch (error) {
+  //   //             await hideLoader();
+  //   //           }
+  //   //           break;
+  //   //         }
+  //   //         case type === "withdraw": {
+  //   //           const value = ev.detail.data;
+  //   //           const amount = Number(value);
+  //   //           // handle invalid amount
+  //   //           if (isNaN(amount) || amount <= 0) {
+  //   //             throw new Error(
+  //   //               "Invalid amount. Value must be greater than 0."
+  //   //             );
+  //   //           }
+  //   //           // call method
+  //   //           const params = {
+  //   //             provider: ethereumProvider,
+  //   //             reserve,
+  //   //             amount: amount.toString(),
+  //   //             onBehalfOf: undefined,
+  //   //             poolAddress: `${markets?.POOL}`,
+  //   //             gatewayAddress: `${markets?.WETH_GATEWAY}`,
+  //   //           };
+  //   //           console.log("params: ", params);
+  //   //           try {
+  //   //             const txReceipts = await withdraw(params);
+  //   //             console.log("TX result: ", txReceipts);
+  //   //             await hideLoader();
+  //   //             await refresh();
+  //   //           } catch (error) {
+  //   //             console.log("error: ", error);
+  //   //             await hideLoader();
+  //   //           }
+  //   //           break;
+  //   //         }
+  //   //         case type === "borrow": {
+  //   //           const value = ev.detail.data;
+  //   //           const amount = Number(value);
+  //   //           // handle invalid amount
+  //   //           if (isNaN(amount) || amount <= 0) {
+  //   //             throw new Error(
+  //   //               "Invalid amount. Value must be greater than 0."
+  //   //             );
+  //   //           }
+  //   //           // call method
+  //   //           const params = {
+  //   //             provider: ethereumProvider,
+  //   //             reserve,
+  //   //             amount: amount.toString(),
+  //   //             onBehalfOf: undefined,
+  //   //             poolAddress: `${markets?.POOL}`,
+  //   //             gatewayAddress: `${markets?.WETH_GATEWAY}`,
+  //   //           };
+  //   //           console.log("params: ", params);
+  //   //           try {
+  //   //             const txReceipts = await borrow(params);
+  //   //             console.log("TX result: ", txReceipts);
+  //   //             await hideLoader();
+  //   //             refresh();
+  //   //           } catch (error) {
+  //   //             console.log("[ERROR]: ", error);
+  //   //             await hideLoader();
+  //   //             // await refresh();
+  //   //           }
+  //   //           break;
+  //   //         }
+  //   //         case type === "repay": {
+  //   //           const value = ev.detail.data;
+  //   //           const amount = Number(value);
+  //   //           // handle invalid amount
+  //   //           if (isNaN(amount) || amount <= 0) {
+  //   //             throw new Error(
+  //   //               "Invalid amount. Value must be greater than 0."
+  //   //             );
+  //   //           }
+  //   //           // call method
+  //   //           const params = {
+  //   //             provider: ethereumProvider,
+  //   //             reserve,
+  //   //             amount: amount.toString(),
+  //   //             onBehalfOf: undefined,
+  //   //             poolAddress: `${markets?.POOL}`,
+  //   //             gatewayAddress: `${markets?.WETH_GATEWAY}`,
+  //   //           };
+  //   //           console.log("params: ", params);
+  //   //           try {
+  //   //             const txReceipts = await repay(params);
+  //   //             console.log("TX result: ", txReceipts);
+  //   //             await hideLoader();
+  //   //             await refresh();
+  //   //           } catch (error) {
+  //   //             console.log("[ERROR]: ", error);
+  //   //             await hideLoader();
+  //   //             // await refresh();
+  //   //           }
+  //   //           break;
+  //   //         }
+  //   //         default:
+  //   //           break;
+  //   //       }
+  //   //     }
+  //   //   },
+  //   // });
+  // }
 
   return (
     <IonAccordion>
@@ -344,14 +358,14 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
             </IonCol>
             <IonCol size="2" class="ion-text-end ion-hide-md-down">
               <IonLabel>
-                {poolGroup?.totalSupplyBalance > 0
-                  ? (poolGroup?.totalSupplyBalance).toFixed(6)
+                {totalSupplyBalance > 0
+                  ? (totalSupplyBalance).toFixed(6)
                   : "0.00"}
                 <br />
                 <IonText color="medium">
                   <small>
                     {getReadableAmount(
-                      poolGroup?.totalSupplyBalance,
+                      totalSupplyBalance,
                       Number(poolGroup.reserves?.[0]?.priceInUSD),
                       "No deposit"
                     )}

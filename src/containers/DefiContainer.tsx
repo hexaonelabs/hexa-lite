@@ -116,7 +116,7 @@ export const DefiContainer = ({
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const { user, assets } = useUser();
   const { ethereumProvider } = useEthersProvider();
-  const { poolGroups, poolReserves, markets, totalTVL, refresh, userSummaryAndIncentives } =
+  const { poolGroups, poolReserves, markets, totalTVL, refresh, userSummaryAndIncentives, userSummaryAndIncentivesGroup } =
     useAave();
   console.log("[INFO] {{DefiContainer}} userSummaryAndIncentives: ", {
     userSummaryAndIncentives,
@@ -135,75 +135,6 @@ export const DefiContainer = ({
   }
 
   console.log("[INFO] {{DefiContainer}} poolReserves: ", poolReserves);
-  const pools = userSummaryAndIncentives
-    ? userSummaryAndIncentives.userReservesData.map(
-        ({
-          reserve,
-          underlyingBalance,
-          underlyingBalanceUSD,
-          totalBorrows,
-          totalBorrowsUSD,
-        }) => {
-          return {
-            reserve,
-            underlyingBalance,
-            underlyingBalanceUSD,
-            totalBorrows,
-            totalBorrowsUSD,
-          };
-        }
-      )
-    : poolReserves?.map((reserve) => ({
-        reserve,
-        underlyingBalance: "0",
-        underlyingBalanceUSD: "0",
-        totalBorrows: "0",
-        totalBorrowsUSD: "0",
-      }));
-
-  const reserves = pools
-    // ?.filter(
-    //   ({ reserve: { usageAsCollateralEnabled, isIsolated } }) =>
-    //     isIsolated === false
-    // )
-    ?.map(
-      ({
-        reserve,
-        underlyingBalance,
-        underlyingBalanceUSD,
-        totalBorrows,
-        totalBorrowsUSD,
-      }) => {
-        const { underlyingAsset } = reserve;
-        // const { balance: walletBalance = 0 } =
-        //   assets?.find(
-        //     ({ contractAddress, chain = {} }) =>
-        //       contractAddress?.toLocaleLowerCase() ===
-        //         underlyingAsset?.toLocaleLowerCase() &&
-        //       chain?.id === markets?.CHAIN_ID
-        //   ) || {};
-
-        const supplyPoolRatioInPercent = getPercent(
-          valueToBigNumber(reserve.totalLiquidityUSD).toNumber(),
-          valueToBigNumber(reserve.supplyCapUSD).toNumber()
-        );
-        const borrowPoolRatioInPercent = getPercent(
-          valueToBigNumber(reserve.totalDebtUSD).toNumber(),
-          valueToBigNumber(reserve.borrowCapUSD).toNumber()
-        );
-        return {
-          ...reserve,
-          borrowBalance: Number(totalBorrows),
-          borrowBalanceUsd: Number(totalBorrowsUSD),
-          supplyBalance: Number(underlyingBalance),
-          supplyBalanceUsd: Number(underlyingBalanceUSD),
-          // walletBalance,
-          logo: getAssetIconUrl(reserve),
-          supplyPoolRatioInPercent,
-          borrowPoolRatioInPercent,
-        };
-      }
-    );
 
   const totalBorrowsUsd = Number(userSummaryAndIncentives?.totalBorrowsUSD);
   const totalCollateralUsd = Number(
@@ -384,6 +315,7 @@ export const DefiContainer = ({
                     handleSegmentChange={handleSegmentChange}
                     refresh={refresh}
                     poolGroup={poolGroup}
+                    userSummaryAndIncentivesGroup={userSummaryAndIncentivesGroup}
                     userSummary={userSummaryAndIncentives} />
                 ))}
             </IonAccordionGroup>
