@@ -14,7 +14,7 @@ import {
   IonText,
   useIonModal,
 } from "@ionic/react";
-import { IReserve } from "../interfaces/reserve.interface";
+import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
 import {
   CircularProgressbarWithChildren,
   buildStyles,
@@ -34,7 +34,7 @@ import { getPercent } from "../utils/utils";
 
 interface IReserveDetailProps {
   reserve: IReserve;
-  userSummary: any;
+  userSummary: IUserSummary | undefined;
   dismiss: () => void;
 }
 
@@ -56,7 +56,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
       },
       actionType: state?.actionType,
     },
-    userSummary: undefined,
+    userSummary,
     onDismiss: (data: string, role: string) => dismiss(data, role),
   });
   const borrowPoolRatioInPercent = getPercent(
@@ -73,7 +73,13 @@ export function ReserveDetail(props: IReserveDetailProps) {
     if (!userSummary) {
       throw new Error("No userSummary found");
     }
-    present();
+    setState({
+      actionType: type as "deposit" | "withdraw" | "borrow" | "repay",
+      maxAmount: 0
+    });
+    present({
+      cssClass: "modalAlert",
+    });
   };
 
   return (
