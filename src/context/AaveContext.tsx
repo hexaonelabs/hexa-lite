@@ -251,7 +251,14 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
               supplyBalance: Number(userReserve?.underlyingBalance) || 0,
               borrowBalance: Number(userReserve?.totalBorrows) || 0,
             };
-          });
+          })
+          .sort((a, b) => {
+            if (a.supplyBalance > b.supplyBalance) return -1;
+            if (a.supplyBalance < b.supplyBalance) return 1;
+            if (a.borrowBalance > b.borrowBalance) return -1;
+            if (a.borrowBalance < b.borrowBalance) return 1;
+            return 0;
+          })
           const newState: IPoolGroup = {
             ...poolGroup,
             borrowingEnabled,
@@ -261,7 +268,19 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
             reserves,
           };
           return newState;
-        });
+        })
+        // sort by existing ballances then by walletbalance then by symbol
+        .sort((a, b) => {
+          if (a.totalSupplyBalance > b.totalSupplyBalance) return -1;
+          if (a.totalSupplyBalance < b.totalSupplyBalance) return 1;
+          if (a.totalBorrowBalance > b.totalBorrowBalance) return -1;
+          if (a.totalBorrowBalance < b.totalBorrowBalance) return 1;
+          if (a.totalWalletBalance > b.totalWalletBalance) return -1;
+          if (a.totalWalletBalance < b.totalWalletBalance) return 1;
+          if (a.symbol < b.symbol) return -1;
+          if (a.symbol > b.symbol) return 1;
+          return 0;
+        })
         console.log("[INFO] {{AaveProvider}} updated poolGroups: ", {
           poolGroups,
         });
