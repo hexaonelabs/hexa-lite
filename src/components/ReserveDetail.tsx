@@ -30,6 +30,7 @@ import { closeOutline, warningOutline } from "ionicons/icons";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { position } from "@chakra-ui/react";
 import { WarningBox } from "./WarningBox";
+import { getPercent } from "../utils/utils";
 
 interface IReserveDetailProps {
   reserve: IReserve;
@@ -58,20 +59,21 @@ export function ReserveDetail(props: IReserveDetailProps) {
     userSummary: undefined,
     onDismiss: (data: string, role: string) => dismiss(data, role),
   });
-  const borrowPoolRatioInPercent = 0;
-  const supplyPoolRatioInPercent = 0;
-  const percentBorrowingCapacity = 0;
+  const borrowPoolRatioInPercent = getPercent(
+    valueToBigNumber(reserve.totalDebtUSD).toNumber(),
+    valueToBigNumber(reserve.borrowCapUSD).toNumber()
+  );;
+  const supplyPoolRatioInPercent = getPercent(
+    valueToBigNumber(reserve.totalLiquidityUSD).toNumber(),
+    valueToBigNumber(reserve.supplyCapUSD).toNumber()
+  );;
+  const percentBorrowingCapacity = 100 - getPercent(0, 0);
 
   const handleOpenModal = (type: string, reserve: IReserve) => {
     if (!userSummary) {
       throw new Error("No userSummary found");
     }
-    const maxAmount = getMaxAmount(
-      type,
-      reserve as any,
-      userSummary,
-      reserve.chainId
-    );
+    present();
   };
 
   return (
