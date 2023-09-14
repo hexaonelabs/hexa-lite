@@ -78,17 +78,18 @@ export function ReserveDetail(props: IReserveDetailProps) {
 
   return (
     <IonContent className="ion-padding">
-      <IonGrid style={{ width: "100%", maxWidth: '800px', minHeight: '100%' }}>
+      <IonButton
+        fill="clear"
+        color="primary"
+        style={{ position: "absolute", top: "0.5rem", right: "0.5rem" }}
+        onClick={() => props.dismiss()}
+      >
+        <IonIcon icon={closeOutline}></IonIcon>
+      </IonButton>
+      <IonGrid style={{ width: "100%", maxWidth: '800px', minHeight: '100%', marginTop: '2rem'}}>
         <IonRow>
           <IonCol size="10"></IonCol>
           <IonCol size="2" className="ion-text-end">
-            <IonButton
-              fill="clear"
-              color="primary"
-              onClick={() => props.dismiss()}
-            >
-              <IonIcon icon={closeOutline}></IonIcon>
-            </IonButton>
           </IonCol>
         </IonRow>
         <IonRow class="widgetWrapper ion-padding-top ion-justify-content-center">
