@@ -147,7 +147,7 @@ const ACTIONS = {
     };
     console.log("params: ", params);
     try {
-      const txReceipts = await supplyWithPermit(params);
+      const txReceipts = await supplyWithPermit(params as any);
       console.log("TX result: ", txReceipts);
       return { txReceipts };
     } catch (error) {
