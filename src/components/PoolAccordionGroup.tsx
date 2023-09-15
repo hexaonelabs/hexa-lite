@@ -51,10 +51,6 @@ interface IPoolAccordionProps {
   markets?: MARKETTYPE;
   poolGroup: IPoolGroup;
   userSummaryAndIncentivesGroup: IUserSummary[]|null;
-
-  userSummary: FormatUserSummaryAndIncentivesResponse<
-    ReserveDataHumanized & FormatReserveUSDResponse
-  > | null;
 }
 
 export function PoolAccordionGroup(props: IPoolAccordionProps) {
