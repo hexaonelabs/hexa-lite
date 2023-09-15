@@ -34,6 +34,7 @@ import {
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { getTotalSupplyBalanceBySymbol } from "../utils/getTotalSupplyBalanceBySymbol";
 import { getTotalBorrowBalanceBySymbol } from "../utils/getTotalBorrowBalanceBySymbol";
+import { getAssetFromAllNetwork } from "../utils/getAssetFromAllNetwork";
 
 export type ComputedReserveData = ReturnType<
   typeof formatReservesAndIncentives
@@ -82,7 +83,7 @@ export const useAave = () => useContext(AaveContext);
 
 // Provider component that wraps parts of the app that need user context.
 export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useUser();
+  const { user, assets } = useUser();
   const currentTimestamp = dayjs().unix(); // useCurrentTimestamp(5);
   const [state, setState] = useState<AaveContextType>(AaveContextDefault);
 
@@ -187,6 +188,7 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
 
   const loadUserSummary = async () => {
     console.log("[INFO] {{AaveProvider}} loadUserSummary... ");
+    // load data from all available networks
     if (user && state.markets && state.markets.length > 0) {
       const userSummaryAndIncentivesGroup = await Promise.all(
         state.markets.map((market) =>
@@ -204,6 +206,7 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("[INFO] {{AaveProvider}} fetchUserSummaryAndIncentives: ", {
         userSummaryAndIncentivesGroup,
       });
+      // update `poolGroups.` with userSummaryAndIncentives data
       if (
         userSummaryAndIncentivesGroup &&
         state.poolGroups &&
@@ -212,17 +215,25 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
         const poolGroups = state.poolGroups.map((poolGroup) => {
           const symbol = poolGroup.symbol;
           const borrowingEnabled = poolGroup.borrowingEnabled;
-          // find all `s.userReservesData` with same symbol from all network and sum `totalBorrows`
+          // get `totalBorrowBalance`from  for a specific `symbol` using `userSummaryAndIncentivesGroup` Object
+          // to calculate `borrowBalance` for each network and sum them up to get `totalBorrowBalance`
           const totalBorrowBalance = getTotalBorrowBalanceBySymbol(
             userSummaryAndIncentivesGroup,
             symbol
           );
-          // find all `s.userReservesData` with same symbol from all network and sum `underlyingBalance`
+          // get `totalSupplyBalance`from  for a specific `symbol` using `userSummaryAndIncentivesGroup` Object
+          // to calculate `supplyBalance` for each network and sum them up to get `totalBorrowBalance`
           const totalSupplyBalance = getTotalSupplyBalanceBySymbol(
             userSummaryAndIncentivesGroup,
             symbol
           );
-          const totalWalletBalance = 0;
+          const assetFromAllNetwork = getAssetFromAllNetwork({
+            assets, symbol, userSummaryAndIncentivesGroup
+          });
+          const totalWalletBalance = assetFromAllNetwork.reduce((acc, asset) => {
+            return acc + asset.balance;
+          }, 0) || 0;
+          // implememnt `supplyBalance` and `borrowBalance` for each reserve from poolGroup
           const reserves = poolGroup.reserves.map((reserve) => {
             const userReserve = userSummaryAndIncentivesGroup
               .find((userSummary) => userSummary.chainId === reserve.chainId)
@@ -235,11 +246,17 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
                 }
                 return null;
               });
-
+            const walletBalance = assetFromAllNetwork.find(
+              (asset) => asset.chain?.id === reserve.chainId 
+              && asset.contractAddress === reserve.underlyingAsset
+            )?.balance || 0;
+            // return `reserve` Object with `supplyBalance` and `borrowBalance` from `userReserve` Object
+            // and `totalWalletBalance` from `userAssets` Object
             return {
               ...reserve,
               supplyBalance: Number(userReserve?.underlyingBalance) || 0,
               borrowBalance: Number(userReserve?.totalBorrows) || 0,
+              walletBalance,
             };
           })
           .sort((a, b) => {
