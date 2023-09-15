@@ -154,7 +154,7 @@ ion-popover.profil-popover {
 }
 
 ion-accordion {
-  background-color: #131313;
+  background-color: transparent;
 
   ion-item {
     --background: transparent;
@@ -194,7 +194,7 @@ ion-accordion {
   border: 1px solid rgba(var(--ion-color-primary-rgb), 0.4);
   border-radius: 32px;
   overflow: hidden;
-  background-color: #131313;
+  background-color: rgb(19 19 19 / 40%);
 }
 
 .welcomeSection {
