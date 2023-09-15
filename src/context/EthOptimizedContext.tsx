@@ -77,24 +77,22 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
   const [baseAPRstETH, setBaseAPRstETH] = useState(-1);
   const [state, setState] = useState<EthOptimizedContextType|undefined>(undefined);   
   const { 
-    poolReserves, 
     markets, 
     refresh, 
-    userSummaryAndIncentives 
   } = useAave();
-  // find `wstETH` and `WETH` reserves from AAVE `poolReserves`
-  const poolReserveWSTETH = poolReserves?.find(p => p.symbol === 'wstETH');
-  const poolReserveWETH = poolReserves?.find(p => p.symbol === 'WETH');
-  // calcul apr using `baseAPRstETH` and `poolReserveWETH.variableBorrowAPR * 100`
-  const diffAPR = baseAPRstETH - Number(poolReserveWETH?.variableBorrowAPR||0) * 100;
-  const userLiquidationThreshold =  Number(userSummaryAndIncentives?.currentLiquidationThreshold||0) === 0 
-    ? Number(poolReserveWETH?.formattedReserveLiquidationThreshold)
-    : Number(userSummaryAndIncentives?.currentLiquidationThreshold);
-  const maxLeverageFactor = getMaxLeverageFactor(userLiquidationThreshold);
-  // const maxAPRstETH = (diffAPR * maxLeverageFactor) + baseAPRstETH;
-  const DEFAULT_MAX_APY = 14.01;
-  const superMaxAPRstETH = ((baseAPRstETH * (maxLeverageFactor)) - (Number(poolReserveWETH?.variableBorrowAPR||0) * 100)) || DEFAULT_MAX_APY;
-  console.log('APY details:', {maxLeverageFactor, baseAPRstETH, superMaxAPRstETH});
+  // // find `wstETH` and `WETH` reserves from AAVE `poolReserves`
+  // const poolReserveWSTETH = poolReserves?.find(p => p.symbol === 'wstETH');
+  // const poolReserveWETH = poolReserves?.find(p => p.symbol === 'WETH');
+  // // calcul apr using `baseAPRstETH` and `poolReserveWETH.variableBorrowAPR * 100`
+  // const diffAPR = baseAPRstETH - Number(poolReserveWETH?.variableBorrowAPR||0) * 100;
+  // const userLiquidationThreshold =  Number(userSummaryAndIncentives?.currentLiquidationThreshold||0) === 0 
+  //   ? Number(poolReserveWETH?.formattedReserveLiquidationThreshold)
+  //   : Number(userSummaryAndIncentives?.currentLiquidationThreshold);
+  // const maxLeverageFactor = getMaxLeverageFactor(userLiquidationThreshold);
+  // // const maxAPRstETH = (diffAPR * maxLeverageFactor) + baseAPRstETH;
+  // const DEFAULT_MAX_APY = 14.01;
+  // const superMaxAPRstETH = ((baseAPRstETH * (maxLeverageFactor)) - (Number(poolReserveWETH?.variableBorrowAPR||0) * 100)) || DEFAULT_MAX_APY;
+  // console.log('APY details:', {maxLeverageFactor, baseAPRstETH, superMaxAPRstETH});
   
   // useEffect(() => {
   //   setState((prev) => ({
