@@ -22,7 +22,7 @@ import {
 } from "@aave/math-utils";
 import { ChainId } from "@aave/contract-helpers";
 import { CHAIN_AVAILABLES } from "../constants/chains";
-import { IUserSummary } from "../interfaces/reserve.interface";
+import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
 
 const submitTransaction = async (ops: {
   provider: ethers.providers.Web3Provider; // Signing transactions requires a wallet provider
@@ -72,7 +72,7 @@ export const fetchTVL = async () => {
 
 export const supply = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: {underlyingAsset: string;};
+  reserve: IReserve;
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -112,7 +112,7 @@ export const supply = async (ops: {
 
 export const supplyWithPermit = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: {underlyingAsset: string;};
+  reserve: IReserve;
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -124,10 +124,17 @@ export const supplyWithPermit = async (ops: {
     POOL: poolAddress,
     WETH_GATEWAY: gatewayAddress,
   });
-
+  // handle incorrect network
+  const network = await provider.getNetwork();
+  if (network.chainId !== reserve.chainId) {
+    throw new Error(
+      `Incorrect network, please switch to ${CHAIN_AVAILABLES.find(
+        (c) => c.id === reserve.chainId
+      )?.name}`
+    );
+  }
   const signer = provider.getSigner();
   const user = await signer?.getAddress();
-  const network = await provider.getNetwork();
   const tokenAdress = reserve.underlyingAsset;
   // create timestamp of 10 minutes from now
   const deadline = `${new Date().setMinutes(new Date().getMinutes() + 10)}`;
