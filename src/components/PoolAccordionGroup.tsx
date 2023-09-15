@@ -48,7 +48,6 @@ import { CHAIN_AVAILABLES } from "../constants/chains";
 interface IPoolAccordionProps {
   refresh: () => void;
   handleSegmentChange: (e: { detail: { value: string } }) => void;
-  markets?: MARKETTYPE;
   poolGroup: IPoolGroup;
   userSummaryAndIncentivesGroup: IUserSummary[]|null;
 }
