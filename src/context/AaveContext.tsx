@@ -60,14 +60,7 @@ const stub = (): never => {
 // Define the type for the AAVE context.
 type AaveContextType = {
   markets: MARKETTYPE[] | null;
-  poolReserves: IReserve[] | null;
   poolGroups: IPoolGroup[] | null;
-  userSummary: FormatUserSummaryAndIncentivesResponse<
-    ReserveDataHumanized & FormatReserveUSDResponse
-  > | null;
-  userSummaryAndIncentives: FormatUserSummaryAndIncentivesResponse<
-    ReserveDataHumanized & FormatReserveUSDResponse
-  > | null;
   userSummaryAndIncentivesGroup: IUserSummary[] | null;
   totalTVL: number | null;
   refresh: () => Promise<void>;
@@ -75,11 +68,8 @@ type AaveContextType = {
 
 const AaveContextDefault: AaveContextType = {
   markets: null,
-  poolReserves: null,
   poolGroups: [],
-  userSummary: null,
   totalTVL: null,
-  userSummaryAndIncentives: null,
   userSummaryAndIncentivesGroup: null,
   refresh: stub,
 };
