@@ -23,24 +23,27 @@ import { useUser } from "../context/UserContext";
 import { getReadableAmount } from "../utils/getReadableAmount";
 import { valueToBigNumber } from "@aave/math-utils";
 import ConnectButton from "./ConnectButton";
-import { getMaxAmount } from "../utils/getMaxAmount";
 import { LoanFormModal } from "./LoanFormModal";
 import { useState } from "react";
 import { closeOutline, warningOutline } from "ionicons/icons";
 import { CHAIN_AVAILABLES } from "../constants/chains";
-import { position } from "@chakra-ui/react";
 import { WarningBox } from "./WarningBox";
 import { getPercent } from "../utils/utils";
+import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
+import { MARKETTYPE, supplyWithPermit } from "../servcies/aave.service";
+import { useEthersProvider } from "../context/Web3Context";
 
 interface IReserveDetailProps {
   reserve: IReserve;
   userSummary: IUserSummary | undefined;
+  markets: MARKETTYPE
   dismiss: () => void;
 }
 
 export function ReserveDetail(props: IReserveDetailProps) {
-  const { reserve, userSummary } = props;
+  const { reserve, userSummary, markets } = props;
   const { user } = useUser();
+  const { ethereumProvider, switchNetwork } = useEthersProvider();
   const [state, setState] = useState<
     | {
         actionType: "deposit" | "withdraw" | "borrow" | "repay" | undefined;
@@ -50,10 +53,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
   >(undefined);
   const [present, dismiss] = useIonModal(LoanFormModal, {
     selectedReserve: {
-      reserve: {
-        ...reserve,
-        maxAmount: -1,
-      },
+      reserve,
       actionType: state?.actionType,
     },
     userSummary,
@@ -79,6 +79,152 @@ export function ReserveDetail(props: IReserveDetailProps) {
     });
     present({
       cssClass: "modalAlert",
+      onDidDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
+        console.log(`[INFO] ReserveDetail - onWillDismiss from LoanFormModal: `,ev.detail);
+        if (!ethereumProvider) {
+          throw new Error("No ethereumProvider found");
+        }
+        if (ev.detail.role !== "confirm") {
+          return;
+        }
+        console.log('>>>>', type, ev.detail.data);
+        
+        // displayLoader();
+        // switch (true) {
+        //   case type === "deposit": {
+            const value = ev.detail.data;
+            const amount = Number(value);
+            // handle invalid amount
+            if (isNaN(amount) || amount <= 0) {
+              throw new Error(
+                "Invalid amount. Value must be greater than 0."
+              );
+            }
+            // switch network if need
+            const network = await ethereumProvider.getNetwork();
+            const provider = (network.chainId !== reserve.chainId)
+              ? await switchNetwork(reserve.chainId)
+              : ethereumProvider
+            if (!provider) {
+              throw new Error("No provider found or update failed");
+            }
+            // call method
+            const params = {
+              provider,
+              reserve,
+              amount: amount.toString(),
+              onBehalfOf: undefined,
+              poolAddress: `${markets?.POOL}`,
+              gatewayAddress: `${markets?.WETH_GATEWAY}`,
+            };
+            console.log("params: ", params);
+            try {
+              const txReceipts = await supplyWithPermit(params)
+              console.log("TX result: ", txReceipts);
+              // await hideLoader();
+              // await refresh();
+            } catch (error) {
+              console.log("TX error: ", error);
+              // await hideLoader();
+            }
+        //     break;
+        //   }
+        //   case type === "withdraw": {
+        //     const value = ev.detail.data;
+        //     const amount = Number(value);
+        //     // handle invalid amount
+        //     if (isNaN(amount) || amount <= 0) {
+        //       throw new Error(
+        //         "Invalid amount. Value must be greater than 0."
+        //       );
+        //     }
+        //     // call method
+        //     const params = {
+        //       provider: ethereumProvider,
+        //       reserve,
+        //       amount: amount.toString(),
+        //       onBehalfOf: undefined,
+        //       poolAddress: `${markets?.POOL}`,
+        //       gatewayAddress: `${markets?.WETH_GATEWAY}`,
+        //     };
+        //     console.log("params: ", params);
+        //     try {
+        //       const txReceipts = await withdraw(params);
+        //       console.log("TX result: ", txReceipts);
+        //       await hideLoader();
+        //       await refresh();
+        //     } catch (error) {
+        //       console.log("error: ", error);
+        //       await hideLoader();
+        //     }
+        //     break;
+        //   }
+        //   case type === "borrow": {
+        //     const value = ev.detail.data;
+        //     const amount = Number(value);
+        //     // handle invalid amount
+        //     if (isNaN(amount) || amount <= 0) {
+        //       throw new Error(
+        //         "Invalid amount. Value must be greater than 0."
+        //       );
+        //     }
+        //     // call method
+        //     const params = {
+        //       provider: ethereumProvider,
+        //       reserve,
+        //       amount: amount.toString(),
+        //       onBehalfOf: undefined,
+        //       poolAddress: `${markets?.POOL}`,
+        //       gatewayAddress: `${markets?.WETH_GATEWAY}`,
+        //     };
+        //     console.log("params: ", params);
+        //     try {
+        //       const txReceipts = await borrow(params);
+        //       console.log("TX result: ", txReceipts);
+        //       await hideLoader();
+        //       refresh();
+        //     } catch (error) {
+        //       console.log("[ERROR]: ", error);
+        //       await hideLoader();
+        //       // await refresh();
+        //     }
+        //     break;
+        //   }
+        //   case type === "repay": {
+        //     const value = ev.detail.data;
+        //     const amount = Number(value);
+        //     // handle invalid amount
+        //     if (isNaN(amount) || amount <= 0) {
+        //       throw new Error(
+        //         "Invalid amount. Value must be greater than 0."
+        //       );
+        //     }
+        //     // call method
+        //     const params = {
+        //       provider: ethereumProvider,
+        //       reserve,
+        //       amount: amount.toString(),
+        //       onBehalfOf: undefined,
+        //       poolAddress: `${markets?.POOL}`,
+        //       gatewayAddress: `${markets?.WETH_GATEWAY}`,
+        //     };
+        //     console.log("params: ", params);
+        //     try {
+        //       const txReceipts = await repay(params);
+        //       console.log("TX result: ", txReceipts);
+        //       await hideLoader();
+        //       await refresh();
+        //     } catch (error) {
+        //       console.log("[ERROR]: ", error);
+        //       await hideLoader();
+        //       // await refresh();
+        //     }
+        //     break;
+        //   }
+        //   default:
+        //     break;
+        // }
+      },
     });
   };
 
