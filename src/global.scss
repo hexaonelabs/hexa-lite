@@ -195,6 +195,8 @@ ion-accordion {
   border-radius: 32px;
   overflow: hidden;
   background-color: rgb(19 19 19 / 40%);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .welcomeSection {
