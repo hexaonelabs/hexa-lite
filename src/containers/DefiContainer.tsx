@@ -108,19 +108,8 @@ export const DefiContainer = ({
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) => {
   console.log("[INFO] {{DefiContainer}} rendering...");
-
-  const [selectedReserve, setSelectedReserve] = useState<{
-    reserve: ReserveDataHumanized & { maxAmount: number | undefined };
-    actionType: "deposit" | "withdraw" | "borrow" | "repay";
-  } | null>(null);
-  const { display: displayLoader, hide: hideLoader } = useLoader();
   const { user, assets } = useUser();
-  const { ethereumProvider } = useEthersProvider();
-  const { poolGroups, poolReserves, markets, totalTVL, refresh, userSummaryAndIncentives, userSummaryAndIncentivesGroup } =
-    useAave();
-  console.log("[INFO] {{DefiContainer}} userSummaryAndIncentives: ", {
-    userSummaryAndIncentives,
-  });
+  const { poolGroups,  totalTVL, refresh, userSummaryAndIncentivesGroup } = useAave();
 
   function currencyFormat(
     num: number,
@@ -134,17 +123,16 @@ export const DefiContainer = ({
     });
   }
 
-  console.log("[INFO] {{DefiContainer}} poolReserves: ", poolReserves);
-
-  const totalBorrowsUsd = Number(userSummaryAndIncentives?.totalBorrowsUSD);
-  const totalCollateralUsd = Number(
-    userSummaryAndIncentives?.totalCollateralUSD
-  );
+  const totalBorrowsUsd = userSummaryAndIncentivesGroup
+  ?.map(summary => Number(summary?.totalBorrowsUSD || 0))
+  .reduce((a, b) => a + b, 0)||0;
+  const totalCollateralUsd = userSummaryAndIncentivesGroup
+  ?.map(summary => Number(summary?.totalCollateralUSD || 0))
+  .reduce((a, b) => a + b, 0)||0;
 
   // The % of your total borrowing power used.
   // This is based on the amount of your collateral supplied (totalCollateralUSD) and the total amount that you can borrow (totalCollateralUSD - totalBorrowsUsd).
-  const percentBorrowingCapacity =
-    100 - getPercent(totalBorrowsUsd, totalCollateralUsd);
+  const percentBorrowingCapacity = 100 - getPercent(totalBorrowsUsd, totalCollateralUsd);
   const progressBarFormatedValue = percentBorrowingCapacity / 100;
 
   return !poolGroups || poolGroups.length === 0 ? (
@@ -315,8 +303,7 @@ export const DefiContainer = ({
                     handleSegmentChange={handleSegmentChange}
                     refresh={refresh}
                     poolGroup={poolGroup}
-                    userSummaryAndIncentivesGroup={userSummaryAndIncentivesGroup}
-                    userSummary={userSummaryAndIncentives} />
+                    userSummaryAndIncentivesGroup={userSummaryAndIncentivesGroup} />
                 ))}
             </IonAccordionGroup>
           </div>
