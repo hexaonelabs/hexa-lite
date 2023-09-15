@@ -1,5 +1,3 @@
-import { ReserveDataHumanized } from "@aave/contract-helpers";
-import { FormatReserveUSDResponse } from "@aave/math-utils";
 import {
   IonAvatar,
   IonButton,
@@ -13,12 +11,13 @@ import {
   IonText,
   useIonModal,
 } from "@ionic/react";
-import { openOutline, warningOutline } from "ionicons/icons";
+import { warningOutline } from "ionicons/icons";
 import { useUser } from "../context/UserContext";
 import { getReadableAmount } from "../utils/getReadableAmount";
 import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { ReserveDetail } from "./ReserveDetail";
+import { useAave } from "../context/AaveContext";
 
 interface IPoolItemListProps {
   reserve: IReserve;
@@ -29,11 +28,12 @@ interface IPoolItemListProps {
 export function PoolItemList(props: IPoolItemListProps) {
   const { reserve, iconSize, chainId, userSummary } = props;
   const { user } = useUser();
+  const { markets } = useAave();
   const [present, dismiss] = useIonModal(ReserveDetail, {
     reserve,
     userSummary,
+    markets: markets?.find((m) => m.CHAIN_ID === chainId),
     dismiss: () => dismiss(),
-    // onDismiss: (data: string, role: string) => dismiss(data, role),
   });
   return (
     <IonItem lines="none">
