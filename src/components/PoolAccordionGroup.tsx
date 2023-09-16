@@ -290,10 +290,10 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
             >
               <IonAvatar
                 style={{
-                  height: "48px",
-                  width: "48px",
-                  minHeight: "48px",
-                  minWidth: "48px",
+                  height: "56px",
+                  width: "56px",
+                  minHeight: "56px",
+                  minWidth: "56px",
                 }}
               >
                 <IonImg src={poolGroup.logo}></IonImg>

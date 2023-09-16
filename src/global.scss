@@ -122,6 +122,7 @@ ion-popover.profil-popover {
   --max-width: 650px;
   --height: fit-content;
   --border-radius: 32px;
+  --backdrop-opacity: 0.3!important;
   
   // --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
   padding: 2rem;
@@ -438,3 +439,26 @@ ion-accordion {
 .horizontalLineBottom {
   border-bottom: solid 1px var(--ion-border-color),
 }
+
+// LiFi widget customisation
+div[id^="widget-scrollable-container"],
+div[id^="widget-app-expanded-container"],
+div[id^="widget-relative-container"],
+div.MuiScopedCssBaseline-root {
+  height: 100%;
+  max-height: 100%;
+}
+div[id^="widget-header-"].MuiBox-root,
+div[id^="widget-scrollable-container"], 
+div[id^="widget-relative-container"],
+div.MuiScopedCssBaseline-root > .MuiBox-root > .MuiBox-root {
+  background: transparent!important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+div.MuiScopedCssBaseline-root {
+  background: rgb(19 19 19 / 40%)!important;
+  -webkit-backdrop-filter: blur(10px)!important;
+  backdrop-filter: blur(10px)!important;
+}
+

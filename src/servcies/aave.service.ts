@@ -175,16 +175,6 @@ export const supplyWithPermit = async (ops: {
     provider,
     txs,
   });
-
-  // const txResponses: ethers.providers.TransactionResponse[] = await Promise.all(
-  //   txs.map(async (tx) => {
-  //     const txResponse = await submitTransaction({
-  //       provider,
-  //       tx,
-  //     });
-  //     return txResponse;
-  //   })
-  // );
   console.log("result: ", txResponses);
   const txReceipts = await Promise.all(txResponses.map((tx) => tx.wait()));
   return txReceipts;
