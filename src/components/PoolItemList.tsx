@@ -2,6 +2,7 @@ import {
   IonAvatar,
   IonButton,
   IonCol,
+  IonFabButton,
   IonGrid,
   IonIcon,
   IonImg,
@@ -11,7 +12,7 @@ import {
   IonText,
   useIonModal,
 } from "@ionic/react";
-import { warningOutline } from "ionicons/icons";
+import { warningOutline, searchOutline } from "ionicons/icons";
 import { useUser } from "../context/UserContext";
 import { getReadableAmount } from "../utils/getReadableAmount";
 import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
@@ -36,7 +37,11 @@ export function PoolItemList(props: IPoolItemListProps) {
     dismiss: () => dismiss(),
   });
   return (
-    <IonItem lines="none">
+    <IonItem 
+      lines="none" 
+      onClick={()=> present({
+      cssClass: 'modalPage',
+    })}>
       <IonGrid className="ion-no-padding">
         <IonRow className="poolItemList ion-align-items-center ion-justify-content-between ion-no-padding ion-padding-start">
           <IonCol size-md="2"
@@ -168,15 +173,22 @@ export function PoolItemList(props: IPoolItemListProps) {
           </IonCol>
         </IonRow>
       </IonGrid>
-      <IonButton 
+      {/* <IonButton 
         slot="end"
         color="gradient" 
         size="small"
         className="ion-margin-horizontal"
-        onClick={()=> present({
-        cssClass: 'modalPage',
-        })}
-      >Details</IonButton>
+      >Details</IonButton> */}
+      <IonFabButton
+        slot="end"
+        color="gradient"
+        size="small"
+        className="ion-margin-horizontal"
+      > 
+        <IonIcon size="small" icon={searchOutline} />
+      </IonFabButton>
+
+        
     </IonItem>
   );
 }
