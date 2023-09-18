@@ -438,9 +438,34 @@ ion-accordion {
 
   &.dashboardItem {
 
+    cursor: inherit;
+
+    &.accordion-animated > [slot=header] {
+      .ion-accordion-toggle-icon {
+        display: none;
+      }
+    } 
+    > [slot=header] {
+      ion-col > ion-button[expand=block] {
+        ion-icon {
+          transition: all 125ms ease-in-out;
+        }
+      }
+    }
+    &.accordion-expanded, 
+    &.accordion-expanding {
+      > [slot=header] {
+        ion-col > ion-button[expand=block] {
+          ion-icon {
+            transform: rotate(180deg);
+          }
+        }
+      }
+    }
     &:hover,
     &.accordion-expanded {
       background: none!important;
+
     }
   }
 }

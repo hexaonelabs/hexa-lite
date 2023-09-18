@@ -28,6 +28,7 @@ import {
   closeSharp,
   openOutline,
   warningOutline,
+  chevronDownOutline,
 } from "ionicons/icons";
 import { useAave } from "../context/AaveContext";
 import {
@@ -258,6 +259,17 @@ export const DefiContainer = ({
                           </p>
                         </IonText>
                       </IonCol>
+                      <IonCol size="12" style={{
+                          marginTop:" -2rem"
+                        }}>
+                        <IonButton
+                          expand="block"
+                          fill="clear"
+                          size="small"
+                          className="ion-margin-horizontal">
+                          <IonIcon color="gradient" icon={chevronDownOutline}></IonIcon>
+                          </IonButton>
+                      </IonCol>
                     </IonRow>
                   </IonGrid>
                 </IonItem>
@@ -265,12 +277,11 @@ export const DefiContainer = ({
                 <div slot="content">
                   <IonGrid className="ion-no-padding">
                     <IonRow
-                      style={{ paddingRight: "70px" }}
                       class="ion-no-padding ion-padding-start ion-align-items-center ion-justify-content-between"
                     >
                       <IonCol
-                        size-md="2"
-                        class="ion-text-start ion-padding-start"
+                        size-md="3"
+                        class="ion-text-start ion-padding-horizontal"
                       >
                         <IonLabel color="medium">
                           <h3>Protocol</h3>
@@ -278,8 +289,8 @@ export const DefiContainer = ({
                       </IonCol>
                       <IonCol
                         size="auto"
-                        size-md="2"
-                        class="ion-text-end ion-hide-md-down"
+                        size-md="3"
+                        class="ion-padding-horizontal ion-text-end ion-hide-md-down"
                       >
                         <IonLabel color="medium">
                           <h3>Deposit balance</h3>
@@ -287,17 +298,17 @@ export const DefiContainer = ({
                       </IonCol>
                       <IonCol
                         size="auto"
-                        size-md="2"
-                        class="ion-text-end ion-hide-md-down"
+                        size-md="3"
+                        class="ion-padding-horizontal ion-text-end ion-hide-md-down"
                       >
                         <IonLabel color="medium">
                           <h3>Borrow balance</h3>
                         </IonLabel>
                       </IonCol>
                       <IonCol
-                        size="auto"
-                        size-md="2"
-                        class="ion-text-end ion-hide-md-down"
+                        size="6"
+                        size-md="3"
+                        class="ion-padding-horizontal ion-text-end"
                       >
                         <IonLabel color="medium">
                           <h3>Borrowing Capacity</h3>
@@ -309,12 +320,14 @@ export const DefiContainer = ({
                   {userSummaryAndIncentivesGroup
                     ?.filter((summary) => Number(summary.healthFactor) > 0)
                     ?.map((summary, index) => (
-                      <IonItem key={index} lines="none">
-                        <IonGrid className="ion-no-padding">
+                      <IonItem key={index} lines="none" style={{cursor: 'default'}}>
+                        <IonGrid className="ion-no-padding" style={{
+                          paddingBottom: index === userSummaryAndIncentivesGroup.length - 1 ? "0" : "1rem"
+                        }}>
                           <IonRow className="poolItemList ion-align-items-center ion-justify-content-between ion-no-padding ion-padding-start">
                             <IonCol
-                              size-md="2"
-                              class="ion-text-start ion-padding-start"
+                              size-md="3"
+                              class="ion-padding-horizontal ion-text-start"
                               style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -362,8 +375,8 @@ export const DefiContainer = ({
                             </IonCol>
                             <IonCol
                               size="auto"
-                              size-md="2"
-                              class="ion-text-end ion-hide-md-down"
+                              size-md="3"
+                              class="ion-padding-horizontal ion-text-end ion-hide-md-down"
                             >
                               <IonText color="dark">
                                 {currencyFormat(+summary.totalCollateralUSD)}
@@ -371,18 +384,17 @@ export const DefiContainer = ({
                             </IonCol>
                             <IonCol
                               size="auto"
-                              size-md="2"
-                              class="ion-text-end ion-hide-md-down"
+                              size-md="3"
+                              class="ion-padding-horizontal ion-text-end ion-hide-md-down"
                             >
                               <IonText color="dark">
                                 {currencyFormat(+summary.totalBorrowsUSD)}
                               </IonText>
                             </IonCol>
                             <IonCol
-                              size="auto"
-                              size-md="2"
-                              class="ion-text-end ion-hide-md-down"
-                              style={{ marginRight: "74px" }}
+                              size="6"
+                              size-md="3"
+                              class="ion-padding-horizontal ion-text-end"
                             >
                               <IonText color="dark">
                                 {currencyFormat(+summary.totalBorrowsUSD)} of{" "}
