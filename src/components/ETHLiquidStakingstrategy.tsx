@@ -29,7 +29,7 @@ import { getBaseAPRstETH, getETHByWstETH } from "../servcies/lido.service";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import { useEthersProvider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
-import { CHAIN_DEFAULT } from "../constants/chains";
+import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "../constants/chains";
 import { AssetInput } from "./AssetInput";
 import { ethers } from "ethers";
 import { swapWithLiFi } from "../servcies/lifi.service";
@@ -89,7 +89,7 @@ const handleSwap = async (
 export function EthLiquidStakingStrategyModal({
   dismiss,
 }: IStrategyModalProps) {
-  const { ethereumProvider } = useEthersProvider();
+  const { ethereumProvider, switchNetwork } = useEthersProvider();
   const { user, assets, refresh: refreshUser } = useUser();
   const { display: displayLoader, hide: hideLoader } = useLoader();
 
@@ -309,6 +309,7 @@ export function EthLiquidStakingStrategyModal({
 
 export function ETHLiquidStakingstrategyCard() {
   const { user } = useUser();
+  const { ethereumProvider, switchNetwork } = useEthersProvider();
   const [baseAPRstETH, setBaseAPRstETH] = useState(-1);
 
   const strategy = {
@@ -320,6 +321,7 @@ export function ETHLiquidStakingstrategyCard() {
     providers: ["lido"],
     assets: ["WETH", "wstETH"],
     isStable: true,
+    chainsId: [10],
     details: {
       description: `
         This strategy will swap your ETH for wstETH to earn ${baseAPRstETH.toFixed(
@@ -342,7 +344,12 @@ export function ETHLiquidStakingstrategyCard() {
     <ConnectButton expand="block" />
   ) : (
     <IonButton
-      onClick={() => {
+      onClick={async () => {
+        // check correct chain
+        const chainId = ethereumProvider?.network?.chainId;
+        if (chainId !== 10) {
+          await switchNetwork(10);
+        } 
         modal.current?.present();
       }}
       expand="block"
@@ -402,6 +409,33 @@ export function ETHLiquidStakingstrategyCard() {
                       alt={symbol}
                     />
                   ))}
+                </div>
+              </IonItem>
+              <IonItem
+                style={{
+                  "--background": "transparent",
+                  "--inner-padding-end": "none",
+                  "--padding-start": "none",
+                }}
+              >
+              <IonLabel>Network</IonLabel>
+                <div slot="end" style={{ display: "flex" }}>
+                  {strategy.chainsId
+                    .map((id) => CHAIN_AVAILABLES.find((c) => c.id === id))
+                    .map((c,index) => {
+                      if (!c||!c.nativeSymbol) return null;
+                      return (
+                        <IonImg
+                        key={index}
+                        style={{
+                          width: 18,
+                          height: 18,
+                          transform: (index === 0 && strategy.chainsId.length > 1)  ? "translateX(5px)" : "none",
+                        }}
+                        src={getAssetIconUrl({ symbol: c.nativeSymbol })}
+                        alt={c.nativeSymbol}
+                      />)
+                    })}
                 </div>
               </IonItem>
               <IonItem

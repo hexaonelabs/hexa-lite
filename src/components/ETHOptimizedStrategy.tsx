@@ -1159,6 +1159,32 @@ export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
                   "--padding-start": "none",
                 }}
               >
+              <IonLabel>Network</IonLabel>
+                <div slot="end" style={{ display: "flex" }}>
+                  {[strategy.chainId]
+                    .map((id) => CHAIN_AVAILABLES.find((c) => c.id === id))
+                    .map((c,index) => {
+                      if (!c||!c.nativeSymbol) return null;
+                      return (
+                        <IonImg
+                        key={index}
+                        style={{
+                          width: 18,
+                          height: 18,
+                        }}
+                        src={getAssetIconUrl({ symbol: c.nativeSymbol })}
+                        alt={c.nativeSymbol}
+                      />)
+                    })}
+                </div>
+              </IonItem>
+              <IonItem
+                style={{
+                  "--background": "transparent",
+                  "--inner-padding-end": "none",
+                  "--padding-start": "none",
+                }}
+              >
                 <IonLabel>
                   APY
                   <ApyDetail>

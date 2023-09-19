@@ -69,7 +69,7 @@ export const CHAIN_AVAILABLES: IChain[] = [
     id: 10,
     value: 'optimism',
     name: 'Optimism',
-    nativeSymbol: 'ETH',
+    nativeSymbol: 'OP',
     logo: '/assets/icons/op.svg',
     rpcUrl: [
       {primary: false, url:'https://mainnet.optimism.io'}, 

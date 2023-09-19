@@ -81,11 +81,25 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
           method: "wallet_switchEthereumChain",
           params: [{ chainId: hexaChainId }],
         });
+        // handle switch network success
+        await new Promise((resolve, reject) => {
+          ethereumProvider?.on("network", (newNetwork, oldNetwork) => {
+            // When a Provider makes its initial connection, it emits a "network"
+            // event with a null oldNetwork along with the newNetwork. So, if the
+            // oldNetwork exists, it represents a changing network
+            if (oldNetwork && oldNetwork.chainId !== newNetwork.chainId && newNetwork.chainId === chainId) {
+              console.log(`[INFO] {{Web3Context}} initializeWeb3() network changed: `, {
+                newNetwork,
+                oldNetwork,
+              });
+              resolve(() => Number(newNetwork.chainId));
+            }
+          });
+        }); 
         console.log("{{NetworkButton}} handleSwitchNetwork(): requested...");
         return ethereumProvider;
       } else {
         const updatedProvider = await initializeWeb3();
-        console.log('>>>>>', updatedProvider);
         return updatedProvider;
       }
       // save the new chainId to localstorage
