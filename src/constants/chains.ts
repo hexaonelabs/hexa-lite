@@ -17,7 +17,13 @@ export const CHAIN_AVAILABLES: IChain[] = [
     name: 'Ethereum',
     nativeSymbol: 'ETH',
     logo: '/assets/cryptocurrency-icons/eth.svg',
-    rpcUrl: 'https://eth-mainnet-public.unifra.io' // "https://rpc.ankr.com/eth"
+    rpcUrl: [
+      {primary: false, url: 'https://eth-mainnet-public.unifra.io'}, 
+      {primary: true, url: "https://rpc.ankr.com/eth"}
+    ]
+    .find(
+      (rpc) => rpc.primary
+    )?.url||'',
   },
   // {
   //   id: 56,
@@ -45,7 +51,13 @@ export const CHAIN_AVAILABLES: IChain[] = [
     name: 'Polygon',
     nativeSymbol: 'MATIC',
     logo: '/assets/cryptocurrency-icons/matic.svg',
-    rpcUrl: 'https://polygon-rpc.com' // "https://rpc.ankr.com/polygon"
+    rpcUrl: [
+      {primary: false, url: 'https://polygon-rpc.com'}, 
+      {primary: true, url: "https://rpc.ankr.com/polygon"}
+    ]
+    .find(
+      (rpc) => rpc.primary
+    )?.url||'',
   },
   // {
   //   id: 42161,
@@ -59,7 +71,13 @@ export const CHAIN_AVAILABLES: IChain[] = [
     name: 'Optimism',
     nativeSymbol: 'ETH',
     logo: '/assets/icons/op.svg',
-    rpcUrl: 'https://mainnet.optimism.io' // "https://rpc.ankr.com/optimism",
+    rpcUrl: [
+      {primary: false, url:'https://mainnet.optimism.io'}, 
+      {primary: true, url: "https://rpc.ankr.com/optimism"}
+    ]
+    .find(
+      (rpc) => rpc.primary
+    )?.url||'',
   },
   // testnets
   // {
