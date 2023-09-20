@@ -20,7 +20,7 @@ import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { ReserveDetail } from "./ReserveDetail";
 import { useAave } from "../context/AaveContext";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 interface IPoolItemListProps {
   reserveId: string;
@@ -35,11 +35,14 @@ export function PoolItemList(props: IPoolItemListProps) {
   const modal = useRef<HTMLIonModalElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   // find reserve in `poolGroups[*].reserves` by `reserveId`
-  const reserve: IReserve = poolGroups
-    ?.find((pg) => pg.reserves.find((r) => r.id === reserveId))
-    ?.reserves.find((r) => r.id === reserveId) as IReserve;
-  if (!reserve) return null;
-  console.log(">>> reserve", reserve);
+  const reserve = useMemo(
+    () => {
+      return poolGroups
+      ?.find((pg) => pg.reserves.find((r) => r.id === reserveId))
+      ?.reserves.find((r) => r.id === reserveId) as IReserve;
+    },
+    [reserveId]
+  );
   
   return (
     <IonItem 
