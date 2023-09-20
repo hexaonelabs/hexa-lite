@@ -64,7 +64,7 @@ type AaveContextType = {
   poolGroups: IPoolGroup[] | null;
   userSummaryAndIncentivesGroup: IUserSummary[] | null;
   totalTVL: number | null;
-  refresh: () => Promise<void>;
+  refresh: (type?: 'init'|'userSummary') => Promise<void>;
 };
 
 const AaveContextDefault: AaveContextType = {
@@ -334,15 +334,20 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
     <AaveContext.Provider
       value={{
         ...state,
-        refresh: async () => {
+        refresh: async (type: 'init'|'userSummary' = 'init') => {
           console.log("[INFO] {{AaveProvider}} refresh... ");
           let t = undefined;
           await new Promise((resolve) => {
             t = setTimeout(resolve, 10000);
           });
           clearTimeout(t);
-          await init();
-          console.log("[INFO] {{AaveProvider}} refresh done");
+          if (type === 'init') {
+            await init();
+          }
+          if (type === 'userSummary') {
+            await loadUserSummary();
+          }
+          console.log("[INFO] {{AaveProvider}} refresh done with methods: ", type);
         },
       }}
     >
