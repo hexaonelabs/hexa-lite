@@ -17,7 +17,8 @@ export const roundToTokenDecimals = (inputValue: string, tokenDecimals: number) 
 };
 
 export const getPercent = (value: number, max: number): number => {
-  return (value / max) * 100;
+  const result = (value / max) * 100;
+  return isNaN(result) ? 100 : result;
 };
 
 export const isAavePoolDisabled = ({
@@ -41,7 +42,7 @@ export const isAavePoolDisabled = ({
         valueToBigNumber(poolReserveWETH.borrowCapUSD).toNumber()
       )
   ) >= 99;
-  console.log({isWSTETHDisabled, isWETHDisabled, poolReserveWSTETH, poolReserveWETH });
+  // console.log({isWSTETHDisabled, isWETHDisabled, poolReserveWSTETH, poolReserveWETH });
   
   return (isWSTETHDisabled || isWETHDisabled) || false;
 }
