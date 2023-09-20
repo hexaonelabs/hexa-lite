@@ -245,7 +245,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
         {poolGroup.reserves.map((r, i) => (
           <PoolItemList
             key={i}
-            reserve={r}
+            reserveId={r.id}
             chainId={r.chainId}
             userSummary={userSummaryAndIncentivesGroup?.find(s => s.chainId === r.chainId)}
             iconSize={"32px"}

@@ -13,6 +13,7 @@ import {
   IonImg,
   IonItem,
   IonLabel,
+  IonModal,
   IonRow,
   IonText,
   IonToolbar,
@@ -28,7 +29,7 @@ import { getReadableAmount } from "../utils/getReadableAmount";
 import { valueToBigNumber } from "@aave/math-utils";
 import ConnectButton from "./ConnectButton";
 import { LoanFormModal } from "./LoanFormModal";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { closeOutline, warningOutline } from "ionicons/icons";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { WarningBox } from "./WarningBox";
@@ -37,11 +38,12 @@ import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-com
 import { MARKETTYPE, borrow, repay, supplyWithPermit, withdraw } from "../servcies/aave.service";
 import { useEthersProvider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
+import { useAave } from "../context/AaveContext";
 
 interface IReserveDetailProps {
   reserve: IReserve;
   userSummary: IUserSummary | undefined;
-  markets: MARKETTYPE
+  markets: MARKETTYPE | undefined
   dismiss: () => void;
 }
 
@@ -56,14 +58,11 @@ export function ReserveDetail(props: IReserveDetailProps) {
       }
     | undefined
   >(undefined);
-  const [present, dismiss] = useIonModal(LoanFormModal, {
-    selectedReserve: {
-      reserve,
-      actionType: state?.actionType,
-    },
-    userSummary,
-    onDismiss: (data: string, role: string) => dismiss(data, role),
-  });
+  const { poolGroups, refresh } = useAave();
+  const modal = useRef<HTMLIonModalElement>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  console.log('>> poolGroups: ', poolGroups);
+
   const borrowPoolRatioInPercent = getPercent(
     valueToBigNumber(reserve.totalDebtUSD).toNumber(),
     valueToBigNumber(reserve.borrowCapUSD).toNumber()
@@ -81,154 +80,157 @@ export function ReserveDetail(props: IReserveDetailProps) {
     setState({
       actionType: type as "deposit" | "withdraw" | "borrow" | "repay",
     });
-    present({
-      cssClass: "modalAlert",
-      onDidDismiss: async (ev: CustomEvent<OverlayEventDetail>) => {
-        console.log(`[INFO] ReserveDetail - onWillDismiss from LoanFormModal: `,ev.detail);
-        if (!ethereumProvider) {
-          throw new Error("No ethereumProvider found");
+    setIsModalOpen(true);
+  };
+
+  const onDismiss =  async (ev: CustomEvent<OverlayEventDetail>) => {
+    console.log(`[INFO] ReserveDetail - onWillDismiss from LoanFormModal: `,ev.detail);
+    if (!ethereumProvider) {
+      throw new Error("No ethereumProvider found");
+    }
+    if (ev.detail.role !== "confirm") {
+      return;
+    }
+    displayLoader();
+    // switch network if need
+    const network = await ethereumProvider.getNetwork();
+    const provider = (network.chainId !== reserve.chainId)
+      ? await switchNetwork(reserve.chainId)
+      : ethereumProvider
+    if (!provider) {
+      hideLoader();
+      throw new Error("No provider found or update failed");
+    }
+    // perform action
+    const type = state?.actionType;
+    switch (true) {
+      case type === "deposit": {
+        const value = ev.detail.data;
+        const amount = Number(value);
+        // handle invalid amount
+        if (isNaN(amount) || amount <= 0) {
+          throw new Error(
+            "Invalid amount. Value must be greater than 0."
+          );
         }
-        if (ev.detail.role !== "confirm") {
-          return;
+        // call method
+        const params = {
+          provider,
+          reserve,
+          amount: amount.toString(),
+          onBehalfOf: undefined,
+          poolAddress: `${markets?.POOL}`,
+          gatewayAddress: `${markets?.WETH_GATEWAY}`,
+        };
+        console.log("params: ", params);
+        try {
+          const txReceipts = await supplyWithPermit(params)
+          console.log("TX result: ", txReceipts);
+          await hideLoader();
+          // await refresh();
+        } catch (error) {
+          console.log("TX error: ", error);
+          await hideLoader();
         }
-        displayLoader();
-        // switch network if need
-        const network = await ethereumProvider.getNetwork();
-        const provider = (network.chainId !== reserve.chainId)
-          ? await switchNetwork(reserve.chainId)
-          : ethereumProvider
-        if (!provider) {
-          throw new Error("No provider found or update failed");
+        break;
+      }
+      case type === "withdraw": {
+        const value = ev.detail.data;
+        const amount = Number(value);
+        // handle invalid amount
+        if (isNaN(amount) || amount <= 0) {
+          throw new Error(
+            "Invalid amount. Value must be greater than 0."
+          );
         }
-        // perform action
-        switch (true) {
-          case type === "deposit": {
-            const value = ev.detail.data;
-            const amount = Number(value);
-            // handle invalid amount
-            if (isNaN(amount) || amount <= 0) {
-              throw new Error(
-                "Invalid amount. Value must be greater than 0."
-              );
-            }
-            // call method
-            const params = {
-              provider,
-              reserve,
-              amount: amount.toString(),
-              onBehalfOf: undefined,
-              poolAddress: `${markets?.POOL}`,
-              gatewayAddress: `${markets?.WETH_GATEWAY}`,
-            };
-            console.log("params: ", params);
-            try {
-              const txReceipts = await supplyWithPermit(params)
-              console.log("TX result: ", txReceipts);
-              await hideLoader();
-              // await refresh();
-            } catch (error) {
-              console.log("TX error: ", error);
-              await hideLoader();
-            }
-            break;
-          }
-          case type === "withdraw": {
-            const value = ev.detail.data;
-            const amount = Number(value);
-            // handle invalid amount
-            if (isNaN(amount) || amount <= 0) {
-              throw new Error(
-                "Invalid amount. Value must be greater than 0."
-              );
-            }
-            // call method
-            const params = {
-              provider,
-              reserve,
-              amount: amount.toString(),
-              onBehalfOf: undefined,
-              poolAddress: `${markets?.POOL}`,
-              gatewayAddress: `${markets?.WETH_GATEWAY}`,
-            };
-            console.log("params: ", params);
-            try {
-              const txReceipts = await withdraw(params);
-              console.log("TX result: ", txReceipts);
-              await hideLoader();
-              // await refresh();
-            } catch (error) {
-              console.log("error: ", error);
-              await hideLoader();
-            }
-            break;
-          }
-          case type === "borrow": {
-            const value = ev.detail.data;
-            const amount = Number(value);
-            // handle invalid amount
-            if (isNaN(amount) || amount <= 0) {
-              throw new Error(
-                "Invalid amount. Value must be greater than 0."
-              );
-            }
-            // call method
-            const params = {
-              provider,
-              reserve,
-              amount: amount.toString(),
-              onBehalfOf: undefined,
-              poolAddress: `${markets?.POOL}`,
-              gatewayAddress: `${markets?.WETH_GATEWAY}`,
-            };
-            console.log("params: ", params);
-            try {
-              const txReceipts = await borrow(params);
-              console.log("TX result: ", txReceipts);
-              await hideLoader();
-              // refresh();
-            } catch (error) {
-              console.log("[ERROR]: ", error);
-              await hideLoader();
-              // await refresh();
-            }
-            break;
-          }
-          case type === "repay": {
-            const value = ev.detail.data;
-            const amount = Number(value);
-            // handle invalid amount
-            if (isNaN(amount) || amount <= 0) {
-              throw new Error(
-                "Invalid amount. Value must be greater than 0."
-              );
-            }
-            // call method
-            const params = {
-              provider,
-              reserve,
-              amount: amount.toString(),
-              onBehalfOf: undefined,
-              poolAddress: `${markets?.POOL}`,
-              gatewayAddress: `${markets?.WETH_GATEWAY}`,
-            };
-            console.log("params: ", params);
-            try {
-              const txReceipts = await repay(params);
-              console.log("TX result: ", txReceipts);
-              await hideLoader();
-              // await refresh();
-            } catch (error) {
-              console.log("[ERROR]: ", error);
-              await hideLoader();
-              // await refresh();
-            }
-            break;
-          }
-          default:
-            break;
+        // call method
+        const params = {
+          provider,
+          reserve,
+          amount: amount.toString(),
+          onBehalfOf: undefined,
+          poolAddress: `${markets?.POOL}`,
+          gatewayAddress: `${markets?.WETH_GATEWAY}`,
+        };
+        console.log("params: ", params);
+        try {
+          const txReceipts = await withdraw(params);
+          console.log("TX result: ", txReceipts);
+          await hideLoader();
+          // await refresh();
+        } catch (error) {
+          console.log("error: ", error);
+          await hideLoader();
         }
-      },
-    });
+        break;
+      }
+      case type === "borrow": {
+        const value = ev.detail.data;
+        const amount = Number(value);
+        // handle invalid amount
+        if (isNaN(amount) || amount <= 0) {
+          throw new Error(
+            "Invalid amount. Value must be greater than 0."
+          );
+        }
+        // call method
+        const params = {
+          provider,
+          reserve,
+          amount: amount.toString(),
+          onBehalfOf: undefined,
+          poolAddress: `${markets?.POOL}`,
+          gatewayAddress: `${markets?.WETH_GATEWAY}`,
+        };
+        console.log("params: ", params);
+        try {
+          const txReceipts = await borrow(params);
+          console.log("TX result: ", txReceipts);
+          await hideLoader();
+          // refresh();
+        } catch (error) {
+          console.log("[ERROR]: ", error);
+          await hideLoader();
+          // await refresh();
+        }
+        break;
+      }
+      case type === "repay": {
+        const value = ev.detail.data;
+        const amount = Number(value);
+        // handle invalid amount
+        if (isNaN(amount) || amount <= 0) {
+          throw new Error(
+            "Invalid amount. Value must be greater than 0."
+          );
+        }
+        // call method
+        const params = {
+          provider,
+          reserve,
+          amount: amount.toString(),
+          onBehalfOf: undefined,
+          poolAddress: `${markets?.POOL}`,
+          gatewayAddress: `${markets?.WETH_GATEWAY}`,
+        };
+        console.log("params: ", params);
+        try {
+          const txReceipts = await repay(params);
+          console.log("TX result: ", txReceipts);
+          await hideLoader();
+          // await refresh();
+        } catch (error) {
+          console.log("[ERROR]: ", error);
+          await hideLoader();
+          // await refresh();
+        }
+        break;
+      }
+      default:
+        break;
+    }
+    // update Pool data by update context
+    await refresh();
   };
 
   return (
@@ -629,6 +631,30 @@ export function ReserveDetail(props: IReserveDetailProps) {
           </IonRow>
         </IonGrid>
       </IonContent>
+
+      <IonModal
+        ref={modal}
+        className="modalAlert"
+        isOpen={isModalOpen}>
+          <LoanFormModal 
+            selectedReserve={{
+              reserve,
+              actionType: state?.actionType||"deposit",
+            }}
+            userSummary={userSummary as IUserSummary}
+            onDismiss={async (data, role) => {
+              setIsModalOpen(false);
+              console.log(`[INFO] ReserveDetail - onDismiss from LoanFormModal: `,data, role);
+              await refresh();
+              onDismiss({
+                detail: {
+                  data, role
+                }
+              } as CustomEvent<OverlayEventDetail>)
+            }}
+          />
+        </IonModal>
+        
     </>
   );
 }

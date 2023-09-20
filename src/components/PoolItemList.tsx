@@ -8,6 +8,7 @@ import {
   IonImg,
   IonItem,
   IonLabel,
+  IonModal,
   IonRow,
   IonText,
   useIonModal,
@@ -19,29 +20,32 @@ import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { ReserveDetail } from "./ReserveDetail";
 import { useAave } from "../context/AaveContext";
+import { useRef, useState } from "react";
 
 interface IPoolItemListProps {
-  reserve: IReserve;
+  reserveId: string;
   userSummary: IUserSummary | undefined;
   chainId: number;
   iconSize: string;
 }
 export function PoolItemList(props: IPoolItemListProps) {
-  const { reserve, iconSize, chainId, userSummary } = props;
+  const { reserveId, iconSize, chainId, userSummary } = props;
   const { user } = useUser();
-  const { markets } = useAave();
-  const [present, dismiss] = useIonModal(ReserveDetail, {
-    reserve,
-    userSummary,
-    markets: markets?.find((m) => m.CHAIN_ID === chainId),
-    dismiss: () => dismiss(),
-  });
+  const { markets, poolGroups } = useAave();
+  const modal = useRef<HTMLIonModalElement>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  // find reserve in `poolGroups[*].reserves` by `reserveId`
+  const reserve: IReserve = poolGroups
+    ?.find((pg) => pg.reserves.find((r) => r.id === reserveId))
+    ?.reserves.find((r) => r.id === reserveId) as IReserve;
+  if (!reserve) return null;
+  console.log(">>> reserve", reserve);
+  
   return (
     <IonItem 
       lines="none" 
-      onClick={()=> present({
-      cssClass: 'modalPage',
-    })}>
+      onClick={() => setIsModalOpen(true)}
+    >
       <IonGrid className="ion-no-padding">
         <IonRow className="poolItemList ion-align-items-center ion-justify-content-between ion-no-padding ion-padding-start">
           <IonCol size-md="2"
@@ -173,12 +177,7 @@ export function PoolItemList(props: IPoolItemListProps) {
           </IonCol>
         </IonRow>
       </IonGrid>
-      {/* <IonButton 
-        slot="end"
-        color="gradient" 
-        size="small"
-        className="ion-margin-horizontal"
-      >Details</IonButton> */}
+      
       <IonFabButton
         slot="end"
         color="gradient"
@@ -188,7 +187,17 @@ export function PoolItemList(props: IPoolItemListProps) {
         <IonIcon size="small" icon={searchOutline} />
       </IonFabButton>
 
-        
+      <IonModal 
+        ref={modal} 
+        isOpen={isModalOpen}
+        className="modalPage"
+      >
+        <ReserveDetail 
+          reserve={reserve}
+          userSummary={userSummary}
+          markets={markets?.find((m) => m.CHAIN_ID === chainId)}
+          dismiss={() => modal.current?.dismiss()} />
+      </IonModal>
     </IonItem>
   );
 }
