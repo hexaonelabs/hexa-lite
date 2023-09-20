@@ -29,7 +29,7 @@ import { getReadableAmount } from "../utils/getReadableAmount";
 import { valueToBigNumber } from "@aave/math-utils";
 import ConnectButton from "./ConnectButton";
 import { LoanFormModal } from "./LoanFormModal";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { closeOutline, warningOutline } from "ionicons/icons";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { WarningBox } from "./WarningBox";
@@ -58,12 +58,9 @@ export function ReserveDetail(props: IReserveDetailProps) {
       }
     | undefined
   >(undefined);
-  const { poolGroups, refresh } = useAave();
+  const { refresh } = useAave();
   const modal = useRef<HTMLIonModalElement>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  console.log('>> poolGroups: ', poolGroups);
-
-  const borrowPoolRatioInPercent = getPercent(
+  const [isModalOpen, setIsModalOpen] = useState(false);  const borrowPoolRatioInPercent = getPercent(
     valueToBigNumber(reserve.totalDebtUSD).toNumber(),
     valueToBigNumber(reserve.borrowCapUSD).toNumber()
   );
@@ -230,7 +227,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
         break;
     }
     // update Pool data by update context
-    await refresh();
+    await refresh('userSummary');
   };
 
   return (
@@ -644,8 +641,6 @@ export function ReserveDetail(props: IReserveDetailProps) {
             userSummary={userSummary as IUserSummary}
             onDismiss={async (data, role) => {
               setIsModalOpen(false);
-              console.log(`[INFO] ReserveDetail - onDismiss from LoanFormModal: `,data, role);
-              await refresh();
               onDismiss({
                 detail: {
                   data, role
