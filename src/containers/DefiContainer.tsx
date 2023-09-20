@@ -32,47 +32,14 @@ import {
 } from "ionicons/icons";
 import { useAave } from "../context/AaveContext";
 import {
-  ChainId,
-  InterestRate,
-  Pool,
-  ReserveDataHumanized,
+  ChainId
 } from "@aave/contract-helpers";
-import {
-  ComputedUserReserve,
-  FormatReserveUSDResponse,
-  FormatUserSummaryAndIncentivesResponse,
-  calculateHealthFactorFromBalancesBigUnits,
-  valueToBigNumber,
-} from "@aave/math-utils";
-import { useEffect, useRef, useState } from "react";
-import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
+
 import { useUser, IAsset } from "../context/UserContext";
-import ConnectButton from "../components/ConnectButton";
-import { ethers } from "ethers";
-import {
-  borrow,
-  repay,
-  supplyWithPermit,
-  withdraw,
-} from "../servcies/aave.service";
-import { useEthersProvider } from "../context/Web3Context";
-import { useLoader } from "../context/LoaderContext";
-import { FormattedNumber } from "../components/FormattedNumber";
-import {
-  CircularProgressbar,
-  CircularProgressbarWithChildren,
-  buildStyles,
-} from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
-import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { getPercent } from "../utils/utils";
-import { getMaxAmountAvailableToSupply } from "../utils/getMaxAmountAvailableToSupply";
-import { getMaxAmountAvailableToBorrow } from "../utils/getMaxAmountAvailableToBorrow";
-import { getMaxAmountAvailableToWithdraw } from "../utils/getMaxAmountAvailableToWithdraw";
-import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "../constants/chains";
-import { PoolAccordionGroup } from "../components/PoolAccordionGroup";
-import { IReserve } from "../interfaces/reserve.interface";
 import { PoolHeaderList } from "../components/PoolHeaderList";
+import { PoolAccordionGroup } from "../components/PoolAccordionGroup";
+import { CHAIN_AVAILABLES } from "../constants/chains";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -142,15 +109,12 @@ export const DefiContainer = ({
   ?.map(
     (summary) => Number(summary?.currentLiquidationThreshold || 0)
   ).reduce((a, b) => a + b, 0) || 0) / ((userSummaryAndIncentivesGroup
-    ?.filter((summary) => Number(summary?.currentLiquidationThreshold || 0) > 0)||[])?.length || 0);
+    ?.filter((summary) => Number(summary?.currentLiquidationThreshold || 0) > 0)||[])?.length || 0)||0;
   
   const totalBorrowableUsd = totalCollateralUsd * totalLiquidationThreshold;
-  const percentBorrowingCapacity =
-    100 - getPercent(totalBorrowsUsd, totalBorrowableUsd);
+  const percentBorrowingCapacity = 100 - getPercent(totalBorrowsUsd, totalBorrowableUsd);
   const progressBarFormatedValue = percentBorrowingCapacity / 100;
-    console.log('>>>>>', {totalLiquidationThreshold}, userSummaryAndIncentivesGroup
-    ?.filter((summary) => Number(summary?.currentLiquidationThreshold || 0) > 0));
-    
+  
   return !poolGroups || poolGroups.length === 0 ? (
     <IonGrid class="ion-padding">
       <IonRow class="ion-padding">
@@ -197,7 +161,7 @@ export const DefiContainer = ({
 
       <IonRow class="ion-justify-content-center ion-padding">
         <IonCol class="widgetWrapper" size-md="12" size-lg="10" size-xl="10">
-          {user && percentBorrowingCapacity > 0 ? (
+       
             <IonAccordionGroup>
               <IonAccordion className="dashboardItem">
                 <IonItem slot="header">
@@ -286,177 +250,180 @@ export const DefiContainer = ({
                 </IonItem>
 
                 <div slot="content">
-                  <IonGrid className="ion-no-padding">
-                    <IonRow
-                      class="ion-no-padding ion-padding-start ion-align-items-center ion-justify-content-between"
-                    >
-                      <IonCol
-                        size-md="3"
-                        class="ion-text-start ion-padding-horizontal"
+                  {user && totalCollateralUsd > 0 && (<>
+                    <IonGrid className="ion-no-padding">
+                      <IonRow
+                        class="ion-no-padding ion-padding-start ion-align-items-center ion-justify-content-between"
                       >
-                        <IonLabel color="medium">
-                          <h3>Protocols</h3>
-                        </IonLabel>
-                      </IonCol>
-                      <IonCol
-                        size="auto"
-                        size-md="3"
-                        class="ion-padding-horizontal ion-text-end ion-hide-md-down"
-                      >
-                        <IonLabel color="medium">
-                          <h3>Deposit balance</h3>
-                        </IonLabel>
-                      </IonCol>
-                      <IonCol
-                        size="auto"
-                        size-md="3"
-                        class="ion-padding-horizontal ion-text-end ion-hide-md-down"
-                      >
-                        <IonLabel color="medium">
-                          <h3>Borrow balance</h3>
-                        </IonLabel>
-                      </IonCol>
-                      <IonCol
-                        size="6"
-                        size-md="3"
-                        class="ion-padding-horizontal ion-text-end"
-                      >
-                        <IonLabel color="medium">
-                          <h3>Borrowing Capacity</h3>
-                        </IonLabel>
-                      </IonCol>
-                    </IonRow>
-                  </IonGrid>
-                  {/* AAVE Protocol */}
-                  {userSummaryAndIncentivesGroup
-                    ?.filter((summary) => Number(summary.totalBorrowsUSD) > 0 || Number(summary.totalCollateralUSD) > 0)
-                    ?.map((summary, index) => (
-                      <IonItem key={index} lines="none" style={{cursor: 'default'}}>
-                        <IonGrid className="ion-no-padding" style={{
-                          paddingBottom: index === userSummaryAndIncentivesGroup.length - 1 ? "0" : "1rem"
-                        }}>
-                          <IonRow className="poolItemList ion-align-items-center ion-justify-content-between ion-no-padding ion-padding-start">
-                            <IonCol
-                              size-md="3"
-                              class="ion-padding-horizontal ion-text-start"
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                alignContent: "center",
-                              }}
-                            >
-                              <div>
-                                <IonAvatar
-                                  style={{
-                                    height: "38px",
-                                    width: "38px",
-                                    minHeight: "38px",
-                                    minWidth: "38px",
-                                  }}
-                                >
-                                  <IonImg src="./assets/icons/aave.svg"></IonImg>
-                                </IonAvatar>
-                                <IonIcon
-                                  style={{
-                                    fontSize: "0.8rem",
-                                    transform: "translateX(-0.2rem)",
-                                    position: "absolute",
-                                    bottom: "0.15rem",
-                                  }}
-                                  src={
-                                    CHAIN_AVAILABLES.find(
-                                      (c) => c.id === summary.chainId
-                                    )?.logo
-                                  }
-                                ></IonIcon>
-                              </div>
-                              <IonLabel class="ion-padding-start">
-                                AAVE V3
-                                <p>
-                                  <small>
-                                    {
+                        <IonCol
+                          size-md="3"
+                          class="ion-text-start ion-padding-horizontal"
+                        >
+                          <IonLabel color="medium">
+                            <h3>Protocols</h3>
+                          </IonLabel>
+                        </IonCol>
+                        <IonCol
+                          size="auto"
+                          size-md="3"
+                          class="ion-padding-horizontal ion-text-end ion-hide-md-down"
+                        >
+                          <IonLabel color="medium">
+                            <h3>Deposit balance</h3>
+                          </IonLabel>
+                        </IonCol>
+                        <IonCol
+                          size="auto"
+                          size-md="3"
+                          class="ion-padding-horizontal ion-text-end ion-hide-md-down"
+                        >
+                          <IonLabel color="medium">
+                            <h3>Borrow balance</h3>
+                          </IonLabel>
+                        </IonCol>
+                        <IonCol
+                          size="6"
+                          size-md="3"
+                          class="ion-padding-horizontal ion-text-end"
+                        >
+                          <IonLabel color="medium">
+                            <h3>Borrowing Capacity</h3>
+                          </IonLabel>
+                        </IonCol>
+                      </IonRow>
+                    </IonGrid>
+                    {/* AAVE Protocol */}
+                    {userSummaryAndIncentivesGroup
+                      ?.filter((summary) => Number(summary.totalBorrowsUSD) > 0 || Number(summary.totalCollateralUSD) > 0)
+                      ?.map((summary, index) => (
+                        <IonItem key={index} lines="none" style={{cursor: 'default'}}>
+                          <IonGrid className="ion-no-padding" style={{
+                            paddingBottom: index === userSummaryAndIncentivesGroup.length - 1 ? "0" : "1rem"
+                          }}>
+                            <IonRow className="poolItemList ion-align-items-center ion-justify-content-between ion-no-padding ion-padding-start">
+                              <IonCol
+                                size-md="3"
+                                class="ion-padding-horizontal ion-text-start"
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  alignContent: "center",
+                                }}
+                              >
+                                <div>
+                                  <IonAvatar
+                                    style={{
+                                      height: "38px",
+                                      width: "38px",
+                                      minHeight: "38px",
+                                      minWidth: "38px",
+                                    }}
+                                  >
+                                    <IonImg src="./assets/icons/aave.svg"></IonImg>
+                                  </IonAvatar>
+                                  <IonIcon
+                                    style={{
+                                      fontSize: "0.8rem",
+                                      transform: "translateX(-0.2rem)",
+                                      position: "absolute",
+                                      bottom: "0.15rem",
+                                    }}
+                                    src={
                                       CHAIN_AVAILABLES.find(
                                         (c) => c.id === summary.chainId
-                                      )?.name
-                                    }{" "}
-                                    network
+                                      )?.logo
+                                    }
+                                  ></IonIcon>
+                                </div>
+                                <IonLabel class="ion-padding-start">
+                                  AAVE V3
+                                  <p>
+                                    <small>
+                                      {
+                                        CHAIN_AVAILABLES.find(
+                                          (c) => c.id === summary.chainId
+                                        )?.name
+                                      }{" "}
+                                      network
+                                    </small>
+                                  </p>
+                                </IonLabel>
+                              </IonCol>
+                              <IonCol
+                                size="auto"
+                                size-md="3"
+                                class="ion-padding-horizontal ion-text-end ion-hide-md-down"
+                              >
+                                <IonText color="dark">
+                                  {currencyFormat(+summary.totalCollateralUSD)}
+                                </IonText>
+                              </IonCol>
+                              <IonCol
+                                size="auto"
+                                size-md="3"
+                                class="ion-padding-horizontal ion-text-end ion-hide-md-down"
+                              >
+                                <IonText color="dark">
+                                  {currencyFormat(+summary.totalBorrowsUSD)}
+                                </IonText>
+                              </IonCol>
+                              <IonCol
+                                size="6"
+                                size-md="3"
+                                class="ion-padding-horizontal ion-text-end"
+                              >
+                                <IonText color="dark">
+                                  {currencyFormat(+summary.totalBorrowsUSD)} of{" "}
+                                  {currencyFormat(Number(summary.totalCollateralUSD) * Number(summary.currentLiquidationThreshold))}{" "}
+                                  <small>
+                                    ({
+                                      (100 - getPercent(+summary.totalBorrowsUSD, (Number(summary.totalCollateralUSD) * Number(summary.currentLiquidationThreshold)))).toFixed(2)
+                                    }%)
                                   </small>
-                                </p>
-                              </IonLabel>
-                            </IonCol>
-                            <IonCol
-                              size="auto"
-                              size-md="3"
-                              class="ion-padding-horizontal ion-text-end ion-hide-md-down"
-                            >
-                              <IonText color="dark">
-                                {currencyFormat(+summary.totalCollateralUSD)}
-                              </IonText>
-                            </IonCol>
-                            <IonCol
-                              size="auto"
-                              size-md="3"
-                              class="ion-padding-horizontal ion-text-end ion-hide-md-down"
-                            >
-                              <IonText color="dark">
-                                {currencyFormat(+summary.totalBorrowsUSD)}
-                              </IonText>
-                            </IonCol>
-                            <IonCol
-                              size="6"
-                              size-md="3"
-                              class="ion-padding-horizontal ion-text-end"
-                            >
-                              <IonText color="dark">
-                                {currencyFormat(+summary.totalBorrowsUSD)} of{" "}
-                                {currencyFormat(Number(summary.totalCollateralUSD) * Number(summary.currentLiquidationThreshold))}{" "}
-                                <small>
-                                  ({
-                                    (100 - getPercent(+summary.totalBorrowsUSD, (Number(summary.totalCollateralUSD) * Number(summary.currentLiquidationThreshold)))).toFixed(2)
-                                  }%)
-                                </small>
-                              </IonText>
-                              <IonProgressBar
-                                color="success"
-                                value={
-                                  (100 -
-                                    getPercent(
-                                      +summary.totalBorrowsUSD,
-                                      +summary.totalCollateralUSD
-                                    )) /
-                                  100
-                                }
-                                style={{
-                                  background: "var(--ion-color-danger)",
-                                  height: "0.2rem",
-                                  marginTop: "0.25rem",
-                                }}
-                              ></IonProgressBar>
-                            </IonCol>
-                          </IonRow>
-                        </IonGrid>
-                      </IonItem>
-                    ))}
+                                </IonText>
+                                <IonProgressBar
+                                  color="success"
+                                  value={
+                                    (100 -
+                                      getPercent(
+                                        +summary.totalBorrowsUSD,
+                                        +summary.totalCollateralUSD
+                                      )) /
+                                    100
+                                  }
+                                  style={{
+                                    background: "var(--ion-color-danger)",
+                                    height: "0.2rem",
+                                    marginTop: "0.25rem",
+                                  }}
+                                ></IonProgressBar>
+                              </IonCol>
+                            </IonRow>
+                          </IonGrid>
+                        </IonItem>
+                      ))}
+                  </>)}
+                  {(!user || totalCollateralUsd === 0) && (
+                    <IonGrid class="ion-no-padding">
+                      <IonRow class="ion-text-center">
+                        <IonCol
+                          size="12"
+                          class="ion-text-center"
+                        >
+                          <IonText>
+                            <p>
+                              {!user ? "Connect wallet and deposit" : "Deposit"} assets as
+                              collateral to borrow and start earning interest
+                            </p>
+                          </IonText>
+                        </IonCol>
+                      </IonRow>
+                    </IonGrid>
+                  )}
                 </div>
               </IonAccordion>
             </IonAccordionGroup>
-          ) : (
-            <IonGrid class="ion-no-padding">
-              <IonRow class="ion-text-center">
-                <IonCol
-                  size="12"
-                  class=" ion-padding ion-margin-vertical ion-text-center"
-                >
-                  <IonText>
-                    <p>
-                      {!user ? "Connect wallet, deposit" : "Deposit"}, assets as
-                      collateral to borrow assets and start earning interest
-                    </p>
-                  </IonText>
-                </IonCol>
-              </IonRow>
-            </IonGrid>
-          )}
+          
         </IonCol>
       </IonRow>
 
