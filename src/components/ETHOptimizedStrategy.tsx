@@ -928,6 +928,7 @@ export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isDisplayAPYDef, setIsDisplayAPYDef] = useState(false);
   const [isDisplayHowItWork, setIsDisplayHowItWork] = useState(false);
+  const { ethereumProvider, switchNetwork } = useEthersProvider();
   const strategy = useEthOptimizedStrategy();
   const { user, assets } = useUser();
   const modal = useRef<HTMLIonModalElement>(null);
@@ -1084,7 +1085,12 @@ export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
     ) : (
       <IonButton
         disabled={isDisabled}
-        onClick={() => {
+        onClick={async () => {
+          // check correct chain
+          const chainId = ethereumProvider?.network?.chainId;
+          if (chainId !== 10) {
+            await switchNetwork(10);
+          } 
           modal.current?.present();
         }}
         expand="block"
