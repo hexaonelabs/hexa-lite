@@ -40,6 +40,8 @@ import { getPercent } from "../utils/utils";
 import { PoolHeaderList } from "../components/PoolHeaderList";
 import { PoolAccordionGroup } from "../components/PoolAccordionGroup";
 import { CHAIN_AVAILABLES } from "../constants/chains";
+import { useState } from "react";
+import { MarketList } from "../components/MarketsList";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -440,33 +442,12 @@ export const DefiContainer = ({
             <h3
               style={{
                 textAlign: "center",
-                margin: "3rem auto",
+                margin: "3rem auto 1rem",
               }}
             >
               Available Markets
             </h3>
-            {/* list header */}
-            <PoolHeaderList
-              titles={[
-                "Assets",
-                "Networks",
-                "Total deposits",
-                " Total borrows",
-                "Best deposit APY",
-                "Best borrow APY",
-              ]}
-            />
-            <IonAccordionGroup>
-              {poolGroups.map((poolGroup, index) => (
-                <PoolAccordionGroup
-                  key={index}
-                  handleSegmentChange={handleSegmentChange}
-                  refresh={refresh}
-                  poolGroup={poolGroup}
-                  userSummaryAndIncentivesGroup={userSummaryAndIncentivesGroup}
-                />
-              ))}
-            </IonAccordionGroup>
+            <MarketList />
           </div>
         </IonCol>
       </IonRow>
