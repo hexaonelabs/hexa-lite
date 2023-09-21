@@ -46,14 +46,13 @@ import { PoolHeaderList } from "./PoolHeaderList";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 
 interface IPoolAccordionProps {
-  refresh: () => void;
-  handleSegmentChange: (e: { detail: { value: string } }) => void;
+  handleSegmentChange?: (e: { detail: { value: string } }) => void;
   poolGroup: IPoolGroup;
   userSummaryAndIncentivesGroup: IUserSummary[]|null;
 }
 
 export function PoolAccordionGroup(props: IPoolAccordionProps) {
-  const { refresh, handleSegmentChange, poolGroup, userSummaryAndIncentivesGroup } = props;
+  const { poolGroup, userSummaryAndIncentivesGroup } = props;
   const [state, setState] = useState<
     | {
         actionType: "deposit" | "withdraw" | "borrow" | "repay" | undefined;

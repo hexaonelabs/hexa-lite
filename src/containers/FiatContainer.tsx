@@ -37,7 +37,7 @@ export function FiatContainer() {
                 overflow: "hidden",
                 display: "inline-block",
               }}
-              src="https://buy.onramper.com?themeName=dark&cardColor=1c2b42&borderRadius=12px&defaultCrypto=ETH_OPTIMISM"
+              src="https://buy.onramper.com?themeName=dark&containerColor=1e2843ff&primaryColor=46de8c&secondaryColor=3f3f43&cardColor=2a3b59ff&primaryTextColor=ffffff&secondaryTextColor=ffffff&borderRadius=1.46&wgBorderRadius=1&defaultCrypto=ETH_OPTIMISM"
               title="Onramper Widget"
               height="630px"
               width="450px"

@@ -5,7 +5,7 @@ import { ETHLiquidStakingstrategyCard } from "../components/ETHLiquidStakingstra
 
 export function EarnContainer() {
   return (
-    <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
+    <IonGrid class="ion-no-padding" style={{ marginBottom: "8rem" }}>
       <IonRow class="ion-justify-content-center ion-padding">
         <IonCol
           size="12"
