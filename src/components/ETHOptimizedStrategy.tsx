@@ -1124,7 +1124,7 @@ export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
             </IonCol>
             <IonCol size="12" class="ion-padding-top">
               <h1 className="ion-no-margin">
-                <IonText color="primary">{strategy.name}</IonText>
+                <IonText className="ion-color-gradient-text">{strategy.name}</IonText>
                 <br />
                 <small>{strategy.type}</small>
               </h1>

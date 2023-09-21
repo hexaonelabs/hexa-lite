@@ -381,10 +381,6 @@ ion-accordion {
   user-select: none; /* Standard syntax */
 }
 
-.css-nub5al-MuiScopedCssBaseline-root {
-  // background-color: #515173!important;
-}
-
 ion-accordion {
   *[slot="header"] {
     --padding-top: 0.8rem;
@@ -466,6 +462,10 @@ ion-accordion {
     &.accordion-expanded {
       background: none!important;
 
+    }
+
+    h3 {
+      font-size: 32px;
     }
   }
 }

@@ -39,6 +39,7 @@ import { MARKETTYPE, borrow, repay, supplyWithPermit, withdraw } from "../servci
 import { useEthersProvider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
 import { useAave } from "../context/AaveContext";
+import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 
 interface IReserveDetailProps {
   reserve: IReserve;
@@ -262,9 +263,28 @@ export function ReserveDetail(props: IReserveDetailProps) {
             marginTop: "0rem",
           }}
         >
-          <IonRow class="widgetWrapper ion-padding-top ion-justify-content-center">
+          <IonRow class="widgetWrapper  ion-justify-content-center">
+            <IonCol size="12" size-md="12"  style={{
+              background: 'rgba(var(--ion-color-light-rgb), 0.6) !important'
+            }}>
+              <IonGrid className="ion-no-padding">
+                <IonRow>
+                  <IonCol size="6" class="ion-text-start" style={{padding: '0.25rem 0 0.5rem 1.8rem',}}>
+                    <IonText color="medium">
+                      <small>Asset</small>
+                    </IonText>
+                  </IonCol>
+                  <IonCol size="6" class="ion-text-end ion-padding-end"  style={{padding: '0.25rem 1.8rem 0.5rem 0'}}>
+                    <IonText color="medium">
+                      <small>Market pool</small>
+                    </IonText>
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
+            </IonCol>
+
             <IonCol
-              size-md="12"
+              size-md="6"
               class="ion-text-start ion-padding horizontalLineBottom"
               style={{
                 display: "flex",
@@ -316,6 +336,41 @@ export function ReserveDetail(props: IReserveDetailProps) {
                   ></IonIcon>
                 )}
               </IonLabel>
+            </IonCol>
+            <IonCol
+              size-md="6"
+              class="ion-text-end ion-padding horizontalLineBottom"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                alignContent: "center",
+                justifyContent: "flex-end",
+                paddingBottom: "32px",
+              }}
+            >
+              <IonLabel class="ion-padding-start">
+                <h2>
+                 AAVE V3
+                  <small style={{ display: "block" }}>
+                    Lending & Borrowing
+                  </small>
+                </h2>
+              </IonLabel>
+              <div
+                style={{ minWidth: "84px", position: "relative" }}
+                className="ion-padding-start ion-padding-end"
+              >
+                <IonAvatar
+                  style={{
+                    height: "84px",
+                    width: "84px",
+                    minHeight: "84px",
+                    minWidth: "84px",
+                  }}
+                >
+                  <IonImg src={getAssetIconUrl({symbol: 'AAVE'})}></IonImg>
+                </IonAvatar>
+              </div>
             </IonCol>
             {!reserve.usageAsCollateralEnabled && (
               <IonCol

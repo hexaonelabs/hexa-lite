@@ -91,5 +91,8 @@ export const getAssetIconUrl = ({ symbol }: { symbol: string }) => {
   if (symbol === "sDAI") {
     logoUrl = `./assets/icons/sdai.svg`;
   }
+  if (symbol === "AAVE") {
+    logoUrl = `./assets/icons/aave.svg`;
+  }
   return logoUrl;
 };

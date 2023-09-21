@@ -116,6 +116,7 @@ export const DefiContainer = ({
   const totalBorrowableUsd = totalCollateralUsd * totalLiquidationThreshold;
   const percentBorrowingCapacity = 100 - getPercent(totalBorrowsUsd, totalBorrowableUsd);
   const progressBarFormatedValue = percentBorrowingCapacity / 100;
+  const totalAbailableToBorrow = totalBorrowableUsd - totalBorrowsUsd;
   
   return !poolGroups || poolGroups.length === 0 ? (
     <IonGrid class="ion-padding">
@@ -143,11 +144,10 @@ export const DefiContainer = ({
                 using your crypto as collateral and earn interest by providing
                 liquidity over
               </span>
-              <span
+              <span className="ion-color-gradient-text"
                 style={{
                   fontSize: "2rem",
                   display: "block",
-                  color: "var(--ion-color-primary)",
                   margin: "1rem 1rem 3rem",
                   fontFamily: "monospace",
                   fontWeight: 600,
@@ -175,15 +175,15 @@ export const DefiContainer = ({
                         class=" ion-padding-vertical ion-margin-vertical"
                       >
                         <h3>{currencyFormat(+totalCollateralUsd)}</h3>
-                        <IonText color="medium">
-                          <p>
-                            DEPOSIT BALANCE
+                        <p>
+                          DEPOSIT BALANCE
+                          <IonText color="medium">
                             <br />
                             <small>
                               Total of all collaterals used to borrow assets
                             </small>
-                          </p>
-                        </IonText>
+                          </IonText>
+                        </p>
                       </IonCol>
                       <IonCol
                         size="12"
@@ -191,7 +191,18 @@ export const DefiContainer = ({
                         class=" ion-padding-vertical ion-margin-vertical"
                       >
                         <h3>{Number(percentBorrowingCapacity.toFixed(2))}%</h3>
-                        <div className="ion-margin-horizontal">
+                        <p>
+                          BORROWING CAPACITY
+                          <IonText color="medium">
+                            <br />
+                            <small>
+                              {currencyFormat(+totalBorrowsUsd)} of{" "}
+                              {currencyFormat(totalBorrowableUsd)}
+                            </small>
+                          </IonText>
+                        </p>
+                          
+                        {/* <div className="ion-margin">
                           <IonProgressBar
                             color="success"
                             value={progressBarFormatedValue}
@@ -200,41 +211,23 @@ export const DefiContainer = ({
                               height: "0.5rem",
                             }}
                           ></IonProgressBar>
-                        </div>
-                        <IonText color="medium">
-                          <p>
-                            BORROWING CAPACITY
-                            <IonIcon
-                              icon={informationCircleOutline}
-                              style={{
-                                transform: "scale(0.8)",
-                                marginLeft: "0.2rem",
-                                cursor: "pointer",
-                              }}
-                            />
-                            <br />
-                            <small>
-                              {currencyFormat(+totalBorrowsUsd)} of{" "}
-                              {currencyFormat(totalBorrowableUsd)}
-                            </small>
-                          </p>
-                        </IonText>
+                        </div> */}
                       </IonCol>
                       <IonCol
                         size="12"
                         size-md="4"
                         class=" ion-padding-vertical ion-margin-vertical"
                       >
-                        <h3>{currencyFormat(totalBorrowsUsd)}</h3>
-                        <IonText color="medium">
-                          <p>
-                            BORROW BALANCE
+                        <h3>{currencyFormat(totalAbailableToBorrow)}</h3>
+                        <p>
+                          AVAILABLE TO BORROW
+                          <IonText color="medium">
                             <br />
                             <small>
-                              Total amount borrowed accross networks
+                              Amount that you can borrow
                             </small>
-                          </p>
-                        </IonText>
+                          </IonText>
+                        </p>
                       </IonCol>
                       <IonCol size="12" style={{
                           marginTop:" -2rem"
@@ -267,7 +260,7 @@ export const DefiContainer = ({
                         </IonCol>
                         <IonCol
                           size="auto"
-                          size-md="3"
+                          size-md="2"
                           class="ion-padding-horizontal ion-text-end ion-hide-md-down"
                         >
                           <IonLabel color="medium">
@@ -276,11 +269,20 @@ export const DefiContainer = ({
                         </IonCol>
                         <IonCol
                           size="auto"
-                          size-md="3"
+                          size-md="2"
                           class="ion-padding-horizontal ion-text-end ion-hide-md-down"
                         >
                           <IonLabel color="medium">
                             <h3>Borrow balance</h3>
+                          </IonLabel>
+                        </IonCol>
+                        <IonCol
+                          size="auto"
+                          size-md="2"
+                          class="ion-padding-horizontal ion-text-end ion-hide-md-down"
+                        >
+                          <IonLabel color="medium">
+                            <h3>Available to Borrow</h3>
                           </IonLabel>
                         </IonCol>
                         <IonCol
@@ -353,7 +355,7 @@ export const DefiContainer = ({
                               </IonCol>
                               <IonCol
                                 size="auto"
-                                size-md="3"
+                                size-md="2"
                                 class="ion-padding-horizontal ion-text-end ion-hide-md-down"
                               >
                                 <IonText color="dark">
@@ -362,11 +364,20 @@ export const DefiContainer = ({
                               </IonCol>
                               <IonCol
                                 size="auto"
-                                size-md="3"
+                                size-md="2"
                                 class="ion-padding-horizontal ion-text-end ion-hide-md-down"
                               >
                                 <IonText color="dark">
                                   {currencyFormat(+summary.totalBorrowsUSD)}
+                                </IonText>
+                              </IonCol>
+                              <IonCol
+                                size="auto"
+                                size-md="2"
+                                class="ion-padding-horizontal ion-text-end ion-hide-md-down"
+                              >
+                                <IonText color="dark">
+                                  {currencyFormat((Number(summary.totalCollateralUSD) * Number(summary.currentLiquidationThreshold)) - Number(summary.totalBorrowsUSD))}
                                 </IonText>
                               </IonCol>
                               <IonCol
