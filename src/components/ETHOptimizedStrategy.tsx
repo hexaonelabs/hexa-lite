@@ -552,7 +552,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
                     ethereumProvider as ethers.providers.Web3Provider
                   );
                   await refreshUser();
-                  await refreshAAVE();
+                  await refreshAAVE('userSummary');
                   if ((txReceipts?.length || 0) > 0) {
                     await presentToast({
                       message: `Swap completed successfully`,
@@ -675,7 +675,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
                     ethereumProvider as ethers.providers.Web3Provider
                   );
                   await refreshUser();
-                  await refreshAAVE();
+                  await refreshAAVE('userSummary');
                   if ((txReceipts?.length || 0) > 0) {
                     await presentToast({
                       message: `Deposit completed successfully`,
@@ -836,7 +836,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
                     ethereumProvider as ethers.providers.Web3Provider
                   );
                   await refreshUser();
-                  await refreshAAVE();
+                  await refreshAAVE('userSummary');
                   if ((txReceipts?.length || 0) > 0) {
                     await presentToast({
                       message: `Borrow completed successfully`,
