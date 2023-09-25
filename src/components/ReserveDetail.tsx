@@ -46,10 +46,11 @@ interface IReserveDetailProps {
   userSummary: IUserSummary | undefined;
   markets: MARKETTYPE | undefined
   dismiss: () => void;
+  handleSegmentChange: (e: { detail: { value: string } }) => void;
 }
 
 export function ReserveDetail(props: IReserveDetailProps) {
-  const { reserve, userSummary, markets } = props;
+  const { reserve, userSummary, markets, handleSegmentChange } = props;
   const { user } = useUser();
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const { ethereumProvider, switchNetwork } = useEthersProvider();
@@ -496,20 +497,20 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     {Number(reserve.walletBalance || 0) <= 0 &&
                     reserve.supplyBalance <= 0 ? (
                       <>
-                        {/* <IonButton
+                        {<IonButton
                             fill="solid"
                             color="gradient"
-                            onClick={() => handleEvents("swap", reserve)}
+                            onClick={() => handleSegmentChange({ detail: { value: "swap" } })}
                           >
                             Exchange assets
-                          </IonButton> */}
-                        {/* <IonButton
+                          </IonButton>}
+                        {<IonButton
                             fill="solid"
                             color="gradient"
-                            onClick={() => handleEvents("fiat", reserve)}
+                            onClick={() => handleSegmentChange({ detail: { value: "fiat" } })}
                           >
                             Buy assets
-                          </IonButton> */}
+                          </IonButton>}
                       </>
                     ) : (
                       <>

@@ -27,9 +27,10 @@ interface IPoolItemListProps {
   userSummary: IUserSummary | undefined;
   chainId: number;
   iconSize: string;
+  handleSegmentChange: (e: { detail: { value: string } }) => void;
 }
 export function PoolItemList(props: IPoolItemListProps) {
-  const { reserveId, iconSize, chainId, userSummary } = props;
+  const { reserveId, iconSize, chainId, userSummary, handleSegmentChange } = props;
   const { user } = useUser();
   const { markets, poolGroups } = useAave();
   const modal = useRef<HTMLIonModalElement>(null);
@@ -199,7 +200,8 @@ export function PoolItemList(props: IPoolItemListProps) {
           reserve={reserve}
           userSummary={userSummary}
           markets={markets?.find((m) => m.CHAIN_ID === chainId)}
-          dismiss={() => modal.current?.dismiss()} />
+          dismiss={() => modal.current?.dismiss()}
+          handleSegmentChange={handleSegmentChange} />
       </IonModal>
     </IonItem>
   );

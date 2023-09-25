@@ -449,7 +449,7 @@ export const DefiContainer = ({
           size-lg="10"
           size-xl="10"
         >
-          <div className="">
+          <div>
             <h3
               style={{
                 textAlign: "center",
@@ -458,7 +458,7 @@ export const DefiContainer = ({
             >
               Available Markets
             </h3>
-            <MarketList />
+            <MarketList handleSegmentChange={handleSegmentChange} />
           </div>
         </IonCol>
       </IonRow>

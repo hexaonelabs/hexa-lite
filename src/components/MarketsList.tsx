@@ -12,7 +12,10 @@ import { PoolAccordionGroup } from "./PoolAccordionGroup";
 import { useAave } from "../context/AaveContext";
 import { useState } from "react";
 
-export function MarketList() {
+export function MarketList(props: {
+  handleSegmentChange: (e: { detail: { value: string } }) => void;
+}) {
+  const { handleSegmentChange } = props;
   const { poolGroups, userSummaryAndIncentivesGroup } = useAave();
   const [filterBy, setFilterBy] = useState<{ key: string; value: any } | null>(
     null
@@ -70,6 +73,7 @@ export function MarketList() {
                 key={index}
                 poolGroup={poolGroup}
                 userSummaryAndIncentivesGroup={userSummaryAndIncentivesGroup}
+                handleSegmentChange={handleSegmentChange}
               />
             ))}
           </IonAccordionGroup>
