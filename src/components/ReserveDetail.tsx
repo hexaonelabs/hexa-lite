@@ -61,7 +61,8 @@ export function ReserveDetail(props: IReserveDetailProps) {
   >(undefined);
   const { refresh } = useAave();
   const modal = useRef<HTMLIonModalElement>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);  const borrowPoolRatioInPercent = getPercent(
+  const [isModalOpen, setIsModalOpen] = useState(false);  
+  const borrowPoolRatioInPercent = getPercent(
     valueToBigNumber(reserve.totalDebtUSD).toNumber(),
     valueToBigNumber(reserve.borrowCapUSD).toNumber()
   );
@@ -69,7 +70,10 @@ export function ReserveDetail(props: IReserveDetailProps) {
     valueToBigNumber(reserve.totalLiquidityUSD).toNumber(),
     valueToBigNumber(reserve.supplyCapUSD).toNumber()
   );
-  const percentBorrowingCapacity = 100 - getPercent(0, 0);
+  const percentBorrowingCapacity = 100 - getPercent(
+    Number(userSummary?.totalBorrowsUSD || 0), 
+    Number(userSummary?.totalCollateralUSD)
+  );
 
   const handleOpenModal = (type: string, reserve: IReserve) => {
     if (!userSummary) {
