@@ -18,6 +18,8 @@ import {
   IonContent,
   IonPopover,
   IonNote,
+  IonAccordionGroup,
+  IonAccordion,
 } from "@ionic/react";
 import {
   informationCircleOutline,
@@ -147,7 +149,7 @@ const ACTIONS = {
     };
     console.log("params: ", params);
     try {
-      const txReceipts = await supplyWithPermit(params);
+      const txReceipts = await supplyWithPermit(params as any);
       console.log("TX result: ", txReceipts);
       return { txReceipts };
     } catch (error) {
@@ -552,7 +554,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
                     ethereumProvider as ethers.providers.Web3Provider
                   );
                   await refreshUser();
-                  await refreshAAVE();
+                  await refreshAAVE('userSummary');
                   if ((txReceipts?.length || 0) > 0) {
                     await presentToast({
                       message: `Swap completed successfully`,
@@ -675,7 +677,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
                     ethereumProvider as ethers.providers.Web3Provider
                   );
                   await refreshUser();
-                  await refreshAAVE();
+                  await refreshAAVE('userSummary');
                   if ((txReceipts?.length || 0) > 0) {
                     await presentToast({
                       message: `Deposit completed successfully`,
@@ -836,7 +838,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
                     ethereumProvider as ethers.providers.Web3Provider
                   );
                   await refreshUser();
-                  await refreshAAVE();
+                  await refreshAAVE('userSummary');
                   if ((txReceipts?.length || 0) > 0) {
                     await presentToast({
                       message: `Borrow completed successfully`,
@@ -928,6 +930,7 @@ export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isDisplayAPYDef, setIsDisplayAPYDef] = useState(false);
   const [isDisplayHowItWork, setIsDisplayHowItWork] = useState(false);
+  const { ethereumProvider, switchNetwork } = useEthersProvider();
   const strategy = useEthOptimizedStrategy();
   const { user, assets } = useUser();
   const modal = useRef<HTMLIonModalElement>(null);
@@ -994,84 +997,87 @@ export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
           </IonRow>
           <IonRow>
             <IonCol size="12">
-              <IonItem lines="none" className="ion-margin-bottom">
-                <div className="bulletStep">1</div>
-                <IonText>
-                  <h4>
-                    <b>Staking WETH with Lido</b>
-                  </h4>
-                  <p className="ion-no-margin ion-margin-bottom">
-                    <small>
-                      By swapping WETH to wstETH you will incrase your WETH
-                      holdings by {baseAPRstETH}% APY revard from staking WETH
-                      using{" "}
-                      <a
-                        href="https://lido.fi/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Lido
-                      </a>
-                      .
-                    </small>
-                  </p>
-                </IonText>
-              </IonItem>
-              <IonItem lines="none" className="ion-margin-bottom">
-                <div className="bulletStep">2</div>
-                <IonText>
-                  <h4>
-                    <b>Deposit wstETH to AAVE</b>
-                  </h4>
-                  <p className="ion-no-margin ion-margin-bottom">
-                    <small>
-                      By deposit wstETH as collateral on{" "}
-                      <a
-                        href="https://aave.com/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        AAVE
-                      </a>{" "}
-                      you will be able to borrow up to{" "}
-                      {Number(strategy?.userLiquidationThreshold) * 100}% of
-                      your wstETH value in WETH.
-                    </small>
-                  </p>
-                </IonText>
-              </IonItem>
-              <IonItem lines="none" className="ion-margin-bottom">
-                <div className="bulletStep">3</div>
-                <IonText>
-                  <h4>
-                    <b>Borrow WETH from AAVE</b>
-                  </h4>
-                  <p className="ion-no-margin ion-margin-bottom">
-                    <small>
-                      By borrowing WETH from AAVE you will incrase your WETH
-                      holdings by{" "}
-                      {Number(strategy?.userLiquidationThreshold) * 100}%.
-                    </small>
-                  </p>
-                </IonText>
-              </IonItem>
-              <IonItem lines="none" className="ion-margin-bottom">
-                <div className="bulletStep">4</div>
-                <IonText>
-                  <h4>
-                    <b>Swap WETH to wstETH</b>
-                  </h4>
-                  <p className="ion-no-margin ion-margin-bottom">
-                    <small>
-                      By repeating step 1, you will incrase your wstETH holdings
-                      by {Number(strategy?.userLiquidationThreshold) * 100}% and
-                      you will cumulate {baseAPRstETH}% APY. You can now repeat
-                      again all process untill you reach the maximum AAVE user
-                      threshold liquidation.
-                    </small>
-                  </p>
-                </IonText>
-              </IonItem>
+              
+              <IonAccordionGroup>
+                <IonAccordion value="1">
+                  <IonItem slot="header">
+                    <div className="bulletStep">1</div>
+                    <IonLabel>Staking WETH with Lido</IonLabel>
+                  </IonItem>
+                  <div className="ion-padding" slot="content">
+                    <p className="ion-no-margin ion-margin-bottom">
+                      <small>
+                        By swapping WETH to wstETH you will incrase your WETH
+                        holdings by {baseAPRstETH}% APY revard from staking WETH
+                        using{" "}
+                        <a
+                          href="https://lido.fi/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Lido
+                        </a>
+                        .
+                      </small>
+                    </p>
+                  </div>
+                </IonAccordion>
+                <IonAccordion value="2">
+                  <IonItem slot="header">
+                    <div className="bulletStep">2</div>
+                    <IonLabel>Deposit wstETH to AAVE</IonLabel>
+                  </IonItem>
+                  <div className="ion-padding" slot="content">
+                    <p className="ion-no-margin ion-margin-bottom">
+                      <small>
+                        By deposit wstETH as collateral on{" "}
+                        <a
+                          href="https://aave.com/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          AAVE
+                        </a>{" "}
+                        you will be able to borrow up to{" "}
+                        {Number(strategy?.userLiquidationThreshold) * 100}% of
+                        your wstETH value in WETH.
+                      </small>
+                    </p>
+                  </div>
+                </IonAccordion>
+                <IonAccordion value="3">
+                  <IonItem slot="header">
+                    <div className="bulletStep">3</div>
+                    <IonLabel>Borrow WETH from AAVE</IonLabel>
+                  </IonItem>
+                  <div className="ion-padding" slot="content">
+                    <p className="ion-no-margin ion-margin-bottom">
+                      <small>
+                        By borrowing WETH from AAVE you will incrase your WETH
+                        holdings by{" "}
+                        {Number(strategy?.userLiquidationThreshold) * 100}%.
+                      </small>
+                    </p>
+                  </div>
+                </IonAccordion>
+                <IonAccordion value="4">
+                  <IonItem slot="header">
+                    <div className="bulletStep">4</div>
+                    <IonLabel>Swap WETH to wstETH</IonLabel>
+                  </IonItem>
+                  <div className="ion-padding" slot="content">
+                    <p className="ion-no-margin ion-margin-bottom">
+                      <small>
+                        By repeating step 1, you will incrase your wstETH holdings
+                        by {Number(strategy?.userLiquidationThreshold) * 100}% and
+                        you will cumulate {baseAPRstETH}% APY. You can now repeat
+                        again all process untill you reach the maximum AAVE user
+                        threshold liquidation.
+                      </small>
+                    </p>
+                  </div>
+                </IonAccordion>
+              </IonAccordionGroup>
             </IonCol>
           </IonRow>
         </IonGrid>
@@ -1084,7 +1090,12 @@ export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
     ) : (
       <IonButton
         disabled={isDisabled}
-        onClick={() => {
+        onClick={async () => {
+          // check correct chain
+          const chainId = ethereumProvider?.network?.chainId;
+          if (chainId !== 10) {
+            await switchNetwork(10);
+          } 
           modal.current?.present();
         }}
         expand="block"
@@ -1118,7 +1129,7 @@ export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
             </IonCol>
             <IonCol size="12" class="ion-padding-top">
               <h1 className="ion-no-margin">
-                <IonText color="primary">{strategy.name}</IonText>
+                <IonText className="ion-color-gradient-text">{strategy.name}</IonText>
                 <br />
                 <small>{strategy.type}</small>
               </h1>
@@ -1150,6 +1161,32 @@ export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
                       alt={symbol}
                     />
                   ))}
+                </div>
+              </IonItem>
+              <IonItem
+                style={{
+                  "--background": "transparent",
+                  "--inner-padding-end": "none",
+                  "--padding-start": "none",
+                }}
+              >
+              <IonLabel>Network</IonLabel>
+                <div slot="end" style={{ display: "flex" }}>
+                  {[strategy.chainId]
+                    .map((id) => CHAIN_AVAILABLES.find((c) => c.id === id))
+                    .map((c,index) => {
+                      if (!c||!c.nativeSymbol) return null;
+                      return (
+                        <IonImg
+                        key={index}
+                        style={{
+                          width: 18,
+                          height: 18,
+                        }}
+                        src={getAssetIconUrl({ symbol: c.nativeSymbol })}
+                        alt={c.nativeSymbol}
+                      />)
+                    })}
                 </div>
               </IonItem>
               <IonItem

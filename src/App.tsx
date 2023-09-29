@@ -70,20 +70,22 @@ function App() {
       default:
         return currentSegment ?
           (
-          <div
-            style={{
-              textAlign: "center",
-            }}
-          >
-            <IonText color="medium">
-              <h1>{currentSegment.toUpperCase()}</h1>
-              <p>
-                This feature is in development. <br />
-                Please check back later.
-              </p>
-            </IonText>
-            <IonChip color="primary">Coming soon</IonChip>
-          </div>
+            <>
+              <div
+                style={{
+                  textAlign: "center",
+                }}
+              >
+                <IonText color="medium">
+                  <h1>{currentSegment.toUpperCase()}</h1>
+                  <p>
+                    This feature is in development. <br />
+                    Please check back later.
+                  </p>
+                </IonText>
+                <IonChip color="primary">Coming soon</IonChip>
+              </div>
+            </>
         )
         : (<></>)
     }

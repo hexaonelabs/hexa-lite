@@ -115,7 +115,7 @@ export const AuthBadge = ({ user }: { user: string | null }) => {
 
   return (
     <>
-      <NetworkButton />
+      {/* <NetworkButton /> */}
       {
         user
           ? <DisconnectButton style={styleFixed} />

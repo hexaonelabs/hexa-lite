@@ -10,19 +10,11 @@ import {
 } from "../constants/chains";
 import { getMaxAmountAvailableToWithdraw } from "./getMaxAmountAvailableToWithdraw";
 import { getMaxAmountAvailableToBorrow } from "./getMaxAmountAvailableToBorrow";
+import { IReserve } from "../interfaces/reserve.interface";
 
 export const getMaxAmount = (
   type: string,
-  reserve: ReserveDataHumanized &
-    FormatReserveUSDResponse & {
-      borrowBalance: number;
-      borrowBalanceUsd: number;
-      supplyBalance: number;
-      supplyBalanceUsd: number;
-      walletBalance: number;
-      logo: string;
-      priceInUSD: string;
-    },
+  reserve: IReserve,
   userSummary: FormatUserSummaryAndIncentivesResponse<
     ReserveDataHumanized & FormatReserveUSDResponse
   >,
