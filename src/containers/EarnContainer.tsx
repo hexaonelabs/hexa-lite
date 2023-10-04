@@ -41,13 +41,19 @@ export function EarnContainer() {
         >
           <IonGrid class="ion-no-padding" style={{height: '100%'}}>
             <IonRow class="ion-justify-content-center" style={{height: '100%'}}>
+              
               {/* ETH Staking Strategy */}
-              <ETHLiquidStakingstrategyCard />
+              <IonCol size="auto" className="ion-padding-bottom">
+                <ETHLiquidStakingstrategyCard />
+              </IonCol>
 
               {/* ETH Optimized Strategy */}
-              <EthOptimizedStrategyProvider>
-                <EthOptimizedStrategyCard />
-              </EthOptimizedStrategyProvider>
+              <IonCol size="auto" className="ion-padding-bottom">
+                <EthOptimizedStrategyProvider>
+                  <EthOptimizedStrategyCard />
+                </EthOptimizedStrategyProvider>
+              </IonCol>
+
             </IonRow>
           </IonGrid>
         </IonCol>
