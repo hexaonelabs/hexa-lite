@@ -300,7 +300,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
   }
 
   return (
-    <IonGrid>
+    <IonGrid style={{width: '100%'}}>
       {/* <!-- Steps Proccess Component --> */}
       <IonRow
         class="ion-text-center ion-padding-top ion-padding-horizontal"
@@ -1109,10 +1109,10 @@ export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
   return !strategy ? (
     Loader
   ) : (
-    <IonCol size="auto" className="ion-padding-bottom">
+    <>
       <IonCard
         className={props.asImage ? "asImage" : "strategyCard"}
-        style={{ maxWidth: 330 }}
+        style={{ width: 330 }}
       >
         <IonGrid>
           <IonRow class="ion-text-center ion-padding">
@@ -1332,6 +1332,6 @@ export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
           }
         />
       </IonModal>
-    </IonCol>
+    </>
   );
 }
