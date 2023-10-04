@@ -46,8 +46,14 @@ const ConnectButton = (props: {
       // Hide the loader
       await hideLoader()
     } catch (error:any) {
+      // Hide the loader
+      await hideLoader();
       // Log any errors that occur during the connection process
-      // console.error("handleConnect:", error);
+      // filter out the error message if user stop the connection ([-32603] Internal JSON-RPC error.)
+      if (error?.code === -32603) {
+        return;
+      }
+      console.error("[ERROR] handleConnect:", error);
       await presentToast({
         message: `[ERROR] Connect Failed with reason: ${error?.message||error}`,
         color: "danger",
@@ -57,8 +63,6 @@ const ConnectButton = (props: {
           }}
         ]
       });
-      // Hide the loader
-      await hideLoader();
     }
   }
 
