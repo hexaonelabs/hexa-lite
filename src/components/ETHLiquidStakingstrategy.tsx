@@ -502,24 +502,26 @@ export function ETHLiquidStakingstrategyCard() {
           <IonRow>
             <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
               <HowItWork>
-                <IonText>
-                  <h4>Staking WETH with Lido</h4>
-                  <p className="ion-no-margin ion-margin-bottom">
-                    <small>
-                      By swapping WETH to wstETH you will incrase your WETH
-                      holdings by {baseAPRstETH.toFixed(2)}% APY revard from
-                      staking WETH using{" "}
-                      <a
-                        href="https://lido.fi/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Lido
-                      </a>
-                      .
-                    </small>
-                  </p>
-                </IonText>
+                <div className="ion-padding-horizontal">
+                  <IonText>
+                    <h4>Staking WETH with Lido</h4>
+                    <p className="ion-no-margin ion-padding-bottom">
+                      <small>
+                        By swapping WETH to wstETH you will incrase your WETH
+                        holdings by {baseAPRstETH.toFixed(2)}% APY revard from
+                        staking WETH using{" "}
+                        <a
+                          href="https://lido.fi/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Lido
+                        </a>
+                        .
+                      </small>
+                    </p>
+                  </IonText>
+                </div>
               </HowItWork>
               {CardButton}
             </IonCol>
