@@ -70,12 +70,12 @@ export function MarketList(props: {
   return (
     <>
       <IonGrid className="ion-no-padding ion-padding-vertical">
-        <IonRow class="ion-justify-content-start ion-align-items-center"
+        <IonRow class="ion-justify-content-between ion-align-items-center"
               style={{
                 padding: 0,
                 margin: "0rem auto 1rem",
               }}>
-          <IonCol size="12" sizeMd="3" class="ion-padding-horizontal">
+          <IonCol size="12" sizeMd="auto" class="ion-padding-horizontal">
             <IonInput 
               label="Symbol" 
               labelPlacement="stacked"
@@ -132,7 +132,7 @@ export function MarketList(props: {
               labelPlacement="stacked" 
               aria-label="Protocols" 
               interface="popover" 
-              placeholder="Select protocols"
+              placeholder="Select protocol"
               onIonChange={(e) => {
                 const name = e.detail.value && e.detail.value.length > 0 
                   ? Number(e.detail.value)
@@ -153,7 +153,7 @@ export function MarketList(props: {
               <IonSelectOption value="AAVE">AAVE V3</IonSelectOption>
             </IonSelect>
           </IonCol>
-          <IonCol size="12" sizeMd="3" class="ion-padding-horizontal">
+          <IonCol size="12" sizeMd="auto" class="ion-padding-horizontal">
             <IonToggle 
               labelPlacement="start"
               aria-label="active"
@@ -167,7 +167,7 @@ export function MarketList(props: {
                   }));
                 }
                 else {
-                  // remove chainId from `filterBy`
+                  // remove from `filterBy`
                   const { walletBalance, ...rest } = filterBy || {};
                   setFilterBy(() => rest);
                 }
