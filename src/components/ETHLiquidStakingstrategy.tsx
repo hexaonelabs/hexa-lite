@@ -349,7 +349,7 @@ export function ETHLiquidStakingstrategyCard() {
         const chainId = ethereumProvider?.network?.chainId;
         if (chainId !== 10) {
           await switchNetwork(10);
-        } 
+        }
         modal.current?.present();
       }}
       expand="block"
@@ -362,7 +362,7 @@ export function ETHLiquidStakingstrategyCard() {
   return (
     <>
       <IonCard className="strategyCard" style={{ width: 330 }}>
-        <IonGrid style={{width: '100%'}}>
+        <IonGrid style={{ width: "100%" }}>
           <IonRow class="ion-text-center ion-padding">
             <IonCol size="12" class="ion-padding">
               <IonImg
@@ -377,7 +377,9 @@ export function ETHLiquidStakingstrategyCard() {
             </IonCol>
             <IonCol size="12" class="ion-padding-top">
               <h1 className="ion-no-margin">
-                <IonText className="ion-color-gradient-text">{strategy.name}</IonText>
+                <IonText className="ion-color-gradient-text">
+                  {strategy.name}
+                </IonText>
                 <br />
                 <small>{strategy.type}</small>
               </h1>
@@ -418,23 +420,27 @@ export function ETHLiquidStakingstrategyCard() {
                   "--padding-start": "none",
                 }}
               >
-              <IonLabel>Network</IonLabel>
+                <IonLabel>Network</IonLabel>
                 <div slot="end" style={{ display: "flex" }}>
                   {strategy.chainsId
                     .map((id) => CHAIN_AVAILABLES.find((c) => c.id === id))
-                    .map((c,index) => {
-                      if (!c||!c.nativeSymbol) return null;
+                    .map((c, index) => {
+                      if (!c || !c.nativeSymbol) return null;
                       return (
                         <IonImg
-                        key={index}
-                        style={{
-                          width: 18,
-                          height: 18,
-                          transform: (index === 0 && strategy.chainsId.length > 1)  ? "translateX(5px)" : "none",
-                        }}
-                        src={getAssetIconUrl({ symbol: c.nativeSymbol })}
-                        alt={c.nativeSymbol}
-                      />)
+                          key={index}
+                          style={{
+                            width: 18,
+                            height: 18,
+                            transform:
+                              index === 0 && strategy.chainsId.length > 1
+                                ? "translateX(5px)"
+                                : "none",
+                          }}
+                          src={getAssetIconUrl({ symbol: c.nativeSymbol })}
+                          alt={c.nativeSymbol}
+                        />
+                      );
                     })}
                 </div>
               </IonItem>
@@ -501,8 +507,8 @@ export function ETHLiquidStakingstrategyCard() {
                   <p className="ion-no-margin ion-margin-bottom">
                     <small>
                       By swapping WETH to wstETH you will incrase your WETH
-                      holdings by {baseAPRstETH.toFixed(2)}% APY revard from staking WETH
-                      using{" "}
+                      holdings by {baseAPRstETH.toFixed(2)}% APY revard from
+                      staking WETH using{" "}
                       <a
                         href="https://lido.fi/"
                         target="_blank"
