@@ -238,7 +238,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
 
   return (
     <>
-      <IonContent className="ion-padding"  fullscreen={true}>
+      <IonContent className="ion-padding">
         <IonButtons className="ion-float-end">
           <IonButton
             color="primary"
