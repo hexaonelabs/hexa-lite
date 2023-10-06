@@ -226,11 +226,11 @@ export function EthLiquidStakingStrategyModal({
                   walletBalanceWETH || 0,
                   {
                     decimals: 18,
-                    address: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+                    address: "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
                   },
                   {
                     decimals: 18,
-                    address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+                    address: "0x4200000000000000000000000000000000000006",
                   }
                 );
                 await refreshUser();
