@@ -3,42 +3,23 @@ import {
   IonAccordionGroup,
   IonAvatar,
   IonButton,
-  IonButtons,
   IonCol,
   IonGrid,
-  IonHeader,
   IonIcon,
   IonImg,
-  IonInput,
   IonItem,
   IonLabel,
-  IonListHeader,
-  IonPage,
   IonProgressBar,
-  IonRange,
   IonRow,
   IonSpinner,
   IonText,
-  IonTitle,
-  IonToolbar,
-  useIonModal,
 } from "@ionic/react";
-import {
-  informationCircleOutline,
-  closeSharp,
-  openOutline,
-  warningOutline,
-  chevronDownOutline,
-} from "ionicons/icons";
+import { chevronDownOutline } from "ionicons/icons";
 import { useAave } from "../context/AaveContext";
-import {
-  ChainId
-} from "@aave/contract-helpers";
+import { ChainId } from "@aave/contract-helpers";
 
 import { useUser, IAsset } from "../context/UserContext";
 import { getPercent } from "../utils/utils";
-import { PoolHeaderList } from "../components/PoolHeaderList";
-import { PoolAccordionGroup } from "../components/PoolAccordionGroup";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { useState } from "react";
 import { MarketList } from "../components/MarketsList";
@@ -81,7 +62,9 @@ export const DefiContainer = ({
   const { user, assets } = useUser();
   const { poolGroups, totalTVL, refresh, userSummaryAndIncentivesGroup } =
     useAave();
-
+  const [filterBy, setFilterBy] = useState<{ [key: string]: string } | null>(
+    null
+  );
   function currencyFormat(
     num: number,
     ops?: { currency?: string; language?: string }
@@ -104,20 +87,27 @@ export const DefiContainer = ({
       .reduce((a, b) => a + b, 0) || 0;
 
   // The % of your total borrowing power used.
-  // This is based on the amount of your collateral supplied (totalCollateralUSD) and the total amount that you can borrow (totalCollateralUSD - totalBorrowsUsd) 
+  // This is based on the amount of your collateral supplied (totalCollateralUSD) and the total amount that you can borrow (totalCollateralUSD - totalBorrowsUsd)
   // remove `currentLiquidationThreshold` present in the `userSummaryAndIncentivesGroup` response
-  const totalLiquidationThreshold = (userSummaryAndIncentivesGroup
-  ?.filter((summary) => Number(summary?.currentLiquidationThreshold || 0) > 0)
-  ?.map(
-    (summary) => Number(summary?.currentLiquidationThreshold || 0)
-  ).reduce((a, b) => a + b, 0) || 0) / ((userSummaryAndIncentivesGroup
-    ?.filter((summary) => Number(summary?.currentLiquidationThreshold || 0) > 0)||[])?.length || 0)||0;
-  
+  const totalLiquidationThreshold =
+    (userSummaryAndIncentivesGroup
+      ?.filter(
+        (summary) => Number(summary?.currentLiquidationThreshold || 0) > 0
+      )
+      ?.map((summary) => Number(summary?.currentLiquidationThreshold || 0))
+      .reduce((a, b) => a + b, 0) || 0) /
+      ((
+        userSummaryAndIncentivesGroup?.filter(
+          (summary) => Number(summary?.currentLiquidationThreshold || 0) > 0
+        ) || []
+      )?.length || 0) || 0;
+
   const totalBorrowableUsd = totalCollateralUsd * totalLiquidationThreshold;
-  const percentBorrowingCapacity = 100 - getPercent(totalBorrowsUsd, totalBorrowableUsd);
+  const percentBorrowingCapacity =
+    100 - getPercent(totalBorrowsUsd, totalBorrowableUsd);
   const progressBarFormatedValue = percentBorrowingCapacity / 100;
   const totalAbailableToBorrow = totalBorrowableUsd - totalBorrowsUsd;
-  
+
   return !poolGroups || poolGroups.length === 0 ? (
     <IonGrid class="ion-padding">
       <IonRow class="ion-padding">
@@ -144,7 +134,8 @@ export const DefiContainer = ({
                 using your crypto as collateral and earn interest by providing
                 liquidity over
               </span>
-              <span className="ion-color-gradient-text"
+              <span
+                className="ion-color-gradient-text"
                 style={{
                   fontSize: "2rem",
                   display: "block",
@@ -163,46 +154,45 @@ export const DefiContainer = ({
 
       <IonRow class="ion-justify-content-center ion-padding">
         <IonCol class="widgetWrapper" size-md="12" size-lg="10" size-xl="10">
-       
-            <IonAccordionGroup>
-              <IonAccordion className="dashboardItem">
-                <IonItem slot="header">
-                  <IonGrid class="ion-no-padding">
-                    <IonRow class="ion-text-center">
-                      <IonCol
-                        size="12"
-                        size-md="4"
-                        class=" ion-padding-vertical ion-margin-vertical"
-                      >
-                        <h3>{currencyFormat(+totalCollateralUsd)}</h3>
-                        <p>
-                          DEPOSIT BALANCE
-                          <IonText color="medium">
-                            <br />
-                            <small>
-                              Total of all collaterals used to borrow assets
-                            </small>
-                          </IonText>
-                        </p>
-                      </IonCol>
-                      <IonCol
-                        size="12"
-                        size-md="4"
-                        class=" ion-padding-vertical ion-margin-vertical"
-                      >
-                        <h3>{Number(percentBorrowingCapacity.toFixed(2))}%</h3>
-                        <p>
-                          BORROWING CAPACITY
-                          <IonText color="medium">
-                            <br />
-                            <small>
-                              {currencyFormat(+totalBorrowsUsd)} of{" "}
-                              {currencyFormat(totalBorrowableUsd)}
-                            </small>
-                          </IonText>
-                        </p>
-                          
-                        {/* <div className="ion-margin">
+          <IonAccordionGroup>
+            <IonAccordion className="dashboardItem">
+              <IonItem slot="header">
+                <IonGrid class="ion-no-padding">
+                  <IonRow class="ion-text-center">
+                    <IonCol
+                      size="12"
+                      size-md="4"
+                      class=" ion-padding-vertical ion-margin-vertical"
+                    >
+                      <h3>{currencyFormat(+totalCollateralUsd)}</h3>
+                      <p>
+                        DEPOSIT BALANCE
+                        <IonText color="medium">
+                          <br />
+                          <small>
+                            Total of all collaterals used to borrow assets
+                          </small>
+                        </IonText>
+                      </p>
+                    </IonCol>
+                    <IonCol
+                      size="12"
+                      size-md="4"
+                      class=" ion-padding-vertical ion-margin-vertical"
+                    >
+                      <h3>{Number(percentBorrowingCapacity.toFixed(2))}%</h3>
+                      <p>
+                        BORROWING CAPACITY
+                        <IonText color="medium">
+                          <br />
+                          <small>
+                            {currencyFormat(+totalBorrowsUsd)} of{" "}
+                            {currencyFormat(totalBorrowableUsd)}
+                          </small>
+                        </IonText>
+                      </p>
+
+                      {/* <div className="ion-margin">
                           <IonProgressBar
                             color="success"
                             value={progressBarFormatedValue}
@@ -212,44 +202,48 @@ export const DefiContainer = ({
                             }}
                           ></IonProgressBar>
                         </div> */}
-                      </IonCol>
-                      <IonCol
-                        size="12"
-                        size-md="4"
-                        class=" ion-padding-vertical ion-margin-vertical"
+                    </IonCol>
+                    <IonCol
+                      size="12"
+                      size-md="4"
+                      class=" ion-padding-vertical ion-margin-vertical"
+                    >
+                      <h3>{currencyFormat(totalAbailableToBorrow)}</h3>
+                      <p>
+                        AVAILABLE TO BORROW
+                        <IonText color="medium">
+                          <br />
+                          <small>Amount that you can borrow</small>
+                        </IonText>
+                      </p>
+                    </IonCol>
+                    <IonCol
+                      size="12"
+                      style={{
+                        marginTop: " -2rem",
+                      }}
+                    >
+                      <IonButton
+                        expand="block"
+                        fill="clear"
+                        size="small"
+                        className="ion-margin-horizontal"
                       >
-                        <h3>{currencyFormat(totalAbailableToBorrow)}</h3>
-                        <p>
-                          AVAILABLE TO BORROW
-                          <IonText color="medium">
-                            <br />
-                            <small>
-                              Amount that you can borrow
-                            </small>
-                          </IonText>
-                        </p>
-                      </IonCol>
-                      <IonCol size="12" style={{
-                          marginTop:" -2rem"
-                        }}>
-                        <IonButton
-                          expand="block"
-                          fill="clear"
-                          size="small"
-                          className="ion-margin-horizontal">
-                          <IonIcon color="gradient" icon={chevronDownOutline}></IonIcon>
-                          </IonButton>
-                      </IonCol>
-                    </IonRow>
-                  </IonGrid>
-                </IonItem>
+                        <IonIcon
+                          color="gradient"
+                          icon={chevronDownOutline}
+                        ></IonIcon>
+                      </IonButton>
+                    </IonCol>
+                  </IonRow>
+                </IonGrid>
+              </IonItem>
 
-                <div slot="content">
-                  {user && totalCollateralUsd > 0 && (<>
+              <div slot="content">
+                {user && totalCollateralUsd > 0 && (
+                  <>
                     <IonGrid className="ion-no-padding">
-                      <IonRow
-                        class="ion-no-padding ion-padding-start ion-align-items-center ion-justify-content-between"
-                      >
+                      <IonRow class="ion-no-padding ion-padding-start ion-align-items-center ion-justify-content-between">
                         <IonCol
                           size-md="3"
                           class="ion-text-start ion-padding-horizontal"
@@ -298,12 +292,34 @@ export const DefiContainer = ({
                     </IonGrid>
                     {/* AAVE Protocol */}
                     {userSummaryAndIncentivesGroup
-                      ?.filter((summary) => Number(summary.totalBorrowsUSD) > 0 || Number(summary.totalCollateralUSD) > 0)
+                      ?.filter(
+                        (summary) =>
+                          Number(summary.totalBorrowsUSD) > 0 ||
+                          Number(summary.totalCollateralUSD) > 0
+                      )
                       ?.map((summary, index) => (
-                        <IonItem key={index} lines="none" style={{cursor: 'default'}}>
-                          <IonGrid className="ion-no-padding" style={{
-                            paddingBottom: index === userSummaryAndIncentivesGroup.length - 1 ? "0" : "1rem"
-                          }}>
+                        <IonItem
+                          key={index}
+                          lines="none"
+                          style={{ cursor: "default" }}
+                          onClick={() => {
+                            setFilterBy((s) => ({
+                              ...s,
+                              chainId: summary.chainId.toString(),
+                              protocol: "AAVE",
+                            }));
+                          }}
+                        >
+                          <IonGrid
+                            className="ion-no-padding"
+                            style={{
+                              paddingBottom:
+                                index ===
+                                userSummaryAndIncentivesGroup.length - 1
+                                  ? "0"
+                                  : "1rem",
+                            }}
+                          >
                             <IonRow className="poolItemList ion-align-items-center ion-justify-content-between ion-no-padding ion-padding-start">
                               <IonCol
                                 size-md="3"
@@ -377,7 +393,13 @@ export const DefiContainer = ({
                                 class="ion-padding-horizontal ion-text-end ion-hide-md-down"
                               >
                                 <IonText color="dark">
-                                  {currencyFormat((Number(summary.totalCollateralUSD) * Number(summary.currentLiquidationThreshold)) - Number(summary.totalBorrowsUSD))}
+                                  {currencyFormat(
+                                    Number(summary.totalCollateralUSD) *
+                                      Number(
+                                        summary.currentLiquidationThreshold
+                                      ) -
+                                      Number(summary.totalBorrowsUSD)
+                                  )}
                                 </IonText>
                               </IonCol>
                               <IonCol
@@ -387,11 +409,25 @@ export const DefiContainer = ({
                               >
                                 <IonText color="dark">
                                   {currencyFormat(+summary.totalBorrowsUSD)} of{" "}
-                                  {currencyFormat(Number(summary.totalCollateralUSD) * Number(summary.currentLiquidationThreshold))}{" "}
+                                  {currencyFormat(
+                                    Number(summary.totalCollateralUSD) *
+                                      Number(
+                                        summary.currentLiquidationThreshold
+                                      )
+                                  )}{" "}
                                   <small>
-                                    ({
-                                      (100 - getPercent(+summary.totalBorrowsUSD, (Number(summary.totalCollateralUSD) * Number(summary.currentLiquidationThreshold)))).toFixed(2)
-                                    }%)
+                                    (
+                                    {(
+                                      100 -
+                                      getPercent(
+                                        +summary.totalBorrowsUSD,
+                                        Number(summary.totalCollateralUSD) *
+                                          Number(
+                                            summary.currentLiquidationThreshold
+                                          )
+                                      )
+                                    ).toFixed(2)}
+                                    %)
                                   </small>
                                 </IonText>
                                 <IonProgressBar
@@ -415,28 +451,26 @@ export const DefiContainer = ({
                           </IonGrid>
                         </IonItem>
                       ))}
-                  </>)}
-                  {(!user || totalCollateralUsd === 0) && (
-                    <IonGrid class="ion-no-padding">
-                      <IonRow class="ion-text-center">
-                        <IonCol
-                          size="12"
-                          class="ion-text-center"
-                        >
-                          <IonText>
-                            <p>
-                              {!user ? "Connect wallet and deposit" : "Deposit"} assets as
-                              collateral to borrow and start earning interest
-                            </p>
-                          </IonText>
-                        </IonCol>
-                      </IonRow>
-                    </IonGrid>
-                  )}
-                </div>
-              </IonAccordion>
-            </IonAccordionGroup>
-          
+                  </>
+                )}
+                {(!user || totalCollateralUsd === 0) && (
+                  <IonGrid class="ion-no-padding">
+                    <IonRow class="ion-text-center">
+                      <IonCol size="12" class="ion-text-center">
+                        <IonText>
+                          <p>
+                            {!user ? "Connect wallet and deposit" : "Deposit"}{" "}
+                            assets as collateral to borrow and start earning
+                            interest
+                          </p>
+                        </IonText>
+                      </IonCol>
+                    </IonRow>
+                  </IonGrid>
+                )}
+              </div>
+            </IonAccordion>
+          </IonAccordionGroup>
         </IonCol>
       </IonRow>
 
@@ -458,7 +492,10 @@ export const DefiContainer = ({
             >
               Available Markets
             </h3>
-            <MarketList handleSegmentChange={handleSegmentChange} />
+            <MarketList
+              handleSegmentChange={handleSegmentChange}
+              filterBy={filterBy ? undefined : undefined}
+            />
           </div>
         </IonCol>
       </IonRow>
