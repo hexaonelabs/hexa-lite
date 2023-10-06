@@ -29,8 +29,8 @@ export function HowItWork({ children }: { children?: React.ReactNode }) {
         isOpen={isDisplayHowItWork}
         onWillDismiss={() => setIsDisplayHowItWork(false)}
       >
-        <IonGrid className="ion-padding">
-          <IonRow class="ion-align-items-top">
+        <IonGrid className="ion-no-padding">
+          <IonRow class="ion-align-items-top ion-padding">
             <IonCol size="10">
               <IonText>
                 <h3 style={{marginBottom: 0}}>
