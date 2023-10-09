@@ -32,6 +32,26 @@ export function MenuPopover({
         onClick={() => {
           popoverRef.current?.dismiss();
           handleSegmentChange({
+            detail: { value: "earn" },
+          });
+        }}
+      >
+        <IonLabel class="ion-text-wrap">
+          <IonText>
+            <h2>Earn Interest</h2>
+          </IonText>
+          <IonText color="medium">
+            <p>Earn interest on your crypto.</p>
+          </IonText>
+        </IonLabel>
+      </IonItem>
+      <IonItem
+        lines="none"
+        button={true}
+        style={{ "--background": "transparent" }}
+        onClick={() => {
+          popoverRef.current?.dismiss();
+          handleSegmentChange({
             detail: { value: "swap" },
           });
         }}
@@ -72,26 +92,6 @@ export function MenuPopover({
         onClick={() => {
           popoverRef.current?.dismiss();
           handleSegmentChange({
-            detail: { value: "earn" },
-          });
-        }}
-      >
-        <IonLabel class="ion-text-wrap">
-          <IonText>
-            <h2>Earn Interest</h2>
-          </IonText>
-          <IonText color="medium">
-            <p>Earn interest on your crypto.</p>
-          </IonText>
-        </IonLabel>
-      </IonItem>
-      <IonItem
-        lines="none"
-        button={true}
-        style={{ "--background": "transparent" }}
-        onClick={() => {
-          popoverRef.current?.dismiss();
-          handleSegmentChange({
             detail: { value: "fiat" },
           });
         }}
@@ -120,8 +120,8 @@ export function MenuPopover({
                           </IonItem> */}
       <div
         className="ion-padding ion-text-center"
-        onClick={() => {
-          popoverRef.current?.dismiss();
+        onClick={async () => {
+          await popoverRef.current?.dismiss();
         }}
       >
         {!user ? (
