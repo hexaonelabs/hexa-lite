@@ -699,6 +699,8 @@ export function ReserveDetail(props: IReserveDetailProps) {
       <IonModal
         ref={modal}
         className="modalAlert"
+        onIonModalDidDismiss={()=> setIsModalOpen(false)}
+        keyboardClose={false}
         isOpen={isModalOpen}>
           <LoanFormModal 
             selectedReserve={{
@@ -707,6 +709,10 @@ export function ReserveDetail(props: IReserveDetailProps) {
             }}
             userSummary={userSummary as IUserSummary}
             onDismiss={async (data, role) => {
+              console.log(
+                {data, role}
+              );
+              
               setIsModalOpen(false);
               await onDismiss({
                 detail: {
@@ -714,12 +720,16 @@ export function ReserveDetail(props: IReserveDetailProps) {
                 }
               } as CustomEvent<OverlayEventDetail>)
               .then(async ()=> {
+                if (!data || role === "cancel") {
+                  return;
+                }
                 await hideLoader();
                 console.log("[INFO] ReserveDetail - onDismiss: ", data, role);
                 // display toast
                 present({
                   message: `Transaction success`,
                   color: "success",
+                  duration: 5000,
                   buttons: [
                     { text: 'x', role: 'cancel', handler: () => {
                       dismiss();
@@ -734,6 +744,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                 present({
                   message: `${error}`,
                   color: "danger",
+                  duration: 5000,
                   buttons: [
                     { text: 'x', role: 'cancel', handler: () => {
                       dismiss();
