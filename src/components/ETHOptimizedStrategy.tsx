@@ -254,7 +254,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
         chain?.id === ethereumProvider?.network?.chainId
     ) || {};
 
-  const maxToDeposit = !strategy?.step[1].reserve
+  const maxToDeposit = !strategy?.step[1].reserve || !strategy.userSummaryAndIncentives
     ? 0
     : +getMaxAmountAvailableToSupply(
         `${Number(walletBalanceWSTETH)}`,
@@ -263,7 +263,7 @@ export function EthOptimizedStrategyModal({ dismiss }: IStrategyModalProps) {
         minBaseTokenRemaining
       );
 
-  const maxToBorrow = !strategy?.step[2].reserve
+  const maxToBorrow = !strategy?.step[2].reserve || !strategy.userSummaryAndIncentives
     ? 0
     : +getMaxAmountAvailableToBorrow(
         strategy.step[2].reserve,
