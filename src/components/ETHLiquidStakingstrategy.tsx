@@ -361,7 +361,7 @@ export function ETHLiquidStakingstrategyCard() {
 
   return (
     <>
-      <IonCard className="strategyCard" style={{ width: 330 }}>
+      <IonCard className="strategyCard" style={{ width: 300 }}>
         <IonGrid style={{ width: "100%" }}>
           <IonRow class="ion-text-center ion-padding">
             <IonCol size="12" class="ion-padding">

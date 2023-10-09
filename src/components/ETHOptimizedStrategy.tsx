@@ -1065,7 +1065,7 @@ export function EthOptimizedStrategyCard(props: { asImage?: boolean }) {
     <>
       <IonCard
         className={props.asImage ? "asImage" : "strategyCard"}
-        style={{ width: 330 }}
+        style={{ width: 300 }}
       >
         <IonGrid>
           <IonRow class="ion-text-center ion-padding">
