@@ -83,13 +83,13 @@ export function LoanFormModal({
             <IonText color="medium">Amount</IonText>
           </IonLabel>
           <IonItem lines="none" className="ion-margin-top">
-            <div
+            <div slot="start"
               style={{
                 display: "flex",
                 alignItems: "center",
               }}
             >
-              <IonAvatar slot="start">
+              <IonAvatar >
                 <IonImg src={reserve?.logo}></IonImg>
               </IonAvatar>
               <div
@@ -186,33 +186,18 @@ export function LoanFormModal({
         <IonRow class="ion-justify-content-center">
           <IonCol
             size="auto"
-            class="ion-text-center ion-margin-bottom"
+            class="ion-text-center"
             style={{ maxWidth: 400 }}
           >
             <WarningBox>
-              <p>
-                {readableAction} this amount will reduce your health factor and
-                increase risk of liquidation. Add more collateral to increase
-                your health factor.
+              <p className="ion-padding-horizontal">
+                <small>
+                  {readableAction} this amount will reduce your health factor and
+                  increase risk of liquidation. Add more collateral to increase
+                  your health factor.
+                </small>
               </p>
             </WarningBox>
-            {/* <IonLabel>
-                  Health factor
-                </IonLabel>
-                <IonItem lines="none" className="ion-margin-vertical">
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}>
-                    <div className="ion-padding" style={{cursor: 'pointer'}}>
-                      <IonText>
-                        <h3 style={{margin: ' 0'}}>
-                          {healthFactor?.toString()}
-                        </h3>
-                      </IonText>
-                    </div>
-                  </div>
-                </IonItem> */}
           </IonCol>
         </IonRow>
       )}
