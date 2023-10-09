@@ -18,6 +18,7 @@ import {
   IonText,
   IonToolbar,
   useIonModal,
+  useIonToast,
 } from "@ionic/react";
 import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
 import {
@@ -50,8 +51,9 @@ interface IReserveDetailProps {
 }
 
 export function ReserveDetail(props: IReserveDetailProps) {
-  const { reserve, userSummary, markets, handleSegmentChange } = props;
+  const { reserve: {id}, userSummary, markets, handleSegmentChange } = props;
   const { user } = useUser();
+  const [ present, dismiss] = useIonToast();
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const { ethereumProvider, switchNetwork } = useEthersProvider();
   const [state, setState] = useState<
@@ -60,9 +62,19 @@ export function ReserveDetail(props: IReserveDetailProps) {
       }
     | undefined
   >(undefined);
-  const { refresh } = useAave();
+  const { refresh, poolGroups } = useAave();
   const modal = useRef<HTMLIonModalElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);  
+
+  // find reserve in `poolGroups[*].reserves` by `reserveId`
+  const reserve = useMemo(
+    () => {
+      return poolGroups
+      ?.find((pg) => pg.reserves.find((r) => r.id === id))
+      ?.reserves.find((r) => r.id === id) as IReserve;
+    },
+    [id, poolGroups]
+  );
   const borrowPoolRatioInPercent = getPercent(
     valueToBigNumber(reserve.totalDebtUSD).toNumber(),
     valueToBigNumber(reserve.borrowCapUSD).toNumber()
@@ -101,7 +113,6 @@ export function ReserveDetail(props: IReserveDetailProps) {
       ? await switchNetwork(reserve.chainId)
       : ethereumProvider
     if (!provider) {
-      hideLoader();
       throw new Error("No provider found or update failed");
     }
     // perform action
@@ -129,11 +140,8 @@ export function ReserveDetail(props: IReserveDetailProps) {
         try {
           const txReceipts = await supplyWithPermit(params)
           console.log("TX result: ", txReceipts);
-          await hideLoader();
-          // await refresh();
         } catch (error) {
-          console.log("TX error: ", error);
-          await hideLoader();
+          throw error;
         }
         break;
       }
@@ -159,11 +167,9 @@ export function ReserveDetail(props: IReserveDetailProps) {
         try {
           const txReceipts = await withdraw(params);
           console.log("TX result: ", txReceipts);
-          await hideLoader();
-          // await refresh();
+
         } catch (error) {
-          console.log("error: ", error);
-          await hideLoader();
+          throw error;
         }
         break;
       }
@@ -189,12 +195,8 @@ export function ReserveDetail(props: IReserveDetailProps) {
         try {
           const txReceipts = await borrow(params);
           console.log("TX result: ", txReceipts);
-          await hideLoader();
-          // refresh();
         } catch (error) {
-          console.log("[ERROR]: ", error);
-          await hideLoader();
-          // await refresh();
+          throw error;
         }
         break;
       }
@@ -220,12 +222,13 @@ export function ReserveDetail(props: IReserveDetailProps) {
         try {
           const txReceipts = await repay(params);
           console.log("TX result: ", txReceipts);
-          await hideLoader();
+          // await hideLoader();
           // await refresh();
         } catch (error) {
           console.log("[ERROR]: ", error);
-          await hideLoader();
+          // await hideLoader();
           // await refresh();
+          throw error;
         }
         break;
       }
@@ -705,11 +708,39 @@ export function ReserveDetail(props: IReserveDetailProps) {
             userSummary={userSummary as IUserSummary}
             onDismiss={async (data, role) => {
               setIsModalOpen(false);
-              onDismiss({
+              await onDismiss({
                 detail: {
                   data, role
                 }
               } as CustomEvent<OverlayEventDetail>)
+              .then(async ()=> {
+                await hideLoader();
+                console.log("[INFO] ReserveDetail - onDismiss: ", data, role);
+                // display toast
+                present({
+                  message: `Transaction success`,
+                  color: "success",
+                  buttons: [
+                    { text: 'x', role: 'cancel', handler: () => {
+                      dismiss();
+                    }}
+                  ]
+                });
+              })
+              .catch(async (error) => {
+                await hideLoader();
+                console.log("[ERROR] ReserveDetail - onDismiss: ", error);
+                // display toast
+                present({
+                  message: `${error}`,
+                  color: "danger",
+                  buttons: [
+                    { text: 'x', role: 'cancel', handler: () => {
+                      dismiss();
+                    }}
+                  ]
+                });
+              });
             }}
           />
         </IonModal>
