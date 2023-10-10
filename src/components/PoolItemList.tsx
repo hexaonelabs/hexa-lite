@@ -49,7 +49,10 @@ export function PoolItemList(props: IPoolItemListProps) {
     <>
       <IonItem 
         lines="none" 
-        onClick={() => setIsModalOpen(() => true)}
+        onClick={() => {
+          console.log({reserve})
+          setIsModalOpen(() => true);
+        }}
       >
         <IonGrid className="ion-no-padding">
           <IonRow className="poolItemList ion-align-items-center ion-justify-content-between ion-no-padding ion-padding-start">

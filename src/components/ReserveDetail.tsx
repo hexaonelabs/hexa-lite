@@ -17,6 +17,7 @@ import {
   IonRow,
   IonText,
   IonToolbar,
+  useIonAlert,
   useIonModal,
   useIonToast,
 } from "@ionic/react";
@@ -54,6 +55,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
   const { reserve: {id}, userSummary, markets, handleSegmentChange } = props;
   const { user } = useUser();
   const [ present, dismiss] = useIonToast();
+  const [presentAlert] = useIonAlert();
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const { ethereumProvider, switchNetwork } = useEthersProvider();
   const [state, setState] = useState<
@@ -665,14 +667,25 @@ export function ReserveDetail(props: IReserveDetailProps) {
                       <IonButton
                         fill="solid"
                         color="gradient"
-                        disabled={
-                          borrowPoolRatioInPercent > 99
-                            ? true
-                            : percentBorrowingCapacity <= 0
-                            ? true
-                            : false
-                        }
-                        onClick={() => handleOpenModal("borrow", reserve)}
+                        onClick={() => {
+                          if (borrowPoolRatioInPercent > 99.9) {
+                            presentAlert({
+                              header: "Information",
+                              message: "Borrowing capacity is over. Add more collaterals to enable borrowing.",
+                              buttons: ["OK"],
+                            });
+                            return;
+                          }
+                          if (percentBorrowingCapacity <= 0) {
+                            presentAlert({
+                              header: "Information",
+                              message: `Deposit collateral to AAVE V3 on ${CHAIN_AVAILABLES.find((c) => c.id === reserve.chainId)?.name} network to enable borrowing capacity.`,
+                              buttons: ["OK"],
+                            });
+                            return;
+                          }
+                          handleOpenModal("borrow", reserve);
+                        }}
                       >
                         Borrow
                       </IonButton>
