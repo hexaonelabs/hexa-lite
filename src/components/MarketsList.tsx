@@ -119,8 +119,8 @@ export function MarketList(props: {
               }}
             >
               <IonSelectOption value="*">All</IonSelectOption>
-              {CHAIN_AVAILABLES.map((chain) => (
-                <IonSelectOption value={chain.id.toString()}>
+              {CHAIN_AVAILABLES.map((chain, index) => (
+                <IonSelectOption key={`option_chainId_${index}`} value={chain.id.toString()}>
                   {chain.name}
                 </IonSelectOption>
               ))}
