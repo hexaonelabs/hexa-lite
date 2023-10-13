@@ -26,3 +26,5 @@ export interface IPoolGroup {
 export interface IUserSummary extends FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>{
       chainId: number;
 }
+
+export type ReserveDetailActionType =  "deposit" | "withdraw" | "borrow" | "repay" | "crosschain-collateral";

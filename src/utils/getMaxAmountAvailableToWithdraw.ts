@@ -41,7 +41,7 @@ export const getMaxAmountAvailableToWithdraw = (
     
     // if we have any borrowings we should check how much we can withdraw to a minimum HF of 1.01
     const excessHF = valueToBigNumber(user.healthFactor).minus('1.01');
-    console.log('XXX', {a: excessHF.gt('0'), b: user.healthFactor, c: maxAmountToWithdraw.toString(10)});
+    // console.log('XXX', {a: excessHF.gt('0'), b: user.healthFactor, c: maxAmountToWithdraw.toString(10)});
     if (excessHF.gt('0')) {
       maxCollateralToWithdrawInETH = excessHF
         .multipliedBy(user.totalBorrowsMarketReferenceCurrency)

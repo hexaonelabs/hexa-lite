@@ -21,7 +21,7 @@ import {
   useIonModal,
   useIonToast,
 } from "@ionic/react";
-import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
+import { IReserve, IUserSummary, ReserveDetailActionType } from "../interfaces/reserve.interface";
 import {
   CircularProgressbarWithChildren,
   buildStyles,
@@ -32,7 +32,7 @@ import { valueToBigNumber } from "@aave/math-utils";
 import ConnectButton from "./ConnectButton";
 import { LoanFormModal } from "./LoanFormModal";
 import { useMemo, useRef, useState } from "react";
-import { closeOutline, warningOutline } from "ionicons/icons";
+import { closeOutline, warningOutline, closeSharp } from "ionicons/icons";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { WarningBox } from "./WarningBox";
 import { getPercent } from "../utils/utils";
@@ -52,20 +52,66 @@ interface IReserveDetailProps {
 }
 
 export function ReserveDetail(props: IReserveDetailProps) {
-  const { reserve: {id}, userSummary, markets, handleSegmentChange } = props;
+  const { reserve: {id, chainId}, userSummary, markets, handleSegmentChange } = props;
   const { user } = useUser();
+  const { userSummaryAndIncentivesGroup } = useAave();
+  const collateralBtnElement = (userSummaryAndIncentivesGroup
+    ?.map((summary) => Number(summary?.totalCollateralUSD || 0))
+    .reduce((a, b) => a + b, 0) || 0) > 0 && (<>
+      <IonButton 
+        expand="block" 
+        fill="outline" 
+        color="primary" 
+        onClick={()=> dismissPromptCrossModal(null, 'enable-crosschain-collateral')}>
+        Use cross-chain collateral
+      </IonButton>
+    </>);
   const [ present, dismiss] = useIonToast();
   const [presentAlert] = useIonAlert();
+  const [presentPomptCrossModal, dismissPromptCrossModal] = useIonModal((<>
+        <IonGrid className="ion-no-padding">
+          <IonRow class="ion-align-items-top ion-padding">
+            <IonCol size="10">
+              <IonText>
+                <h3 style={{marginBottom: 0}}>
+                  <b>Information</b>
+                </h3>
+              </IonText>
+            </IonCol>
+            <IonCol size="2" class="ion-text-end">
+              <IonButton
+                size="small"
+                fill="clear"
+                onClick={() => {dismissPromptCrossModal()}}
+              >
+                <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
+              </IonButton>
+            </IonCol>
+          </IonRow>
+          <IonRow class="ion-align-items-center ion-padding-horizontal">
+            <IonCol size="12">
+              <p>
+                Deposit collateral to AAVE V3 on {CHAIN_AVAILABLES.find((c) => c.id === chainId)?.name} network to enable borrowing capacity.
+              </p>
+                { collateralBtnElement }
+            </IonCol>
+            <IonCol size="12" className="ion-padding-bottom">
+              <IonButton color="gradient" expand="block" onClick={()=> dismissPromptCrossModal()}>OK</IonButton>
+            </IonCol>
+          </IonRow>
+    </IonGrid>
+  </>));
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const { ethereumProvider, switchNetwork } = useEthersProvider();
   const [state, setState] = useState<
     | {
-        actionType: "deposit" | "withdraw" | "borrow" | "repay" | undefined;
+        actionType: ReserveDetailActionType;
       }
     | undefined
   >(undefined);
   const { refresh, poolGroups } = useAave();
   const modal = useRef<HTMLIonModalElement>(null);
+  const [isCrossChain, setIsCrossChain] = useState(false);  
   const [isModalOpen, setIsModalOpen] = useState(false);  
 
   // find reserve in `poolGroups[*].reserves` by `reserveId`
@@ -90,12 +136,15 @@ export function ReserveDetail(props: IReserveDetailProps) {
     Number(userSummary?.totalCollateralUSD)
   );
 
-  const handleOpenModal = (type: string, reserve: IReserve) => {
+  const handleOpenModal = (type: ReserveDetailActionType, reserve: IReserve) => {
     if (!userSummary) {
       throw new Error("No userSummary found");
     }
+    if (type === "crosschain-collateral") {
+      setIsCrossChain(()=> true);
+    }
     setState({
-      actionType: type as "deposit" | "withdraw" | "borrow" | "repay",
+      actionType: type,
     });
     setIsModalOpen(true);
   };
@@ -672,15 +721,22 @@ export function ReserveDetail(props: IReserveDetailProps) {
                             presentAlert({
                               header: "Information",
                               message: "Borrowing capacity is over. Add more collaterals to enable borrowing.",
-                              buttons: ["OK"],
+                              buttons: [{ text: "OK", cssClass: "gradient"}],
                             });
                             return;
                           }
                           if (percentBorrowingCapacity <= 0) {
-                            presentAlert({
-                              header: "Information",
-                              message: `Deposit collateral to AAVE V3 on ${CHAIN_AVAILABLES.find((c) => c.id === reserve.chainId)?.name} network to enable borrowing capacity.`,
-                              buttons: ["OK"],
+                            presentPomptCrossModal({
+                              cssClass: ['modalAlert'],
+                              onDidDismiss: ({detail: {data, role}= {}}) => {
+                                if (role !== 'enable-crosschain-collateral') {
+                                  return;
+                                }
+                                // handle cross-chain collateral request
+                                console.log("onDidDismiss: ", {data, role});
+                                setIsCrossChain(()=> true);
+                                handleOpenModal("borrow", reserve);
+                              }
                             });
                             return;
                           }
@@ -712,7 +768,10 @@ export function ReserveDetail(props: IReserveDetailProps) {
       <IonModal
         ref={modal}
         className="modalAlert"
-        onIonModalDidDismiss={()=> setIsModalOpen(false)}
+        onIonModalDidDismiss={()=> {
+          setIsModalOpen(false);
+          setIsCrossChain(false);
+        }}
         keyboardClose={false}
         isOpen={isModalOpen}>
           <LoanFormModal 
@@ -720,12 +779,12 @@ export function ReserveDetail(props: IReserveDetailProps) {
               reserve,
               actionType: state?.actionType||"deposit",
             }}
+            isCrossChain={isCrossChain}
             userSummary={userSummary as IUserSummary}
             onDismiss={async (data, role) => {
               console.log(
                 {data, role}
               );
-              
               setIsModalOpen(false);
               await onDismiss({
                 detail: {
@@ -733,6 +792,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                 }
               } as CustomEvent<OverlayEventDetail>)
               .then(async ()=> {
+                
                 if (!data || role === "cancel") {
                   return;
                 }
@@ -765,6 +825,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                   ]
                 });
               });
+              setIsCrossChain(false);
             }}
           />
         </IonModal>
