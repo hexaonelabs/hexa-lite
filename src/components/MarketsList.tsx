@@ -157,6 +157,7 @@ export function MarketList(props: {
             <IonToggle 
               labelPlacement="start"
               aria-label="active"
+              justify="end"
               onIonChange={(e) => {
                 const checked = e.detail.checked||false; 
                 console.log('>>', e);

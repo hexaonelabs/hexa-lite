@@ -163,7 +163,7 @@ export const DefiContainer = ({
                     <IonCol
                       size="12"
                       size-md="4"
-                      class=" ion-padding-vertical ion-margin-vertical"
+                      class=" ion-padding-vertical"
                     >
                       <h3>{currencyFormat(+totalCollateralUsd)}</h3>
                       <p>
@@ -179,7 +179,7 @@ export const DefiContainer = ({
                     <IonCol
                       size="12"
                       size-md="4"
-                      class=" ion-padding-vertical ion-margin-vertical"
+                      class=" ion-padding-vertical"
                     >
                       <h3>{Number(percentBorrowingCapacity.toFixed(2))}%</h3>
                       <p>
@@ -207,7 +207,7 @@ export const DefiContainer = ({
                     <IonCol
                       size="12"
                       size-md="4"
-                      class=" ion-padding-vertical ion-margin-vertical"
+                      class=" ion-padding-vertical"
                     >
                       <h3>{currencyFormat(totalAbailableToBorrow)}</h3>
                       <p>
@@ -457,7 +457,7 @@ export const DefiContainer = ({
                 {(!user || totalCollateralUsd === 0) && (
                   <IonGrid class="ion-no-padding">
                     <IonRow class="ion-text-center">
-                      <IonCol size="12" class="ion-text-center">
+                      <IonCol size="12" class="ion-text-center ion-padding-horizontal">
                         <IonText>
                           <p>
                             {!user ? "Connect wallet and deposit" : "Deposit"}{" "}
