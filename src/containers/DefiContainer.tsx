@@ -143,7 +143,7 @@ export const DefiContainer = ({
                   fontFamily: "monospace",
                   fontWeight: 600,
                   lineHeight: "1.8rem",
-                  letterSpacing: "-0.2rem",
+                  letterSpacing: "-0.1rem",
                 }}
               >
                 {currencyFormat(totalTVL || 0)} TVL
