@@ -774,7 +774,6 @@ export function ReserveDetail(props: IReserveDetailProps) {
         }}
         keyboardClose={false}
         isOpen={isModalOpen}>
-          <IonContent>
             <LoanFormModal 
               selectedReserve={{
                 reserve,
@@ -829,7 +828,6 @@ export function ReserveDetail(props: IReserveDetailProps) {
                 setIsCrossChain(false);
               }}
             />
-          </IonContent>
         </IonModal>
         
     </>
