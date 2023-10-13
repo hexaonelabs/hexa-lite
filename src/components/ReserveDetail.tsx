@@ -292,7 +292,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
 
   return (
     <>
-      <IonContent className="ion-padding">
+      <IonContent fullscreen={true} className="ion-padding">
         <IonButtons className="ion-float-end">
           <IonButton
             color="primary"
@@ -373,7 +373,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                   }
                 ></IonIcon>
               </div>
-              <IonLabel class="ion-padding-start">
+              <IonLabel class="ion-padding-start ion-hide-sm-down">
                 <h2>
                   {reserve?.symbol}
                   <small style={{ display: "block" }}>
@@ -402,7 +402,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                 paddingBottom: "32px",
               }}
             >
-              <IonLabel class="ion-padding-start">
+              <IonLabel class="ion-padding-start ion-hide-sm-down">
                 <h2>
                  AAVE V3
                   <small style={{ display: "block" }}>
@@ -428,7 +428,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
             </IonCol>
             {!reserve.usageAsCollateralEnabled && (
               <IonCol
-                size-md="12"
+                size="12"
                 class="ion-padding ion-text-center horizontalLineBottom"
               >
                 <WarningBox>
@@ -442,7 +442,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
             )}
             {reserve.isIsolated === true && (
               <IonCol
-                size-md="12"
+                size="12"
                 class="ion-padding ion-text-center horizontalLineBottom"
               >
                 <WarningBox>
@@ -774,60 +774,62 @@ export function ReserveDetail(props: IReserveDetailProps) {
         }}
         keyboardClose={false}
         isOpen={isModalOpen}>
-          <LoanFormModal 
-            selectedReserve={{
-              reserve,
-              actionType: state?.actionType||"deposit",
-            }}
-            isCrossChain={isCrossChain}
-            userSummary={userSummary as IUserSummary}
-            onDismiss={async (data, role) => {
-              console.log(
-                {data, role}
-              );
-              setIsModalOpen(false);
-              await onDismiss({
-                detail: {
-                  data, role
-                }
-              } as CustomEvent<OverlayEventDetail>)
-              .then(async ()=> {
-                
-                if (!data || role === "cancel") {
-                  return;
-                }
-                await hideLoader();
-                console.log("[INFO] ReserveDetail - onDismiss: ", data, role);
-                // display toast
-                present({
-                  message: `Transaction success`,
-                  color: "success",
-                  duration: 5000,
-                  buttons: [
-                    { text: 'x', role: 'cancel', handler: () => {
-                      dismiss();
-                    }}
-                  ]
+          <IonContent>
+            <LoanFormModal 
+              selectedReserve={{
+                reserve,
+                actionType: state?.actionType||"deposit",
+              }}
+              isCrossChain={isCrossChain}
+              userSummary={userSummary as IUserSummary}
+              onDismiss={async (data, role) => {
+                console.log(
+                  {data, role}
+                );
+                setIsModalOpen(false);
+                await onDismiss({
+                  detail: {
+                    data, role
+                  }
+                } as CustomEvent<OverlayEventDetail>)
+                .then(async ()=> {
+                  
+                  if (!data || role === "cancel") {
+                    return;
+                  }
+                  await hideLoader();
+                  console.log("[INFO] ReserveDetail - onDismiss: ", data, role);
+                  // display toast
+                  present({
+                    message: `Transaction success`,
+                    color: "success",
+                    duration: 5000,
+                    buttons: [
+                      { text: 'x', role: 'cancel', handler: () => {
+                        dismiss();
+                      }}
+                    ]
+                  });
+                })
+                .catch(async (error) => {
+                  await hideLoader();
+                  console.log("[ERROR] ReserveDetail - onDismiss: ", error);
+                  // display toast
+                  present({
+                    message: `${error}`,
+                    color: "danger",
+                    duration: 5000,
+                    buttons: [
+                      { text: 'x', role: 'cancel', handler: () => {
+                        dismiss();
+                      }}
+                    ]
+                  });
                 });
-              })
-              .catch(async (error) => {
-                await hideLoader();
-                console.log("[ERROR] ReserveDetail - onDismiss: ", error);
-                // display toast
-                present({
-                  message: `${error}`,
-                  color: "danger",
-                  duration: 5000,
-                  buttons: [
-                    { text: 'x', role: 'cancel', handler: () => {
-                      dismiss();
-                    }}
-                  ]
-                });
-              });
-              setIsCrossChain(false);
-            }}
-          />
+                setIsCrossChain(false);
+              }}
+            />
+          </IonContent>
         </IonModal>
         
     </>

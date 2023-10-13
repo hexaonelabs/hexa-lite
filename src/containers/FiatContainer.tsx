@@ -31,7 +31,7 @@ export function FiatContainer() {
           >
             <iframe
               style={{
-                maxWidth: "100vw",
+                maxWidth: "90vw",
                 border: "solid 1px rgba(var(--ion-color-primary-rgb), 0.4)",
                 borderRadius: "32px",
                 overflow: "hidden",

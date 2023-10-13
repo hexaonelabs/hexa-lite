@@ -4,6 +4,7 @@ import { useContext, createContext, useState, useEffect } from "react";
 import { useAave } from "./AaveContext";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { getBaseAPRstETH } from "../servcies/lido.service";
+import { IReserve } from "../interfaces/reserve.interface";
 
 export type EthOptimizedContextType = {
   maxLeverageFactor: number;
@@ -87,10 +88,10 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
   // find `wstETH` and `WETH` reserves from AAVE `poolReserves`
   const poolReserveWSTETH = poolGroups
     ?.find(p => p.symbol === 'wstETH')?.reserves
-    ?.find(p => p.chainId === 10);
+    ?.find((r: IReserve) => r.chainId === 10);
   const poolReserveWETH =  poolGroups
     ?.find(p => p.symbol === 'WETH')?.reserves
-    ?.find(p => p.chainId === 10);
+    ?.find((r: IReserve) => r.chainId === 10);
   // calcul apr using `baseAPRstETH` and `poolReserveWETH.variableBorrowAPR * 100`
   const diffAPR = baseAPRstETH - Number(poolReserveWETH?.variableBorrowAPR||0) * 100;
   
