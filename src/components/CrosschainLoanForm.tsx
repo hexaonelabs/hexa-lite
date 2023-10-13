@@ -10,12 +10,20 @@ import {
   IonListHeader,
   IonPopover,
   IonRow,
+  IonSkeletonText,
   IonText,
+  useIonToast,
 } from "@ionic/react";
-import { IonInputCustomEvent, InputInputEventDetail } from '@ionic/core';
+import { IonInputCustomEvent, InputInputEventDetail } from "@ionic/core";
 import { ethers } from "ethers";
 import { CHAIN_AVAILABLES } from "../constants/chains";
-import { LiFiQuoteResponse, fakeQuote, getQuote } from "../servcies/lifi.service";
+import {
+  LiFiQuoteResponse,
+  checkAndSetAllowance,
+  fakeQuote,
+  getQuote,
+  sendTransaction,
+} from "../servcies/lifi.service";
 import { chevronDown } from "ionicons/icons";
 import { SymbolIcon } from "./SymbolIcon";
 import { useEffect, useRef, useState } from "react";
@@ -32,74 +40,97 @@ import { useEthersProvider } from "../context/Web3Context";
 import { getPercent } from "../utils/utils";
 import { WarningBox } from "./WarningBox";
 import { DangerBox } from "./DangerBox";
+import { useLoader } from "../context/LoaderContext";
+
+const isNumberKey = (evt: React.KeyboardEvent<HTMLIonInputElement>) => {
+  var charCode = (evt.which) ? evt.which : evt.keyCode
+  return !(charCode > 31 && (charCode < 48 || charCode > 57));
+}
 
 const requestQuote = async (ops: {
-  ethereumProvider: ethers.providers.Web3Provider, 
-  selectedCollateral: Pick<IReserve, 'chainId'|'aTokenAddress'|'decimals'|'priceInUSD'>, 
-  newCollateral: Pick<IReserve, 'chainId'|'aTokenAddress'|'priceInUSD'>, 
-  inputFromAmount: number, 
-}): Promise<LiFiQuoteResponse & {errors?: any, message?: string;}> => {
-  const {ethereumProvider, selectedCollateral, newCollateral, inputFromAmount} = ops;
+  ethereumProvider: ethers.providers.Web3Provider;
+  selectedCollateral: Pick<
+    IReserve,
+    "chainId" | "aTokenAddress" | "decimals" | "priceInUSD"
+  >;
+  newCollateral: Pick<IReserve, "chainId" | "aTokenAddress" | "priceInUSD">;
+  inputFromAmount: number;
+}): Promise<LiFiQuoteResponse & { errors?: any; message?: string }> => {
+  const {
+    ethereumProvider,
+    selectedCollateral,
+    newCollateral,
+    inputFromAmount,
+  } = ops;
   const amountInWei = ethers.utils
-  .parseUnits(inputFromAmount.toString() || "0", selectedCollateral?.decimals || 18)
-  .toString();
+    .parseUnits(
+      inputFromAmount.toString() || "0",
+      selectedCollateral?.decimals || 18
+    )
+    .toString();
   console.log("[INFO] CrosschainLoanForm requestQuote...", ops);
   const fromAddress = (await ethereumProvider?.getSigner().getAddress()) || "";
   // return {...fakeQuote, estimate: {
-  //   ...fakeQuote.estimate, 
+  //   ...fakeQuote.estimate,
   //   toAmount: `${(Number(inputFromAmount||0) * Number(selectedCollateral.priceInUSD)) / Number(newCollateral.priceInUSD)}`
   // }};
-  return {
-    message:"No available quotes for the requested transfer",
-    errors:{
-      filteredOut:[],
-      failed:[]
-    }
-  } as any;
-
-  // TODO: fix `No available quotes for the requested transfer` error
-  // try {
-  //   const quote = await getQuote(
-  //     selectedCollateral.chainId.toLocaleString(),
-  //     newCollateral.chainId.toLocaleString(),
-  //     selectedCollateral.aTokenAddress,
-  //     newCollateral.aTokenAddress,
-  //     inputFromAmount.toString(),
-  //     fromAddress
-  //   );
-  //   console.log("[INFO] CrosschainLoanForm requestQuote: ", { quote, amountInWei });
-  //   return quote;
-  // } catch (error: Error|any) {
-  //   return {
-  //     errors: error, 
-  //     message: error?.message||'No available quotes for the requested transfer'
-  //   } as any;
-  // }
+  // return {
+  //   message:"No available quotes for the requested transfer",
+  //   errors:{
+  //     filteredOut:[],
+  //     failed:[]
+  //   }
+  // } as any;
+  try {
+    // working pool: 0x625e7708f30ca75bfd92586e17077590c60eb4cd
+    // chainId: [137, 10]
+    const quote = await getQuote(
+      selectedCollateral.chainId.toLocaleString(),
+      newCollateral.chainId.toLocaleString(),
+      selectedCollateral.aTokenAddress,
+      newCollateral.aTokenAddress,
+      amountInWei,
+      fromAddress
+    );
+    console.log("[INFO] CrosschainLoanForm requestQuote: ", {
+      quote,
+      amountInWei,
+    });
+    return quote;
+  } catch (error: Error | any) {
+    return {
+      errors: error,
+      message:
+        error?.message || "No available quotes for the requested transfer",
+    } as any;
+  }
 };
 
 /**
- * Calculate amount ratio of `collateral.reserveLiquidationThreshold` asset 
+ * Calculate amount ratio of `collateral.reserveLiquidationThreshold` asset
  * user can borrow from `reserve` asset based on `quoteEstimateToAmount`
- * @param ops 
- * @returns 
+ * @param ops
+ * @returns
  */
 const getBorrowAvailableAmountOfReserve = (ops: {
-    collateral: IReserve;
-   reserve: IReserve;
-   quoteEstimateToAmount: number;
-  })=> {      
-  const {collateral, reserve, quoteEstimateToAmount} = ops;
-  const percentThreshold = (Number(collateral.reserveLiquidationThreshold) / 10000) - 0.05;
-  const collateralAmount = Number(quoteEstimateToAmount || 0) * percentThreshold;
+  collateral: IReserve;
+  reserve: IReserve;
+  quoteEstimateToAmount: number;
+}) => {
+  const { collateral, reserve, quoteEstimateToAmount } = ops;
+  const percentThreshold =
+    Number(collateral.reserveLiquidationThreshold) / 10000 - 0.05;
+  const collateralAmount =
+    Number(quoteEstimateToAmount || 0) * percentThreshold;
   const collateralAmountUSD = collateralAmount * Number(collateral.priceInUSD);
-  return collateralAmountUSD / Number(reserve.priceInUSD)
+  return collateralAmountUSD / Number(reserve.priceInUSD);
 };
 
 export function CrosschainLoanForm(props: {
   reserve: IReserve;
   userSummary: IUserSummary;
   toggleCrosschainForm: () => void;
-  onSubmit: (quote: LiFiQuoteResponse, action: "confirm" | "cancel") => void;
+  onSubmit:(data?: string | null | undefined | number, role?:  "confirm" | "cancel") => void;
 }) {
   const { reserve, userSummary, toggleCrosschainForm, onSubmit } = props;
   const { userSummaryAndIncentivesGroup, poolGroups } = useAave();
@@ -109,9 +140,12 @@ export function CrosschainLoanForm(props: {
     +userSummary.healthFactor
   );
   const [inputFromAmount, setInputFromAmount] = useState<number>(0);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>();
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();  
+  const toastContext = useIonToast();
+  const presentToast = toastContext[0];
+  const dismissToast = toastContext[1];
 
-  const collateralPoolsGroup = (userSummaryAndIncentivesGroup||[])
+  const collateralPoolsGroup = (userSummaryAndIncentivesGroup || [])
     .filter((group) => Number(group.availableBorrowsUSD) > 0)
     .map((group) =>
       group.userReservesData
@@ -141,6 +175,9 @@ export function CrosschainLoanForm(props: {
   const [newCollateralAmount, setNewCollateralAmount] = useState(0);
   const [borrowAmount, setBorrowAmount] = useState(0);
   const [quote, setQuote] = useState<LiFiQuoteResponse>();
+  // boolean state to manage loader UI during request and calculate process
+  const [isLoading, setIsLoading] = useState(false);
+  const { display: displayLoader, hide: hideLoader } = useLoader();
 
   const depositPoolsGroup = (poolGroups || [])
     ?.filter((p) => p.chainIds.includes(reserve.chainId))
@@ -171,97 +208,100 @@ export function CrosschainLoanForm(props: {
   const displayRiskCheckbox =
     healthFactor && healthFactor < 1.15 && healthFactor?.toString() !== "-1";
 
-  const handleInputChange = async (e: IonInputCustomEvent<InputInputEventDetail>)=> {
+  const handleInputChange = async (
+    e: IonInputCustomEvent<InputInputEventDetail>
+  ) => {
     let value = Number((e.target as any).value || 0);
     if (maxAmount && value > maxAmount) {
       (e.target as any).value = maxAmount;
       value = maxAmount;
     }
     if (value <= 0) {
-      (e.target as any).value = "0";
-      setErrorMessage(()=> undefined);
-      setInputFromAmount(() => 0);
+      setErrorMessage(() => undefined);
       setNewCollateralAmount(() => 0);
       setBorrowAmount(() => 0);
       setHealthFactor(() => undefined);
+      // UI loader control
+      setIsLoading(() => false);
       return;
     }
-    const summary = userSummaryAndIncentivesGroup?.find(
-      (summary) =>
-        summary.userReservesData.find(
-          (r) => r.reserve.id === selectedCollateral?.id
-        )
+    const summary = userSummaryAndIncentivesGroup?.find((summary) =>
+      summary.userReservesData.find(
+        (r) => r.reserve.id === selectedCollateral?.id
+      )
     );
     if (!summary || !selectedCollateral) {
-      setErrorMessage(()=> undefined);
+      setErrorMessage(() => undefined);
       setInputFromAmount(() => 0);
       setNewCollateralAmount(() => 0);
       setBorrowAmount(() => 0);
       setHealthFactor(() => undefined);
+      // UI loader control
+      setIsLoading(() => false);
       return;
     }
-    const newHealthFactor =
-      calculateHealthFactorFromBalancesBigUnits({
-        collateralBalanceMarketReferenceCurrency:
-          summary.totalCollateralUSD,
-        borrowBalanceMarketReferenceCurrency: valueToBigNumber(
-          summary.totalBorrowsUSD
-        ).plus(
-          valueToBigNumber(value || 0).times(
-            selectedCollateral?.priceInUSD || 0
-          )
-        ),
-        currentLiquidationThreshold:
-          summary.currentLiquidationThreshold,
-      });
+    const newHealthFactor = calculateHealthFactorFromBalancesBigUnits({
+      collateralBalanceMarketReferenceCurrency: summary.totalCollateralUSD,
+      borrowBalanceMarketReferenceCurrency: valueToBigNumber(
+        summary.totalBorrowsUSD
+      ).plus(
+        valueToBigNumber(value || 0).times(selectedCollateral?.priceInUSD || 0)
+      ),
+      currentLiquidationThreshold: summary.currentLiquidationThreshold,
+    });
     if (!ethereumProvider) {
+      // UI loader control
+      setIsLoading(() => false);
       throw new Error("No ethereum provider");
     }
+    // UI loader control
+    setIsLoading(() => true);
     // request Quote
-    const {errors, message, ...quote} = await requestQuote({
+    const { errors, message, ...quote } = await requestQuote({
       ethereumProvider,
       inputFromAmount: value,
       newCollateral,
-      selectedCollateral
+      selectedCollateral,
     });
-    if(errors || !quote?.estimate) {
+    if (errors || !quote?.estimate) {
       setHealthFactor(() => undefined);
-      setErrorMessage(()=> message);
+      setErrorMessage(() => message);
       setInputFromAmount(() => value);
       setQuote(() => undefined);
       setNewCollateralAmount(() => 0);
       setBorrowAmount(() => 0);
+      // UI loader control
+      setIsLoading(() => false);
       return;
     }
+    const estimateToAmountDecimal = ethers.utils.formatUnits(
+      quote.estimate.toAmount,
+      newCollateral.decimals
+    );
     const borrowAvailableAmountOfReserve = getBorrowAvailableAmountOfReserve({
       collateral: newCollateral,
       reserve,
-      quoteEstimateToAmount: Number(quote.estimate.toAmount || 0)
+      quoteEstimateToAmount: Number(estimateToAmountDecimal || 0),
     });
-    setErrorMessage(()=> undefined);
+    setErrorMessage(() => undefined);
     setHealthFactor(() => newHealthFactor.toNumber());
     setInputFromAmount(() => value);
     setQuote(() => quote);
-    setNewCollateralAmount(() => (Number(quote.estimate.toAmount || 0)));
-    setBorrowAmount(() => (borrowAvailableAmountOfReserve));
-    console.log(">> event data", {
-      newHealthFactor: newHealthFactor.toNumber(),
-      summary,
-      v: value,
-      quote,
-      t: newCollateral.reserveLiquidationThreshold
-    });
-  }
+    setNewCollateralAmount(() => Number(estimateToAmountDecimal || 0));
+    setBorrowAmount(() => borrowAvailableAmountOfReserve);
+    // UI loader control
+    setIsLoading(() => false);
+  };
 
-  const handleNewCollateralChange = async(r:IReserve) => {
-    setNewCollateral(()=> r);
+  const handleNewCollateralChange = async (r: IReserve) => {
+    setNewCollateral(() => r);
     setNewCollateralAmount(() => 0);
     setBorrowAmount(() => 0);
-    setErrorMessage(()=> undefined);
+    setErrorMessage(() => undefined);
     setHealthFactor(() => undefined);
     setInputFromAmount(() => 0);
     setQuote(() => undefined);
-  }
+  };
 
   return (
     <>
@@ -342,7 +382,7 @@ export function CrosschainLoanForm(props: {
                           onClick={() => {
                             setSelectedCollateral(r);
                             setInputFromAmount(() => 0);
-                            setErrorMessage(()=> undefined);
+                            setErrorMessage(() => undefined);
                             setQuote(() => undefined);
                             setNewCollateralAmount(() => 0);
                             setBorrowAmount(() => 0);
@@ -414,6 +454,11 @@ export function CrosschainLoanForm(props: {
                   min={0}
                   debounce={1500}
                   value={inputFromAmount}
+                  onKeyUp={(e) => {
+                    if (isNumberKey(e)) {
+                      setIsLoading(() => true)
+                    }
+                  }}
                   onIonInput={(e) => handleInputChange(e)}
                 />
               </div>
@@ -541,21 +586,36 @@ export function CrosschainLoanForm(props: {
                 </div>
               </div>
               <div slot="end" className="ion-text-end ion-padding-end">
-                <IonText>
-                  <h3
-                    style={{
-                      margin: " 0",
-                      fontSize: "1.5rem",
-                    }}
-                  >
-                    {Number(newCollateralAmount) > 0
-                      ? Number(newCollateralAmount || 0).toFixed(6)
-                      : 0}
-                  </h3>
-                </IonText>
-                <IonText color="medium">
-                  <small>$ {(Number(newCollateral.priceInUSD) * newCollateralAmount).toFixed(2)}</small>
-                </IonText>
+                {isLoading ? (
+                  <IonSkeletonText
+                    animated
+                    style={{ width: "6rem" }}
+                    slot="end"
+                  ></IonSkeletonText>
+                ) : (
+                  <>
+                    <IonText>
+                      <h3
+                        style={{
+                          margin: " 0",
+                          fontSize: "1.5rem",
+                        }}
+                      >
+                        {Number(newCollateralAmount) > 0
+                          ? Number(newCollateralAmount || 0).toFixed(6)
+                          : 0}
+                      </h3>
+                    </IonText>
+                    <IonText color="medium">
+                      <small>
+                        ${" "}
+                        {(
+                          Number(newCollateral.priceInUSD) * newCollateralAmount
+                        ).toFixed(2)}
+                      </small>
+                    </IonText>
+                  </>
+                )}
               </div>
             </IonItem>
 
@@ -602,31 +662,46 @@ export function CrosschainLoanForm(props: {
                 </div>
               </div>
               <div slot="end" className="ion-text-end ion-padding-end">
-                <IonText>
-                  <h3
-                    style={{
-                      margin: " 0",
-                      fontSize: "1.5rem",
-                    }}
-                  >
-                    {Number(borrowAmount) > 0
-                      ? Number(borrowAmount || 0).toFixed(6)
-                      : 0}
-                  </h3>
-                </IonText>
-                <IonText color="medium">
-                  <small>$ {(Number(reserve.priceInUSD) * borrowAmount).toFixed(2)}</small>
-                </IonText>
+                {isLoading ? (
+                  <IonSkeletonText
+                    animated
+                    style={{ width: "6rem" }}
+                    slot="end"
+                  ></IonSkeletonText>
+                ) : (
+                  <>
+                    <IonText>
+                      <h3
+                        style={{
+                          margin: " 0",
+                          fontSize: "1.5rem",
+                        }}
+                      >
+                        {Number(borrowAmount) > 0
+                          ? Number(borrowAmount || 0).toFixed(6)
+                          : 0}
+                      </h3>
+                    </IonText>
+                    <IonText color="medium">
+                      <small>
+                        ${" "}
+                        {(Number(reserve.priceInUSD) * borrowAmount).toFixed(2)}
+                      </small>
+                    </IonText>
+                  </>
+                )}
               </div>
             </IonItem>
-
           </div>
         </IonCol>
       </IonRow>
 
-      {(displayRiskCheckbox && !errorMessage) && (
+      {displayRiskCheckbox && !errorMessage && (
         <IonRow class="ion-justify-content-center">
-          <IonCol size="auto" className="ion-padding-horizontal ion-padding-top">
+          <IonCol
+            size="auto"
+            className="ion-padding-horizontal ion-padding-top"
+          >
             <WarningBox>
               <p className="ion-n-padding ion-no-margin">
                 <small>
@@ -647,7 +722,7 @@ export function CrosschainLoanForm(props: {
             <DangerBox>
               <p className="ion-no-padding ion-no-margin">
                 <small>
-                  {errorMessage}. <br/>
+                  {errorMessage}. <br />
                   Try again with other collaterals or amount.
                 </small>
               </p>
@@ -673,7 +748,40 @@ export function CrosschainLoanForm(props: {
           )}
           <IonButton
             expand="block"
-            onClick={() => (quote ? onSubmit(quote, "confirm") : null)}
+            onClick={async () => {
+              // exclud all action if no quote available
+              if (!quote?.id || !ethereumProvider) {
+                return;
+              }
+              await displayLoader();
+              try {
+                // perform swap collaterals
+                await checkAndSetAllowance(
+                  ethereumProvider, 
+                  quote.action.fromToken.address, 
+                  quote.estimate.approvalAddress, 
+                  quote.action.fromAmount,
+                );
+                await sendTransaction(quote, ethereumProvider);
+                await presentToast({
+                  message: `Swap callaterals successfully. Waiting form Borrow transaction...`,
+                  duration: 5000,
+                  color: "primary",
+                  buttons: ['x']
+                  
+                });
+                await hideLoader();
+                // perform borrow by closing modal with params as `data`
+                onSubmit(borrowAmount, "confirm");
+              } catch (error: any) {
+                await presentToast({
+                  message: `Error while swap callaterals: ${error?.message||'Transaction failed'}. Please try again.`,
+                  duration: 5000,
+                  color: "danger",
+                });
+                await hideLoader();
+              }
+            }}
             strong={true}
             color="gradient"
             disabled={quote?.id ? false : true}
