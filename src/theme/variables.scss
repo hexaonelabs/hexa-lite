@@ -27,6 +27,14 @@
 	--ion-color-gradient-shade: linear-gradient(270deg, var(--ion-color-secondary-shade),var(--ion-color-primary-shade));
 	--ion-color-gradient-tint: linear-gradient(270deg, var(--ion-color-secondary-tint),var(--ion-color-primary-tint));
 
+	--ion-coloor-gradient-text: linear-gradient(to right, rgb(var(--ion-color-primary-rgb)) , rgb(var(--ion-color-secondary-rgb)));
+	.ion-color-gradient-text {
+		background: var(--ion-coloor-gradient-text);
+		-webkit-background-clip: text;
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+	
 	--ion-color-success: #2dd36f;
 	--ion-color-success-rgb: 45,211,111;
 	--ion-color-success-contrast: #fff;

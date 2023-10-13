@@ -59,7 +59,7 @@ ion-button.button-default {
   --border-radius: 32px!important;
 }
 ion-button.button-small {
-  --border-radius: 8px!important;
+  --border-radius: 18px!important;
 }
 
 
@@ -117,18 +117,18 @@ ion-popover.profil-popover {
 }
 
 .modalAlert {
-  --width: fit-content;
-  --min-width: 350px;
-  --max-width: 650px;
+  // --width: fit-content;
+  --max-width: 350px;
   --height: fit-content;
   --border-radius: 32px;
+  --backdrop-opacity: 0.3!important;
   
   // --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
   padding: 2rem;
 
-  .ion-accordion-toggle-icon {
-    display: none;
-  }
+  // .ion-accordion-toggle-icon {
+  //   display: none;
+  // }
 
   &.infoAPY {
     --min-width: 200px!important;
@@ -141,14 +141,20 @@ ion-popover.profil-popover {
   }
 }
 
+.modalPage {
+  --min-width: 100vw;
+  --min-height: 100vh;
+  --border-radius: 0;
+}
 
-.ion-accordion-toggle-icon{
+
+.ion-accordion-toggle-icon {
   color: var(--ion-color-primary);
   transform: scale(0.8);
 }
 
 ion-accordion {
-  background-color: #131313;
+  background-color: transparent;
 
   ion-item {
     --background: transparent;
@@ -188,7 +194,9 @@ ion-accordion {
   border: 1px solid rgba(var(--ion-color-primary-rgb), 0.4);
   border-radius: 32px;
   overflow: hidden;
-  background-color: #131313;
+  background-color: rgb(19 19 19 / 40%);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .welcomeSection {
@@ -372,6 +380,128 @@ ion-accordion {
   user-select: none; /* Standard syntax */
 }
 
-.css-nub5al-MuiScopedCssBaseline-root {
-  // background-color: #515173!important;
+ion-accordion {
+  *[slot="header"] {
+    --padding-top: 0.8rem;
+    --padding-bottom: 0.8rem;
+
+    .poolItemList {
+      font-size: 18px;
+    }
+  }
+  *[slot="content"] {
+    > ion-grid {
+      background: rgba(var(--ion-color-light-rgb), 0.6) !important;
+      margin: 0rem;
+      padding: 0.5rem 0;
+
+      h3 {
+        font-size: 12px!important;
+      }
+    }
+
+    ion-item {
+      --background: rgba(var(--ion-color-light-rgb), 0.4) !important;
+      --padding-top: 0.4rem;
+      --padding-bottom: 0.4rem;
+      --padding-start: 0;
+      --inner-padding-end: 0; 
+      cursor: pointer;
+
+      ion-fab-button {
+        opacity: 0.5;
+        transition: all 125ms ease-in-out;
+      }
+
+      .poolItemList {
+        font-size: 14px;
+      }
+
+      &:hover {
+        --background: rgba(var(--ion-color-light-rgb), 0.1) !important;
+
+        ion-fab-button {
+          opacity: 1; 
+        }
+      }
+    }
+
+    // > ion-item {
+    //   --padding-top: 0.8rem;
+    // }
+  }
+
+  &.dashboardItem {
+
+    cursor: inherit;
+
+    &.accordion-animated > [slot=header] {
+      .ion-accordion-toggle-icon {
+        display: none;
+      }
+    } 
+    > [slot=header] {
+      ion-col > ion-button[expand=block] {
+        ion-icon {
+          transition: all 125ms ease-in-out;
+        }
+      }
+    }
+    &.accordion-expanded, 
+    &.accordion-expanding {
+      > [slot=header] {
+        ion-col > ion-button[expand=block] {
+          ion-icon {
+            transform: rotate(180deg);
+          }
+        }
+      }
+    }
+    &:hover,
+    &.accordion-expanded {
+      background: none!important;
+
+    }
+
+    h3 {
+      font-size: 32px;
+    }
+  }
 }
+
+.verticalLineBefore::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: var(--ion-border-color);
+  z-index: 0;
+}
+.horizontalLineBottom {
+  border-bottom: solid 1px var(--ion-border-color),
+}
+
+// LiFi widget customisation
+div[id^="widget-scrollable-container"],
+div[id^="widget-app-expanded-container"],
+div[id^="widget-relative-container"],
+div.MuiScopedCssBaseline-root {
+  height: 100%;
+  max-height: 100%;
+}
+div[id^="widget-header-"].MuiBox-root,
+div[id^="widget-scrollable-container"], 
+div[id^="widget-relative-container"],
+div.MuiScopedCssBaseline-root > .MuiBox-root > .MuiBox-root {
+  background: transparent!important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+div.MuiScopedCssBaseline-root {
+  background: rgb(19 19 19 / 40%)!important;
+  -webkit-backdrop-filter: blur(10px)!important;
+  backdrop-filter: blur(10px)!important;
+}
+

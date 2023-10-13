@@ -4,6 +4,7 @@ export interface IChain {
   id: number;
   value: string;
   name: string;
+  rpcUrl: string;
   nativeSymbol?: string;
   logo?: string;
   testnet?: boolean;
@@ -15,15 +16,22 @@ export const CHAIN_AVAILABLES: IChain[] = [
     value: 'eth',
     name: 'Ethereum',
     nativeSymbol: 'ETH',
-    logo: '/assets/cryptocurrency-icons/eth.svg'
+    logo: '/assets/cryptocurrency-icons/eth.svg',
+    rpcUrl: [
+      {primary: false, url: 'https://eth-mainnet-public.unifra.io'}, 
+      {primary: true, url: "https://rpc.ankr.com/eth"}
+    ]
+    .find(
+      (rpc) => rpc.primary
+    )?.url||'',
   },
-  {
-    id: 56,
-    value: 'bsc',
-    name: 'Binance smart chain',
-    nativeSymbol: 'BNB',
-    logo: '/assets/cryptocurrency-icons/bnb.svg'    
-  },
+  // {
+  //   id: 56,
+  //   value: 'bsc',
+  //   name: 'Binance smart chain',
+  //   nativeSymbol: 'BNB',
+  //   logo: '/assets/cryptocurrency-icons/bnb.svg'    
+  // },
   // {
   //   id: 250,
   //   value: 'fantom',
@@ -42,7 +50,14 @@ export const CHAIN_AVAILABLES: IChain[] = [
     value: 'polygon',
     name: 'Polygon',
     nativeSymbol: 'MATIC',
-    logo: '/assets/cryptocurrency-icons/matic.svg'
+    logo: '/assets/cryptocurrency-icons/matic.svg',
+    rpcUrl: [
+      {primary: false, url: 'https://polygon-rpc.com'}, 
+      {primary: true, url: "https://rpc.ankr.com/polygon"}
+    ]
+    .find(
+      (rpc) => rpc.primary
+    )?.url||'',
   },
   // {
   //   id: 42161,
@@ -54,27 +69,36 @@ export const CHAIN_AVAILABLES: IChain[] = [
     id: 10,
     value: 'optimism',
     name: 'Optimism',
-    nativeSymbol: 'ETH',
-    logo: '/assets/icons/op.svg'
+    nativeSymbol: 'OP',
+    logo: '/assets/icons/op.svg',
+    rpcUrl: [
+      {primary: false, url:'https://mainnet.optimism.io'}, 
+      {primary: true, url: "https://rpc.ankr.com/optimism"}
+    ]
+    .find(
+      (rpc) => rpc.primary
+    )?.url||'',
   },
   // testnets
-  {
-    id: 5,
-    value: 'eth_goerli',
-    name: 'Goerli',
-    testnet: true,
-  },
-  {
-    id: 80001,
-    value: 'polygon_mumbai',
-    name: 'mumbai',
-    testnet: true,
-  },
-  {
-    id: 43113,
-    value: 'avalanche_fuji',
-    name: 'Fuji',
-  },
+  // {
+  //   id: 5,
+  //   value: 'eth_goerli',
+  //   name: 'Goerli',
+  //   testnet: true,
+  //   rpcUrl: "https://rpc.ankr.com/eth_goerli",
+  // },
+  // {
+  //   id: 80001,
+  //   value: 'polygon_mumbai',
+  //   name: 'mumbai',
+  //   testnet: true,
+  //   rpcUrl: "https://rpc.ankr.com/polygon_mumbai",
+  // },
+  // {
+  //   id: 43113,
+  //   value: 'avalanche_fuji',
+  //   name: 'Fuji',
+  // },
 ];
 
 export const CHAIN_DEFAULT = CHAIN_AVAILABLES.find(c => c.id === 10) || {id: 10};

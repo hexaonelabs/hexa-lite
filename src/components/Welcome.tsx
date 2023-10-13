@@ -89,7 +89,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                 fontWeight: "bold",
               }}
             >
-              Onboard on <IonText color="primary">Web3</IonText>
+              Onboard on <IonText className="ion-color-gradient-text">Web3</IonText>
             </h2>
           </IonText>
           <IonText color="medium">
@@ -263,11 +263,11 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         style={{ minHeight: "100vh", marginBottom: "-4rem", }}
       >
         <IonCol size="12" class="ion-text-center ">
-          <IonText color="tertiary">
             <p>
+          <IonText className="ion-color-gradient-text">
               Earn interest with your assets
-            </p>
           </IonText>
+            </p>
           <IonText>
             <h2
               style={{

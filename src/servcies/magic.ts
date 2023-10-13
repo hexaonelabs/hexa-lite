@@ -4,30 +4,17 @@ import {
   SDKBase,
 } from "@magic-sdk/provider";
 import { Magic } from "magic-sdk";
-import { CHAIN_DEFAULT } from "../constants/chains";
+import { CHAIN_DEFAULT, CHAIN_AVAILABLES } from "../constants/chains";
 
-export const RPC_NODE_OPTIONS = [
+export const RPC_NODE_OPTIONS = CHAIN_AVAILABLES.map(c => (
   {
-    rpcUrl: "https://rpc.ankr.com/eth", // your ethereum, polygon, or optimism mainnet/testnet rpc URL
-    chainId: 1, // corresponding chainId for your rpc url
-  },
-  {
-    rpcUrl: "https://rpc.ankr.com/eth_goerli", // your ethereum, polygon, or optimism mainnet/testnet rpc URL
-    chainId: 5, // corresponding chainId for your rpc url
-  },
-  {
-    rpcUrl: "https://rpc.ankr.com/polygon", // or https://matic-mumbai.chainstacklabs.com for testnet
-    chainId: 137, // or 80001 for polygon testnet
-  },
-  {
-    rpcUrl: "https://rpc.ankr.com/polygon_mumbai",
-    chainId: 80001,
-  },
-  {
-    rpcUrl: "https://rpc.ankr.com/optimism",
-    chainId: 10,
-  },
-];
+    chainId: c.id,
+    rpcUrl: c.rpcUrl,
+  }
+))
+
+
+
 
 export const getRPCNodeOptions = async () => {
   let t;

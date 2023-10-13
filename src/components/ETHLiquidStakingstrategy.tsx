@@ -29,7 +29,7 @@ import { getBaseAPRstETH, getETHByWstETH } from "../servcies/lido.service";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import { useEthersProvider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
-import { CHAIN_DEFAULT } from "../constants/chains";
+import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "../constants/chains";
 import { AssetInput } from "./AssetInput";
 import { ethers } from "ethers";
 import { swapWithLiFi } from "../servcies/lifi.service";
@@ -89,7 +89,7 @@ const handleSwap = async (
 export function EthLiquidStakingStrategyModal({
   dismiss,
 }: IStrategyModalProps) {
-  const { ethereumProvider } = useEthersProvider();
+  const { ethereumProvider, switchNetwork } = useEthersProvider();
   const { user, assets, refresh: refreshUser } = useUser();
   const { display: displayLoader, hide: hideLoader } = useLoader();
 
@@ -226,11 +226,11 @@ export function EthLiquidStakingStrategyModal({
                   walletBalanceWETH || 0,
                   {
                     decimals: 18,
-                    address: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+                    address: "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
                   },
                   {
                     decimals: 18,
-                    address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+                    address: "0x4200000000000000000000000000000000000006",
                   }
                 );
                 await refreshUser();
@@ -309,6 +309,7 @@ export function EthLiquidStakingStrategyModal({
 
 export function ETHLiquidStakingstrategyCard() {
   const { user } = useUser();
+  const { ethereumProvider, switchNetwork } = useEthersProvider();
   const [baseAPRstETH, setBaseAPRstETH] = useState(-1);
 
   const strategy = {
@@ -320,6 +321,7 @@ export function ETHLiquidStakingstrategyCard() {
     providers: ["lido"],
     assets: ["WETH", "wstETH"],
     isStable: true,
+    chainsId: [10],
     details: {
       description: `
         This strategy will swap your ETH for wstETH to earn ${baseAPRstETH.toFixed(
@@ -342,7 +344,12 @@ export function ETHLiquidStakingstrategyCard() {
     <ConnectButton expand="block" />
   ) : (
     <IonButton
-      onClick={() => {
+      onClick={async () => {
+        // check correct chain
+        const chainId = ethereumProvider?.network?.chainId;
+        if (chainId !== 10) {
+          await switchNetwork(10);
+        }
         modal.current?.present();
       }}
       expand="block"
@@ -353,9 +360,9 @@ export function ETHLiquidStakingstrategyCard() {
   );
 
   return (
-    <IonCol size="auto" className="ion-padding-bottom">
-      <IonCard className="strategyCard" style={{ maxWidth: 350 }}>
-        <IonGrid>
+    <>
+      <IonCard className="strategyCard" style={{ width: 300 }}>
+        <IonGrid style={{ width: "100%" }}>
           <IonRow class="ion-text-center ion-padding">
             <IonCol size="12" class="ion-padding">
               <IonImg
@@ -370,7 +377,9 @@ export function ETHLiquidStakingstrategyCard() {
             </IonCol>
             <IonCol size="12" class="ion-padding-top">
               <h1 className="ion-no-margin">
-                <IonText color="primary">{strategy.name}</IonText>
+                <IonText className="ion-color-gradient-text">
+                  {strategy.name}
+                </IonText>
                 <br />
                 <small>{strategy.type}</small>
               </h1>
@@ -402,6 +411,37 @@ export function ETHLiquidStakingstrategyCard() {
                       alt={symbol}
                     />
                   ))}
+                </div>
+              </IonItem>
+              <IonItem
+                style={{
+                  "--background": "transparent",
+                  "--inner-padding-end": "none",
+                  "--padding-start": "none",
+                }}
+              >
+                <IonLabel>Network</IonLabel>
+                <div slot="end" style={{ display: "flex" }}>
+                  {strategy.chainsId
+                    .map((id) => CHAIN_AVAILABLES.find((c) => c.id === id))
+                    .map((c, index) => {
+                      if (!c || !c.nativeSymbol) return null;
+                      return (
+                        <IonImg
+                          key={index}
+                          style={{
+                            width: 18,
+                            height: 18,
+                            transform:
+                              index === 0 && strategy.chainsId.length > 1
+                                ? "translateX(5px)"
+                                : "none",
+                          }}
+                          src={getAssetIconUrl({ symbol: c.nativeSymbol })}
+                          alt={c.nativeSymbol}
+                        />
+                      );
+                    })}
                 </div>
               </IonItem>
               <IonItem
@@ -462,24 +502,26 @@ export function ETHLiquidStakingstrategyCard() {
           <IonRow>
             <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
               <HowItWork>
-                <IonText>
-                  <h4>Staking WETH with Lido</h4>
-                  <p className="ion-no-margin ion-margin-bottom">
-                    <small>
-                      By swapping WETH to wstETH you will incrase your WETH
-                      holdings by {baseAPRstETH.toFixed(2)}% APY revard from staking WETH
-                      using{" "}
-                      <a
-                        href="https://lido.fi/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Lido
-                      </a>
-                      .
-                    </small>
-                  </p>
-                </IonText>
+                <div className="ion-padding-horizontal">
+                  <IonText>
+                    <h4>Staking WETH with Lido</h4>
+                    <p className="ion-no-margin ion-padding-bottom">
+                      <small>
+                        By swapping WETH to wstETH you will incrase your WETH
+                        holdings by {baseAPRstETH.toFixed(2)}% APY revard from
+                        staking WETH using{" "}
+                        <a
+                          href="https://lido.fi/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Lido
+                        </a>
+                        .
+                      </small>
+                    </p>
+                  </IonText>
+                </div>
               </HowItWork>
               {CardButton}
             </IonCol>
@@ -505,6 +547,6 @@ export function ETHLiquidStakingstrategyCard() {
           }
         />
       </IonModal>
-    </IonCol>
+    </>
   );
 }

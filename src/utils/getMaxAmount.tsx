@@ -10,19 +10,11 @@ import {
 } from "../constants/chains";
 import { getMaxAmountAvailableToWithdraw } from "./getMaxAmountAvailableToWithdraw";
 import { getMaxAmountAvailableToBorrow } from "./getMaxAmountAvailableToBorrow";
+import { IReserve, ReserveDetailActionType } from "../interfaces/reserve.interface";
 
 export const getMaxAmount = (
-  type: string,
-  reserve: ReserveDataHumanized &
-    FormatReserveUSDResponse & {
-      borrowBalance: number;
-      borrowBalanceUsd: number;
-      supplyBalance: number;
-      supplyBalanceUsd: number;
-      walletBalance: number;
-      logo: string;
-      priceInUSD: string;
-    },
+  type: ReserveDetailActionType,
+  reserve: IReserve,
   userSummary: FormatUserSummaryAndIncentivesResponse<
     ReserveDataHumanized & FormatReserveUSDResponse
   >,
@@ -57,6 +49,7 @@ export const getMaxAmount = (
       );
       break;
     }
+    case type === "crosschain-collateral":
     case type === "withdraw": {
       maxAmount = +getMaxAmountAvailableToWithdraw(
         {

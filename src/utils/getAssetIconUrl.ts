@@ -82,5 +82,17 @@ export const getAssetIconUrl = ({ symbol }: { symbol: string }) => {
   if (symbol === "SNX") {
     logoUrl = `./assets/icons/snx.svg`;
   }
+  if (symbol === "RPL") {
+    logoUrl = `./assets/icons/rpl.svg`;
+  }
+  if (symbol === "RPL") {
+    logoUrl = `./assets/icons/rpl.svg`;
+  }
+  if (symbol === "sDAI") {
+    logoUrl = `./assets/icons/sdai.svg`;
+  }
+  if (symbol === "AAVE") {
+    logoUrl = `./assets/icons/aave.svg`;
+  }
   return logoUrl;
 };

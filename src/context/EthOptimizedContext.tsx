@@ -77,24 +77,30 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
   const [baseAPRstETH, setBaseAPRstETH] = useState(-1);
   const [state, setState] = useState<EthOptimizedContextType|undefined>(undefined);   
   const { 
-    poolReserves, 
     markets, 
     refresh, 
-    userSummaryAndIncentives 
+    poolGroups,
+    userSummaryAndIncentivesGroup
   } = useAave();
+  const market = markets?.find(m => m.CHAIN_ID === 10);
+  const userSummaryAndIncentives = userSummaryAndIncentivesGroup?.find(p => p.chainId === 10);
   // find `wstETH` and `WETH` reserves from AAVE `poolReserves`
-  const poolReserveWSTETH = poolReserves?.find(p => p.symbol === 'wstETH');
-  const poolReserveWETH = poolReserves?.find(p => p.symbol === 'WETH');
+  const poolReserveWSTETH = poolGroups
+    ?.find(p => p.symbol === 'wstETH')?.reserves
+    ?.find(p => p.chainId === 10);
+  const poolReserveWETH =  poolGroups
+    ?.find(p => p.symbol === 'WETH')?.reserves
+    ?.find(p => p.chainId === 10);
   // calcul apr using `baseAPRstETH` and `poolReserveWETH.variableBorrowAPR * 100`
   const diffAPR = baseAPRstETH - Number(poolReserveWETH?.variableBorrowAPR||0) * 100;
-  const userLiquidationThreshold =  Number(userSummaryAndIncentives?.currentLiquidationThreshold||0) === 0 
-    ? Number(poolReserveWETH?.formattedReserveLiquidationThreshold)
-    : Number(userSummaryAndIncentives?.currentLiquidationThreshold);
+  
+  const userLiquidationThreshold =  Number(userSummaryAndIncentives?.currentLiquidationThreshold||0) > 0 
+  ? Number(userSummaryAndIncentives?.currentLiquidationThreshold||0)
+  : Number(poolReserveWETH?.formattedReserveLiquidationThreshold);
+  
   const maxLeverageFactor = getMaxLeverageFactor(userLiquidationThreshold);
-  // const maxAPRstETH = (diffAPR * maxLeverageFactor) + baseAPRstETH;
-  const DEFAULT_MAX_APY = 14.01;
+  const DEFAULT_MAX_APY = 14.02;
   const superMaxAPRstETH = ((baseAPRstETH * (maxLeverageFactor)) - (Number(poolReserveWETH?.variableBorrowAPR||0) * 100)) || DEFAULT_MAX_APY;
-  console.log('APY details:', {maxLeverageFactor, baseAPRstETH, superMaxAPRstETH});
   
   useEffect(() => {
     setState((prev) => ({
@@ -112,9 +118,9 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
       details:{
         description: `This strategy will swap your ETH for wstETH and stake it in Aave to create collateral for the protocol that allow you to borrow ETH to leveraged against standard ETH to gain an increased amount of ETH POS staking reward.`
       },
-      chainId: markets?.CHAIN_ID as number,
-      poolAddress: markets?.POOL as string,
-      gateway: markets?.WETH_GATEWAY as string,
+      chainId: market?.CHAIN_ID as number,
+      poolAddress: market?.POOL as string,
+      gateway: market?.WETH_GATEWAY as string,
       userSummaryAndIncentives: userSummaryAndIncentives as FormatUserSummaryAndIncentivesResponse<ReserveDataHumanized & FormatReserveUSDResponse>,
       step: [
         {
@@ -145,7 +151,7 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
       ]
     }));
   }, [
-    poolReserves, 
+    poolGroups, 
     markets,
     userSummaryAndIncentives,
     baseAPRstETH,
