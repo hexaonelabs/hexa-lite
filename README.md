@@ -23,7 +23,7 @@ Hexa Lite is frictionless, secure, and reliable for everyone to use and enjoy th
 
 - [x] <b>Exchange assets at best rate:</b> Users can exchange assets at best rate that is available on the market and can select the best rate from multiple DEXs and liquidity pools across multiple blockchains.
 
-- [x] <b>Lend and borrow money on DeFi protocols:</b> Users can lend and borrow money on DeFi protocols and earn interest with by providing liquidity to lending pools from multiple liquidity providers across multiple blockchains.
+- [x] <b>Lend and borrow money on DeFi protocols:</b> Users can lend and borrow money on DeFi protocols and earn interest by providing liquidity to lending pools from multiple liquidity providers across multiple blockchains using crosschain collateral swap.
 
 - [x] <b>Earn interest with liquide staking:</b> Users can earn interest with liquide staking by providing liquidity to staking pools from multiple liquidity providers across multiple blockchains.
 
