@@ -373,7 +373,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                   }
                 ></IonIcon>
               </div>
-              <IonLabel class="ion-padding-start">
+              <IonLabel class="ion-padding-start ion-hide-sm-down">
                 <h2>
                   {reserve?.symbol}
                   <small style={{ display: "block" }}>
@@ -402,7 +402,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                 paddingBottom: "32px",
               }}
             >
-              <IonLabel class="ion-padding-start">
+              <IonLabel class="ion-padding-start ion-hide-sm-down">
                 <h2>
                  AAVE V3
                   <small style={{ display: "block" }}>
@@ -428,7 +428,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
             </IonCol>
             {!reserve.usageAsCollateralEnabled && (
               <IonCol
-                size-md="12"
+                size="12"
                 class="ion-padding ion-text-center horizontalLineBottom"
               >
                 <WarningBox>
@@ -442,7 +442,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
             )}
             {reserve.isIsolated === true && (
               <IonCol
-                size-md="12"
+                size="12"
                 class="ion-padding ion-text-center horizontalLineBottom"
               >
                 <WarningBox>
