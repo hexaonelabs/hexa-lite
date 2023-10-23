@@ -20,6 +20,10 @@ p {
   font-family: $font-family;
   font-size: 1rem;
 }
+
+[hidden=true] {
+  display: none!important;
+}
 /* You can add global styles to this file, and also import other style files */
 // global
 * {
@@ -480,7 +484,18 @@ ion-accordion {
   z-index: 0;
 }
 .horizontalLineBottom {
-  border-bottom: solid 1px var(--ion-border-color),
+  border-bottom: solid 1px var(--ion-border-color);
+}
+.itemListDetails {
+
+  > ion-label {
+    display: block;
+  }
+
+  ion-list, ion-item {
+    --background: transparent;
+    background: transparent;
+  }
 }
 
 // LiFi widget customisation
@@ -505,4 +520,5 @@ div.MuiScopedCssBaseline-root {
   -webkit-backdrop-filter: blur(10px)!important;
   backdrop-filter: blur(10px)!important;
 }
+
 

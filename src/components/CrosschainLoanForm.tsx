@@ -308,10 +308,10 @@ export function CrosschainLoanForm(props: {
       <IonRow>
         <IonCol size="12" className="ion-padding-horizontal">
           <div>
-            <p className="ion-no-margin ion-margin-bottom">
-              Select collaterals and amount that you want transfer to calculate
-              your available {reserve.symbol} borrow amount.
-            </p>
+            <small className="ion-no-margin ion-margin-bottom" style={{display: "block"}}>
+            Select collaterals and amount that you want transfer to calculate
+            your available {reserve.symbol} borrow amount.
+            </small>
 
             <IonText
               color="medium"

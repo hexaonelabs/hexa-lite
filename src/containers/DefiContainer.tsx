@@ -23,6 +23,7 @@ import { getPercent } from "../utils/utils";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { useState } from "react";
 import { MarketList } from "../components/MarketsList";
+import { currencyFormat } from "../utils/currency-format";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -65,17 +66,6 @@ export const DefiContainer = ({
   const [filterBy, setFilterBy] = useState<{ [key: string]: string } | null>(
     null
   );
-  function currencyFormat(
-    num: number,
-    ops?: { currency?: string; language?: string }
-  ) {
-    const currency = ops?.currency || "USD";
-    const language = ops?.language || "en-US";
-    return num.toLocaleString(language, {
-      style: "currency",
-      currency,
-    });
-  }
 
   const totalBorrowsUsd =
     userSummaryAndIncentivesGroup

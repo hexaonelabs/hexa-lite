@@ -14,9 +14,15 @@ import {
 } from "ionicons/icons";
 import { useState } from "react";
 
-export function ApyDetail({ children }: { children?: React.ReactNode }) {
-  const [isApyInfoOpen, setIsApyInfoOpen] = useState(false);
-  const [isDisplayAPYDef, setIsDisplayAPYDef] = useState(false);
+export function ApyDetail(
+  props: { isDisplayAPYDef?: boolean; isApyInfoOpen?: boolean, children?: React.ReactNode  }
+) {
+  const [isApyInfoOpen, setIsApyInfoOpen] = useState(
+    props?.isApyInfoOpen || false
+  );
+  const [isDisplayAPYDef, setIsDisplayAPYDef] = useState(
+    props?.isDisplayAPYDef || false
+  );
 
   return (
     <>
@@ -43,9 +49,7 @@ export function ApyDetail({ children }: { children?: React.ReactNode }) {
             <IonCol size="10">
               <IonText>
                 <h3>
-                  <b>
-                    {!isDisplayAPYDef ? "Details APY" : "APY Definition"}
-                  </b>
+                  <b>{!isDisplayAPYDef ? "Details APY" : "APY Definition"}</b>
                 </h3>
                 <p className="ion-no-margin">
                   {!isDisplayAPYDef && (
@@ -72,11 +76,7 @@ export function ApyDetail({ children }: { children?: React.ReactNode }) {
               <IonButton
                 size="small"
                 fill="clear"
-                onClick={() =>
-                  !isDisplayAPYDef
-                    ? setIsApyInfoOpen(false)
-                    : setIsDisplayAPYDef(false)
-                }
+                onClick={() => setIsApyInfoOpen(false) }
               >
                 <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
               </IonButton>
@@ -100,7 +100,7 @@ export function ApyDetail({ children }: { children?: React.ReactNode }) {
           </IonRow>
           {!isDisplayAPYDef && (
             <IonRow>
-              <IonCol>{children}</IonCol>
+              <IonCol>{props?.children}</IonCol>
             </IonRow>
           )}
         </IonGrid>
