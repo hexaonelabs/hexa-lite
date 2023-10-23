@@ -398,7 +398,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
           Repay loan
         </IonButton>)
       : (<></>);
-  const BorrowBtn = user 
+  const BorrowBtn = user && reserve.borrowingEnabled && (borrowPoolRatioInPercent < 99)
         ? (<IonButton
             fill="solid"
             color="gradient"
@@ -635,88 +635,90 @@ export function ReserveDetail(props: IReserveDetailProps) {
                           </div>
                         </IonItem>
                         {reserve.borrowingEnabled && (
-                          <IonItem>
-                            <IonLabel color="medium" className="ion-padding-vertical">
-                              Debit
-                            </IonLabel>
+                          <>
+                            <IonItem>
+                              <IonLabel color="medium" className="ion-padding-vertical">
+                                Debit
+                              </IonLabel>
 
-                            <div className="ion-text-end">
-                              <IonText style={{ fontSize: "1rem" }}>
-                                {reserve?.borrowBalance > 0
-                                  ? reserve?.borrowBalance.toFixed(6)
-                                  : undefined || "0"}
-                              </IonText>
-                              <br />
-                              <IonText color="medium">
-                                <small>
-                                  {getReadableAmount(
-                                    +reserve?.borrowBalance,
-                                    Number(reserve?.priceInUSD),
-                                    "No debit"
+                              <div className="ion-text-end">
+                                <IonText style={{ fontSize: "1rem" }}>
+                                  {reserve?.borrowBalance > 0
+                                    ? reserve?.borrowBalance.toFixed(6)
+                                    : undefined || "0"}
+                                </IonText>
+                                <br />
+                                <IonText color="medium">
+                                  <small>
+                                    {getReadableAmount(
+                                      +reserve?.borrowBalance,
+                                      Number(reserve?.priceInUSD),
+                                      "No debit"
+                                    )}
+                                  </small>
+                                </IonText>
+                              </div>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel color="medium">
+                                Borrowing capacity
+                              </IonLabel>
+                              <div slot="end" className="ion-text-end">
+                                {userSummary &&
+                                  (+userSummary?.totalBorrowsUSD || 0) > 0 && (
+                                    <>
+                                      <IonText color="dark">
+                                        {currencyFormat(
+                                          +(userSummary?.totalBorrowsUSD || 0)
+                                        )}{" "}
+                                        of{" "}
+                                        {currencyFormat(
+                                          Number(userSummary?.totalCollateralUSD) *
+                                            Number(
+                                              userSummary?.currentLiquidationThreshold
+                                            )
+                                        )}{" "}
+                                      </IonText>
+                                      <IonProgressBar
+                                        color="success"
+                                        value={
+                                          (100 -
+                                            getPercent(
+                                              +userSummary.totalBorrowsUSD,
+                                              +userSummary.totalCollateralUSD
+                                            )) /
+                                          100
+                                        }
+                                        style={{
+                                          background: "var(--ion-color-danger)",
+                                          height: "0.2rem",
+                                          marginTop: "0.25rem",
+                                        }}
+                                      ></IonProgressBar>
+                                    </>
                                   )}
-                                </small>
-                              </IonText>
-                            </div>
-                          </IonItem>
+                                {userSummary &&
+                                  (+userSummary?.totalBorrowsUSD || 0) === 0 && (
+                                    <>
+                                      <IonText>
+                                        Deposit collateral to enable borrowing capacity 
+                                        {collateralBtnElement
+                                        ? (<IonText
+                                          color="primary"
+                                          style={{display: 'block', cursor: 'pointer'}}>
+                                          <small 
+                                          onClick={() => {
+                                            setIsCrossChain(()=> true);
+                                            handleOpenModal("borrow", reserve)
+                                          }}>or use cross-chain collateral</small>
+                                        </IonText>): (<></>)}
+                                      </IonText>
+                                    </>
+                                  )}
+                              </div>
+                            </IonItem>
+                          </>
                         )}
-                        <IonItem>
-                          <IonLabel color="medium">
-                            Borrowing capacity
-                          </IonLabel>
-                          <div slot="end" className="ion-text-end">
-                            {userSummary &&
-                              (+userSummary?.totalBorrowsUSD || 0) > 0 && (
-                                <>
-                                  <IonText color="dark">
-                                    {currencyFormat(
-                                      +(userSummary?.totalBorrowsUSD || 0)
-                                    )}{" "}
-                                    of{" "}
-                                    {currencyFormat(
-                                      Number(userSummary?.totalCollateralUSD) *
-                                        Number(
-                                          userSummary?.currentLiquidationThreshold
-                                        )
-                                    )}{" "}
-                                  </IonText>
-                                  <IonProgressBar
-                                    color="success"
-                                    value={
-                                      (100 -
-                                        getPercent(
-                                          +userSummary.totalBorrowsUSD,
-                                          +userSummary.totalCollateralUSD
-                                        )) /
-                                      100
-                                    }
-                                    style={{
-                                      background: "var(--ion-color-danger)",
-                                      height: "0.2rem",
-                                      marginTop: "0.25rem",
-                                    }}
-                                  ></IonProgressBar>
-                                </>
-                              )}
-                            {userSummary &&
-                              (+userSummary?.totalBorrowsUSD || 0) === 0 && (
-                                <>
-                                  <IonText>
-                                    Deposit collateral to enable borrowing capacity 
-                                    {collateralBtnElement
-                                     ? (<IonText
-                                      color="primary"
-                                      style={{display: 'block', cursor: 'pointer'}}>
-                                      <small 
-                                      onClick={() => {
-                                        setIsCrossChain(()=> true);
-                                        handleOpenModal("borrow", reserve)
-                                      }}>or use cross-chain collateral</small>
-                                    </IonText>): (<></>)}
-                                  </IonText>
-                                </>
-                              )}
-                          </div>
-                        </IonItem>
                       </IonList>
                     </IonCol>
                   )}
@@ -743,22 +745,24 @@ export function ReserveDetail(props: IReserveDetailProps) {
                           </span>
                         </IonText>
                       </IonItem>
-                      <IonItem>
-                        <IonLabel color="medium">
-                          Borrow APY
-                          <small style={{display: 'block'}}>
-                            Interest rate that you pay
-                            </small>
-                        </IonLabel>
-                        <IonText slot="end">
-                          <span style={{ fontSize: "1.3rem" }}>
-                            {(
-                              Number(reserve?.variableBorrowAPY || 0) * 100
-                            ).toFixed(2)}
-                            %
-                          </span>
-                        </IonText>
-                      </IonItem>
+                      {reserve.borrowingEnabled && (borrowPoolRatioInPercent < 99) && (
+                        <IonItem>
+                          <IonLabel color="medium">
+                            Borrow APY
+                            <small style={{display: 'block'}}>
+                              Interest rate that you pay
+                              </small>
+                          </IonLabel>
+                          <IonText slot="end">
+                            <span style={{ fontSize: "1.3rem" }}>
+                              {(
+                                Number(reserve?.variableBorrowAPY || 0) * 100
+                              ).toFixed(2)}
+                              %
+                            </span>
+                          </IonText>
+                        </IonItem>
+                      ) }
                     </IonList>
                   </IonCol>
 
