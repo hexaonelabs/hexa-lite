@@ -80,15 +80,15 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
             >
               <IonAvatar
                 style={{
-                  height: "56px",
-                  width: "56px",
-                  minHeight: "56px",
-                  minWidth: "56px",
+                  height: "64px",
+                  width: "64px",
+                  minHeight: "64px",
+                  minWidth: "64px",
                 }}
               >
                 <IonImg src={poolGroup.logo}></IonImg>
               </IonAvatar>
-              <IonLabel class="ion-padding-start">
+              <IonLabel class="ion-padding-start" style={{"font-size": "1.2rem"}}>
                 {poolGroup?.symbol}
                 <p>
                   <small>{poolGroup?.name}</small>
@@ -161,7 +161,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
               </IonLabel>
             </IonCol>
             <IonCol size="auto" size-md="2" class="ion-text-end">
-              <IonLabel>
+              <IonLabel style={{"font-size": "1.2rem"}}>
                 {poolGroup.topSupplyApy * 100 === 0
                   ? "0"
                   : poolGroup.topSupplyApy * 100 < 0.01
@@ -171,7 +171,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
               </IonLabel>
             </IonCol>
             <IonCol size="2" class="ion-text-end ion-hide-sm-down">
-              <IonLabel>
+              <IonLabel style={{"font-size": "1.2rem"}}>
                 {poolGroup?.topBorrowApy * 100 === 0
                   ? poolGroup?.borrowingEnabled === false
                     ? "- "
