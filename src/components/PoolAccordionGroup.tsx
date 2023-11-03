@@ -160,7 +160,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                 )}
               </IonLabel>
             </IonCol>
-            <IonCol size="auto" size-md="2" class="ion-text-end">
+            <IonCol size="auto" size-md="2" class="ion-text-end ion-hide-sm-down">
               <IonLabel style={{"font-size": "1.2rem"}}>
                 {poolGroup.topSupplyApy * 100 === 0
                   ? "0"

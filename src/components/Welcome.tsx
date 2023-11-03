@@ -13,7 +13,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
     >
       <IonRow
         class="ion-justify-content-center ion-padding"
-        style={{ minHeight: "90vh", marginBottom: "20vh" }}
+        style={{ minHeight: "95vh", marginBottom: "-0vh" }}
       >
         <IonCol size="12" class="ion-text-center"></IonCol>
         <IonCol size="12" size-md="7" class="ion-text-center">
@@ -36,7 +36,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
               <span
                 style={{
                   display: "block",
-                  fontSize: "4.5rem",
+                  fontSize: "4.3rem",
                   lineHeight: "4.8rem",
                   marginTop: "0.2rem",
                 }}
@@ -48,8 +48,8 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
           <IonText>
             <p
               style={{
-                fontSize: "1.2rem",
-                lineHeight: "1.6rem",
+                fontSize: "0.9rem",
+                lineHeight: "1.3rem",
                 margin: "1rem 0 2.5rem 0",
               }}
             >
