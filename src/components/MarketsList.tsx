@@ -16,6 +16,7 @@ import { PoolAccordionGroup } from "./PoolAccordionGroup";
 import { useAave } from "../context/AaveContext";
 import { useState } from "react";
 import { CHAIN_AVAILABLES } from "../constants/chains";
+import { IReserve } from "../interfaces/reserve.interface";
 
 export function MarketList(props: {
   filterBy?: {
@@ -30,14 +31,16 @@ export function MarketList(props: {
   }|null>(
     (filterFromParent as any)
   );
-  const filterArgs = { ...filterFromParent, ...filterBy };
+  const filterArgs = { ...filterFromParent, ...filterBy } ;
   // remove all group from `poolGroup` that not respect all filterBy argument
   // and return only reserve pool that respect all filterBy argument
   const groups = (poolGroups||[])
     .map((group) => {
       const poolGroup = {
         ...group,
-        reserves: group.reserves.filter((pool: any) => {
+        reserves: group.reserves
+        .filter(reserve => reserve.isFrozen === false && reserve.isActive === true && reserve.isPaused === false)
+        .filter((pool: any) => {
           if (filterArgs) {
             return Object.keys(filterArgs).every((key) => {
               // value string if a boolean value

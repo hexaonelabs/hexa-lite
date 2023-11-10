@@ -1,97 +1,37 @@
 import {
   IonAvatar,
-  IonButton,
-  IonButtons,
   IonContent,
   IonIcon,
-  IonImg,
   IonItem,
   IonLabel,
-  IonPopover,
+  IonListHeader,
   IonText,
-  useIonAlert,
-  useIonPopover,
+  useIonToast,
 } from "@ionic/react";
+import { copyOutline } from "ionicons/icons";
 import { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 import { getAvatarFromEVMAddress } from "../servcies/avatar";
-import ConnectButton from "./ConnectButton";
+import { getSplitedAddress } from "../utils/getSplitedAddress";
 import DisconnectButton from "./DisconnectButton";
-import { useEthersProvider } from "../context/Web3Context";
-import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "../constants/chains";
-import { NetworkButton } from "./NetworkButton";
+import ShowUIButton from "./ShowUIButton";
 
-const styleFixed = {
-  // position: "fixed",
-  // top: "10px",
-  // right: "10px",
-  zIndex: "9999",
-};
-
-const styleBtn = {
-  ...styleFixed,
-  minHeight: "56px",
-  width: "80px",
-  "--background": "var(--ion-item-background)",
-  "--background-hover": "var(--ion-item-background)",
-  "--border-color": "var(--ion-border-color)",
-  "--border-width": "1px",
-  "--border-style": "solid",
-};
-
-const styleImg = {
-  maxWidth: "24px",
-  borderRadius: "100%",
-  overflow: "hidden",
-};
-
-const copyAccountAddressToClipboard = (address: string) => {};
-
-
-// const PopoverBadge = (user: string) => (
-//   <IonContent class="ion-no-padding">
-//     <IonItem lines="none" className="item-profil">
-//       <IonLabel class="ion-text-nowrap">
-//         <label>
-//           <IonText color="medium">
-//             <small>Connected address</small>
-//           </IonText>
-//         </label>
-//         {user.slice(0, 6)}...{user.slice(-4)}
-//       </IonLabel>
-//       <IonButtons
-//         slot="end"
-//         class="ion-no-margin ion-margin-start"
-//         onClick={() => copyAccountAddressToClipboard(user)}
-//       >
-//         <IonButton size="small" fill="clear">
-//           <IonIcon
-//             color="medium"
-//             size="small"
-//             slot="icon-only"
-//             name="copy-outline"
-//           ></IonIcon>
-//         </IonButton>
-//       </IonButtons>
-//     </IonItem>
-//     <IonItem
-//       lines="none"
-//       className="ion-margin-top disconnect-item"
-//       onClick={() => (dismiss())}
-//     >
-//       <IonIcon slot="start" name="log-out-outline"></IonIcon>
-//       <IonLabel>
-//         <IonText> Disconnect </IonText>
-//       </IonLabel>
-//     </IonItem>
-//   </IonContent>
-// );
-
-export const AuthBadge = ({ user }: { user: string | null }) => {
-  // use local state to store the avatar url
+export const AuthBadge: React.FC<any> = () => {
+  const { user } = useUser();
   const [avatarUrl, setAvatarUrl] = useState("");
-  const { ethereumProvider } = useEthersProvider();
-  // use user address to get the avatar url using getAvatarFromEVMAddress()
+  const [present, dismiss] = useIonToast();
+
+  const handleActions = async (type: string, payload: string) => {
+    if (type === "copy") {
+      navigator?.clipboard?.writeText(payload);
+      // display toast confirmation
+      await present({
+        message: `Full address copy to clipboard: ${payload}`,
+        duration: 5000,
+        color: "success",
+      });
+    }
+  };
 
   useEffect(() => {
     const getAvatar = async () => {
@@ -108,19 +48,36 @@ export const AuthBadge = ({ user }: { user: string | null }) => {
 
     getAvatar();
   }, [user]);
-  const [diss] = useIonAlert();
-  const disconnect = () => {
-    
-  };
+
+  if (!user) return <></>;
 
   return (
     <>
-      {/* <NetworkButton /> */}
-      {
-        user
-          ? <DisconnectButton style={styleFixed} />
-          : <ConnectButton style={styleFixed} />
-      }
+      <IonListHeader>
+        <IonLabel>Wallet connected</IonLabel>
+      </IonListHeader>
+      <IonItem className="ion-margin-vertical" lines="none" style={{"--background": "transparent"}}>
+        <IonAvatar slot="start">
+          <img src={avatarUrl} alt="avatar" />
+        </IonAvatar>
+        <IonLabel style={{ margin: "0", lineHeight: "1rem" }}>
+          <IonText color="medium" style={{ display: "block" }}>
+            <small>Shortened address</small>
+          </IonText>
+          {getSplitedAddress(user)}
+        </IonLabel>
+        <IonIcon
+          size="small"
+          onClick={() => handleActions("copy", user)}
+          slot="end"
+          icon={copyOutline}
+          style={{ cursor: "pointer" }}
+        />
+      </IonItem>
+      <div className="ion-text-center ion-padding">
+        <ShowUIButton />
+        <DisconnectButton />
+      </div>
     </>
   );
 };

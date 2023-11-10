@@ -2,29 +2,23 @@ import {
   IonButton,
   IonChip,
   IonCol,
-  IonContent,
   IonGrid,
   IonHeader,
   IonIcon,
   IonImg,
-  IonItem,
-  IonItemDivider,
-  IonLabel,
-  IonListHeader,
+  IonMenuToggle,
   IonPopover,
   IonRow,
   IonSegment,
   IonSegmentButton,
-  IonText,
   IonToolbar,
 } from "@ionic/react";
-import { ellipsisVerticalSharp, logoGithub } from "ionicons/icons";
+import { ellipsisVerticalSharp } from "ionicons/icons";
 import { AuthBadge } from "./AuthBadge";
 import ConnectButton from "./ConnectButton";
-import DisconnectButton from "./DisconnectButton";
 import { useUser } from "../context/UserContext";
-import { MutableRefObject, useEffect, useRef } from "react";
-import { MenuPopover } from "./MenuPopover";
+import { useEffect } from "react";
+import { getSplitedAddress } from "../utils/getSplitedAddress";
 
 const styleLogo = {
   // margin: '15px auto 20px',
@@ -52,14 +46,13 @@ export function Header({
   handleSegmentChange,
 }: {
   currentSegment: string;
-  scrollToTop: () => void,
+  scrollToTop: () => void;
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
   // define states
-  const popoverRef = useRef<HTMLIonPopoverElement>(null);
   const { user } = useUser();
 
-  useEffect(()=>{
+  useEffect(() => {
     scrollToTop();
   }, [currentSegment]);
   // render component
@@ -69,76 +62,89 @@ export function Header({
         <IonGrid class="ion-no-padding">
           <IonRow class="ion-align-items-center ion-justify-content-between">
             {!currentSegment || currentSegment === "welcome" ? (
-               <></>
+              <></>
             ) : (
               <>
-              <IonCol size="auto" class="ion-padding ion-text-start">
-                <div
-                  onClick={() =>
-                    handleSegmentChange({ detail: { value: "welcome" } })
-                  }
+                <IonCol size="auto" class="ion-padding ion-text-start">
+                  <div
+                    onClick={() =>
+                      handleSegmentChange({ detail: { value: "welcome" } })
+                    }
+                    style={{
+                      position: "relative",
+                      display: "inline-block",
+                    }}
+                  >
+                    <IonImg
+                      style={styleLogo}
+                      src={"./assets/images/logo.svg"}
+                    ></IonImg>
+                    <IonChip style={styleChip}>beta</IonChip>
+                  </div>
+                </IonCol>
+                <IonCol
+                  size="auto"
                   style={{
-                    position: "relative",
-                    display: "inline-block",
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
                   }}
+                  class="ion-padding ion-hide-md-down"
                 >
-                  <IonImg
-                    style={styleLogo}
-                    src={"./assets/images/logo.svg"}
-                  ></IonImg>
-                  {/* <IonIcon icon={'./assets/images/logo.svg'} style={styleLogo} /> */}
-                  <IonChip style={styleChip}>beta</IonChip>
-                </div>
-              </IonCol>
-              <IonCol size="auto" style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)'
-              }} class="ion-padding ion-hide-md-down">
-                <IonSegment
-                  style={{ maxWidth: "550px" }}
-                  mode="ios"
-                  value={currentSegment}
-                  onIonChange={(e: any) => handleSegmentChange(e)}
+                  <IonSegment
+                    style={{ maxWidth: "550px" }}
+                    mode="ios"
+                    value={currentSegment}
+                    onIonChange={(e: any) => handleSegmentChange(e)}
+                  >
+                    <IonSegmentButton value="swap">
+                      Exchange
+                    </IonSegmentButton>
+                    <IonSegmentButton value="earn">
+                      Earn Interest
+                    </IonSegmentButton>
+                    <IonSegmentButton value="defi">
+                      Lending & Borrow
+                    </IonSegmentButton>
+                    <IonSegmentButton value="fiat">
+                      Buy
+                    </IonSegmentButton>
+                  </IonSegment>
+                </IonCol>
+                <IonCol
+                  size="auto"
+                  class="ion-padding ion-text-end ion-hide-md-down"
                 >
-                  <IonSegmentButton value="earn">
-                    Earn Interest
-                  </IonSegmentButton>
-                  <IonSegmentButton value="defi">
-                    Lending & Borrow
-                  </IonSegmentButton>
-                  <IonSegmentButton value="swap">Exchange</IonSegmentButton>
-                  <IonSegmentButton value="fiat">Buy</IonSegmentButton>
-                </IonSegment>
-              </IonCol>
-              <IonCol
-                size="auto"
-                class="ion-padding ion-text-end ion-hide-md-down"
-              >
-                <AuthBadge user={user} />
-              </IonCol>
-              {/* Mobile nav button */}
-              <IonCol size="auto" class="ion-padding ion-hide-md-up">
-                <IonButton fill="clear" color="primary" id="click-trigger">
-                  <IonIcon slot="icon-only" icon={ellipsisVerticalSharp} />
-                </IonButton>
-                {/* Popover wiith options */}
-                <IonPopover
-                  ref={popoverRef}
-                  trigger="click-trigger"
-                  triggerAction="click"
-                >
-                  <MenuPopover 
-                    popoverRef={popoverRef}
-                    handleSegmentChange={handleSegmentChange} />
-                </IonPopover>
-              </IonCol>
-            </>
+                  {user ? (
+                    <>
+                      <IonButton
+                        id="badge-auth"
+                        size={"default"}
+                        style={{ cursor: "pointer" }}
+                        color="gradient"
+                        expand={"block"}
+                      >
+                        {getSplitedAddress(user)}
+                      </IonButton>
+                      <IonPopover trigger="badge-auth">
+                        <AuthBadge />
+                      </IonPopover>
+                    </>
+                  ) : (
+                    <ConnectButton />
+                  )}
+                </IonCol>
+                {/* Mobile nav button */}
+                <IonCol size="auto" class="ion-padding ion-hide-md-up">
+                  <IonMenuToggle>
+                    <IonButton fill="clear" color="primary" id="click-trigger">
+                      <IonIcon slot="icon-only" icon={ellipsisVerticalSharp} />
+                    </IonButton>
+                  </IonMenuToggle>
+                </IonCol>
+              </>
             )}
-
-            {/* <IonCol size="12">{AuthButton}</IonCol> */}
-            {/* <IonCol size="12">{WalletInfo}</IonCol> */}
           </IonRow>
         </IonGrid>
       </IonToolbar>

@@ -120,7 +120,7 @@ export const DefiContainer = ({
               }}
             >
               <span style={{ maxWidth: "800px", display: "inline-block" }}>
-                Connect to the best DeFi liquidity protocols, borrow assets
+                Connect to DeFi liquidity protocols and access to {poolGroups.length} markets across {CHAIN_AVAILABLES.length} networks, borrow assets
                 using your crypto as collateral and earn interest by providing
                 liquidity over
               </span>

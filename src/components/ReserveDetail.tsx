@@ -59,6 +59,7 @@ import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { SymbolIcon } from "./SymbolIcon";
 import { currencyFormat } from "../utils/currency-format";
 import { ApyDetail } from "./ApyDetail";
+import { UseCrossChaineCollateralButton } from "./UseCrossChainCollateralBtn";
 
 interface IReserveDetailProps {
   reserve: IReserve;
@@ -77,22 +78,6 @@ export function ReserveDetail(props: IReserveDetailProps) {
   } = props;
   const { user } = useUser();
   const { userSummaryAndIncentivesGroup } = useAave();
-  const collateralBtnElement = (userSummaryAndIncentivesGroup
-    ?.map((summary) => Number(summary?.totalCollateralUSD || 0))
-    .reduce((a, b) => a + b, 0) || 0) > 0 && (
-    <>
-      <IonButton
-        expand="block"
-        fill="outline"
-        color="primary"
-        onClick={() =>
-          dismissPromptCrossModal(null, "enable-crosschain-collateral")
-        }
-      >
-        Use cross-chain collateral
-      </IonButton>
-    </>
-  );
 
   const [present, dismiss] = useIonToast();
   const [presentAlert] = useIonAlert();
@@ -126,7 +111,9 @@ export function ReserveDetail(props: IReserveDetailProps) {
               {CHAIN_AVAILABLES.find((c) => c.id === chainId)?.name} network to
               enable borrowing capacity.
             </p>
-            {collateralBtnElement}
+            <UseCrossChaineCollateralButton 
+              dismissPromptCrossModal={() => dismissPromptCrossModal(null, "enable-crosschain-collateral")}
+              userSummaryAndIncentivesGroup={userSummaryAndIncentivesGroup||[]} />
           </IonCol>
           <IonCol size="12" className="ion-padding-bottom">
             <IonButton
@@ -344,6 +331,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
       Buy {reserve.symbol}
     </IonButton>)
   : (<></>);
+
   const ExchangeAssetBtn = user && +(reserve.walletBalance || 0) <= 0 && reserve.supplyBalance <= 0
       ? (<IonButton
         fill="solid"
@@ -359,6 +347,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
         Exchange assets
       </IonButton>)
       : (<></>);
+
   const WithdrawBtn = user && (reserve?.supplyBalance || +reserve.supplyBalance > 0)
     ? (<IonButton
       fill="solid"
@@ -372,6 +361,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
       Withdraw deposit
     </IonButton>
     ) : (<></>);
+
   const DepositBtn = user && (reserve?.walletBalance||0) > 0 && (supplyPoolRatioInPercent < 99)
     ? (<IonButton
         fill="solid"
@@ -385,6 +375,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
         Deposit {reserve.symbol} as collateral
       </IonButton>)
     : (<></>);
+
   const RepayBtn = user && (reserve?.borrowBalance || +reserve.borrowBalance > 0)
       ? (<IonButton
           fill="solid"
@@ -398,6 +389,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
           Repay loan
         </IonButton>)
       : (<></>);
+
   const BorrowBtn = user && reserve.borrowingEnabled && (borrowPoolRatioInPercent < 99)
         ? (<IonButton
             fill="solid"
@@ -434,6 +426,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
             Borrow {reserve.symbol}
           </IonButton>)
         : (<></>);  
+
   return (
     <>
       <IonContent fullscreen={true} className="ion-padding">
@@ -665,7 +658,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                               </IonLabel>
                               <div slot="end" className="ion-text-end">
                                 {userSummary &&
-                                  (+userSummary?.totalBorrowsUSD || 0) > 0 && (
+                                  (+userSummary?.availableBorrowsUSD || 0) > 0 && (
                                     <>
                                       <IonText color="dark">
                                         {currencyFormat(
@@ -697,21 +690,15 @@ export function ReserveDetail(props: IReserveDetailProps) {
                                       ></IonProgressBar>
                                     </>
                                   )}
-                                {userSummary &&
-                                  (+userSummary?.totalBorrowsUSD || 0) === 0 && (
+                                
+                                {(Number(userSummary?.availableBorrowsUSD) || 0) === 0 && (
                                     <>
                                       <IonText>
                                         Deposit collateral to enable borrowing capacity 
-                                        {collateralBtnElement
-                                        ? (<IonText
-                                          color="primary"
-                                          style={{display: 'block', cursor: 'pointer'}}>
-                                          <small 
-                                          onClick={() => {
-                                            setIsCrossChain(()=> true);
-                                            handleOpenModal("borrow", reserve)
-                                          }}>or use cross-chain collateral</small>
-                                        </IonText>): (<></>)}
+                                        {/* <UseCrossChaineCollateralButton 
+                                          onlyText={true}
+                                          dismissPromptCrossModal={() => dismissPromptCrossModal(null, "enable-crosschain-collateral")}
+                                          userSummaryAndIncentivesGroup={userSummaryAndIncentivesGroup||[]} /> */}
                                       </IonText>
                                     </>
                                   )}

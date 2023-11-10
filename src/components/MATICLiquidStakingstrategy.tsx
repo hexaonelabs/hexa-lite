@@ -26,7 +26,7 @@ import { useUser } from "../context/UserContext";
 import ConnectButton from "./ConnectButton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
-import { getBaseAPRstETH, getETHByWstETH } from "../servcies/lido.service";
+import { getBaseAPRstMATIC, getETHByWstETH } from "../servcies/lido.service";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import { useEthersProvider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
@@ -43,10 +43,10 @@ export interface IStrategyModalProps {
   ) => Promise<boolean> | undefined;
 }
 
-export function ETHLiquidStakingstrategyCard() {
+export function MATICLiquidStakingstrategyCard() {
   const { user } = useUser();
   const { ethereumProvider, switchNetwork, initializeWeb3 } = useEthersProvider();
-  const [baseAPRstETH, setBaseAPRstETH] = useState(-1);
+  const [baseAPRst, setBaseAPRst] = useState(-1);
   const [wstToEthAmount, setWstToEthAmount] = useState(-1);
   const { display: displayLoader, hide: hideLoader } = useLoader();  
   const toastContext = useIonToast();
@@ -54,20 +54,20 @@ export function ETHLiquidStakingstrategyCard() {
   const dismissToast = toastContext[1];
 
   const strategy = {
-    name: "ETH",
+    name: "MATIC",
     type: "Liquid staking",
-    icon: getAssetIconUrl({ symbol: "ETH" }),
-    apys: [baseAPRstETH.toFixed(2)],
+    icon: getAssetIconUrl({ symbol: "MATIC" }),
+    apys: [baseAPRst.toFixed(2)],
     locktime: 0,
     providers: ["lido"],
-    assets: ["WETH", "wstETH"],
+    assets: ["MATIC", "stMATIC"],
     isStable: true,
-    chainsId: [10],
+    chainsId: [137],
     details: {
       description: `
-        This strategy will swap your ETH for wstETH to earn ${baseAPRstETH.toFixed(
+        This strategy will swap your MATIC for stMATIC to earn ${baseAPRst.toFixed(
           2
-        )}% APY revard from staking WETH on Lido.
+        )}% APY revard from staking wstMATIC on Lido.
       `,
     },
   };
@@ -75,7 +75,6 @@ export function ETHLiquidStakingstrategyCard() {
   // load environment config
   const widgetConfig = useMemo((): WidgetConfig => {
     return {
-
       integrator: "hexa-lite",
       fee: 0.005,
       variant: "expandable",
@@ -176,26 +175,26 @@ export function ETHLiquidStakingstrategyCard() {
         signer: ethereumProvider?.getSigner(),
       },
       // set source chain to Polygon
-      fromChain: 10,
+      fromChain: 137,
       // set destination chain to Optimism
-      toChain: 10,
-      // set source token to ETH (Optimism)
+      toChain: 137,
+      // set source token to ETH (Ethereum)
       fromToken: "0x0000000000000000000000000000000000000000",
-      // set source token to wstETH (Optimism)
-      toToken: "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+      // set source token to USDC (Optimism)
+      toToken: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4",
       // fromAmount: 10,
       chains: {
-        allow: [10],
+        allow: [137],
       },
       tokens: {
         allow: [
           {
-            chainId: 10,
+            chainId: 137,
             address: "0x0000000000000000000000000000000000000000",
           },
           {
-            chainId: 10,
-            address: "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+            chainId: 137,
+            address: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4",
           },
         ],
       },
@@ -206,7 +205,7 @@ export function ETHLiquidStakingstrategyCard() {
 
   useEffect(() => {
     const { signal, abort } = new AbortController();
-    getBaseAPRstETH().then(({ apr }) => setBaseAPRstETH(() => apr));
+    getBaseAPRstMATIC().then(({ apr }) => setBaseAPRst(() => apr));
     // return () => abort();
   }, []);
   useEffect(() => {
@@ -257,7 +256,7 @@ export function ETHLiquidStakingstrategyCard() {
                 }}
               >
                 <IonLabel>
-                  Assets
+                  Assets 
                 </IonLabel>
                 <div slot="end" style={{ display: "flex" }}>
                   {strategy.assets.map((symbol, index) => (
@@ -319,7 +318,7 @@ export function ETHLiquidStakingstrategyCard() {
                       <IonItem>
                         <IonLabel color="medium">
                           <h2>
-                            Base APY <small>(stETH)</small>
+                            Base APY <small>(stMATIC)</small>
                           </h2>
                         </IonLabel>
                         <IonText slot="end">{strategy.apys[0]}%</IonText>
@@ -365,28 +364,29 @@ export function ETHLiquidStakingstrategyCard() {
               <HowItWork>
                 <div className="ion-padding-horizontal">
                   <IonText>
-                    <h4>Staking ETH with Lido</h4>
+                    <h4>Staking MATIC with Lido</h4>
                     <p className="ion-no-margin ion-padding-bottom">
                       <small>
-                        By swapping your ETH for wstETH, you will increase your ETH holdings 
-                        by {baseAPRstETH.toFixed(2)}% APY using ETH staking with{" "}
+                        By swapping MATIC to stMATIC you will incrase your MATIC
+                        holdings by {baseAPRst.toFixed(2)}% APY using MATIC staking with{" "}
                         <a
                           href="https://lido.fi/"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
                           Lido finance
-                        </a>.
+                        </a>
+                        .
                       </small>
                     </p>
                     <p className="ion-no-margin ion-padding-bottom">
                       <small>
-                        The wstETH price increases daily with exchange rate reflecting staking rewards.
+                        The stMATIC is not a rebasable token. Instead, the value of your stMATIC will change relative to MATIC as staking rewards are earned.
                       </small>
                     </p>
                     <p className="ion-no-margin ion-padding-bottom">
                       <small>
-                        You can also use your wstETH to earn more yield on lendings market or swap back to ETH at any time without locking period.
+                        You can also use your stMATIC to earn more yield on lendings market or swap back to MATIC at any time without locking period.
                       </small>
                     </p>
                   </IonText>
@@ -445,6 +445,7 @@ export function ETHLiquidStakingstrategyCard() {
                 class="ion-padding-start ion-padding-end ion-padding-bottom ion-text-center"
               >
                 <h1 className="ion-no-margin" style={{
+                  marginBottom: '1.5rem',
                   fontSize: '2.4rem',
                   lineHeight: '1.85rem'}}>
                   <IonText className="ion-color-gradient-text">
@@ -452,14 +453,13 @@ export function ETHLiquidStakingstrategyCard() {
                   </IonText>
                   <br />
                   <span style={{
-                  marginBottom: '1.5rem',
                   fontSize: '1.4rem',
                   lineHeight: '1.15rem'}}>{strategy.type}</span>
                 </h1>
                 <IonText color="medium">
                   <p>
-                    By exchange ETH to wstETH you will incrase your ETH holdings balance by {baseAPRstETH.toFixed(2)}% APY from staking liquidity on Lido finance. 
-                    Rewards are automated and paid out in ETH through daily exchange rate increases reflecting staking rewards.
+                    By exchange MATIC to stMATIC you will incrase your MATIC holdings balance by {baseAPRst.toFixed(2)}% APY from staking liquidity on Lido finance. 
+                    Rewards are automated and paid out in MATIC through daily exchange rate increases reflecting staking rewards.
                   </p>
                   <p className="ion-no-margin">
                     <small>You can exchange backward at anytime without locking period.</small>
@@ -478,17 +478,18 @@ export function ETHLiquidStakingstrategyCard() {
               }}
             >
               <IonCol>
-                {/* <div className="ion-text-center">
+                {/* <div  className="ion-text-center">
                   <IonText color="primary">
                     <p style={{ margin: "0 0 1rem" }}>
                       <small>
-                        {`1 wstETH = ~${
+                        {`1 stMATIC = ~${
                           wstToEthAmount > 0 ? wstToEthAmount.toFixed(4) : 0
-                        } ETH`}
+                        } MATIC`}
                       </small>
                     </p>
                   </IonText>
-                </div> */}
+                </>
+                 */}
                 <LiFiWidget config={widgetConfig} integrator="hexa-lite" />
               </IonCol>
             </IonRow>

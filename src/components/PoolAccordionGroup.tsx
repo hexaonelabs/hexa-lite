@@ -88,7 +88,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
               >
                 <IonImg src={poolGroup.logo}></IonImg>
               </IonAvatar>
-              <IonLabel class="ion-padding-start" style={{"font-size": "1.2rem"}}>
+              <IonLabel class="ion-padding-start" style={{fontSize: "1.2rem"}}>
                 {poolGroup?.symbol}
                 <p>
                   <small>{poolGroup?.name}</small>
@@ -110,7 +110,8 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                 justifyContent: "center",
               }}
             >
-              {poolGroup.chainIds.map((id, i) => (
+              {poolGroup.chainIds
+              .map((id, i) => (
                 <IonIcon
                   key={i}
                   color="medium"
@@ -161,7 +162,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
               </IonLabel>
             </IonCol>
             <IonCol size="auto" size-md="2" class="ion-text-end ion-hide-sm-down">
-              <IonLabel style={{"font-size": "1.2rem"}}>
+              <IonLabel style={{"fontSize": "1.2rem"}}>
                 {poolGroup.topSupplyApy * 100 === 0
                   ? "0"
                   : poolGroup.topSupplyApy * 100 < 0.01
@@ -171,7 +172,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
               </IonLabel>
             </IonCol>
             <IonCol size="2" class="ion-text-end ion-hide-sm-down">
-              <IonLabel style={{"font-size": "1.2rem"}}>
+              <IonLabel style={{"fontSize": "1.2rem"}}>
                 {poolGroup?.topBorrowApy * 100 === 0
                   ? poolGroup?.borrowingEnabled === false
                     ? "- "

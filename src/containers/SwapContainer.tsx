@@ -114,6 +114,7 @@ export function SwapContainer() {
             });
           }
         },
+        signer: ethereumProvider?.getSigner(),
       },
       // set source chain to Polygon
       fromChain: ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id,
@@ -126,7 +127,7 @@ export function SwapContainer() {
       // // set source token amount to 10 USDC (Polygon)
       // fromAmount: 10,
     };
-  }, []);
+  }, [ethereumProvider?.getSigner()]);
 
   // useEffect(() => {
   //   const fetchConfig = async () => {

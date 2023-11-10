@@ -17,6 +17,7 @@ import { SwapContainer } from "./containers/SwapContainer";
 import { FiatContainer } from "./containers/FiatContainer";
 import { Header } from "./components/Header";
 import { EarnContainer } from "./containers/EarnContainer";
+import MenuSlide from "./components/MenuSlide";
 
 setupIonicReact({
   mode: "ios",
@@ -93,7 +94,8 @@ function App() {
 
   return (
     <IonApp>
-      <IonRouterOutlet>
+      <MenuSlide handleSegmentChange={handleSegmentChange}/>
+      <IonRouterOutlet id="main-content">
         <Header currentSegment={currentSegment} handleSegmentChange={handleSegmentChange} scrollToTop={scrollToTop} />
         <IonContent ref={contentRef} scrollEvents={true} fullscreen={true}>
           <IonGrid class="ion-no-padding" style={{ minHeight: "100vh" }}>

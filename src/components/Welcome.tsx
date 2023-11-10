@@ -63,7 +63,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
             size="large"
             color="gradient"
             onClick={(e) =>
-              handleSegmentChange({ detail: { value: "earn" } })
+              handleSegmentChange({ detail: { value: "swap" } })
             }
           >
             Launch App
@@ -134,6 +134,34 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                 </div>
               </IonCol>
             </IonRow>
+            <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '20vh 0'}}>
+              <IonCol size="12" size-md="6">
+                <IonText>
+                  <h3
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: "2rem",
+                      lineHeight: "2rem",
+                    }}
+                  >
+                    Deposit liquidity to earn interest
+                  </h3>
+                  <p>
+                    Securely deposit your liquidity into DeFi protocols across 35 markets and 3 EVM-Compatible blockchains to earn substantial interest while maintaining full control over your assets.
+                  </p>
+                </IonText>
+              </IonCol>
+              <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
+                <div className="ion-padding">
+                  <IonImg 
+                      style={{
+                        margin: '0 auto',
+                        maxWidth: 'fit-content' 
+                      }} src="./assets/images/coins-b.png" />
+                </div>
+              </IonCol>
+            </IonRow>
+
             <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '20vh 0'}}>
               <IonCol size="12" size-md="6">
                 <IonText>
@@ -284,7 +312,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
             size="large"
             color="gradient"
             onClick={(e) =>
-              handleSegmentChange({ detail: { value: "earn" } })
+              handleSegmentChange({ detail: { value: "swap" } })
             }>
             Launch App
             </IonButton>
@@ -295,7 +323,10 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         <IonCol size="auto" class="ion-padding-horizontal">
           <IonText color="medium">
             <p style={{fontSize: '12px'}}>
-              Open source software by HexaOneLabs
+              Open source software by <a 
+                href="https://hexaonelabs.com/" 
+                rel="noreferrer noopener"
+                target="_blank">HexaOneLabs</a>
             </p>
           </IonText>
         </IonCol>

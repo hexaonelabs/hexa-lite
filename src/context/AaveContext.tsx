@@ -107,7 +107,8 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       poolReserves = pools.flat() as IReserve[];
     }
     // groups poolReserves by symbol (e.g. DAI, USDC, USDT, ...)
-    const poolGroups: IPoolGroup[] = poolReserves
+    const poolGroups: IPoolGroup[] = poolReserves        
+      .filter(reserve => reserve.isFrozen === false && reserve.isActive === true && reserve.isPaused === false)
       .reduce((acc, reserve) => {
         const symbol = reserve.symbol;
         const chainId = +reserve.id.split("-")[0];
