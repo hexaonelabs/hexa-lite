@@ -314,7 +314,7 @@ export const getMarkets = (chainId: number) => {
       return MARKETS.AaveV3Mumbai;
     case chainId === 43113:
       return MARKETS.AaveV3Fuji;
-    case chainId === 42170:
+    case chainId === 42161:
       return MARKETS.AaveV3Arbitrum;
     case chainId === 421613:
       return MARKETS.AaveV3ArbitrumGoerli;

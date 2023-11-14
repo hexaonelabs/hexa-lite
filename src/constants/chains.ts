@@ -25,13 +25,19 @@ export const CHAIN_AVAILABLES: IChain[] = [
       (rpc) => rpc.primary
     )?.url||'',
   },
-  // {
-  //   id: 56,
-  //   value: 'bsc',
-  //   name: 'Binance smart chain',
-  //   nativeSymbol: 'BNB',
-  //   logo: '/assets/cryptocurrency-icons/bnb.svg'    
-  // },
+  {
+    id: 56,
+    value: 'bsc',
+    name: 'Binance smart chain',
+    nativeSymbol: 'BNB',
+    logo: '/assets/cryptocurrency-icons/bnb.svg',
+    rpcUrl: [
+      {primary: false, url: 'https://rpc.ankr.com/bsc'}, 
+      {primary: true, url: "https://binance.llamarpc.com"}
+    ].find(
+      (rpc) => rpc.primary
+    )?.url||'',
+  },
   // {
   //   id: 250,
   //   value: 'fantom',
@@ -59,12 +65,19 @@ export const CHAIN_AVAILABLES: IChain[] = [
       (rpc) => rpc.primary
     )?.url||'',
   },
-  // {
-  //   id: 42161,
-  //   value: 'arbitrum',
-  //   name: 'Arbitrum',
-  //   nativeSymbol: 'ARB'
-  // },
+  {
+    id: 42161,
+    value: 'arbitrum',
+    name: 'Arbitrum',
+    nativeSymbol: 'ARB',
+    logo: '/assets/icons/arb.svg',
+    rpcUrl: [
+      {primary: true, url: 'https://arbitrum.llamarpc.com'}, 
+      {primary: false, url: "https://rpc.ankr.com/arbitrum_one"}
+    ].find(
+      (rpc) => rpc.primary
+    )?.url||'',
+  },
   {
     id: 10,
     value: 'optimism',

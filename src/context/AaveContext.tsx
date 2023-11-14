@@ -90,9 +90,19 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   const init = async () => {
     console.log("[INFO] {{AaveProvider}} init context... ");
     // load markets from all available chains
-    const markets = CHAIN_AVAILABLES.filter((chain) => !chain.testnet).map(
-      (chain) => getMarkets(chain.id)
-    );
+    const markets = CHAIN_AVAILABLES.filter((chain) => !chain.testnet)
+    .map(
+      (chain) => {
+        let market: MARKETTYPE | null = null;
+        try {
+          market = getMarkets(chain.id);
+        } catch (error: any) {
+          console.log(error?.message);
+        }
+        return market;
+      }
+    )
+    .filter(Boolean) as MARKETTYPE[];
     // looad pools from all available chains
     let poolReserves: IReserve[] = [];
     if (markets && markets.length > 0) {
