@@ -2,7 +2,7 @@ import { IonButton, IonCard, IonCol, IonGrid, IonIcon, IonImg, IonItem, IonLabel
 import { logoGithub, checkmarkCircle, chevronForwardCircle, chevronForward } from "ionicons/icons";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { EthOptimizedStrategyProvider } from "../context/EthOptimizedContext";
-import { EthOptimizedStrategyCard } from "./ETHOptimizedStrategy";
+import { ETHLiquidStakingstrategyCard } from "./ETHLiquidStakingstrategy";
 
 export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail: {value: string}}) => void}) {
 
@@ -186,7 +186,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                   transform: 'matrix3d(1, 0.0, 0, -0.0004, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
                   }}>
                   <EthOptimizedStrategyProvider>
-                    <EthOptimizedStrategyCard asImage={true} />
+                    <ETHLiquidStakingstrategyCard asImage={true} />
                   </EthOptimizedStrategyProvider>
                 </div>
               </IonCol>

@@ -15,6 +15,7 @@ import {
   IonText,
   useIonToast,
 } from "@ionic/react";
+import { ethers } from "ethers";
 import {
   informationCircleOutline,
   closeSharp,
@@ -22,19 +23,17 @@ import {
   warningOutline,
   helpOutline,
 } from "ionicons/icons";
-import { useUser } from "../context/UserContext";
 import ConnectButton from "./ConnectButton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { getBaseAPRstETH, getETHByWstETH } from "../servcies/lido.service";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
-import { useEthersProvider } from "../context/Web3Context";
+import { useWeb3Provider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
-import { CHAIN_AVAILABLES } from "../constants/chains";
+import { CHAIN_AVAILABLES, NETWORK } from "../constants/chains";
 import { HowItWork } from "./HowItWork";
 import { ApyDetail } from "./ApyDetail";
 import { HiddenUI, LiFiWidget, WidgetConfig } from "@lifi/widget";
-import { connect, disconnect } from "../servcies/magic";
 
 export interface IStrategyModalProps {
   dismiss?: (
@@ -43,9 +42,8 @@ export interface IStrategyModalProps {
   ) => Promise<boolean> | undefined;
 }
 
-export function ETHLiquidStakingstrategyCard() {
-  const { user } = useUser();
-  const { ethereumProvider, switchNetwork, initializeWeb3 } = useEthersProvider();
+export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
+  const { web3Provider, switchNetwork, connectWallet, disconnectWallet, currentNetwork } = useWeb3Provider();
   const [baseAPRstETH, setBaseAPRstETH] = useState(-1);
   const [wstToEthAmount, setWstToEthAmount] = useState(-1);
   const { display: displayLoader, hide: hideLoader } = useLoader();  
@@ -62,7 +60,7 @@ export function ETHLiquidStakingstrategyCard() {
     providers: ["lido"],
     assets: ["WETH", "wstETH"],
     isStable: true,
-    chainsId: [10],
+    chainsId: [NETWORK.optimism],
     details: {
       description: `
         This strategy will swap your ETH for wstETH to earn ${baseAPRstETH.toFixed(
@@ -113,11 +111,12 @@ export function ETHLiquidStakingstrategyCard() {
         connect: async () => {
           try {
             await displayLoader();
-            await connect();
-            // If connection to the wallet was successful, initialize new Web3 instance
-            const provider = await initializeWeb3();
-            const signer = provider?.getSigner();
-            console.log("signer", signer);
+            await connectWallet();
+            if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
+              throw new Error("Provider not found");
+            }
+            const signer = web3Provider?.getSigner();
+            console.log("[INFO] signer", signer);
             if (!signer) {
               throw new Error("Signer not found");
             }
@@ -148,9 +147,7 @@ export function ETHLiquidStakingstrategyCard() {
         disconnect: async () => {
           try {
             displayLoader();
-            await disconnect();
-            // After successful disconnection, re-initialize the Web3 instance
-            await initializeWeb3();
+            await disconnectWallet();
             hideLoader();
           } catch (error: any) {
             // Log any errors that occur during the disconnection process
@@ -173,28 +170,28 @@ export function ETHLiquidStakingstrategyCard() {
             });
           }
         },
-        signer: ethereumProvider?.getSigner(),
+        signer: web3Provider instanceof ethers.providers.Web3Provider ?  web3Provider?.getSigner() : undefined,
       },
       // set source chain to Polygon
-      fromChain: 10,
+      fromChain: NETWORK.optimism,
       // set destination chain to Optimism
-      toChain: 10,
+      toChain: NETWORK.optimism,
       // set source token to ETH (Optimism)
       fromToken: "0x0000000000000000000000000000000000000000",
       // set source token to wstETH (Optimism)
       toToken: "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
       // fromAmount: 10,
       chains: {
-        allow: [10],
+        allow: [NETWORK.optimism],
       },
       tokens: {
         allow: [
           {
-            chainId: 10,
+            chainId: Number(NETWORK.optimism),
             address: "0x0000000000000000000000000000000000000000",
           },
           {
-            chainId: 10,
+            chainId: Number(NETWORK.optimism),
             address: "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
           },
         ],
@@ -202,7 +199,7 @@ export function ETHLiquidStakingstrategyCard() {
       disabledUI: ["fromToken", "toToken"],
     }
   }
-  , [ethereumProvider?.getSigner()]);
+  , [web3Provider instanceof ethers.providers.Web3Provider ? web3Provider.getSigner(): null]);
 
   useEffect(() => {
     const { signal, abort } = new AbortController();
@@ -210,17 +207,19 @@ export function ETHLiquidStakingstrategyCard() {
     // return () => abort();
   }, []);
   useEffect(() => {
-    if (!ethereumProvider) {
+    if (!web3Provider) {
       return;
     }
     getETHByWstETH(1).then((value) => {
       setWstToEthAmount(() => Number(value));
     });
-  }, [ethereumProvider]);
+  }, [web3Provider]);
 
   return (
     <>
-      <IonCard className="strategyCard" style={{ width: 300 }}>
+      <IonCard 
+         className={props.asImage ? "asImage" : "strategyCard"} 
+         style={{ width: 300 }}>
         <IonGrid style={{ width: "100%" }}>
           <IonRow class="ion-text-center ion-padding">
             <IonCol size="12" class="ion-padding">
@@ -395,9 +394,9 @@ export function ETHLiquidStakingstrategyCard() {
 
               <IonButton
                 onClick={async () => {
-                  const chainId = ethereumProvider?.network?.chainId;
-                  if (chainId !== 10) {
-                    await switchNetwork(10);
+                  const chainId = currentNetwork;
+                  if (chainId !== NETWORK.optimism) {
+                    await switchNetwork(NETWORK.optimism);
                   }
                   modal.current?.present();
                 }}

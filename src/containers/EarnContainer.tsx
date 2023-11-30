@@ -1,6 +1,4 @@
 import { IonCol, IonGrid, IonRow, IonText } from "@ionic/react";
-import { EthOptimizedStrategyProvider } from "../context/EthOptimizedContext";
-import { EthOptimizedStrategyCard } from "../components/ETHOptimizedStrategy";
 import { ETHLiquidStakingstrategyCard } from "../components/ETHLiquidStakingstrategy";
 import { MATICLiquidStakingstrategyCard } from "../components/MATICLiquidStakingstrategy";
 

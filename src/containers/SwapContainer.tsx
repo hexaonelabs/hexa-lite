@@ -1,20 +1,20 @@
 import { IonCol, IonGrid, IonRow, IonText, useIonToast } from "@ionic/react";
 import { HiddenUI, LiFiWidget, WidgetConfig } from "@lifi/widget";
 import { useMemo } from "react";
-import { connect, disconnect } from "../servcies/magic";
-import { useEthersProvider } from "../context/Web3Context";
+import { useWeb3Provider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
 import { CHAIN_DEFAULT } from "../constants/chains";
+import { ethers } from "ethers";
 
 export function SwapContainer() {
-  const { initializeWeb3, ethereumProvider } = useEthersProvider();
+  const { web3Provider, currentNetwork, connectWallet, disconnectWallet, walletAddress } = useWeb3Provider();
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const toastContext = useIonToast();
   const presentToast = toastContext[0];
   const dismissToast = toastContext[1];
-
+  const signer = web3Provider instanceof ethers.providers.Web3Provider && walletAddress ? web3Provider?.getSigner() : undefined;
   // load environment config
-  const widgetConfig = useMemo((): WidgetConfig => {
+  const widgetConfig = useMemo( (): WidgetConfig => {
     return {
       // integrator: "cra-example",
       integrator: "hexa-lite",
@@ -54,10 +54,11 @@ export function SwapContainer() {
         connect: async () => {
           try {
             await displayLoader();
-            await connect();
-            // If connection to the wallet was successful, initialize new Web3 instance
-            const provider = await initializeWeb3();
-            const signer = provider?.getSigner();
+            await connectWallet();
+            if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
+                throw new Error('[ERROR] Only support ethers.providers.Web3Provider');
+            } 
+            const signer = web3Provider?.getSigner();
             console.log("signer", signer);
             if (!signer) {
               throw new Error("Signer not found");
@@ -89,9 +90,7 @@ export function SwapContainer() {
         disconnect: async () => {
           try {
             displayLoader();
-            await disconnect();
-            // After successful disconnection, re-initialize the Web3 instance
-            await initializeWeb3();
+            await disconnectWallet();
             hideLoader();
           } catch (error: any) {
             // Log any errors that occur during the disconnection process
@@ -114,12 +113,12 @@ export function SwapContainer() {
             });
           }
         },
-        signer: ethereumProvider?.getSigner(),
+        signer,
       },
       // set source chain to Polygon
-      fromChain: ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id,
+      fromChain: currentNetwork || CHAIN_DEFAULT.id,
       // set destination chain to Optimism
-      toChain: 10,
+      toChain: currentNetwork || CHAIN_DEFAULT.id,
       // set source token to ETH (Ethereum)
       fromToken: "0x0000000000000000000000000000000000000000",
       // set source token to USDC (Optimism)
@@ -127,7 +126,7 @@ export function SwapContainer() {
       // // set source token amount to 10 USDC (Polygon)
       // fromAmount: 10,
     };
-  }, [ethereumProvider?.getSigner()]);
+  }, [web3Provider instanceof ethers.providers.Web3Provider ? web3Provider.getSigner(): null]);
 
   // useEffect(() => {
   //   const fetchConfig = async () => {

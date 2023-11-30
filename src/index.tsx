@@ -7,7 +7,7 @@ import './global.scss';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Web3Provider } from './context/Web3Context';
-import { UserProvider } from './context/UserContext';
+// import { UserProvider } from './context/UserContext';
 // import { WalletProvider } from './context/WalletContext';
 import { LoaderProvider } from './context/LoaderContext';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -18,11 +18,11 @@ const root = ReactDOM.createRoot(
 root.render(
 <ErrorBoundary fallback={<div>Something went wrong. reload Dapp!</div>}>
   <Web3Provider>
-    <UserProvider>
+    {/* <UserProvider> */}
       <LoaderProvider>
         <App />
       </LoaderProvider>
-    </UserProvider>
+    {/* </UserProvider> */}
   </Web3Provider>
 </ErrorBoundary>
 );

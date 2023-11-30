@@ -30,11 +30,7 @@ import {
   IUserSummary,
   ReserveDetailActionType,
 } from "../interfaces/reserve.interface";
-import {
-  CircularProgressbarWithChildren,
-  buildStyles,
-} from "react-circular-progressbar";
-import { useUser } from "../context/UserContext";
+import { ethers } from "ethers";
 import { getReadableAmount } from "../utils/getReadableAmount";
 import { valueToBigNumber } from "@aave/math-utils";
 import ConnectButton from "./ConnectButton";
@@ -52,7 +48,7 @@ import {
   supplyWithPermit,
   withdraw,
 } from "../servcies/aave.service";
-import { useEthersProvider } from "../context/Web3Context";
+import { useWeb3Provider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
 import { useAave } from "../context/AaveContext";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
@@ -76,9 +72,8 @@ export function ReserveDetail(props: IReserveDetailProps) {
     markets,
     handleSegmentChange,
   } = props;
-  const { user } = useUser();
+  const { web3Provider, switchNetwork, currentNetwork, walletAddress } = useWeb3Provider();
   const { userSummaryAndIncentivesGroup } = useAave();
-
   const [present, dismiss] = useIonToast();
   const [presentAlert] = useIonAlert();
   const [presentPomptCrossModal, dismissPromptCrossModal] = useIonModal(
@@ -129,7 +124,6 @@ export function ReserveDetail(props: IReserveDetailProps) {
     </>
   );
   const { display: displayLoader, hide: hideLoader } = useLoader();
-  const { ethereumProvider, switchNetwork } = useEthersProvider();
   const [state, setState] = useState<
     | {
         actionType: ReserveDetailActionType;
@@ -184,19 +178,21 @@ export function ReserveDetail(props: IReserveDetailProps) {
       `[INFO] ReserveDetail - onWillDismiss from LoanFormModal: `,
       ev.detail
     );
-    if (!ethereumProvider) {
-      throw new Error("No ethereumProvider found");
+    if (!web3Provider) {
+      throw new Error("No web3Provider found");
+    }
+    if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
+      throw new Error("No EVM web3Provider");
     }
     if (ev.detail.role !== "confirm") {
       return;
     }
     displayLoader();
     // switch network if need
-    const network = await ethereumProvider.getNetwork();
     const provider =
-      network.chainId !== reserve.chainId
+      currentNetwork !== reserve.chainId
         ? await switchNetwork(reserve.chainId)
-        : ethereumProvider;
+        : web3Provider;
     if (!provider) {
       throw new Error("No provider found or update failed");
     }
@@ -212,7 +208,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
         }
         // call method
         const params = {
-          provider,
+          provider: (provider as ethers.providers.Web3Provider),
           reserve,
           amount: amount.toString(),
           onBehalfOf: undefined,
@@ -237,7 +233,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
         }
         // call method
         const params = {
-          provider,
+          provider: (provider as ethers.providers.Web3Provider),
           reserve,
           amount: amount.toString(),
           onBehalfOf: undefined,
@@ -262,7 +258,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
         }
         // call method
         const params = {
-          provider,
+          provider: (provider as ethers.providers.Web3Provider),
           reserve,
           amount: amount.toString(),
           onBehalfOf: undefined,
@@ -287,7 +283,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
         }
         // call method
         const params = {
-          provider,
+          provider: (provider as ethers.providers.Web3Provider),
           reserve,
           amount: amount.toString(),
           onBehalfOf: undefined,
@@ -316,7 +312,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
   };
 
 
-  const BuyAssetBtn = user && +(reserve.walletBalance || 0) <= 0 && reserve.supplyBalance <= 0 
+  const BuyAssetBtn = walletAddress && +(reserve.walletBalance || 0) <= 0 && reserve.supplyBalance <= 0 
     ? (<IonButton
       fill="solid"
       expand="block"
@@ -332,7 +328,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
     </IonButton>)
   : (<></>);
 
-  const ExchangeAssetBtn = user && +(reserve.walletBalance || 0) <= 0 && reserve.supplyBalance <= 0
+  const ExchangeAssetBtn = walletAddress && +(reserve.walletBalance || 0) <= 0 && reserve.supplyBalance <= 0
       ? (<IonButton
         fill="solid"
         expand="block"
@@ -348,7 +344,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
       </IonButton>)
       : (<></>);
 
-  const WithdrawBtn = user && (reserve?.supplyBalance || +reserve.supplyBalance > 0)
+  const WithdrawBtn = walletAddress && (reserve?.supplyBalance || +reserve.supplyBalance > 0)
     ? (<IonButton
       fill="solid"
       expand="block"
@@ -362,7 +358,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
     </IonButton>
     ) : (<></>);
 
-  const DepositBtn = user && (reserve?.walletBalance||0) > 0 && (supplyPoolRatioInPercent < 99)
+  const DepositBtn = walletAddress && (reserve?.walletBalance||0) > 0 && (supplyPoolRatioInPercent < 99)
     ? (<IonButton
         fill="solid"
         expand="block"
@@ -376,7 +372,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
       </IonButton>)
     : (<></>);
 
-  const RepayBtn = user && (reserve?.borrowBalance || +reserve.borrowBalance > 0)
+  const RepayBtn = walletAddress && (reserve?.borrowBalance || +reserve.borrowBalance > 0)
       ? (<IonButton
           fill="solid"
           expand="block"
@@ -390,7 +386,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
         </IonButton>)
       : (<></>);
 
-  const BorrowBtn = user && reserve.borrowingEnabled && (borrowPoolRatioInPercent < 99)
+  const BorrowBtn = walletAddress && reserve.borrowingEnabled && (borrowPoolRatioInPercent < 99)
         ? (<IonButton
             fill="solid"
             color="gradient"
@@ -504,7 +500,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     </div>
                   </IonCol>
                   <IonCol size-md="6" className="ion-text-end">
-                    {user ? (
+                    {walletAddress ? (
                       <>
                         <IonButton color="gradient" onClick={()=> {
                           setIsModalOptionsOpen(()=> true);
@@ -595,7 +591,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
             <IonCol size="12" size-md="12" className="ion-no-padding">
               <IonGrid className="ion-no-padding">
                 <IonRow className="ion-align-items-center ion-no-padding">
-                  {user && (
+                  {walletAddress && (
                     <IonCol
                       size="12"
                       className="itemListDetails horizontalLineBottom ion-padding"

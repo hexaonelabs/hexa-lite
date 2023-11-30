@@ -16,9 +16,9 @@ import {
 import { ellipsisVerticalSharp } from "ionicons/icons";
 import { AuthBadge } from "./AuthBadge";
 import ConnectButton from "./ConnectButton";
-import { useUser } from "../context/UserContext";
 import { useEffect } from "react";
 import { getSplitedAddress } from "../utils/getSplitedAddress";
+import { useWeb3Provider } from "../context/Web3Context";
 
 const styleLogo = {
   // margin: '15px auto 20px',
@@ -50,8 +50,9 @@ export function Header({
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
   // define states
-  const { user } = useUser();
-
+  const { walletAddress } = useWeb3Provider();
+  console.log("walletAddress", walletAddress);
+  
   useEffect(() => {
     scrollToTop();
   }, [currentSegment]);
@@ -116,7 +117,7 @@ export function Header({
                   size="auto"
                   class="ion-padding ion-text-end ion-hide-md-down"
                 >
-                  {user ? (
+                  {walletAddress ? (
                     <>
                       <IonButton
                         id="badge-auth"
@@ -125,7 +126,7 @@ export function Header({
                         color="gradient"
                         expand={"block"}
                       >
-                        {getSplitedAddress(user)}
+                        {getSplitedAddress(walletAddress)}
                       </IonButton>
                       <IonPopover trigger="badge-auth">
                         <AuthBadge />

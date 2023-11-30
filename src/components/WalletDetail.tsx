@@ -1,19 +1,18 @@
 
 import { useEffect, useState } from "react"
-import { useEthersProvider } from "../context/Web3Context"
-import { useUser } from "../context/UserContext"
+import { useWeb3Provider } from "../context/Web3Context"
 import { IonButton, IonCol, IonGrid, IonIcon, IonImg, IonRow, IonText } from "@ionic/react"
 import { getAvatarFromEVMAddress } from "../servcies/avatar"
 
 const WalletDetail = () => {
   // Use the UserContext to get the current logged-in user
-  const { user } = useUser()
+  const { walletAddress } = useWeb3Provider()
   // Render the account address and balance
   return (
     <IonGrid>
       <IonRow>
         <IonCol size="12">
-          <IonText>{`Account: ${user}`}</IonText>
+          <IonText>{`Account: ${walletAddress}`}</IonText>
         </IonCol>
       </IonRow>
       {/* <Divider my={2} />

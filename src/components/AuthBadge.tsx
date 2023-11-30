@@ -10,14 +10,14 @@ import {
 } from "@ionic/react";
 import { copyOutline } from "ionicons/icons";
 import { useEffect, useState } from "react";
-import { useUser } from "../context/UserContext";
 import { getAvatarFromEVMAddress } from "../servcies/avatar";
 import { getSplitedAddress } from "../utils/getSplitedAddress";
 import DisconnectButton from "./DisconnectButton";
 import ShowUIButton from "./ShowUIButton";
+import { useWeb3Provider } from "../context/Web3Context";
 
 export const AuthBadge: React.FC<any> = () => {
-  const { user } = useUser();
+  const { walletAddress } = useWeb3Provider();
   const [avatarUrl, setAvatarUrl] = useState("");
   const [present, dismiss] = useIonToast();
 
@@ -35,10 +35,10 @@ export const AuthBadge: React.FC<any> = () => {
 
   useEffect(() => {
     const getAvatar = async () => {
-      if (!user) return;
+      if (!walletAddress) return;
       try {
         // If account and web3 are available, get the balance
-        const avatarUrl = await getAvatarFromEVMAddress(user);
+        const avatarUrl = await getAvatarFromEVMAddress(walletAddress);
         // Convert the balance from Wei to Ether and set the state variable
         setAvatarUrl(avatarUrl);
       } catch (error) {
@@ -47,9 +47,9 @@ export const AuthBadge: React.FC<any> = () => {
     };
 
     getAvatar();
-  }, [user]);
+  }, [walletAddress]);
 
-  if (!user) return <></>;
+  if (!walletAddress) return <></>;
 
   return (
     <>
@@ -64,11 +64,11 @@ export const AuthBadge: React.FC<any> = () => {
           <IonText color="medium" style={{ display: "block" }}>
             <small>Shortened address</small>
           </IonText>
-          {getSplitedAddress(user)}
+          {getSplitedAddress(walletAddress)}
         </IonLabel>
         <IonIcon
           size="small"
-          onClick={() => handleActions("copy", user)}
+          onClick={() => handleActions("copy", walletAddress)}
           slot="end"
           icon={copyOutline}
           style={{ cursor: "pointer" }}

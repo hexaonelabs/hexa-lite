@@ -1,15 +1,9 @@
 
 import { useState, useRef } from "react"
-import { useEthersProvider } from "../context/Web3Context"
-import { useUser } from "../context/UserContext"
+import { useWeb3Provider } from "../context/Web3Context"
 import { IonButton, IonCol, IonGrid, IonInput, IonRow, IonText } from "@ionic/react"
 
 const SignMessage = () => {
-  // Use the Web3Context to get the current instance of web3
-  const { ethereumProvider } = useEthersProvider()
-  // Use the UserContext to get the current logged-in user
-  const { user } = useUser()
-
   // Initialize state for message and signature
   const [message, setMessage] = useState("")
   const [signature, setSignature] = useState("")
@@ -20,19 +14,20 @@ const SignMessage = () => {
 
   // Define the signMessage function which is used to sign the message
   const handleSignMessage = async () => {
-    if (user && ethereumProvider) {
-      try {
-        // Sign the message using the connected wallet
-        const signer = ethereumProvider.getSigner();
-        const signedMessage = await signer.signMessage(message)
-        console.log(signedMessage)
-        // Set the signature state with the signed message
-        setSignature(signedMessage.toString())
-      } catch (error) {
-        // Log any errors that occur during the signing process
-        console.error("handleSignMessage:", error)
-      }
-    }
+    throw new Error("Not implemented")
+    // if (user && web3Provider) {
+    //   try {
+    //     // Sign the message using the connected wallet
+    //     const signer = web3Provider.getSigner();
+    //     const signedMessage = await signer.signMessage(message)
+    //     console.log(signedMessage)
+    //     // Set the signature state with the signed message
+    //     setSignature(signedMessage.toString())
+    //   } catch (error) {
+    //     // Log any errors that occur during the signing process
+    //     console.error("handleSignMessage:", error)
+    //   }
+    // }
   }
 
   // Render the component

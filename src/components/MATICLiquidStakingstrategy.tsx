@@ -15,6 +15,7 @@ import {
   IonText,
   useIonToast,
 } from "@ionic/react";
+import { ethers } from "ethers";
 import {
   informationCircleOutline,
   closeSharp,
@@ -22,19 +23,17 @@ import {
   warningOutline,
   helpOutline,
 } from "ionicons/icons";
-import { useUser } from "../context/UserContext";
 import ConnectButton from "./ConnectButton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { getBaseAPRstMATIC, getETHByWstETH } from "../servcies/lido.service";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
-import { useEthersProvider } from "../context/Web3Context";
+import { useWeb3Provider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
-import { CHAIN_AVAILABLES } from "../constants/chains";
+import { CHAIN_AVAILABLES, NETWORK } from "../constants/chains";
 import { HowItWork } from "./HowItWork";
 import { ApyDetail } from "./ApyDetail";
 import { HiddenUI, LiFiWidget, WidgetConfig } from "@lifi/widget";
-import { connect, disconnect } from "../servcies/magic";
 
 export interface IStrategyModalProps {
   dismiss?: (
@@ -44,10 +43,8 @@ export interface IStrategyModalProps {
 }
 
 export function MATICLiquidStakingstrategyCard() {
-  const { user } = useUser();
-  const { ethereumProvider, switchNetwork, initializeWeb3 } = useEthersProvider();
+  const { web3Provider, switchNetwork, connectWallet, disconnectWallet, currentNetwork } = useWeb3Provider();
   const [baseAPRst, setBaseAPRst] = useState(-1);
-  const [wstToEthAmount, setWstToEthAmount] = useState(-1);
   const { display: displayLoader, hide: hideLoader } = useLoader();  
   const toastContext = useIonToast();
   const presentToast = toastContext[0];
@@ -62,7 +59,7 @@ export function MATICLiquidStakingstrategyCard() {
     providers: ["lido"],
     assets: ["MATIC", "stMATIC"],
     isStable: true,
-    chainsId: [137],
+    chainsId: [NETWORK.polygon],
     details: {
       description: `
         This strategy will swap your MATIC for stMATIC to earn ${baseAPRst.toFixed(
@@ -112,11 +109,12 @@ export function MATICLiquidStakingstrategyCard() {
         connect: async () => {
           try {
             await displayLoader();
-            await connect();
-            // If connection to the wallet was successful, initialize new Web3 instance
-            const provider = await initializeWeb3();
-            const signer = provider?.getSigner();
-            console.log("signer", signer);
+            await connectWallet();
+            if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
+              throw new Error("Provider not found");
+            }
+            const signer = web3Provider?.getSigner();
+            console.log("[INFO] signer", signer);
             if (!signer) {
               throw new Error("Signer not found");
             }
@@ -147,9 +145,7 @@ export function MATICLiquidStakingstrategyCard() {
         disconnect: async () => {
           try {
             displayLoader();
-            await disconnect();
-            // After successful disconnection, re-initialize the Web3 instance
-            await initializeWeb3();
+            await disconnectWallet();
             hideLoader();
           } catch (error: any) {
             // Log any errors that occur during the disconnection process
@@ -172,28 +168,28 @@ export function MATICLiquidStakingstrategyCard() {
             });
           }
         },
-        signer: ethereumProvider?.getSigner(),
+        signer: web3Provider instanceof ethers.providers.Web3Provider ?  web3Provider?.getSigner() : undefined,
       },
       // set source chain to Polygon
-      fromChain: 137,
+      fromChain: NETWORK.polygon,
       // set destination chain to Optimism
-      toChain: 137,
+      toChain: NETWORK.polygon,
       // set source token to ETH (Ethereum)
       fromToken: "0x0000000000000000000000000000000000000000",
       // set source token to USDC (Optimism)
       toToken: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4",
       // fromAmount: 10,
       chains: {
-        allow: [137],
+        allow: [NETWORK.polygon],
       },
       tokens: {
         allow: [
           {
-            chainId: 137,
+            chainId: Number(NETWORK.polygon),
             address: "0x0000000000000000000000000000000000000000",
           },
           {
-            chainId: 137,
+            chainId: Number(NETWORK.polygon),
             address: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4",
           },
         ],
@@ -201,21 +197,13 @@ export function MATICLiquidStakingstrategyCard() {
       disabledUI: ["fromToken", "toToken"],
     }
   }
-  , [ethereumProvider?.getSigner()]);
+  , [web3Provider instanceof ethers.providers.Web3Provider ? web3Provider.getSigner(): null]);
 
   useEffect(() => {
     const { signal, abort } = new AbortController();
     getBaseAPRstMATIC().then(({ apr }) => setBaseAPRst(() => apr));
     // return () => abort();
   }, []);
-  useEffect(() => {
-    if (!ethereumProvider) {
-      return;
-    }
-    getETHByWstETH(1).then((value) => {
-      setWstToEthAmount(() => Number(value));
-    });
-  }, [ethereumProvider]);
 
   return (
     <>
@@ -395,9 +383,9 @@ export function MATICLiquidStakingstrategyCard() {
 
               <IonButton
                 onClick={async () => {
-                  const chainId = ethereumProvider?.network?.chainId;
-                  if (chainId !== 10) {
-                    await switchNetwork(10);
+                  const chainId = currentNetwork;
+                  if (chainId !== NETWORK.polygon) {
+                    await switchNetwork(NETWORK.polygon);
                   }
                   modal.current?.present();
                 }}

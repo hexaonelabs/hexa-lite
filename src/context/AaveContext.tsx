@@ -1,26 +1,16 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useEthersProvider } from "./Web3Context";
 import {
-  FormatReserveUSDResponse,
   FormatUserSummaryAndIncentivesResponse,
-  FormatUserSummaryResponse,
-  formatReserves,
   formatReservesAndIncentives,
 } from "@aave/math-utils";
 import {
   ReserveDataHumanized,
-  UiPoolDataProvider,
-  WalletBalanceProvider,
 } from "@aave/contract-helpers";
-import { ethers } from "ethers";
-
-import { useUser } from "./UserContext";
 import {
   MARKETTYPE,
   fetchTVL,
   getMarkets,
   getPools,
-  getUserSummary,
   getUserSummaryAndIncentives,
 } from "../servcies/aave.service";
 import { useCurrentTimestamp } from "../hooks/useCurrentTimestamp";
@@ -35,6 +25,7 @@ import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { getTotalSupplyBalanceBySymbol } from "../utils/getTotalSupplyBalanceBySymbol";
 import { getTotalBorrowBalanceBySymbol } from "../utils/getTotalBorrowBalanceBySymbol";
 import { getAssetFromAllNetwork } from "../utils/getAssetFromAllNetwork";
+import { useWeb3Provider } from "./Web3Context";
 
 export type ComputedReserveData = ReturnType<
   typeof formatReservesAndIncentives
@@ -83,9 +74,10 @@ export const useAave = () => useContext(AaveContext);
 
 // Provider component that wraps parts of the app that need user context.
 export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user, assets } = useUser();
   const currentTimestamp = dayjs().unix(); // useCurrentTimestamp(5);
-  const [state, setState] = useState<AaveContextType>(AaveContextDefault);
+  const [ state, setState ] = useState<AaveContextType>(AaveContextDefault);
+  const { assets, getInfo, web3Provider } = useWeb3Provider();
+  const [ user, setUser ] = useState<string>(undefined as any);
 
   const init = async () => {
     console.log("[INFO] {{AaveProvider}} init context... ");
@@ -321,6 +313,18 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("[INFO] {{AaveProvider}} loadUserSummary nothing to do " );
     }
   };
+
+  useEffect(() => {
+    getInfo()
+    .then((info) => {
+      if (info?.publicAddress) {
+        setUser((prev)=> (info.publicAddress||''));
+      }
+    })
+    .catch((error) => {
+      console.error("[ERROR] {{AaveProvider}} getInfo: ", error);
+    });
+  }, [web3Provider]);
 
   useEffect(() => {
     init();

@@ -14,13 +14,13 @@ import {
   useIonModal,
 } from "@ionic/react";
 import { warningOutline, searchOutline } from "ionicons/icons";
-import { useUser } from "../context/UserContext";
 import { getReadableAmount } from "../utils/getReadableAmount";
 import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { ReserveDetail } from "./ReserveDetail";
 import { useAave } from "../context/AaveContext";
 import { useMemo, useRef, useState } from "react";
+import { useWeb3Provider } from "../context/Web3Context";
 
 interface IPoolItemListProps {
   reserveId: string;
@@ -31,7 +31,7 @@ interface IPoolItemListProps {
 }
 export function PoolItemList(props: IPoolItemListProps) {
   const { reserveId, iconSize, chainId, userSummary, handleSegmentChange } = props;
-  const { user } = useUser();
+  const { walletAddress } = useWeb3Provider();
   const { markets, poolGroups } = useAave();
   const modal = useRef<HTMLIonModalElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -99,7 +99,7 @@ export function PoolItemList(props: IPoolItemListProps) {
                   <small>
                     {CHAIN_AVAILABLES.find((c) => c.id === chainId)?.name} network
                   </small>
-                  {user && (
+                  {walletAddress && (
                     <IonText color="dark">
                       <br />
                       <small>

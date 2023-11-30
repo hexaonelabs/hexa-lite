@@ -10,39 +10,13 @@ import {
   IonLabel,
   IonRow,
   IonText,
-  useIonModal,
 } from "@ionic/react";
-import { openOutline, warningOutline } from "ionicons/icons";
-import { useUser } from "../context/UserContext";
 import { getReadableAmount } from "../utils/getReadableAmount";
-import {
-  CircularProgressbarWithChildren,
-  buildStyles,
-} from "react-circular-progressbar";
-import {
-  FormatReserveUSDResponse,
-  FormatUserSummaryAndIncentivesResponse,
-  valueToBigNumber,
-} from "@aave/math-utils";
-import ConnectButton from "./ConnectButton";
-import { ReserveDataHumanized } from "@aave/contract-helpers";
-import { useEthersProvider } from "../context/Web3Context";
-import {
-  MARKETTYPE,
-  borrow,
-  repay,
-  supplyWithPermit,
-  withdraw,
-} from "../servcies/aave.service";
-import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
+import { useWeb3Provider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
-import { LoanFormModal } from "./LoanFormModal";
-import { getPercent } from "../utils/utils";
 import { useState } from "react";
-import { getMaxAmount } from "../utils/getMaxAmount";
 import { PoolItemList } from "./PoolItemList";
-import { IPoolGroup, IReserve, IUserSummary } from "../interfaces/reserve.interface";
-import { PoolHeaderList } from "./PoolHeaderList";
+import { IPoolGroup, IUserSummary } from "../interfaces/reserve.interface";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 
 interface IPoolAccordionProps {
@@ -60,8 +34,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
       }
     | undefined
   >(undefined);
-  const { user } = useUser();
-  const { ethereumProvider } = useEthersProvider();
+  const { walletAddress } = useWeb3Provider();
   const { display: displayLoader, hide: hideLoader } = useLoader();
   
 
@@ -92,7 +65,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                 {poolGroup?.symbol}
                 <p>
                   <small>{poolGroup?.name}</small>
-                  {user && (
+                  {walletAddress && (
                     <IonText color="dark">
                       <br />
                       <small>

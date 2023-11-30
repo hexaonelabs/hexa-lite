@@ -1,5 +1,16 @@
 import { ChainId } from "@aave/contract-helpers";
 
+// Define Network enum that represents supported networks
+export enum NETWORK {
+  mainnet = 1,
+  polygon = 137,
+  avalanche = 43114,
+  binancesmartchain = 56,
+  arbitrum = 42161,
+  optimism = 10,
+  cosmos = 118,
+}
+
 export interface IChain {
   id: number;
   value: string;
@@ -8,11 +19,12 @@ export interface IChain {
   nativeSymbol?: string;
   logo?: string;
   testnet?: boolean;
+  type: 'evm'|'cosmos';
 };
 
 export const CHAIN_AVAILABLES: IChain[] = [
   {
-    id: 1,
+    id: NETWORK.mainnet,
     value: 'eth',
     name: 'Ethereum',
     nativeSymbol: 'ETH',
@@ -24,9 +36,10 @@ export const CHAIN_AVAILABLES: IChain[] = [
     .find(
       (rpc) => rpc.primary
     )?.url||'',
+    type: 'evm',
   },
   {
-    id: 56,
+    id: NETWORK.binancesmartchain,
     value: 'bsc',
     name: 'Binance smart chain',
     nativeSymbol: 'BNB',
@@ -37,6 +50,7 @@ export const CHAIN_AVAILABLES: IChain[] = [
     ].find(
       (rpc) => rpc.primary
     )?.url||'',
+    type: 'evm',
   },
   // {
   //   id: 250,
@@ -52,7 +66,7 @@ export const CHAIN_AVAILABLES: IChain[] = [
   //   nativeSymbol: 'AVAX'
   // },
   {
-    id: 137,
+    id: NETWORK.polygon,
     value: 'polygon',
     name: 'Polygon',
     nativeSymbol: 'MATIC',
@@ -64,9 +78,10 @@ export const CHAIN_AVAILABLES: IChain[] = [
     .find(
       (rpc) => rpc.primary
     )?.url||'',
+    type: 'evm',
   },
   {
-    id: 42161,
+    id: NETWORK.arbitrum,
     value: 'arbitrum',
     name: 'Arbitrum',
     nativeSymbol: 'ARB',
@@ -77,9 +92,10 @@ export const CHAIN_AVAILABLES: IChain[] = [
     ].find(
       (rpc) => rpc.primary
     )?.url||'',
+    type: 'evm',
   },
   {
-    id: 10,
+    id: NETWORK.optimism,
     value: 'optimism',
     name: 'Optimism',
     nativeSymbol: 'OP',
@@ -91,7 +107,37 @@ export const CHAIN_AVAILABLES: IChain[] = [
     .find(
       (rpc) => rpc.primary
     )?.url||'',
+    type: 'evm',
   },
+  {
+    id: NETWORK.cosmos,
+    value: 'cosmos',
+    name: 'Cosmos',
+    nativeSymbol: 'ATOM',
+    logo: '/assets/cryptocurrency-icons/atom.svg',
+    rpcUrl: [
+      {primary: true, url:'https://rpc.cosmos.network:26657'}, 
+      {primary: false, url: "https://cosmos-rpc.publicnode.com:443"},
+    ]
+    .find(
+      (rpc) => rpc.primary
+    )?.url||'',
+    type: 'cosmos',
+  },
+  // {
+  //   id: NETWORK.avalanche,
+  //   value: 'avalanche',
+  //   name: 'Avalanche',
+  //   nativeSymbol: 'AVAX',
+  //   logo: '/assets/cryptocurrency-icons/avax.svg',
+  //   rpcUrl: [
+  //     {primary: false, url:'https://avalanche-c-chain.publicnode.com'}, 
+  //     {primary: true, url: "https://rpc.ankr.com/avalanche"}
+  //   ]
+  //   .find(
+  //     (rpc) => rpc.primary
+  //   )?.url||'',
+  // },
   // testnets
   // {
   //   id: 5,
@@ -114,7 +160,8 @@ export const CHAIN_AVAILABLES: IChain[] = [
   // },
 ];
 
-export const CHAIN_DEFAULT = CHAIN_AVAILABLES.find(c => c.id === 10) || {id: 10};
+const NETWORK_DEFAULT = NETWORK.optimism;
+export const CHAIN_DEFAULT = CHAIN_AVAILABLES.find(c => c.id === NETWORK_DEFAULT) || {id: NETWORK_DEFAULT};
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",

@@ -28,7 +28,6 @@ import { chevronDown } from "ionicons/icons";
 import { SymbolIcon } from "./SymbolIcon";
 import { useEffect, useRef, useState } from "react";
 import { useAave } from "../context/AaveContext";
-import { useUser } from "../context/UserContext";
 import { getReadableAmount } from "../utils/getReadableAmount";
 import { getMaxAmount } from "../utils/getMaxAmount";
 import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
@@ -36,7 +35,7 @@ import {
   calculateHealthFactorFromBalancesBigUnits,
   valueToBigNumber,
 } from "@aave/math-utils";
-import { useEthersProvider } from "../context/Web3Context";
+import { useWeb3Provider } from "../context/Web3Context";
 import { getPercent } from "../utils/utils";
 import { WarningBox } from "./WarningBox";
 import { DangerBox } from "./DangerBox";
@@ -48,7 +47,7 @@ const isNumberKey = (evt: React.KeyboardEvent<HTMLIonInputElement>) => {
 }
 
 const requestQuote = async (ops: {
-  ethereumProvider: ethers.providers.Web3Provider;
+  web3Provider: ethers.providers.Web3Provider;
   selectedCollateral: Pick<
     IReserve,
     "chainId" | "aTokenAddress" | "decimals" | "priceInUSD"
@@ -57,7 +56,7 @@ const requestQuote = async (ops: {
   inputFromAmount: number;
 }): Promise<LiFiQuoteResponse & { errors?: any; message?: string }> => {
   const {
-    ethereumProvider,
+    web3Provider,
     selectedCollateral,
     newCollateral,
     inputFromAmount,
@@ -69,7 +68,7 @@ const requestQuote = async (ops: {
     )
     .toString();
   console.log("[INFO] CrosschainLoanForm requestQuote...", ops);
-  const fromAddress = (await ethereumProvider?.getSigner().getAddress()) || "";
+  const fromAddress = (await web3Provider?.getSigner().getAddress()) || "";
   // return {...fakeQuote, estimate: {
   //   ...fakeQuote.estimate,
   //   toAmount: `${(Number(inputFromAmount||0) * Number(selectedCollateral.priceInUSD)) / Number(newCollateral.priceInUSD)}`
@@ -134,8 +133,7 @@ export function CrosschainLoanForm(props: {
 }) {
   const { reserve, userSummary, toggleCrosschainForm, onSubmit } = props;
   const { userSummaryAndIncentivesGroup, poolGroups } = useAave();
-  const { assets } = useUser();
-  const { ethereumProvider } = useEthersProvider();
+  const { web3Provider, assets } = useWeb3Provider();
   const [healthFactor, setHealthFactor] = useState<number | undefined>(
     +userSummary.healthFactor
   );
@@ -249,7 +247,7 @@ export function CrosschainLoanForm(props: {
       ),
       currentLiquidationThreshold: summary.currentLiquidationThreshold,
     });
-    if (!ethereumProvider) {
+    if (!web3Provider) {
       // UI loader control
       setIsLoading(() => false);
       throw new Error("No ethereum provider");
@@ -258,7 +256,7 @@ export function CrosschainLoanForm(props: {
     setIsLoading(() => true);
     // request Quote
     const { errors, message, ...quote } = await requestQuote({
-      ethereumProvider,
+      web3Provider: web3Provider as ethers.providers.Web3Provider,
       inputFromAmount: value,
       newCollateral,
       selectedCollateral,
@@ -750,19 +748,19 @@ export function CrosschainLoanForm(props: {
             expand="block"
             onClick={async () => {
               // exclud all action if no quote available
-              if (!quote?.id || !ethereumProvider) {
+              if (!quote?.id || !web3Provider) {
                 return;
               }
               await displayLoader();
               try {
                 // perform swap collaterals
                 await checkAndSetAllowance(
-                  ethereumProvider, 
+                  web3Provider as ethers.providers.Web3Provider, 
                   quote.action.fromToken.address, 
                   quote.estimate.approvalAddress, 
                   quote.action.fromAmount,
                 );
-                await sendTransaction(quote, ethereumProvider);
+                await sendTransaction(quote, web3Provider as ethers.providers.Web3Provider);
                 await presentToast({
                   message: `Swap callaterals successfully. Waiting form Borrow transaction...`,
                   duration: 5000,

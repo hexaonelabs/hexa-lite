@@ -18,12 +18,12 @@ import { chevronDownOutline } from "ionicons/icons";
 import { useAave } from "../context/AaveContext";
 import { ChainId } from "@aave/contract-helpers";
 
-import { useUser, IAsset } from "../context/UserContext";
 import { getPercent } from "../utils/utils";
 import { CHAIN_AVAILABLES } from "../constants/chains";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MarketList } from "../components/MarketsList";
 import { currencyFormat } from "../utils/currency-format";
+import { useWeb3Provider } from "../context/Web3Context";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -60,7 +60,7 @@ export const DefiContainer = ({
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) => {
   console.log("[INFO] {{DefiContainer}} rendering...");
-  const { user, assets } = useUser();
+  const { walletAddress, assets } = useWeb3Provider();
   const { poolGroups, totalTVL, refresh, userSummaryAndIncentivesGroup } =
     useAave();
   const [filterBy, setFilterBy] = useState<{ [key: string]: string } | null>(
@@ -97,6 +97,8 @@ export const DefiContainer = ({
     100 - getPercent(totalBorrowsUsd, totalBorrowableUsd);
   const progressBarFormatedValue = percentBorrowingCapacity / 100;
   const totalAbailableToBorrow = totalBorrowableUsd - totalBorrowsUsd;
+
+  useEffect(() => {}, []);
 
   return !poolGroups || poolGroups.length === 0 ? (
     <IonGrid class="ion-padding">
@@ -231,7 +233,7 @@ export const DefiContainer = ({
               </IonItem>
 
               <div slot="content">
-                {user && totalCollateralUsd > 0 && (
+                {walletAddress && totalCollateralUsd > 0 && (
                   <>
                     <IonGrid className="ion-no-padding">
                       <IonRow class="ion-no-padding ion-padding-start ion-align-items-center ion-justify-content-between">
@@ -444,13 +446,13 @@ export const DefiContainer = ({
                       ))}
                   </>
                 )}
-                {(!user || totalCollateralUsd === 0) && (
+                {(!walletAddress || totalCollateralUsd === 0) && (
                   <IonGrid class="ion-no-padding">
                     <IonRow class="ion-text-center">
                       <IonCol size="12" class="ion-text-center ion-padding-horizontal">
                         <IonText>
                           <p>
-                            {!user ? "Connect wallet and deposit" : "Deposit"}{" "}
+                            {!walletAddress ? "Connect wallet and deposit" : "Deposit"}{" "}
                             assets as collateral to borrow and start earning
                             interest
                           </p>

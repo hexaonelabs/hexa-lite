@@ -18,9 +18,9 @@ import {
 import { home, person, settings } from "ionicons/icons";
 import ConnectButton from "./ConnectButton";
 import DisconnectButton from "./DisconnectButton";
-import { useUser } from "../context/UserContext";
 import { getSplitedAddress } from "../utils/getSplitedAddress";
 import { AuthBadge } from "./AuthBadge";
+import { useWeb3Provider } from "../context/Web3Context";
 
 interface MenuSlideProps {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
@@ -28,9 +28,9 @@ interface MenuSlideProps {
 }
 
 const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
-  const { user } = useUser();
   const menuRef = useRef<HTMLIonMenuElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const { walletAddress } = useWeb3Provider();
 
   return (
     <IonMenu ref={menuRef} side="end" contentId="main-content">
@@ -129,7 +129,7 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
         ></IonItemDivider>
 
         <div className="ion-padding ion-text-center">
-          {!user ? (
+          {!walletAddress ? (
             <ConnectButton size="default" expand="block"></ConnectButton>
           ) : (
             <>
@@ -140,7 +140,7 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
                 color="gradient"
                 expand={"block"}
               >
-                {getSplitedAddress(user)}
+                {getSplitedAddress(walletAddress)}
               </IonButton>
               <IonModal
                 trigger="badge-auth-mobile"
