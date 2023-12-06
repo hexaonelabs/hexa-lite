@@ -75,7 +75,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         class="ion-justify-content-center ion-align-items-center  ion-padding"
         style={{ 
           minHeight: "100vh", 
-          background: "#272747",
+          background: "#182449",
           paddingTop: "5rem",
           paddingBottom: "5rem",
         }}

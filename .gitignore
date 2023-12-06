@@ -25,6 +25,7 @@ yarn-debug.log*
 yarn-error.log*
 
 *.cache
+.next
 
 rfp
 .firebase/

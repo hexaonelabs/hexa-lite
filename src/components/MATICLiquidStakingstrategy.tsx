@@ -34,6 +34,8 @@ import { CHAIN_AVAILABLES, NETWORK } from "../constants/chains";
 import { HowItWork } from "./HowItWork";
 import { ApyDetail } from "./ApyDetail";
 import { HiddenUI, LiFiWidget, WidgetConfig } from "@lifi/widget";
+import { LiFiWidgetDynamic } from "./LiFiWidgetDynamic";
+import { LIFI_CONFIG } from '../servcies/lifi.service';
 
 export interface IStrategyModalProps {
   dismiss?: (
@@ -45,7 +47,7 @@ export interface IStrategyModalProps {
 export function MATICLiquidStakingstrategyCard() {
   const { web3Provider, switchNetwork, connectWallet, disconnectWallet, currentNetwork } = useWeb3Provider();
   const [baseAPRst, setBaseAPRst] = useState(-1);
-  const { display: displayLoader, hide: hideLoader } = useLoader();  
+  const { display: displayLoader, hide: hideLoader } = useLoader();
   const toastContext = useIonToast();
   const presentToast = toastContext[0];
   const dismissToast = toastContext[1];
@@ -63,141 +65,104 @@ export function MATICLiquidStakingstrategyCard() {
     details: {
       description: `
         This strategy will swap your MATIC for stMATIC to earn ${baseAPRst.toFixed(
-          2
-        )}% APY revard from staking wstMATIC on Lido.
+        2
+      )}% APY revard from staking wstMATIC on Lido.
       `,
     },
   };
   const modal = useRef<HTMLIonModalElement>(null);
   // load environment config
-  const widgetConfig = useMemo((): WidgetConfig => {
-    return {
-      integrator: "hexa-lite",
-      fee: 0.005,
-      variant: "expandable",
-      insurance: true,
-      containerStyle: {
-        border: `1px solid rgba(var(--ion-color-primary-rgb), 0.4);`,
-        borderRadius: "32px",
-      },
-      theme: {
-        shape: {
-          borderRadius: 12,
-          borderRadiusSecondary: 24,
-        },
-        palette: {
-          background: {
-            paper: "#1c2b42", //"rgb(39 39 71 / 80%)", // green
-            // default: '#272747',
-          },
-          primary: {
-            main: "#428cff",
-            contrastText: "#fff",
-          },
-          secondary: {
-            main: "#0cceea",
-            contrastText: "#fff",
-          },
-        },
-      },
-      languages: {
-        default: "en",
-      },
-      appearance: "dark",
-      hiddenUI: [HiddenUI.Appearance, HiddenUI.PoweredBy, HiddenUI.Language],
-      walletManagement: {
-        connect: async () => {
-          try {
-            await displayLoader();
-            await connectWallet();
-            if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
-              throw new Error("Provider not found");
-            }
-            const signer = web3Provider?.getSigner();
-            console.log("[INFO] signer", signer);
-            if (!signer) {
-              throw new Error("Signer not found");
-            }
-            // return signer instance from JsonRpcSigner
-            hideLoader();
-            return signer;
-          } catch (error: any) {
-            // Log any errors that occur during the connection process
-            hideLoader();
-            await presentToast({
-              message: `[ERROR] Connect Failed with reason: ${
-                error?.message || error
-              }`,
-              color: "danger",
-              buttons: [
-                {
-                  text: "x",
-                  role: "cancel",
-                  handler: () => {
-                    dismissToast();
-                  },
-                },
-              ],
-            });
-            throw new Error("handleConnect:" + error?.message);
+  const widgetConfig: WidgetConfig = {
+    ...LIFI_CONFIG,
+    walletManagement: {
+      connect: async () => {
+        try {
+          await displayLoader();
+          await connectWallet();
+          if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
+            throw new Error("Provider not found");
           }
-        },
-        disconnect: async () => {
-          try {
-            displayLoader();
-            await disconnectWallet();
-            hideLoader();
-          } catch (error: any) {
-            // Log any errors that occur during the disconnection process
-            console.log("handleDisconnect:", error);
-            hideLoader();
-            await presentToast({
-              message: `[ERROR] Disconnect Failed with reason: ${
-                error?.message || error
-              }`,
-              color: "danger",
-              buttons: [
-                {
-                  text: "x",
-                  role: "cancel",
-                  handler: () => {
-                    dismissToast();
-                  },
-                },
-              ],
-            });
+          const signer = web3Provider?.getSigner();
+          console.log("[INFO] signer", signer);
+          if (!signer) {
+            throw new Error("Signer not found");
           }
+          // return signer instance from JsonRpcSigner
+          hideLoader();
+          return signer;
+        } catch (error: any) {
+          // Log any errors that occur during the connection process
+          hideLoader();
+          await presentToast({
+            message: `[ERROR] Connect Failed with reason: ${error?.message || error
+              }`,
+            color: "danger",
+            buttons: [
+              {
+                text: "x",
+                role: "cancel",
+                handler: () => {
+                  dismissToast();
+                },
+              },
+            ],
+          });
+          throw new Error("handleConnect:" + error?.message);
+        }
+      },
+      disconnect: async () => {
+        try {
+          displayLoader();
+          await disconnectWallet();
+          hideLoader();
+        } catch (error: any) {
+          // Log any errors that occur during the disconnection process
+          console.log("handleDisconnect:", error);
+          hideLoader();
+          await presentToast({
+            message: `[ERROR] Disconnect Failed with reason: ${error?.message || error
+              }`,
+            color: "danger",
+            buttons: [
+              {
+                text: "x",
+                role: "cancel",
+                handler: () => {
+                  dismissToast();
+                },
+              },
+            ],
+          });
+        }
+      },
+      signer: web3Provider instanceof ethers.providers.Web3Provider ? web3Provider?.getSigner() : undefined,
+    },
+    // set source chain to Polygon
+    fromChain: NETWORK.polygon,
+    // set destination chain to Optimism
+    toChain: NETWORK.polygon,
+    // set source token to ETH (Ethereum)
+    fromToken: "0x0000000000000000000000000000000000000000",
+    // set source token to USDC (Optimism)
+    toToken: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4",
+    // fromAmount: 10,
+    chains: {
+      allow: [NETWORK.polygon],
+    },
+    tokens: {
+      allow: [
+        {
+          chainId: Number(NETWORK.polygon),
+          address: "0x0000000000000000000000000000000000000000",
         },
-        signer: web3Provider instanceof ethers.providers.Web3Provider ?  web3Provider?.getSigner() : undefined,
-      },
-      // set source chain to Polygon
-      fromChain: NETWORK.polygon,
-      // set destination chain to Optimism
-      toChain: NETWORK.polygon,
-      // set source token to ETH (Ethereum)
-      fromToken: "0x0000000000000000000000000000000000000000",
-      // set source token to USDC (Optimism)
-      toToken: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4",
-      // fromAmount: 10,
-      chains: {
-        allow: [NETWORK.polygon],
-      },
-      tokens: {
-        allow: [
-          {
-            chainId: Number(NETWORK.polygon),
-            address: "0x0000000000000000000000000000000000000000",
-          },
-          {
-            chainId: Number(NETWORK.polygon),
-            address: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4",
-          },
-        ],
-      },
-      disabledUI: ["fromToken", "toToken"],
-    }
-  }
-  , [web3Provider instanceof ethers.providers.Web3Provider ? web3Provider.getSigner(): null]);
+        {
+          chainId: Number(NETWORK.polygon),
+          address: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4",
+        },
+      ],
+    },
+    disabledUI: ["fromToken", "toToken"],
+  };
 
   useEffect(() => {
     const { signal, abort } = new AbortController();
@@ -244,7 +209,7 @@ export function MATICLiquidStakingstrategyCard() {
                 }}
               >
                 <IonLabel>
-                  Assets 
+                  Assets
                 </IonLabel>
                 <div slot="end" style={{ display: "flex" }}>
                   {strategy.assets.map((symbol, index) => (
@@ -309,7 +274,9 @@ export function MATICLiquidStakingstrategyCard() {
                             Base APY <small>(stMATIC)</small>
                           </h2>
                         </IonLabel>
-                        <IonText slot="end">{strategy.apys[0]}%</IonText>
+                        <IonText slot="end">
+                          {strategy.apys[0]}%
+                        </IonText>
                       </IonItem>
                       <IonItem lines="none">
                         <IonLabel>
@@ -326,7 +293,9 @@ export function MATICLiquidStakingstrategyCard() {
                 </IonLabel>
                 <div slot="end" style={{ display: "flex" }}>
                   {strategy.apys.map((apy, index) => (
-                    <IonText key={index}>{apy}%</IonText>
+                    <IonText className="ion-color-gradient-text" key={index}>
+                      <strong>{apy}%</strong>
+                    </IonText>
                   ))}
                 </div>
               </IonItem>
@@ -340,7 +309,10 @@ export function MATICLiquidStakingstrategyCard() {
                 <IonLabel>Protocols</IonLabel>
                 <div slot="end" style={{ display: "flex" }}>
                   {strategy.providers
-                    .map((p, index) => p.toLocaleUpperCase())
+                    .map((p) => {
+                      // return capitalized string
+                      return p.charAt(0).toUpperCase() + p.slice(1);
+                    })
                     .join(" + ")}
                 </div>
               </IonItem>
@@ -383,11 +355,12 @@ export function MATICLiquidStakingstrategyCard() {
 
               <IonButton
                 onClick={async () => {
-                  const chainId = currentNetwork;
-                  if (chainId !== NETWORK.polygon) {
+                  await displayLoader();
+                  if (currentNetwork !== NETWORK.polygon) {
                     await switchNetwork(NETWORK.polygon);
                   }
-                  modal.current?.present();
+                  await modal.current?.present();
+                  await hideLoader();
                 }}
                 expand="block"
                 color="gradient"
@@ -435,18 +408,20 @@ export function MATICLiquidStakingstrategyCard() {
                 <h1 className="ion-no-margin" style={{
                   marginBottom: '1.5rem',
                   fontSize: '2.4rem',
-                  lineHeight: '1.85rem'}}>
+                  lineHeight: '1.85rem'
+                }}>
                   <IonText className="ion-color-gradient-text">
                     {strategy.name}
                   </IonText>
                   <br />
                   <span style={{
-                  fontSize: '1.4rem',
-                  lineHeight: '1.15rem'}}>{strategy.type}</span>
+                    fontSize: '1.4rem',
+                    lineHeight: '1.15rem'
+                  }}>{strategy.type}</span>
                 </h1>
                 <IonText color="medium">
                   <p>
-                    By exchange MATIC to stMATIC you will incrase your MATIC holdings balance by {baseAPRst.toFixed(2)}% APY from staking liquidity on Lido finance. 
+                    By exchange MATIC to stMATIC you will incrase your MATIC holdings balance by {baseAPRst.toFixed(2)}% APY from staking liquidity on Lido finance.
                     Rewards are automated and paid out in MATIC through daily exchange rate increases reflecting staking rewards.
                   </p>
                   <p className="ion-no-margin">
@@ -478,7 +453,7 @@ export function MATICLiquidStakingstrategyCard() {
                   </IonText>
                 </>
                  */}
-                <LiFiWidget config={widgetConfig} integrator="hexa-lite" />
+                <LiFiWidgetDynamic config={widgetConfig} integrator="hexa-lite" />
               </IonCol>
             </IonRow>
           </IonGrid>

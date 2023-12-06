@@ -1,3 +1,5 @@
+'use client'
+
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   FormatUserSummaryAndIncentivesResponse,
@@ -13,7 +15,7 @@ import {
   getPools,
   getUserSummaryAndIncentives,
 } from "../servcies/aave.service";
-import { useCurrentTimestamp } from "../hooks/useCurrentTimestamp";
+// import { useCurrentTimestamp } from "../hooks/useCurrentTimestamp";
 import dayjs from "dayjs";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import {
@@ -76,7 +78,7 @@ export const useAave = () => useContext(AaveContext);
 export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   const currentTimestamp = dayjs().unix(); // useCurrentTimestamp(5);
   const [ state, setState ] = useState<AaveContextType>(AaveContextDefault);
-  const { assets, getInfo, web3Provider } = useWeb3Provider();
+  const { assets, web3Provider, walletAddress } = useWeb3Provider();
   const [ user, setUser ] = useState<string>(undefined as any);
 
   const init = async () => {
@@ -315,16 +317,10 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    getInfo()
-    .then((info) => {
-      if (info?.publicAddress) {
-        setUser((prev)=> (info.publicAddress||''));
-      }
-    })
-    .catch((error) => {
-      console.error("[ERROR] {{AaveProvider}} getInfo: ", error);
-    });
-  }, [web3Provider]);
+    if (walletAddress) {
+      setUser((prev)=> (walletAddress));
+    }
+  }, [walletAddress]);
 
   useEffect(() => {
     init();

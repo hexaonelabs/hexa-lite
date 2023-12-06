@@ -2,11 +2,9 @@ import {
   EthereumTransactionTypeExtended,
   InterestRate,
   Pool,
-  PoolBaseCurrencyHumanized,
   ReserveDataHumanized,
   UiIncentiveDataProvider,
   UiPoolDataProvider,
-  UserReserveData,
   WalletBalanceProvider,
 } from "@aave/contract-helpers";
 import { ethers } from "ethers";
@@ -16,7 +14,6 @@ import * as MARKETS from "@bgd-labs/aave-address-book";
 import {
   FormatReserveUSDResponse,
   formatReserves,
-  formatReservesAndIncentives,
   formatUserSummary,
   formatUserSummaryAndIncentives,
 } from "@aave/math-utils";
@@ -304,23 +301,21 @@ export const repay = async (ops: {
 
 export const getMarkets = (chainId: number) => {
   switch (true) {
-    case chainId === 1:
+    case chainId === MARKETS.AaveV3Ethereum.CHAIN_ID:
       return MARKETS.AaveV3Ethereum;
-    case chainId === 5:
-      return MARKETS.AaveV3Goerli;
-    case chainId === 137:
+    case chainId === MARKETS.AaveV3Polygon.CHAIN_ID:
       return MARKETS.AaveV3Polygon;
-    case chainId === 80001:
+    case chainId === MARKETS.AaveV3Mumbai.CHAIN_ID:
       return MARKETS.AaveV3Mumbai;
-    case chainId === 43113:
+    case chainId === MARKETS.AaveV3Fuji.CHAIN_ID:
       return MARKETS.AaveV3Fuji;
-    case chainId === 42161:
+    case chainId === MARKETS.AaveV3Arbitrum.CHAIN_ID:
       return MARKETS.AaveV3Arbitrum;
-    case chainId === 421613:
+    case chainId === MARKETS.AaveV3ArbitrumGoerli.CHAIN_ID:
       return MARKETS.AaveV3ArbitrumGoerli;
-    case chainId === 10:
+    case chainId === MARKETS.AaveV3Optimism.CHAIN_ID:
       return MARKETS.AaveV3Optimism;
-    case chainId === 69:
+    case chainId === MARKETS.AaveV3Avalanche.CHAIN_ID:
       return MARKETS.AaveV3Avalanche;
     default:
       throw new Error(`ChainId ${chainId} not supported`);
@@ -692,7 +687,6 @@ export const supplyWithPermitAndContract = async (ops: {
 
 export type MARKETTYPE =
   | typeof MARKETS.AaveV3Ethereum
-  | typeof MARKETS.AaveV3Goerli
   | typeof MARKETS.AaveV3Polygon
   | typeof MARKETS.AaveV3Mumbai
   | typeof MARKETS.AaveV3Fuji

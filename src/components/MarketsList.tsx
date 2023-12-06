@@ -122,7 +122,9 @@ export function MarketList(props: {
               }}
             >
               <IonSelectOption value="*">All</IonSelectOption>
-              {CHAIN_AVAILABLES.map((chain, index) => (
+              {CHAIN_AVAILABLES
+              .filter(chain => chain.type === 'evm')
+              .map((chain, index) => (
                 <IonSelectOption key={`option_chainId_${index}`} value={chain.id.toString()}>
                   {chain.name}
                 </IonSelectOption>
@@ -213,7 +215,7 @@ export function MarketList(props: {
             <IonCol size="12" class="ion-text-center">
               <IonText>
                 <p>
-                  <small>No available assets</small>
+                  <small>No available markets</small>
                 </p>
               </IonText>
             </IonCol>

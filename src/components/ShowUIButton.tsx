@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
 import { IonButton, IonSpinner } from "@ionic/react";
 import { useWeb3Provider } from "../context/Web3Context";
+import { getMagic } from "@/servcies/magic";
 
 const ShowUIButton = () => {
   // Initialize state variable to decide whether to show button or not
   const [isLoading, setIsLoading] = useState(false);
   const [showButton, setShowButton] = useState(false);
-  const { getInfo } = useWeb3Provider();
-
   // Define a function to check the type of the wallet
   const checkWalletType = async () => {
+    const magic = await getMagic();
     try {
       setIsLoading(true);
-      const walletInfo = await getInfo();
-      const isMagicProvider = walletInfo?.walletType === "magic";
+      const isMagicProvider = magic.rpcProvider.isMagic;
       if (!isMagicProvider) {
         setIsLoading(false);
         setShowButton(false);
@@ -23,9 +22,8 @@ const ShowUIButton = () => {
       
       ///@ts-ignore
       // Determine if the wallet type is "magic"
-      const isMagicWallet = walletInfo.walletType === "magic";
-
       // Set 'showButton' state based on the result of the check
+      const isMagicWallet = (await magic.wallet.getInfo())?.walletType === "magic";
       setIsLoading(false);
       setShowButton(isMagicWallet);
     } catch (error) {
@@ -44,7 +42,8 @@ const ShowUIButton = () => {
   const handleShowUI = async () => {
     try {
       // Try to show the magic wallet user interface
-      // await wallet?.showWalletUI();
+      const magic = await getMagic();
+      await magic.wallet.showUI();
       throw new Error("Not implemented");
     } catch (error) {
       // Log any errors that occur during the process

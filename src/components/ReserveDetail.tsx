@@ -142,14 +142,17 @@ export function ReserveDetail(props: IReserveDetailProps) {
       ?.find((pg) => pg.reserves.find((r) => r.id === id))
       ?.reserves.find((r) => r.id === id) as IReserve;
   }, [id, poolGroups]);
+
   const borrowPoolRatioInPercent = getPercent(
     valueToBigNumber(reserve.totalDebtUSD).toNumber(),
     valueToBigNumber(reserve.borrowCapUSD).toNumber()
   );
+
   const supplyPoolRatioInPercent = getPercent(
     valueToBigNumber(reserve.totalLiquidityUSD).toNumber(),
     valueToBigNumber(reserve.supplyCapUSD).toNumber()
   );
+
   const percentBorrowingCapacity =
     100 -
     getPercent(
@@ -370,7 +373,11 @@ export function ReserveDetail(props: IReserveDetailProps) {
       >
         Deposit {reserve.symbol} as collateral
       </IonButton>)
-    : (<></>);
+    : (<IonButton
+      fill="solid"
+      expand="block"
+      color="gradient"
+      disabled={true} >Deposit {reserve.symbol} as collateral</IonButton>);
 
   const RepayBtn = walletAddress && (reserve?.borrowBalance || +reserve.borrowBalance > 0)
       ? (<IonButton
@@ -421,7 +428,13 @@ export function ReserveDetail(props: IReserveDetailProps) {
           >
             Borrow {reserve.symbol}
           </IonButton>)
-        : (<></>);  
+        : (<IonButton
+          fill="solid"
+          color="gradient"
+          expand="block"
+          disabled={true}>
+            Borrow {reserve.symbol}
+          </IonButton>);  
 
   return (
     <>
@@ -536,8 +549,8 @@ export function ReserveDetail(props: IReserveDetailProps) {
                                 </IonText>
                               </IonCol>
                               <IonCol size="12">
-                                {ExchangeAssetBtn}
-                                {BuyAssetBtn}
+                                {/* {ExchangeAssetBtn}
+                                {BuyAssetBtn} */}
                                 {WithdrawBtn}
                                 {DepositBtn}
                                 {RepayBtn}

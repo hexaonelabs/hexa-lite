@@ -13,7 +13,7 @@ import {
   IonSegmentButton,
   IonToolbar,
 } from "@ionic/react";
-import { ellipsisVerticalSharp } from "ionicons/icons";
+import { ellipsisVerticalSharp, radioButtonOn } from "ionicons/icons";
 import { AuthBadge } from "./AuthBadge";
 import ConnectButton from "./ConnectButton";
 import { useEffect } from "react";
@@ -126,7 +126,11 @@ export function Header({
                         color="gradient"
                         expand={"block"}
                       >
-                        {getSplitedAddress(walletAddress)}
+                        <IonIcon 
+                          color="success" 
+                          className="connectedIcon" 
+                          src={radioButtonOn}></IonIcon>
+                        Connected
                       </IonButton>
                       <IonPopover trigger="badge-auth">
                         <AuthBadge />
@@ -140,7 +144,7 @@ export function Header({
                 <IonCol size="auto" class="ion-padding ion-hide-md-up">
                   <IonMenuToggle>
                     <IonButton fill="clear" color="primary" id="click-trigger">
-                      <IonIcon slot="icon-only" icon={ellipsisVerticalSharp} />
+                      <IonIcon slot="icon-only" src={ellipsisVerticalSharp} />
                     </IonButton>
                   </IonMenuToggle>
                 </IonCol>

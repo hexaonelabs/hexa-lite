@@ -4,6 +4,7 @@
 $font-family: 'Schibsted Grotesk', sans-serif;
 
 html, body, ion-content {
+  background: '#182449';
   background: var(--background-gradient);
   --background: var(--background-gradient);
 }
@@ -31,14 +32,22 @@ p {
 }
 
 .header-background {
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px)!important;
+  backdrop-filter: blur(20px)!important;
 }
 
 // ion-segment-button {
 //   --background-checked: var(--ion-color-success);
 //   --color-checked: var(--ion-color-success-contrast);
 // }
+
+.connectedIcon {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 0.25rem;
+  -webkit-filter: drop-shadow(rgba(var(--ion-color-success), .7) 0px 0px 8px ); 
+  filter: drop-shadow(rgba(var(--ion-color-success-rgb), .7) 0px 0px 8px );
+}
 
 ion-segment {
   border-radius: 32px !important;
@@ -55,7 +64,9 @@ ion-segment-button{
   --indicator-color : rgba(var(--ion-color-primary-rgb), 0.08)!important; /* this solution */
 
   }
-
+ion-button.button-large {
+    --border-radius: 42px;
+  }
 ion-button {
   --border-radius: 32px;
 }
@@ -521,4 +532,13 @@ div.MuiScopedCssBaseline-root {
   backdrop-filter: blur(10px)!important;
 }
 
+// Squid Widget
+#squid-widget {
+  display: table;
+  width: auto!important;
+  margin: auto;
 
+  > div {
+    border: 1px solid rgba(var(--ion-color-primary-rgb), 0.4);
+  }
+}

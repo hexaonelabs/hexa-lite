@@ -5,20 +5,16 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
-  IonList,
   IonItem,
   IonIcon,
   IonLabel,
-  IonListHeader,
   IonText,
   IonItemDivider,
   IonButton,
   IonModal,
 } from "@ionic/react";
-import { home, person, settings } from "ionicons/icons";
+import { radioButtonOn } from "ionicons/icons";
 import ConnectButton from "./ConnectButton";
-import DisconnectButton from "./DisconnectButton";
-import { getSplitedAddress } from "../utils/getSplitedAddress";
 import { AuthBadge } from "./AuthBadge";
 import { useWeb3Provider } from "../context/Web3Context";
 
@@ -36,10 +32,10 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
     <IonMenu ref={menuRef} side="end" contentId="main-content">
       <IonHeader mode="md" translucent={true} class="ion-no-border">
         <IonToolbar style={{ "--background": "transparent" }}>
-          <IonTitle>Menu</IonTitle>
+          <IonTitle>Hexa Lite</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent className="ion-padding-top">
         <IonItem
           lines="none"
           button={true}
@@ -56,7 +52,7 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
               <h2>Exchange</h2>
             </IonText>
             <IonText color="medium">
-              <p>Swap tokens instantly at the best rates.</p>
+              <p>Swap tokens instantly at the best rates</p>
             </IonText>
           </IonLabel>
         </IonItem>
@@ -77,7 +73,9 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
               <h2>Earn Interest</h2>
             </IonText>
             <IonText color="medium">
-              <p>Earn interest on your crypto.</p>
+              <p>
+                Earn interest on your crypto with liquid staking
+              </p>
             </IonText>
           </IonLabel>
         </IonItem>
@@ -98,7 +96,7 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
               <h2>Lending & Borrow</h2>
             </IonText>
             <IonText color="medium">
-              <p>Provide liquidity and earn interest.</p>
+              <p>Provide liquidity over DeFi protocols and earn interest</p>
             </IonText>
           </IonLabel>
         </IonItem>
@@ -119,7 +117,7 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
               <h2>Buy</h2>
             </IonText>
             <IonText color="medium">
-              <p>Buy crypto with fiat.</p>
+              <p>Buy crypto with fiat</p>
             </IonText>
           </IonLabel>
         </IonItem>
@@ -140,7 +138,11 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
                 color="gradient"
                 expand={"block"}
               >
-                {getSplitedAddress(walletAddress)}
+                <IonIcon 
+                  color="success" 
+                  className="connectedIcon" 
+                  src={radioButtonOn}></IonIcon>
+                Connected
               </IonButton>
               <IonModal
                 trigger="badge-auth-mobile"

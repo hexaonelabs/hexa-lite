@@ -2,7 +2,7 @@ import { Magic } from 'magic-sdk';
 import { AvalancheExtension } from '@magic-ext/avalanche';
 import { Avalanche, BinTools, Buffer, BN } from '@avalabs/avalanchejs';
 
-import { MagicWallet } from "./MagicWallet";
+import { MagicWalletUtils } from "./MagicWallet";
 import { CHAIN_DEFAULT, NETWORK } from "../constants/chains";
 import { RPC_NODE_OPTIONS } from "../servcies/magic";
 

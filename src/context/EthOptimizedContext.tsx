@@ -1,3 +1,5 @@
+'use client'
+
 import { ReserveDataHumanized } from "@aave/contract-helpers";
 import { FormatReserveUSDResponse, FormatUserSummaryAndIncentivesResponse } from "@aave/math-utils";
 import { useContext, createContext, useState, useEffect } from "react";

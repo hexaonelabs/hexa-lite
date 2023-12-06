@@ -1,6 +1,7 @@
 import { IonCol, IonGrid, IonRow, IonText } from "@ionic/react";
 import { ETHLiquidStakingstrategyCard } from "../components/ETHLiquidStakingstrategy";
 import { MATICLiquidStakingstrategyCard } from "../components/MATICLiquidStakingstrategy";
+import { ATOMLiquidStakingstrategyCard } from "@/components/ATOMLiquidStakingstrategy";
 
 export function EarnContainer() {
   return (
@@ -25,7 +26,7 @@ export function EarnContainer() {
               <span style={{ maxWidth: "800px", display: "inline-block" }}>
                 Unlock the full potential of your assets by earning interest
                 through liquid staking while simultaneously
-                contributing to the network's security.
+                contributing to the networks security.
               </span>
             </p>
           </IonText>
@@ -57,6 +58,9 @@ export function EarnContainer() {
               <IonCol size="auto" className="ion-padding-bottom">
                 <MATICLiquidStakingstrategyCard />
               </IonCol>
+              {/* <IonCol size="auto" className="ion-padding-bottom">
+                <ATOMLiquidStakingstrategyCard />
+              </IonCol> */}
             </IonRow>
           </IonGrid>
         </IonCol>

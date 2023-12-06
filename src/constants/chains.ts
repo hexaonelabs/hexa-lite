@@ -2,6 +2,7 @@ import { ChainId } from "@aave/contract-helpers";
 
 // Define Network enum that represents supported networks
 export enum NETWORK {
+  bitcoin = 1000,
   mainnet = 1,
   polygon = 137,
   avalanche = 43114,
@@ -9,6 +10,8 @@ export enum NETWORK {
   arbitrum = 42161,
   optimism = 10,
   cosmos = 118,
+  polkadot = 111,
+  solana = 1399811149,
 }
 
 export interface IChain {
@@ -19,7 +22,7 @@ export interface IChain {
   nativeSymbol?: string;
   logo?: string;
   testnet?: boolean;
-  type: 'evm'|'cosmos';
+  type: 'evm'|'cosmos'|'bitcoin'|'solana'|'polkadot';
 };
 
 export const CHAIN_AVAILABLES: IChain[] = [
@@ -158,10 +161,35 @@ export const CHAIN_AVAILABLES: IChain[] = [
   //   value: 'avalanche_fuji',
   //   name: 'Fuji',
   // },
+  {
+    id: NETWORK.bitcoin,
+    name: 'Bitcoin',
+    value: 'bitcoin',
+    nativeSymbol: 'BTC',
+    rpcUrl: 'https://rpc.coinsdo.net/btc',
+    type: 'bitcoin',
+    logo: '/assets/cryptocurrency-icons/btc.svg',
+  },
+  {
+    id: NETWORK.solana,
+    value: 'solana',
+    name: 'Solana',
+    nativeSymbol: 'SOL',
+    logo: '/assets/cryptocurrency-icons/sol.svg',
+    rpcUrl: [
+      {primary: true, url: "https://api.devnet.solana.com"}
+    ]
+    .find(
+      (rpc) => rpc.primary
+    )?.url||'',
+    type: 'solana',
+  },
 ];
 
 const NETWORK_DEFAULT = NETWORK.optimism;
-export const CHAIN_DEFAULT = CHAIN_AVAILABLES.find(c => c.id === NETWORK_DEFAULT) || {id: NETWORK_DEFAULT};
+export const CHAIN_DEFAULT = CHAIN_AVAILABLES.find(c => c.id === NETWORK_DEFAULT) || {
+  id: NETWORK_DEFAULT, name: 'default', value: 'default', rpcUrl: '', type: 'evm'
+};
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
