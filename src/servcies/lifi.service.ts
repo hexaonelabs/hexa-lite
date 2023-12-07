@@ -808,6 +808,7 @@ export const LIFI_CONFIG = Object.freeze<WidgetConfig>({
   containerStyle: {
     border: `1px solid rgba(var(--ion-color-primary-rgb), 0.4);`,
     borderRadius: "32px",
+    filter: "drop-shadow(rgba(var(--ion-color-primary-rgb), .1) 0px 0px 50px )"
   },
   theme: {
     shape: {
@@ -815,8 +816,11 @@ export const LIFI_CONFIG = Object.freeze<WidgetConfig>({
       borderRadiusSecondary: 24,
     },
     palette: {
+      grey: {
+        "800": 'rgba(var(--ion-color-primary-rgb), 0.2)'
+      },
       background: {
-        paper: "#1c2b42", //"rgb(39 39 71 / 80%)", // green
+        paper: "#0f1629", // green
         // default: '#182449',
       },
       primary: {
