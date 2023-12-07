@@ -17,6 +17,7 @@ type Web3ContextType = {
   currentNetwork: NETWORK;
   walletAddress: string | undefined;
   web3Provider: Web3ProviderType | null;
+  isMagicWallet: boolean;
   connectWallet(ops?: {email: string;}): Promise<void>;
   disconnectWallet(): Promise<void>;
   switchNetwork: (chainId: number) => Promise<void>;
@@ -29,6 +30,7 @@ const Web3Context = createContext<Web3ContextType>({
   walletAddress: undefined,
   web3Provider: null,
   assets: [],
+  isMagicWallet: false,
   connectWallet: (ops?: {email: string;}) => Promise.resolve(null as any),
   disconnectWallet: () => Promise.resolve(null as any),
   switchNetwork: () => Promise.resolve(null as any),
@@ -43,6 +45,7 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
     assets: [],
     currentNetwork: CHAIN_DEFAULT.id,
     walletAddress: undefined,
+    isMagicWallet: false,
     connectWallet: async (ops?: {email: string;}) => {
       const magicUtils = await MagicWalletUtils.create();
       await magicUtils.connect(ops);
@@ -99,12 +102,14 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
     const walletAddress = magicUtils.walletAddress;
     const currentNetwork = magicUtils.network;
     const assets = magicUtils.assets;
+    const isMagicWallet = magicUtils.isMagicWallet;
     setWeb3State((prev) => ({
       ...prev,
       web3Provider,
       walletAddress,
       currentNetwork,
-      assets
+      assets,
+      isMagicWallet
     }));
   };
 
