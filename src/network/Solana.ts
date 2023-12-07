@@ -13,12 +13,14 @@ import { NETWORK } from '@/constants/chains';
 export class SolanaWalletUtils extends MagicWalletUtils { 
   
   public web3Provider: Connection | null = null;
+  public isMagicWallet: boolean = true;
   constructor(network: NETWORK) {
     super();
     this.network = network;
   }
 
   async _initializeWeb3() {
+    console.log(`[INFO] Solana: initializeWeb3...`);
     const magic = await getMagic({chainId: this.network});
     const RPC_NODE = RPC_NODE_OPTIONS.find((n) => n.chainId === this.network);
     if (!RPC_NODE) {
@@ -29,6 +31,8 @@ export class SolanaWalletUtils extends MagicWalletUtils {
     // get account address and wallet type
     try {
       const info = await magic.user.getInfo() || undefined;
+      console.log('[INFO] Solana: user info', info);
+      
       this.walletAddress = info?.publicAddress|| undefined;
     } catch (error) {
       console.log('error', error);

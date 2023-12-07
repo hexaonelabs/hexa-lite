@@ -105,6 +105,7 @@ import { IAsset } from "../interfaces/asset.interface";
 export class CosmosWalletUtils extends MagicWalletUtils { 
   
   public web3Provider: StargateClient | null = null;
+  public isMagicWallet = true;
   constructor(network: NETWORK) {
     super();
     this.network = network;
