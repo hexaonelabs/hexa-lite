@@ -3,6 +3,7 @@ import { logoGithub, checkmarkCircle, chevronForwardCircle, chevronForward } fro
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { EthOptimizedStrategyProvider } from "../context/EthOptimizedContext";
 import { ETHLiquidStakingstrategyCard } from "./ETHLiquidStakingstrategy";
+import { CHAIN_AVAILABLES } from "@/constants/chains";
 
 export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail: {value: string}}) => void}) {
 
@@ -144,10 +145,10 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                       lineHeight: "2rem",
                     }}
                   >
-                    Deposit liquidity to earn interest
+                    Deposit liquidity & earn interest
                   </h3>
                   <p>
-                    Securely deposit your liquidity into DeFi protocols across 35 markets and 3 EVM-Compatible blockchains to earn substantial interest while maintaining full control over your assets.
+                    Securely deposit your liquidity into DeFi protocols across +35 markets and {CHAIN_AVAILABLES.filter(c => c.type === 'evm').length} EVM-Compatible blockchains to earn substantial interest while maintaining full control over your assets.
                   </p>
                 </IonText>
               </IonCol>
@@ -172,10 +173,11 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                       lineHeight: "2rem",
                     }}
                   >
-                    Increase digital assets yield 
+                    Earn interest with liquid Staking
                   </h3>
                   <p>
-                    Hexa Lite level up your strategy to earn interest on leading crypto assets at the click of a button.
+                    Hexa Lite allow you to stake your assets into DeFi protocols to earn interest 
+                    without lockup period or any other restrictions.
                   </p>
                 </IonText>
               </IonCol>
