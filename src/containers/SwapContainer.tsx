@@ -1,4 +1,4 @@
-import { IonCol, IonGrid, IonRow, IonText, useIonToast } from "@ionic/react";
+import { IonButton, IonCol, IonGrid, IonRow, IonText, useIonToast } from "@ionic/react";
 import { HiddenUI, WidgetConfig } from "@lifi/widget";
 import { useEffect, useMemo } from "react";
 import { useWeb3Provider } from "../context/Web3Context";
@@ -40,6 +40,17 @@ export function SwapContainer() {
   //   };
   //   fetchConfig();
   // }, []);
+
+  const setNetwort = async () => {
+    await displayLoader();
+    const isEVM = CHAIN_AVAILABLES.find((chain) => chain.id === currentNetwork)?.type === "evm";
+    if (!isEVM) {
+      console.log(`[INFO] Switch to ${NETWORK.optimism} network`);
+      await switchNetwork(NETWORK.optimism);
+    }
+    await hideLoader();
+  }
+
   let SwapComponent; 
   const chain = CHAIN_AVAILABLES.find((chain) => chain.id === currentNetwork);
   switch (true) {
@@ -130,31 +141,29 @@ export function SwapContainer() {
       break;
     }
     default:
-      SwapComponent = (
-        <IonText className="ion-text-center">
-          <p>
-            Exchange with {chain?.name} network is not supported yet.
-          </p>
-        </IonText>
+      SwapComponent = (<>
+        <div className="ion-text-center">
+          <IonText className="ion-text-center">
+            <p>
+              Exchange with {chain?.name} network is not supported yet.
+            </p>
+          </IonText>
+          <IonButton onClick={async()=> {
+            await displayLoader();
+            await switchNetwork(CHAIN_DEFAULT.id);
+            await hideLoader();
+          }}>
+            Switch to EVM Network
+          </IonButton>
+        </div>
+      </>
       );
       break;
   }
 
-  const setNetwort = async () => {
-    await displayLoader();
-    const isEVM = CHAIN_AVAILABLES.find((chain) => chain.id === currentNetwork)?.type === "evm";
-    console.log("isEVM", isEVM);
-    
-    if (!isEVM) {
-      console.log(`[INFO] Switch to ${NETWORK.optimism} network`);
-      await switchNetwork(NETWORK.optimism);
-    }
-    await hideLoader();
-  }
-
-  useEffect(()=> {
-    setNetwort();
-  }, [currentNetwork]);
+  // useEffect(()=> {
+  //   setNetwort();
+  // }, [currentNetwork]);
 
   return (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
