@@ -1,8 +1,3 @@
-
-// import { SolanaExtension } from "@magic-ext/solana";
-import { CosmosExtension } from "@magic-ext/cosmos";
-// import { SolanaConfig } from "@magic-ext/solana/dist/types/type";
-// import { AvalancheExtension } from '@magic-ext/avalanche';
 import { CHAIN_DEFAULT, NETWORK } from "../constants/chains";
 import { connect, disconnect } from "../servcies/magic";
 import { Web3ProviderType } from "../context/Web3Context";
@@ -35,6 +30,7 @@ export abstract class MagicWalletUtils {
   private _assets: IAsset[] = [];
 
   public abstract web3Provider: Web3ProviderType | null;
+  public abstract isMagicWallet: boolean;
   protected abstract _loadBalances(): Promise<void>;
   protected abstract _initializeWeb3(): Promise<void>;
 
@@ -51,6 +47,11 @@ export abstract class MagicWalletUtils {
       //   return new Avalanche(network);
       // break;
       // }
+      case NETWORK.bitcoin: {
+        const { BitcoinWalletUtils } = require("./Bitcoin");
+        walletUtil = new BitcoinWalletUtils(network);
+        break;
+      }
       case NETWORK.cosmos: {
         const { CosmosWalletUtils } = require("./Cosmos");
         walletUtil = new CosmosWalletUtils(network);
