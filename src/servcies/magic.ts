@@ -2,7 +2,6 @@
 
 import {
   InstanceWithExtensions,
-  MagicSDKExtensionsOption,
   SDKBase,
 } from "@magic-sdk/provider";
 import { Magic } from "magic-sdk";
@@ -37,9 +36,7 @@ export const getRPCNodeOptions = async (nodeRpcChainId?: number) => {
   return nodeOps;
 };
 
-let _magic:
-| InstanceWithExtensions<SDKBase, MagicSDKExtensionsOption<string>>
-| undefined = undefined;
+let _magic: InstanceWithExtensions<SDKBase, any[]>;
 
 export const getMagic = async (forceInit?: {
   chainId: number;
@@ -66,12 +63,11 @@ export const getMagic = async (forceInit?: {
         _magic = new Magic(APP_ONBOARD_APIKEY, {
           extensions: [
             new BitcoinExtension({
-              rpcUrl: 'https://rpc.coinsdo.net/btc',
+              rpcUrl:  RPC_NODE?.rpcUrl,
               network: 'mainnet' // testnet or mainnet
             }) as any,
           ],
-        });
-        // this._magicExtention = magic.cosmos as CosmosExtension;
+        }) as any;
         break;
       case NETWORK.cosmos:
         _magic = new Magic(APP_ONBOARD_APIKEY, {
@@ -80,7 +76,7 @@ export const getMagic = async (forceInit?: {
               rpcUrl: RPC_NODE?.rpcUrl,
             }) as any,
           ],
-        });
+        }) as any;
         // this._magicExtention = magic.cosmos as CosmosExtension;
         break;
       case NETWORK.solana:
@@ -90,11 +86,12 @@ export const getMagic = async (forceInit?: {
               rpcUrl: RPC_NODE?.rpcUrl,
             }) as any,
           ],
-        });
+        }) as any;
+        break;
       default:
         _magic = new Magic(APP_ONBOARD_APIKEY, {
           network: RPC_NODE,
-        });
+        }) as any;
     }
     return _magic;
   }
