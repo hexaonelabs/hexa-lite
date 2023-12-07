@@ -209,9 +209,12 @@ ion-accordion {
   border: 1px solid rgba(var(--ion-color-primary-rgb), 0.4);
   border-radius: 32px;
   overflow: hidden;
-  background-color: rgb(19 19 19 / 40%);
+  background-color: var(--ion-background-color);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+
+  -webkit-filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px); 
+  filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px );
 }
 
 .welcomeSection {
@@ -225,7 +228,7 @@ ion-accordion {
     position: absolute;
     bottom: -0.8rem;
     left: 0;
-    width: 100px;
+    width: 200px;
     height: 3px;
     background: var(--ion-color-gradient);
   
@@ -527,7 +530,7 @@ div.MuiScopedCssBaseline-root > .MuiBox-root > .MuiBox-root {
   backdrop-filter: none;
 }
 div.MuiScopedCssBaseline-root {
-  background: rgb(19 19 19 / 40%)!important;
+  background: var(--ion-background-color)!important;
   -webkit-backdrop-filter: blur(10px)!important;
   backdrop-filter: blur(10px)!important;
 }
