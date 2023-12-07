@@ -25,6 +25,12 @@ export interface IChain {
   type: 'evm'|'cosmos'|'bitcoin'|'solana'|'polkadot';
 };
 
+const CHAINS_DISABLED = [
+  NETWORK.cosmos,
+  NETWORK.avalanche,
+  NETWORK.polkadot,
+]
+
 export const CHAIN_AVAILABLES: IChain[] = [
   {
     id: NETWORK.mainnet,
@@ -166,7 +172,12 @@ export const CHAIN_AVAILABLES: IChain[] = [
     name: 'Bitcoin',
     value: 'bitcoin',
     nativeSymbol: 'BTC',
-    rpcUrl: 'https://rpc.coinsdo.net/btc',
+    rpcUrl: [
+      {url: '84-30-190-204.cable.dynamic.v4.ziggo.nl', primary: false},
+      {url: 'https://rpc.coinsdo.net/btc', primary: true}
+    ].find(
+      (rpc) => rpc.primary
+    )?.url||'',
     type: 'bitcoin',
     logo: '/assets/cryptocurrency-icons/btc.svg',
   },
@@ -184,7 +195,8 @@ export const CHAIN_AVAILABLES: IChain[] = [
     )?.url||'',
     type: 'solana',
   },
-];
+]
+.filter(c => !CHAINS_DISABLED.includes(c.id)) as IChain[];
 
 const NETWORK_DEFAULT = NETWORK.optimism;
 export const CHAIN_DEFAULT = CHAIN_AVAILABLES.find(c => c.id === NETWORK_DEFAULT) || {
