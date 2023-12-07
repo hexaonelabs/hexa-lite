@@ -57,7 +57,8 @@ const ShowUIButton = () => {
   ) : showButton ? (
     <IonButton
       expand="block"
-      fill="outline"
+      fill="clear"
+      size="small"
       style={{ marginBottom: "0.5rem" }}
       onClick={handleShowUI}
     >
