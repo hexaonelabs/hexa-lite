@@ -1,4 +1,6 @@
 module.exports = {
+  output: 'export',
+  distDir: 'build',
   basePath: '',
   swcMinify: true,
   transpilePackages: [
