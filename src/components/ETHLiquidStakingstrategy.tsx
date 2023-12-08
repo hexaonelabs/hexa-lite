@@ -182,10 +182,8 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
 
   return (
     <>
-      <IonCard
-        className={props.asImage ? "asImage" : "strategyCard"}
-        style={{ width: 300 }}>
-        <IonGrid style={{ width: "100%" }}>
+      <IonCard className={props.asImage ? "asImage" : "strategyCard"} >
+        <IonGrid>
           <IonRow class="ion-text-center ion-padding">
             <IonCol size="12" class="ion-padding">
               <IonImg

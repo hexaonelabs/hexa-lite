@@ -172,8 +172,8 @@ export function MATICLiquidStakingstrategyCard() {
 
   return (
     <>
-      <IonCard className="strategyCard" style={{ width: 300 }}>
-        <IonGrid style={{ width: "100%" }}>
+      <IonCard className="strategyCard">
+        <IonGrid>
           <IonRow class="ion-text-center ion-padding">
             <IonCol size="12" class="ion-padding">
               <IonImg
