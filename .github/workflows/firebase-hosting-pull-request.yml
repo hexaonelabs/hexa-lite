@@ -9,7 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: npm ci && npm run build
+      - run:  | 
+          touch .en.local
+          echo NEXT_PUBLIC_APP_ONBOARD_APIKEY=${{ secrets.NEXT_PUBLIC_APP_ONBOARD_APIKEY }} >> .env.local
+          echo NEXT_PUBLIC_APP_ANKR_APIKEY=${{ secrets.NEXT_PUBLIC_APP_ANKR_APIKEY }} >> .env.local
+          echo NEXT_PUBLIC_APP_VERSION=$npm_package_version >> .env.local
+          echo NEXT_PUBLIC_APP_BUILD_DATE=$(date +%Y-%m-%d) >> .env.local
+          echo NEXT_PUBLIC_APP_IS_PROD=true >> .env.local
+          npm ci && npm run build
         env:
           CI: false
       - uses: FirebaseExtended/action-hosting-deploy@v0
