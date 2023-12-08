@@ -148,11 +148,13 @@ export function SwapContainer() {
               Exchange with {chain?.name} network is not supported yet.
             </p>
           </IonText>
-          <IonButton onClick={async()=> {
-            await displayLoader();
-            await switchNetwork(CHAIN_DEFAULT.id);
-            await hideLoader();
-          }}>
+          <IonButton 
+            color="gradient"
+            onClick={async()=> {
+              await displayLoader();
+              await switchNetwork(CHAIN_DEFAULT.id);
+              await hideLoader();
+            }}>
             Switch to EVM Network
           </IonButton>
         </div>
