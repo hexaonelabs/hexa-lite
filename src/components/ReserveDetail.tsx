@@ -491,7 +491,9 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     />
                     <div className="ion-padding-start ion-hide-sm-down">
                       <h2>
-                        {reserve?.symbol}
+                        <b>
+                          {reserve?.symbol}
+                        </b>
                         <IonText color="medium">
                           <small style={{ display: "block" }}>
                             {
@@ -611,11 +613,13 @@ export function ReserveDetail(props: IReserveDetailProps) {
                       className="itemListDetails horizontalLineBottom ion-padding"
                     >
                       <IonLabel className="ion-padding-start ion-padding-top">
-                        My positions
+                        <b>
+                          My positions
+                        </b>
                       </IonLabel>
                       <IonList lines="none" className="ion-padding-vertical">
                         <IonItem lines="none">
-                          <IonLabel color="medium">
+                          <IonLabel>
                             Deposit
                           </IonLabel>
 
@@ -640,7 +644,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                         {reserve.borrowingEnabled && (
                           <>
                             <IonItem lines="none">
-                              <IonLabel color="medium" className="ion-padding-vertical">
+                              <IonLabel className="ion-padding-vertical">
                                 Debit
                               </IonLabel>
 
@@ -663,7 +667,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                               </div>
                             </IonItem>
                             <IonItem lines="none">
-                              <IonLabel color="medium">
+                              <IonLabel>
                                 Borrowing capacity
                               </IonLabel>
                               <div slot="end" className="ion-text-end">
@@ -703,8 +707,10 @@ export function ReserveDetail(props: IReserveDetailProps) {
                                 
                                 {(Number(userSummary?.availableBorrowsUSD) || 0) === 0 && (
                                     <>
-                                      <IonText>
-                                        Deposit collateral to enable borrowing capacity 
+                                      <IonText color="medium">
+                                        <small>
+                                          Deposit collateral to enable borrowing capacity 
+                                        </small>
                                         {/* <UseCrossChaineCollateralButton 
                                           onlyText={true}
                                           dismissPromptCrossModal={() => dismissPromptCrossModal(null, "enable-crosschain-collateral")}
@@ -725,18 +731,22 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     className="itemListDetails horizontalLineBottom ion-padding"
                   >
                     <IonLabel className="ion-padding-start ion-padding-top">
-                      Pool APYs <ApyDetail isDisplayAPYDef={true} />
+                      <b>
+                        Pool APYs <ApyDetail isDisplayAPYDef={true} />
+                      </b>
                     </IonLabel>
                     <IonList lines="none" className="ion-padding-vertical">
                       <IonItem lines="none">
-                        <IonLabel color="medium">
+                        <IonLabel>
                           Deposit APY
-                          <small style={{display: 'block'}}>
-                            Incentive rate that you earn
-                          </small>
+                          <IonText color="medium">
+                            <small style={{display: 'block'}}>
+                              Incentive rate that you earn
+                            </small>
+                          </IonText>
                         </IonLabel>
-                        <IonText slot="end">
-                          <span style={{ fontSize: "1.3rem" }}>
+                        <IonText className="ion-color-gradient-text" slot="end">
+                          <span style={{ fontSize: "1.3rem", fontWeight: 'bold' }}>
                             {(Number(reserve?.supplyAPY || 0) * 100).toFixed(2)}
                             %
                           </span>
@@ -744,14 +754,16 @@ export function ReserveDetail(props: IReserveDetailProps) {
                       </IonItem>
                       {reserve.borrowingEnabled && (borrowPoolRatioInPercent < 99) && (
                         <IonItem lines="none">
-                          <IonLabel color="medium">
+                          <IonLabel>
                             Borrow APY
-                            <small style={{display: 'block'}}>
-                              Interest rate that you pay
-                              </small>
+                            <IonText color={"medium"}>
+                              <small style={{display: 'block'}}>
+                                Interest rate that you pay
+                                </small>
+                            </IonText>
                           </IonLabel>
-                          <IonText slot="end">
-                            <span style={{ fontSize: "1.3rem" }}>
+                          <IonText className="ion-color-gradient-text" slot="end">
+                            <span style={{ fontSize: "1.3rem", fontWeight: 'bold' }}>
                               {(
                                 Number(reserve?.variableBorrowAPY || 0) * 100
                               ).toFixed(2)}
@@ -768,11 +780,13 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     className="itemListDetails horizontalLineBottom ion-padding"
                   >
                     <IonLabel className="ion-padding-start ion-padding-top">
-                      Pool informations
+                      <b>
+                        Pool informations
+                      </b>
                     </IonLabel>
                     <IonList lines="none" className="ion-padding-vertical">
-                      <IonItem lines="none">
-                        <IonLabel color="medium">Pool provider</IonLabel>
+                      <IonItem lines="none" className="ion-padding-bottom">
+                        <IonLabel>Pool provider</IonLabel>
                         <div
                           slot="end"
                           className="ion-text-end"
@@ -809,34 +823,36 @@ export function ReserveDetail(props: IReserveDetailProps) {
                           </IonAvatar>
                         </div>
                       </IonItem>
-                      <IonItem lines="none">
-                        <IonLabel color="medium">Deposit liquidity</IonLabel>
-                        <IonText slot="end">
-                          {getReadableAmount(
-                            valueToBigNumber(
-                              reserve.totalLiquidityUSD
-                            ).toNumber()
-                          )}
-                        </IonText>
-                      </IonItem>
-                      <IonItem lines="none">
-                        <IonLabel color="medium">
-                          Deposit capitalisation
-                        </IonLabel>
-                        <IonText slot="end">
-                          {getReadableAmount(Number(reserve.supplyCapUSD))}
-                        </IonText>
-                      </IonItem>
-                      <IonItem lines="none">
-                        <IonLabel color="medium">Deposit pool usage</IonLabel>
-                        <IonText slot="end">
-                          {`${supplyPoolRatioInPercent.toFixed(2)}%`}
-                        </IonText>
-                      </IonItem>
+                      <div className="ion-padding-bottom">
+                        <IonItem lines="none">
+                          <IonLabel>Deposit liquidity</IonLabel>
+                          <IonText slot="end">
+                            {getReadableAmount(
+                              valueToBigNumber(
+                                reserve.totalLiquidityUSD
+                              ).toNumber()
+                            )}
+                          </IonText>
+                        </IonItem>
+                        <IonItem lines="none">
+                          <IonLabel>
+                            Deposit capitalisation
+                          </IonLabel>
+                          <IonText slot="end">
+                            {getReadableAmount(Number(reserve.supplyCapUSD))}
+                          </IonText>
+                        </IonItem>
+                        <IonItem lines="none">
+                          <IonLabel>Deposit pool usage</IonLabel>
+                          <IonText slot="end">
+                            {`${supplyPoolRatioInPercent.toFixed(2)}%`}
+                          </IonText>
+                        </IonItem>
+                      </div>
                       {reserve.borrowingEnabled && (
                         <>
-                          <IonItem lines="none" style={{ "--background": "transparent" }}>
-                            <IonLabel color="medium">Debit liquidity</IonLabel>
+                          <IonItem lines="none" style={{ "--background": "transparent", marginTop: '0.5rem' }}>
+                            <IonLabel>Debit liquidity</IonLabel>
                             <IonText>
                               {getReadableAmount(Number(reserve.totalDebtUSD))}
                             </IonText>
@@ -845,7 +861,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                             lines="none"
                             style={{ "--background": "transparent" }}
                           >
-                            <IonLabel color="medium">
+                            <IonLabel>
                               Debit capitalisation
                             </IonLabel>
                             <IonText>
@@ -853,7 +869,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                             </IonText>
                           </IonItem>
                           <IonItem lines="none">
-                            <IonLabel color="medium">Debit pool usage</IonLabel>
+                            <IonLabel>Debit pool usage</IonLabel>
                             <IonText slot="end">
                               {`${borrowPoolRatioInPercent.toFixed(2)}%`}
                             </IonText>
