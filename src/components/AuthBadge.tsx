@@ -20,7 +20,7 @@ import {
 import {
   copyOutline,
   checkmark,
-  checkmarkCircleOutline,
+  checkmarkCircle,
   closeSharp,
 } from "ionicons/icons";
 import { useEffect, useState } from "react";
@@ -123,20 +123,23 @@ export const AuthBadge: React.FC<any> = () => {
         style={{ "--background": "transparent" }}
       >
         <IonAvatar slot="start">
-          <img src={avatarUrl} alt="avatar" />
+          <img src={chain.logo} alt="avatar" />
         </IonAvatar>
+
         <IonLabel style={{ margin: "0", lineHeight: "1rem" }}>
           <IonText color="medium" style={{ display: "block" }}>
             <small>{chain.name} Network</small>
           </IonText>
-          <IonText color="success">
+          <IonText color="success" style={{ 
+            display: "flex", 
+            alignItems: 'center',
+            padding: '0.15rem 0' }}>
             <IonIcon
               style={{
                 display: "inline-block",
-                verticalAlign: "top",
                 marginRight: "0.25rem",
               }}
-              src={checkmark}
+              src={checkmarkCircle}
             ></IonIcon>
             Connected
           </IonText>
