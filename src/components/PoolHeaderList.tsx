@@ -9,14 +9,14 @@ export function PoolHeaderList(props: IPoolHeaderListProps) {
   const { titles, colSize } = props;
 
   return (
-    <IonGrid>
+    <IonGrid className="poolHeaderList">
       <IonRow class="ion-align-items-center ion-justify-content-between">
         {titles.map((title, index) => {
           let Col = <IonCol key={index}>undefined</IonCol>;
           if (index === 0) {
             Col = (
               <IonCol key={index} size-md={colSize ? colSize : '3'} class="ion-padding-start">
-                <IonLabel color="medium">
+                <IonLabel>
                   <h3>
                     {title}
                   </h3>
@@ -31,7 +31,7 @@ export function PoolHeaderList(props: IPoolHeaderListProps) {
                 size-md="1"
                 class="ion-text-center ion-hide-md-down"
               >
-                <IonLabel color="medium">
+                <IonLabel>
                   <h3>{title}</h3>
                 </IonLabel>
               </IonCol>
@@ -44,7 +44,7 @@ export function PoolHeaderList(props: IPoolHeaderListProps) {
                 size-md="2" 
                 class="ion-hide-md-down ion-text-end"
               >
-                <IonLabel color="medium">
+                <IonLabel>
                   <h3 
                     style={{ 
                       marginRight: (index + 1 === titles.length ) 
