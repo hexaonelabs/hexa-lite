@@ -200,6 +200,20 @@ ion-accordion {
   }
 }
 
+.poolHeaderList {
+  background: rgba(0,0,0, 0.1)!important;
+  ion-label {
+    opacity: 0.3;
+  }
+}
+.marketFilters {
+  ion-col > *:not(ion-toggle) {
+    color: rgba(var(--ion-text-color-rgb),0.5);
+    background: rgba(0,0,0, 0.15);
+    border-radius: 10px;
+    padding: 0 0.3rem 0.3rem!important;
+  }
+}
 // ion-accordion-group {
 //   border: 1px solid var(--ion-border-color);
 //   border-radius: 32px;
@@ -282,6 +296,9 @@ ion-accordion {
 
 .strategyCard {
   height: 100%;
+  width: 100%;
+  min-width: 250px;
+  max-width: 360px;
   justify-content: space-between;
   display: flex;
   flex-direction: column;
@@ -293,6 +310,7 @@ ion-accordion {
     justify-content: space-between;
     align-items: stretch;
     align-content: center;
+    width: 100%;
   }
 }
 
@@ -409,7 +427,7 @@ ion-accordion {
   }
   *[slot="content"] {
     > ion-grid {
-      background: rgba(var(--ion-color-light-rgb), 0.6) !important;
+      background: rgba(0,0,0, 0.65) !important;
       margin: 0rem;
       padding: 0.5rem 0;
 
@@ -419,7 +437,7 @@ ion-accordion {
     }
 
     ion-item {
-      --background: rgba(var(--ion-color-light-rgb), 0.4) !important;
+      --background: rgba(0,0,0, 0.5) !important;
       --padding-top: 0.4rem;
       --padding-bottom: 0.4rem;
       --padding-start: 0;
