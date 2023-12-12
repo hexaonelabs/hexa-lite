@@ -24,6 +24,8 @@ import { useEffect, useState } from "react";
 import { MarketList } from "../components/MarketsList";
 import { currencyFormat } from "../utils/currency-format";
 import { useWeb3Provider } from "../context/Web3Context";
+import { A } from "@bgd-labs/aave-address-book/dist/AaveV2EthereumAMM-7c73b6ab";
+import { valueToBigNumber } from "@aave/math-utils";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -61,42 +63,40 @@ export const DefiContainer = ({
 }) => {
   console.log("[INFO] {{DefiContainer}} rendering...");
   const { walletAddress, assets } = useWeb3Provider();
-  const { poolGroups, totalTVL, refresh, userSummaryAndIncentivesGroup } =
+  const { poolGroups, totalTVL, refresh } =
     useAave();
   const [filterBy, setFilterBy] = useState<{ [key: string]: string } | null>(
     null
   );
-
-  const totalBorrowsUsd =
-    userSummaryAndIncentivesGroup
-      ?.map((summary) => Number(summary?.totalBorrowsUSD || 0))
-      .reduce((a, b) => a + b, 0) || 0;
-  const totalCollateralUsd =
-    userSummaryAndIncentivesGroup
-      ?.map((summary) => Number(summary?.totalCollateralUSD || 0))
-      .reduce((a, b) => a + b, 0) || 0;
+  
+  const totalBorrowsUsd = poolGroups
+    .map((pool) => valueToBigNumber(pool.totalBorrowBalance).multipliedBy(pool.priceInUSD).toFixed(2))
+    .map((amount) => Number(amount))
+    .reduce((a, b) => a + b, 0) || 0;
+  const totalCollateralUsd = poolGroups
+    .map((pool) => valueToBigNumber(pool.totalSupplyBalance).multipliedBy(pool.priceInUSD).toFixed(2))
+    .map((amount) => Number(amount))
+    .reduce((a, b) => a + b, 0) || 0;
 
   // The % of your total borrowing power used.
   // This is based on the amount of your collateral supplied (totalCollateralUSD) and the total amount that you can borrow (totalCollateralUSD - totalBorrowsUsd)
   // remove `currentLiquidationThreshold` present in the `userSummaryAndIncentivesGroup` response
-  const totalLiquidationThreshold =
-    (userSummaryAndIncentivesGroup
-      ?.filter(
-        (summary) => Number(summary?.currentLiquidationThreshold || 0) > 0
-      )
-      ?.map((summary) => Number(summary?.currentLiquidationThreshold || 0))
-      .reduce((a, b) => a + b, 0) || 0) /
-      ((
-        userSummaryAndIncentivesGroup?.filter(
-          (summary) => Number(summary?.currentLiquidationThreshold || 0) > 0
-        ) || []
-      )?.length || 0) || 0;
+  const poolGroupsWithUserLiquidationThresholdValue = poolGroups
+    .flatMap(({pools}) => pools)
+    .filter(
+        (pool) => pool.userLiquidationThreshold > 0
+    );
+  const totalLiquidationThreshold = poolGroupsWithUserLiquidationThresholdValue
+    .map((pool) =>pool.userLiquidationThreshold )
+    .reduce((a, b) => a + b, 0) / poolGroupsWithUserLiquidationThresholdValue.length;
 
   const totalBorrowableUsd = totalCollateralUsd * totalLiquidationThreshold;
   const percentBorrowingCapacity =
     100 - getPercent(totalBorrowsUsd, totalBorrowableUsd);
   const progressBarFormatedValue = percentBorrowingCapacity / 100;
   const totalAbailableToBorrow = totalBorrowableUsd - totalBorrowsUsd;
+
+  console.log("[INFO] {{DefiContainer}} poolGroups > ", poolGroups, poolGroupsWithUserLiquidationThresholdValue);
 
   useEffect(() => {}, []);
 
@@ -283,14 +283,48 @@ export const DefiContainer = ({
                         </IonCol>
                       </IonRow>
                     </IonGrid>
-                    {/* AAVE Protocol */}
-                    {userSummaryAndIncentivesGroup
-                      ?.filter(
-                        (summary) =>
-                          Number(summary.totalBorrowsUSD) > 0 ||
-                          Number(summary.totalCollateralUSD) > 0
+                    {/* Pools grouped by Protocol and Chain */}
+                    {poolGroups
+                      .filter(
+                        (group) =>
+                          Number(group.totalBorrowBalance) > 0
                       )
-                      ?.map((summary, index) => (
+                      .flatMap(({pools})=> pools)
+                      .reduce((acc, pool) => {
+                        // check if the pool is already in the array
+                        const index = acc.findIndex(
+                          (p) => p.chainId === pool.chainId && p.provider === pool.provider
+                        );
+                        if (index > -1) {
+                          // if it is, update the totalBorrowsUSD
+                          acc[index].totalBorrowsUSD = (
+                            Number(acc[index].totalBorrowsUSD) +
+                            Number(pool.borrowBalance)
+                          );
+                          // update the totalCollateralUSD
+                          acc[index].totalCollateralUSD = (
+                            Number(acc[index].totalCollateralUSD) +
+                            Number(pool.supplyBalance)
+                          );
+                        } else {
+                          // if it is not, add it to the array
+                          acc.push({
+                            chainId: pool.chainId,
+                            provider: pool.provider,
+                            totalCollateralUSD: pool.supplyBalance,
+                            totalBorrowsUSD: pool.borrowBalance,
+                            currentLiquidationThreshold: pool.userLiquidationThreshold,
+                          });
+                        }
+                        return [];
+                      }, [] as {
+                        chainId: number;
+                        provider: string;
+                        totalCollateralUSD: number;
+                        totalBorrowsUSD: number;
+                        currentLiquidationThreshold: number;
+                      }[])
+                      .map((summary, index) => (
                         <IonItem
                           key={index}
                           lines="none"
@@ -308,7 +342,7 @@ export const DefiContainer = ({
                             style={{
                               paddingBottom:
                                 index ===
-                                userSummaryAndIncentivesGroup.length - 1
+                                poolGroups.length - 1
                                   ? "0"
                                   : "1rem",
                             }}

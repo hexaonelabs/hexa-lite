@@ -19,41 +19,39 @@ import { closeSharp } from "ionicons/icons";
 import { useRef, useState } from "react";
 import { getMaxAmount } from "../utils/getMaxAmount";
 import {
+  IMarketPool,
   IReserve,
   IUserSummary,
   ReserveDetailActionType,
 } from "../interfaces/reserve.interface";
 import { WarningBox } from "./WarningBox";
 import { CrosschainLoanForm } from "./CrosschainLoanForm";
+import { IAavePool } from "@/pool/Aave.pool";
 
 export function LoanFormModal({
   onDismiss,
-  selectedReserve,
-  userSummary,
+  selectedPool,
   isCrossChain,
 }: {
-  selectedReserve: {
+  selectedPool: {
     actionType: ReserveDetailActionType;
-    reserve: IReserve;
+    pool: IAavePool;
+    userSummary: IUserSummary;
   };
   isCrossChain?: boolean;
   onDismiss: (data?: string | null | undefined | number, role?: string) => void;
-  userSummary: IUserSummary;
 }) {
-  const { reserve, actionType } = selectedReserve || {
-    reserve: null,
-    actionType: null,
-  };
+  const { pool, actionType, userSummary } = selectedPool;
   const inputRef = useRef<HTMLIonInputElement>(null);
   const [isCrossChainEnabled, setIsCrossChainEnabled] = useState(isCrossChain);
   const [healthFactor, setHealthFactor] = useState<number | undefined>(
-    +userSummary.healthFactor
+    -1
   );
   const maxAmount = getMaxAmount(
     actionType,
-    reserve,
+    pool,
     userSummary,
-    reserve.chainId
+    pool.chainId
   );
   const displayRiskCheckbox =
     (actionType.toLocaleLowerCase() === "borrow" ||
@@ -70,7 +68,7 @@ export function LoanFormModal({
         <IonCol size="10">
           <h3>
             {isCrossChainEnabled ? "Crosschain " : null}
-            {readableAction} {!isCrossChainEnabled ? reserve.symbol : null}
+            {readableAction} {!isCrossChainEnabled ? pool.symbol : null}
           </h3>
         </IonCol>
         <IonCol size="2" class="ion-text-end">
@@ -83,7 +81,7 @@ export function LoanFormModal({
           </IonButton>
         </IonCol>
       </IonRow>
-      {isCrossChainEnabled && (
+      {/* {isCrossChainEnabled && (
         <CrosschainLoanForm
           reserve={reserve}
           userSummary={userSummary}
@@ -96,7 +94,7 @@ export function LoanFormModal({
             });
           }}
         />
-      )}
+      )} */}
       {!isCrossChainEnabled && (
         <>
           <IonRow className="ion-padding-top">
@@ -122,7 +120,7 @@ export function LoanFormModal({
                   }}
                 >
                   <IonAvatar>
-                    <IonImg src={reserve?.logo}></IonImg>
+                    <IonImg src={pool.logo}></IonImg>
                   </IonAvatar>
                   <div
                     className="ion-padding"
@@ -142,7 +140,7 @@ export function LoanFormModal({
                               ).plus(
                                 valueToBigNumber(
                                   inputRef.current?.value || 0
-                                ).times(reserve?.priceInUSD || 0)
+                                ).times(pool?.priceInUSD || 0)
                               ),
                             currentLiquidationThreshold:
                               userSummary.currentLiquidationThreshold,
@@ -158,7 +156,7 @@ export function LoanFormModal({
                     }}
                   >
                     <IonText>
-                      <h3 style={{ margin: " 0" }}>{reserve?.symbol}</h3>
+                      <h3 style={{ margin: " 0" }}>{pool.symbol}</h3>
                     </IonText>
                     <IonText color="medium">
                       <small style={{ margin: "0" }}>
@@ -192,7 +190,7 @@ export function LoanFormModal({
                             valueToBigNumber(userSummary.totalBorrowsUSD).plus(
                               valueToBigNumber(
                                 inputRef.current?.value || 0
-                              ).times(reserve?.priceInUSD || 0)
+                              ).times(pool?.priceInUSD || 0)
                             ),
                           currentLiquidationThreshold:
                             userSummary.currentLiquidationThreshold,

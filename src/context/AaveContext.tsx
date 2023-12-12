@@ -28,6 +28,8 @@ import { getTotalSupplyBalanceBySymbol } from "../utils/getTotalSupplyBalanceByS
 import { getTotalBorrowBalanceBySymbol } from "../utils/getTotalBorrowBalanceBySymbol";
 import { getAssetFromAllNetwork } from "../utils/getAssetFromAllNetwork";
 import { useWeb3Provider } from "./Web3Context";
+import { MarketPool } from "@/pool/Market.pool";
+import { AavePool } from "@/pool/Aave.pool";
 
 export type ComputedReserveData = ReturnType<
   typeof formatReservesAndIncentives
@@ -54,7 +56,7 @@ const stub = (): never => {
 // Define the type for the AAVE context.
 type AaveContextType = {
   markets: MARKETTYPE[] | null;
-  poolGroups: IPoolGroup[] | null;
+  poolGroups: IPoolGroup[];
   userSummaryAndIncentivesGroup: IUserSummary[] | null;
   totalTVL: number | null;
   refresh: (type?: 'init'|'userSummary') => Promise<void>;
@@ -78,8 +80,7 @@ export const useAave = () => useContext(AaveContext);
 export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   const currentTimestamp = dayjs().unix(); // useCurrentTimestamp(5);
   const [ state, setState ] = useState<AaveContextType>(AaveContextDefault);
-  const { assets, web3Provider, walletAddress } = useWeb3Provider();
-  const [ user, setUser ] = useState<string>(undefined as any);
+  const { assets, walletAddress } = useWeb3Provider();
 
   const init = async () => {
     console.log("[INFO] {{AaveProvider}} init context... ");
@@ -97,80 +98,96 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       }
     )
     .filter(Boolean) as MARKETTYPE[];
-    // looad pools from all available chains
-    let poolReserves: IReserve[] = [];
-    if (markets && markets.length > 0) {
-      console.log("[INFO] {{AaveProvider}} fetchPools... ");
-      const pools = await Promise.all(
-        markets.map((market) => getPools({ market, currentTimestamp }))
-      ).catch((error) => {
-        console.error("[ERROR] {{AaveProvider}} fetchPools: ", error);
-        return [];
-      });
-      console.log("[INFO] {{AaveProvider}} fetchPools done: ", { pools });
-      poolReserves = pools.flat() as IReserve[];
+    // load pools from all available chains
+    if (!markets || markets.length === 0) {
+      return;
     }
+    console.log("[INFO] {{AaveProvider}} fetchPools... ");
+    const reserves = await Promise.all(
+      markets.map((market) => getPools({ market, currentTimestamp }))
+    )
+    .then((r) => r.flat())
+    .catch((error) => {
+      console.error("[ERROR] {{AaveProvider}} fetchPools: ", error);
+      return [];
+    });
+    console.log("[INFO] {{AaveProvider}} fetchPools done: ", { reserves });
+
     // groups poolReserves by symbol (e.g. DAI, USDC, USDT, ...)
-    const poolGroups: IPoolGroup[] = poolReserves        
-      .filter(reserve => reserve.isFrozen === false && reserve.isActive === true && reserve.isPaused === false)
+    const poolGroups: IPoolGroup[] = reserves        
+      .filter(reserve => 
+        reserve.isFrozen === false 
+        && reserve.isActive === true 
+        && reserve.isPaused === false 
+      )
       .reduce((acc, reserve) => {
         const symbol = reserve.symbol;
         const chainId = +reserve.id.split("-")[0];
-        const borrowApy = reserve.borrowingEnabled
+        const borrowAPY = reserve
           ? Number(reserve.variableBorrowAPY)
           : 0;
-        const supplyApy = Number(reserve.supplyAPY);
-        /// TODO: implement balance value
+        const supplyAPY = Number(reserve.supplyAPY);
+        /// TODO: implement value
         const walletBalance = 0;
         const supplyBalance = 0;
         const borrowBalance = 0;
-        const newReserve: IReserve = {
+        const userLiquidationThreshold = -1;
+        const marketPool = MarketPool.create<AavePool>({
           ...reserve,
+          provider: 'aave-v3',
           logo: getAssetIconUrl({ symbol: reserve.symbol }),
           chainId,
+          borrowAPY,
+          supplyAPY,
           walletBalance,
           supplyBalance,
           borrowBalance,
-        };
+          userLiquidationThreshold
+        });
         const poolGroup = acc.find((r) => r.symbol === symbol);
         if (poolGroup) {
           // add reserve to existing reserves group
-          poolGroup.reserves.push(newReserve);
+          poolGroup.pools.push(marketPool);
           // check if chainId exist and add if not
           if (!poolGroup.chainIds.includes(chainId)) {
             poolGroup.chainIds.push(chainId);
           }
           // check if borrowApy is lower than topBorrowApy
-          if (borrowApy < poolGroup.topBorrowApy) {
-            poolGroup.topBorrowApy = borrowApy;
+          if (borrowAPY < poolGroup.topBorrowApy) {
+            poolGroup.topBorrowApy = borrowAPY;
           }
           // check if supplyApy is higher than topSupplyApy
-          if (supplyApy > poolGroup.topSupplyApy) {
-            poolGroup.topSupplyApy = supplyApy;
+          if (supplyAPY > poolGroup.topSupplyApy) {
+            poolGroup.topSupplyApy = supplyAPY;
           }
           // update totalBorrowBalance
-          poolGroup.totalBorrowBalance += Number(newReserve.borrowBalance);
+          poolGroup.totalBorrowBalance += Number(marketPool.borrowBalance);
           // update totalSupplyBalance
-          poolGroup.totalSupplyBalance += Number(newReserve.supplyBalance);
+          poolGroup.totalSupplyBalance += Number(marketPool.supplyBalance);
           // update totalWalletBalance
-          poolGroup.totalWalletBalance += Number(newReserve.walletBalance);
-          // update borrowingEnabled if is disable and newReserve is enabled
-          if (newReserve.borrowingEnabled && !poolGroup.borrowingEnabled) {
-            poolGroup.borrowingEnabled = newReserve.borrowingEnabled;
+          poolGroup.totalWalletBalance += Number(marketPool.walletBalance);
+          // update borrowingEnabled if is disable and marketPool is enabled
+          if (marketPool.borrowingEnabled && !poolGroup.borrowingEnabled) {
+            poolGroup.borrowingEnabled = marketPool.borrowingEnabled;
+          }
+          // add priceInUSD if not exist
+          if (!poolGroup.priceInUSD) {
+            poolGroup.priceInUSD = marketPool.priceInUSD;
           }
         } else {
           const newGroup: IPoolGroup = {
-            reserves: [newReserve],
+            pools: [marketPool],
             symbol,
-            name: reserve.name,
+            name: marketPool.name,
             chainIds: [chainId],
             logo: getAssetIconUrl({ symbol }),
-            topBorrowApy: borrowApy,
-            topSupplyApy: supplyApy,
-            borrowingEnabled: reserve.borrowingEnabled,
+            topBorrowApy: borrowAPY,
+            topSupplyApy: supplyAPY,
+            borrowingEnabled: marketPool.borrowingEnabled,
             totalBorrowBalance: borrowBalance,
             totalSupplyBalance: supplyBalance,
             totalWalletBalance: walletBalance,
+            priceInUSD: marketPool.priceInUSD,
           };
           acc.push(newGroup);
         }
@@ -186,7 +203,6 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
     setState((prev) => ({
       ...prev,
       markets,
-      poolReserves,
       poolGroups,
     }));
   };
@@ -194,20 +210,20 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   const loadUserSummary = async () => {
     console.log("[INFO] {{AaveProvider}} loadUserSummary... ");
     // load data from all available networks
-    if (user && state.markets && state.markets.length > 0) {
+    if (walletAddress && state.markets && state.markets.length > 0) {
       const userSummaryAndIncentivesGroup = await Promise.all(
         state.markets.map((market) =>
-          getUserSummaryAndIncentives({ market, currentTimestamp, user })
+          getUserSummaryAndIncentives({ market, currentTimestamp, user: walletAddress })
         )
       )
-        .then((r) => r as IUserSummary[])
-        .catch((error) => {
-          console.error(
-            "[ERROR] {{AaveProvider}} fetchUserSummaryAndIncentives: ",
-            error
-          );
-          return null;
-        });
+      .then((r) => r as IUserSummary[])
+      .catch((error) => {
+        console.error(
+          "[ERROR] {{AaveProvider}} fetchUserSummaryAndIncentives: ",
+          error
+        );
+        return null;
+      });
       console.log("[INFO] {{AaveProvider}} fetchUserSummaryAndIncentives: ", {
         userSummaryAndIncentivesGroup,
       });
@@ -239,30 +255,37 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
             return acc + asset.balance;
           }, 0) || 0;
           // implememnt `supplyBalance` and `borrowBalance` for each reserve from poolGroup
-          const reserves = poolGroup.reserves.map((reserve) => {
+          const pools = poolGroup.pools
+          .map((pool) => {
             const userReserve = userSummaryAndIncentivesGroup
-              .find((userSummary) => userSummary.chainId === reserve.chainId)
-              ?.userReservesData?.find((userReserve) => {
+              .find((userSummary) => userSummary.chainId === pool.chainId)
+              ?.userReservesData
+              ?.find((userReserve) => {
                 const {
                   reserve: { symbol },
                 } = userReserve;
-                if (symbol === reserve.symbol) {
+                if (symbol === pool.symbol) {
                   return userReserve.reserve;
                 }
                 return null;
               });
             const walletBalance = assetFromAllNetwork.find(
-              (asset) => asset.chain?.id === reserve.chainId 
-              && asset.contractAddress === reserve.underlyingAsset
+              (asset) => asset.chain?.id === pool.chainId 
+              && asset.contractAddress === pool.underlyingAsset
             )?.balance || 0;
+            // get `userLiquidationThreshold` from `userSummaryAndIncentivesGroup` Object
+            const userLiquidationThreshold = userSummaryAndIncentivesGroup
+            .find((userSummary) => userSummary.chainId === pool.chainId)?.currentLiquidationThreshold;
             // return `reserve` Object with `supplyBalance` and `borrowBalance` from `userReserve` Object
             // and `totalWalletBalance` from `userAssets` Object
-            return {
-              ...reserve,
+            return MarketPool.create<AavePool>({
+              ...pool,
+              provider: 'aave-v3',
               supplyBalance: Number(userReserve?.underlyingBalance) || 0,
               borrowBalance: Number(userReserve?.totalBorrows) || 0,
               walletBalance,
-            };
+              userLiquidationThreshold: Number(userLiquidationThreshold)
+            });
           })
           .sort((a, b) => {
             if (a.supplyBalance > b.supplyBalance) return -1;
@@ -270,14 +293,14 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
             if (a.borrowBalance > b.borrowBalance) return -1;
             if (a.borrowBalance < b.borrowBalance) return 1;
             return 0;
-          })
+          });
           const newState: IPoolGroup = {
             ...poolGroup,
             borrowingEnabled,
             totalBorrowBalance,
             totalSupplyBalance,
             totalWalletBalance,
-            reserves,
+            pools,
           };
           return newState;
         })
@@ -304,8 +327,8 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
         }));
         console.log("[INFO] {{AaveProvider}} loadUserSummary loaded " );
       }
-    } else if (!user && state.userSummaryAndIncentivesGroup) {
-      console.log("[INFO] {{AaveProvider}} loadUserSummary user not loged " );
+    } else if (!walletAddress && state.userSummaryAndIncentivesGroup) {
+      console.log("[INFO] {{AaveProvider}} loadUserSummary user not loged. Reset data state. " );
       setState((prev) => ({
         ...prev,
         userSummaryAndIncentivesGroup: null,
@@ -315,12 +338,6 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("[INFO] {{AaveProvider}} loadUserSummary nothing to do " );
     }
   };
-
-  useEffect(() => {
-    if (walletAddress) {
-      setUser((prev)=> (walletAddress));
-    }
-  }, [walletAddress]);
 
   useEffect(() => {
     init();
@@ -339,7 +356,7 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     loadUserSummary();
-  }, [user, state.markets]);
+  }, [walletAddress, state.markets]);
 
   return (
     <AaveContext.Provider

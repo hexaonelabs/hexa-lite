@@ -25,7 +25,7 @@ export function MarketList(props: {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
   const { handleSegmentChange, filterBy: filterFromParent } = props;
-  const { poolGroups, userSummaryAndIncentivesGroup } = useAave();
+  const { poolGroups } = useAave();
   const [filterBy, setFilterBy] = useState<{
     [key: string]: string;
   }|null>(
@@ -33,13 +33,13 @@ export function MarketList(props: {
   );
   const filterArgs = { ...filterFromParent, ...filterBy } ;
   // remove all group from `poolGroup` that not respect all filterBy argument
-  // and return only reserve pool that respect all filterBy argument
-  const groups = (poolGroups||[])
+  // and return only pool that respect all filterBy argument
+  const groups = poolGroups
     .map((group) => {
       const poolGroup = {
         ...group,
-        reserves: group.reserves
-        .filter(reserve => reserve.isFrozen === false && reserve.isActive === true && reserve.isPaused === false)
+        pools: group.pools
+        .filter(pool => pool.isFrozen === false && pool.isActive === true && pool.isPaused === false)
         .filter((pool: any) => {
           if (filterArgs) {
             return Object.keys(filterArgs).every((key) => {
@@ -68,7 +68,7 @@ export function MarketList(props: {
       };
       return poolGroup;
     })
-    .filter((group) => group.reserves.length > 0);
+    .filter((group) => group.pools.length > 0);
 
   return (
     <>
@@ -202,7 +202,6 @@ export function MarketList(props: {
               <PoolAccordionGroup
                 key={index}
                 poolGroup={poolGroup}
-                userSummaryAndIncentivesGroup={userSummaryAndIncentivesGroup}
                 handleSegmentChange={handleSegmentChange}
               />
             ))}

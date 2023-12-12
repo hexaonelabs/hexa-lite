@@ -10,14 +10,13 @@ import {
 } from "../constants/chains";
 import { getMaxAmountAvailableToWithdraw } from "./getMaxAmountAvailableToWithdraw";
 import { getMaxAmountAvailableToBorrow } from "./getMaxAmountAvailableToBorrow";
-import { IReserve, ReserveDetailActionType } from "../interfaces/reserve.interface";
+import { IUserSummary, ReserveDetailActionType } from "../interfaces/reserve.interface";
+import { IAavePool } from "@/pool/Aave.pool";
 
 export const getMaxAmount = (
   type: ReserveDetailActionType,
-  reserve: IReserve,
-  userSummary: FormatUserSummaryAndIncentivesResponse<
-    ReserveDataHumanized & FormatReserveUSDResponse
-  >,
+  reserve: IAavePool,
+  userSummary: IUserSummary,
   chainId: number
 ) => {
   let maxAmount = -1;

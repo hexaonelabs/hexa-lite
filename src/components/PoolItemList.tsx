@@ -23,34 +23,32 @@ import { useMemo, useRef, useState } from "react";
 import { useWeb3Provider } from "../context/Web3Context";
 
 interface IPoolItemListProps {
-  reserveId: string;
-  userSummary: IUserSummary | undefined;
+  poolId: string;
   chainId: number;
   iconSize: string;
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }
 export function PoolItemList(props: IPoolItemListProps) {
-  const { reserveId, iconSize, chainId, userSummary, handleSegmentChange } = props;
+  const { poolId, iconSize, chainId, handleSegmentChange } = props;
   const { walletAddress } = useWeb3Provider();
   const { markets, poolGroups } = useAave();
   const modal = useRef<HTMLIonModalElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // find reserve in `poolGroups[*].reserves` by `reserveId`
-  const reserve = useMemo(
+  // find pool in `poolGroups[*].pool` by `poolId`
+  const pool = useMemo(
     () => {
       return poolGroups
-      ?.find((pg) => pg.reserves.find((r) => r.id === reserveId))
-      ?.reserves.find((r) => r.id === reserveId) as IReserve;
+      .find((pg) => pg.pools.find((p) => p.id === poolId))?.pools.find((p) => p.id === poolId);
     },
-    [reserveId]
+    [poolId]
   );
-  
+  if (!pool) return null;
   return (
     <>
       <IonItem 
         lines="none" 
         onClick={() => {
-          console.log({reserve})
+          console.log({pool})
           setIsModalOpen(() => true);
         }}
       >
@@ -73,7 +71,7 @@ export function PoolItemList(props: IPoolItemListProps) {
                     minWidth: iconSize,
                   }}
                 >
-                  <IonImg src={reserve.logo}></IonImg>
+                  <IonImg src={pool.logo}></IonImg>
                 </IonAvatar>
                 <IonIcon
                   style={{
@@ -86,9 +84,8 @@ export function PoolItemList(props: IPoolItemListProps) {
                 ></IonIcon>
               </div>
               <IonLabel class="ion-padding-start">
-                {reserve?.symbol}
-                {(reserve?.usageAsCollateralEnabled === false ||
-                  reserve.isIsolated === true) && (
+                {pool?.symbol}
+                {(pool?.usageAsCollateralEnabled === false) && (
                   <IonIcon
                     icon={warningOutline}
                     color="warning"
@@ -103,7 +100,7 @@ export function PoolItemList(props: IPoolItemListProps) {
                     <IonText color="dark">
                       <br />
                       <small>
-                        Wallet balance: {Number(reserve.walletBalance)}
+                        Wallet balance: {Number(pool.walletBalance)}
                       </small>
                     </IonText>
                   )}
@@ -125,15 +122,15 @@ export function PoolItemList(props: IPoolItemListProps) {
             </IonCol>
             <IonCol size-md="2" class="ion-text-end ion-hide-md-down">
               <IonLabel>
-                {+reserve?.supplyBalance > 0
-                  ? (+reserve?.supplyBalance).toFixed(6)
+                {pool.supplyBalance > 0
+                  ? pool.supplyBalance.toFixed(6)
                   : "0.00"}
                 <br />
                 <IonText color="medium">
                   <small>
                     {getReadableAmount(
-                      +reserve?.supplyBalance,
-                      Number(reserve?.priceInUSD),
+                      pool.supplyBalance,
+                      Number(pool.priceInUSD),
                       "No deposit"
                     )}
                   </small>
@@ -142,18 +139,18 @@ export function PoolItemList(props: IPoolItemListProps) {
             </IonCol>
             <IonCol size="auto" size-md="2" class="ion-text-end ion-hide-md-down">
               <IonLabel>
-                {+reserve?.borrowBalance > 0
-                  ? (+reserve?.borrowBalance).toFixed(6)
-                  : reserve?.borrowingEnabled === false
+                {pool.borrowBalance > 0
+                  ? pool.borrowBalance.toFixed(6)
+                  : pool.borrowingEnabled === false
                   ? "-"
                   : "0.00"}
-                {reserve?.borrowingEnabled === true && (
+                {pool?.borrowingEnabled === true && (
                   <IonText color="medium">
                     <br />
                     <small>
                       {getReadableAmount(
-                        +reserve?.borrowBalance,
-                        Number(reserve?.priceInUSD),
+                        +pool?.borrowBalance,
+                        Number(pool?.priceInUSD),
                         "No debit"
                       )}
                     </small>
@@ -163,23 +160,23 @@ export function PoolItemList(props: IPoolItemListProps) {
             </IonCol>
             <IonCol size="auto" size-md="2" class="ion-text-end">
               <IonLabel>
-                {Number(reserve?.supplyAPY || 0) * 100 === 0
+                {Number(pool?.supplyAPY || 0) * 100 === 0
                   ? "0"
-                  : Number(reserve?.supplyAPY || 0) * 100 < 0.01
+                  : Number(pool?.supplyAPY || 0) * 100 < 0.01
                   ? "< 0.01"
-                  : (Number(reserve?.supplyAPY || 0) * 100).toFixed(2)}
+                  : (Number(pool?.supplyAPY || 0) * 100).toFixed(2)}
                 %
               </IonLabel>
             </IonCol>
             <IonCol size="auto" size-md="2" class="ion-text-end ion-hide-md-down">
               <IonLabel className="ion-padding-end">
-                {Number(reserve?.variableBorrowAPY || 0) * 100 === 0
-                  ? reserve?.borrowingEnabled === false
+                {Number(pool?.borrowAPY || 0) * 100 === 0
+                  ? pool?.borrowingEnabled === false
                     ? "- "
                     : `0%`
-                  : Number(reserve?.variableBorrowAPY || 0) * 100 < 0.01
+                  : Number(pool?.borrowAPY || 0) * 100 < 0.01
                   ? `< 0.01%`
-                  : (Number(reserve?.variableBorrowAPY || 0) * 100).toFixed(2) +
+                  : (Number(pool?.borrowAPY || 0) * 100).toFixed(2) +
                     "%"}
               </IonLabel>
             </IonCol>
@@ -203,8 +200,7 @@ export function PoolItemList(props: IPoolItemListProps) {
         onDidDismiss={() => setIsModalOpen(() => false)}
       >
         <ReserveDetail 
-          reserve={reserve}
-          userSummary={userSummary}
+          pool={pool}
           markets={markets?.find((m) => m.CHAIN_ID === chainId)}
           dismiss={() => modal.current?.dismiss()}
           handleSegmentChange={handleSegmentChange} />

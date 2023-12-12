@@ -13,30 +13,18 @@ import {
 } from "@ionic/react";
 import { getReadableAmount } from "../utils/getReadableAmount";
 import { useWeb3Provider } from "../context/Web3Context";
-import { useLoader } from "../context/LoaderContext";
-import { useState } from "react";
 import { PoolItemList } from "./PoolItemList";
-import { IPoolGroup, IUserSummary } from "../interfaces/reserve.interface";
+import { IPoolGroup } from "../interfaces/reserve.interface";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 
 interface IPoolAccordionProps {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
   poolGroup: IPoolGroup;
-  userSummaryAndIncentivesGroup: IUserSummary[]|null;
 }
 
 export function PoolAccordionGroup(props: IPoolAccordionProps) {
-  const { poolGroup, userSummaryAndIncentivesGroup, handleSegmentChange } = props;
-  const [state, setState] = useState<
-    | {
-        actionType: "deposit" | "withdraw" | "borrow" | "repay" | undefined;
-        maxAmount: number;
-      }
-    | undefined
-  >(undefined);
+  const { poolGroup, handleSegmentChange } = props;
   const { walletAddress } = useWeb3Provider();
-  const { display: displayLoader, hide: hideLoader } = useLoader();
-  
 
   return (
     <IonAccordion>
@@ -106,7 +94,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                   <small>
                     {getReadableAmount(
                       poolGroup.totalSupplyBalance,
-                      Number(poolGroup.reserves?.[0]?.priceInUSD),
+                      Number(poolGroup.pools?.[0]?.priceInUSD),
                       "No deposit"
                     )}
                   </small>
@@ -126,7 +114,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                     <small>
                       {getReadableAmount(
                         +poolGroup?.totalBorrowBalance,
-                        Number(poolGroup.reserves?.[0]?.priceInUSD),
+                        Number(poolGroup.pools?.[0]?.priceInUSD),
                         "No debit"
                       )}
                     </small>
@@ -215,12 +203,11 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
             {/* <IonCol size="1" className="ion-text-end"></IonCol> */}
           </IonRow>
         </IonGrid>
-        {poolGroup.reserves.map((r, i) => (
+        {poolGroup.pools.map((p, i) => (
           <PoolItemList
             key={i}
-            reserveId={r.id}
-            chainId={r.chainId}
-            userSummary={userSummaryAndIncentivesGroup?.find(s => s.chainId === r.chainId)}
+            poolId={p.id}
+            chainId={p.chainId}
             iconSize={"32px"}
             handleSegmentChange={handleSegmentChange}
           />

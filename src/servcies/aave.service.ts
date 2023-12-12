@@ -20,6 +20,7 @@ import {
 import { ChainId } from "@aave/contract-helpers";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
+import { IAavePool } from "@/pool/Aave.pool";
 
 const submitTransaction = async (ops: {
   provider: ethers.providers.Web3Provider; // Signing transactions requires a wallet provider
@@ -69,7 +70,7 @@ export const fetchTVL = async () => {
 
 export const supply = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: IReserve;
+  reserve: IAavePool;
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -109,7 +110,7 @@ export const supply = async (ops: {
 
 export const supplyWithPermit = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: IReserve;
+  reserve: IAavePool;
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -179,7 +180,7 @@ export const supplyWithPermit = async (ops: {
 
 export const withdraw = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: ReserveDataHumanized;
+  reserve: Pick<IAavePool, 'underlyingAsset' | 'aTokenAddress'>;
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -261,7 +262,7 @@ export const borrow = async (ops: {
 
 export const repay = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: ReserveDataHumanized;
+  reserve: {underlyingAsset: string;};
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
