@@ -78,7 +78,7 @@ export function MarketList(props: {
                 padding: 0,
                 margin: "0rem auto 1rem",
               }}>
-          <IonCol size="12" sizeMd="auto" class="ion-padding-horizontal">
+          <IonCol size="12" sizeMd="3" class="ion-padding-horizontal">
             <IonInput 
               label="Symbol" 
               labelPlacement="stacked"
@@ -158,7 +158,7 @@ export function MarketList(props: {
               <IonSelectOption value="AAVE">AAVE V3</IonSelectOption>
             </IonSelect>
           </IonCol>
-          <IonCol size="12" sizeMd="auto" class="ion-padding-horizontal">
+          <IonCol size="12" sizeMd="3" class="ion-padding-horizontal ion-text-end">
             <IonToggle 
               labelPlacement="start"
               aria-label="active"
