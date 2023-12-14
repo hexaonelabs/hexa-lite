@@ -10,7 +10,6 @@ export interface IAavePool extends IMarketPool {
   readonly reserveFactor: string;
   readonly usageAsCollateralEnabled: boolean;
   readonly borrowingEnabled: boolean;
-  readonly aTokenAddress: string;
   readonly availableLiquidity: string;
   readonly formattedAvailableLiquidity: string;
   readonly debtCeiling: string;
@@ -32,7 +31,6 @@ export class AavePool extends MarketPool implements IAavePool {
   public readonly reserveFactor: string;
   public readonly usageAsCollateralEnabled: boolean;
   public readonly borrowingEnabled: boolean;
-  public readonly aTokenAddress: string;
   public readonly availableLiquidity: string;
   public readonly formattedAvailableLiquidity: string;
   public readonly debtCeiling: string;
@@ -56,7 +54,6 @@ export class AavePool extends MarketPool implements IAavePool {
     this.usageAsCollateralEnabled = pool.usageAsCollateralEnabled;
     this.borrowingEnabled = pool.borrowingEnabled;
 
-    this.aTokenAddress = pool.aTokenAddress;
     this.availableLiquidity = pool.availableLiquidity;
     this.formattedAvailableLiquidity = pool.formattedAvailableLiquidity;
     this.debtCeiling = pool.debtCeiling;

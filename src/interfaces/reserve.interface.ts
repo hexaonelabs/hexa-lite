@@ -3,6 +3,7 @@ import { FormatReserveUSDResponse, FormatUserSummaryAndIncentivesResponse } from
 
 export interface IMarketPool {
       readonly id: string;
+      readonly aTokenAddress: string;
       readonly underlyingAsset: string;
       readonly name: string;
       readonly symbol: string;

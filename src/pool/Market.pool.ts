@@ -4,6 +4,7 @@ import { valueToBigNumber } from "@aave/math-utils";
 
 export abstract class MarketPool implements IMarketPool {
   readonly id: string;
+  readonly aTokenAddress: string;
   readonly underlyingAsset: string;
   readonly name: string;
   readonly symbol: string;
@@ -44,6 +45,7 @@ export abstract class MarketPool implements IMarketPool {
 
   constructor(pool: IMarketPool) {
     this.id = pool.id;
+    this.aTokenAddress = pool.aTokenAddress;
     this.underlyingAsset = pool.underlyingAsset;
     this.name = pool.name;
     this.symbol = pool.symbol;
