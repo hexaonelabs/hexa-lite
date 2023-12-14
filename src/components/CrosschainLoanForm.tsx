@@ -30,7 +30,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAave } from "../context/AaveContext";
 import { getReadableAmount } from "../utils/getReadableAmount";
 import { getMaxAmount } from "../utils/getMaxAmount";
-import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
+import { IUserSummary } from "../interfaces/reserve.interface";
 import {
   calculateHealthFactorFromBalancesBigUnits,
   valueToBigNumber,
@@ -40,6 +40,7 @@ import { getPercent } from "../utils/utils";
 import { WarningBox } from "./WarningBox";
 import { DangerBox } from "./DangerBox";
 import { useLoader } from "../context/LoaderContext";
+import { IAavePool } from "@/pool/Aave.pool";
 
 const isNumberKey = (evt: React.KeyboardEvent<HTMLIonInputElement>) => {
   var charCode = (evt.which) ? evt.which : evt.keyCode
@@ -49,10 +50,10 @@ const isNumberKey = (evt: React.KeyboardEvent<HTMLIonInputElement>) => {
 const requestQuote = async (ops: {
   web3Provider: ethers.providers.Web3Provider;
   selectedCollateral: Pick<
-    IReserve,
+    IAavePool,
     "chainId" | "aTokenAddress" | "decimals" | "priceInUSD"
   >;
-  newCollateral: Pick<IReserve, "chainId" | "aTokenAddress" | "priceInUSD">;
+  newCollateral: Pick<IAavePool, "chainId" | "aTokenAddress" | "priceInUSD">;
   inputFromAmount: number;
 }): Promise<LiFiQuoteResponse & { errors?: any; message?: string }> => {
   const {
@@ -112,8 +113,8 @@ const requestQuote = async (ops: {
  * @returns
  */
 const getBorrowAvailableAmountOfReserve = (ops: {
-  collateral: IReserve;
-  reserve: IReserve;
+  collateral: IAavePool;
+  reserve: IAavePool;
   quoteEstimateToAmount: number;
 }) => {
   const { collateral, reserve, quoteEstimateToAmount } = ops;
@@ -126,7 +127,7 @@ const getBorrowAvailableAmountOfReserve = (ops: {
 };
 
 export function CrosschainLoanForm(props: {
-  reserve: IReserve;
+  reserve: IAavePool;
   userSummary: IUserSummary;
   toggleCrosschainForm: () => void;
   onSubmit:(data?: string | null | undefined | number, role?:  "confirm" | "cancel") => void;
@@ -167,8 +168,8 @@ export function CrosschainLoanForm(props: {
   const [newCollateral, setNewCollateral] = useState(
     (poolGroups || [])
       ?.filter((p) => p.chainIds.includes(reserve.chainId))
-      ?.flatMap((p) => p.reserves)
-      ?.filter((r) => r.chainId === reserve.chainId)[0]
+      ?.flatMap((p) => p.pools)
+      ?.filter((r) => r.chainId === reserve.chainId)[0] as IAavePool
   );
   const [newCollateralAmount, setNewCollateralAmount] = useState(0);
   const [borrowAmount, setBorrowAmount] = useState(0);
@@ -179,22 +180,22 @@ export function CrosschainLoanForm(props: {
 
   const depositPoolsGroup = (poolGroups || [])
     ?.filter((p) => p.chainIds.includes(reserve.chainId))
-    ?.flatMap((p) => p.reserves)
+    ?.flatMap((p) => p.pools)
     ?.filter(
       (r) =>
         r.chainId === reserve.chainId &&
-        !r.isIsolated &&
+        !(r as any)?.isIsolated &&
         getPercent(
           valueToBigNumber(r.totalLiquidityUSD).toNumber(),
           valueToBigNumber(r.supplyCapUSD).toNumber()
         ) < 99
-    );
+    ) as IAavePool[];
   const maxAmount = selectedCollateral?.id
     ? getMaxAmount(
         "withdraw",
         poolGroups
-          ?.map((p) => p.reserves.find((r) => r.id === selectedCollateral.id))
-          .filter(Boolean)[0] as IReserve,
+          ?.map((p) => p.pools.find((r) => r.id === selectedCollateral.id))
+          .filter(Boolean)[0] as IAavePool,
         userSummaryAndIncentivesGroup?.find((summary) =>
           summary.userReservesData.find(
             (r) => r.reserve.id === selectedCollateral.id
@@ -291,7 +292,7 @@ export function CrosschainLoanForm(props: {
     setIsLoading(() => false);
   };
 
-  const handleNewCollateralChange = async (r: IReserve) => {
+  const handleNewCollateralChange = async (r: IAavePool) => {
     setNewCollateral(() => r);
     setNewCollateralAmount(() => 0);
     setBorrowAmount(() => 0);
@@ -651,7 +652,7 @@ export function CrosschainLoanForm(props: {
                   <IonText color="medium">
                     <small style={{ margin: "0" }}>
                       APY :{" "}
-                      {(Number(reserve?.variableBorrowAPY || 0) * 100).toFixed(
+                      {(Number(reserve?.borrowAPY || 0) * 100).toFixed(
                         2
                       )}
                       %
