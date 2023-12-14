@@ -200,18 +200,28 @@ ion-accordion {
   }
 }
 
-.poolHeaderList {
-  background: rgba(0, 0, 0, 0.65) !important;
-  ion-label {
-    opacity: 0.6;
-  }
-}
 .marketFilters {
   ion-col > *:not(ion-toggle) {
     color: rgba(var(--ion-text-color-rgb),0.5);
-    background: rgba(0,0,0, 0.15);
+    background: rgba(0,0,0, 0.1);
     border-radius: 10px;
     padding: 0 0.3rem 0.3rem!important;
+  }
+  ion-toggle {
+    font-size: 0.8rem;
+    padding: 0.25rem 0;
+  }
+}
+.poolHeaderList {
+  border-top: solid 1px var(--ion-border-color);
+  border-bottom: solid 1px var(--ion-border-color);
+  ion-label {
+    opacity: 0.6;
+    h3 {
+      font-size: 0.8rem;
+      padding: 0.25rem 0.15rem;
+      white-space: nowrap;
+    }
   }
 }
 // ion-accordion-group {

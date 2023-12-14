@@ -26,6 +26,7 @@ import { currencyFormat } from "../utils/currency-format";
 import { useWeb3Provider } from "../context/Web3Context";
 import { A } from "@bgd-labs/aave-address-book/dist/AaveV2EthereumAMM-7c73b6ab";
 import { valueToBigNumber } from "@aave/math-utils";
+import { getReadableAmount } from "@/utils/getReadableAmount";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -285,38 +286,40 @@ export const DefiContainer = ({
                     </IonGrid>
                     {/* Pools grouped by Protocol and Chain */}
                     {poolGroups
-                      .filter(
-                        (group) =>
-                          Number(group.totalBorrowBalance) > 0
-                      )
                       .flatMap(({pools})=> pools)
+                      .filter(pool => pool.borrowBalance > 0 || pool.supplyBalance > 0)
                       .reduce((acc, pool) => {
                         // check if the pool is already in the array
                         const index = acc.findIndex(
                           (p) => p.chainId === pool.chainId && p.provider === pool.provider
                         );
+                        const totalBorrowsUSD = Number(valueToBigNumber(
+                          pool.borrowBalance).multipliedBy(pool.priceInUSD));
+                        const totalCollateralUSD = Number(valueToBigNumber(
+                          pool.supplyBalance).multipliedBy(pool.priceInUSD));
+                        
                         if (index > -1) {
                           // if it is, update the totalBorrowsUSD
                           acc[index].totalBorrowsUSD = (
                             Number(acc[index].totalBorrowsUSD) +
-                            Number(pool.borrowBalance)
+                            totalBorrowsUSD
                           );
                           // update the totalCollateralUSD
                           acc[index].totalCollateralUSD = (
                             Number(acc[index].totalCollateralUSD) +
-                            Number(pool.supplyBalance)
+                            totalCollateralUSD
                           );
                         } else {
                           // if it is not, add it to the array
                           acc.push({
                             chainId: pool.chainId,
                             provider: pool.provider,
-                            totalCollateralUSD: pool.supplyBalance,
-                            totalBorrowsUSD: pool.borrowBalance,
+                            totalCollateralUSD,
+                            totalBorrowsUSD,
                             currentLiquidationThreshold: pool.userLiquidationThreshold,
                           });
                         }
-                        return [];
+                        return acc;
                       }, [] as {
                         chainId: number;
                         provider: string;
@@ -333,7 +336,7 @@ export const DefiContainer = ({
                             setFilterBy((s) => ({
                               ...s,
                               chainId: summary.chainId.toString(),
-                              protocol: "AAVE",
+                              protocol: summary.provider,
                             }));
                           }}
                         >

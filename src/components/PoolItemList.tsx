@@ -21,6 +21,7 @@ import { ReserveDetail } from "./ReserveDetail";
 import { useAave } from "../context/AaveContext";
 import { useMemo, useRef, useState } from "react";
 import { useWeb3Provider } from "../context/Web3Context";
+import { SymbolIcon } from "./SymbolIcon";
 
 interface IPoolItemListProps {
   poolId: string;
@@ -62,27 +63,11 @@ export function PoolItemList(props: IPoolItemListProps) {
                 alignContent: "center",
               }}
             >
-              <div>
-                <IonAvatar
-                  style={{
-                    height: iconSize,
-                    width: iconSize,
-                    minHeight: iconSize,
-                    minWidth: iconSize,
-                  }}
-                >
-                  <IonImg src={pool.logo}></IonImg>
-                </IonAvatar>
-                <IonIcon
-                  style={{
-                    fontSize: "0.8rem",
-                    transform: "translateX(-0.2rem)",
-                    position: "absolute",
-                    bottom: "0.15rem",
-                  }}
-                  src={CHAIN_AVAILABLES.find((c) => c.id === chainId)?.logo}
-                ></IonIcon>
-              </div>
+              <SymbolIcon  
+                symbol={pool.symbol}
+                chainId={pool.chainId}
+                iconSize={iconSize}
+                />
               <IonLabel class="ion-padding-start">
                 {pool?.symbol}
                 {(pool?.usageAsCollateralEnabled === false) && (
