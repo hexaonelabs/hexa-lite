@@ -8,9 +8,9 @@ jobs:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
     runs-on: ubuntu-latest
     steps:
-      - name: get-npm-version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@v1.3.1
+      - name: Extract NPM version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.2.1
         
       - name: "Set current date as env variable"
         run: |
@@ -22,7 +22,7 @@ jobs:
           touch .env.local
           echo NEXT_PUBLIC_APP_ONBOARD_APIKEY=${{ secrets.NEXT_PUBLIC_APP_ONBOARD_APIKEY }} >> .env.local
           echo NEXT_PUBLIC_APP_ANKR_APIKEY=${{ secrets.NEXT_PUBLIC_APP_ANKR_APIKEY }} >> .env.local
-          echo NEXT_PUBLIC_APP_VERSION=${{ steps.package-version.outputs.current-version}} >> .env.local
+          echo NEXT_PUBLIC_APP_VERSION=${{ steps.extract_version.outputs.version }} >> .env.local
           echo NEXT_PUBLIC_APP_BUILD_DATE=${{ steps.version.outputs.builddate }} >> .env.local
           echo NEXT_PUBLIC_APP_IS_PROD=true >> .env.local
           npm ci && npm run build
