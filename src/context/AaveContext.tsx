@@ -103,14 +103,27 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     console.log("[INFO] {{AaveProvider}} fetchPools... ");
-    const reserves = await Promise.all(
-      markets.map((market) => getPools({ market, currentTimestamp }))
-    )
-    .then((r) => r.flat())
-    .catch((error) => {
-      console.error("[ERROR] {{AaveProvider}} fetchPools: ", error);
-      return [];
-    });
+    const reserves = [];
+    for (let i = 0; i < markets.length; i++) {
+      const market = markets[i];
+      const pools = await getPools({ market, currentTimestamp })
+      .then((r) => r.flat())
+      .catch((error) => {
+        console.error("[ERROR] {{AaveProvider}} fetchPools: ", error);
+        return [];
+      });
+      console.log(`>>>> reserve: `, market, pools);
+      
+      reserves.push(...pools);
+    }
+    // const reserves = await Promise.all(
+    //   markets.map((market) => getPools({ market, currentTimestamp }))
+    // )
+    // .then((r) => r.flat())
+    // .catch((error) => {
+    //   console.error("[ERROR] {{AaveProvider}} fetchPools: ", error);
+    //   return [];
+    // });
     console.log("[INFO] {{AaveProvider}} fetchPools done: ", { reserves });
 
     // groups poolReserves by symbol (e.g. DAI, USDC, USDT, ...)

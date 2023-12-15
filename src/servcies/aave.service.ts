@@ -330,9 +330,8 @@ export const getPools = async (ops: {
 }) => {
   const { market, currentTimestamp } = ops;
   const chainId = market.CHAIN_ID;
-  const provider = new ethers.providers.JsonRpcProvider(
-    CHAIN_AVAILABLES.find((c) => c.id === chainId)?.rpcUrl||''
-  );
+  const rpcUrl = CHAIN_AVAILABLES.find((c) => c.id === chainId)?.rpcUrl||'';
+  const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
   // View contract used to fetch all reserves data (including market base currency data), and user reserves
   const poolDataProviderContract = new UiPoolDataProvider({
     uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,

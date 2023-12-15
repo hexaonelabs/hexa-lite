@@ -96,8 +96,8 @@ export const CHAIN_AVAILABLES: IChain[] = [
     nativeSymbol: 'ARB',
     logo: '/assets/icons/arb.svg',
     rpcUrl: [
-      {primary: true, url: 'https://arbitrum.llamarpc.com'}, 
-      {primary: false, url: "https://rpc.ankr.com/arbitrum_one"}
+      {primary: false, url: 'https://arbitrum.llamarpc.com'}, 
+      {primary: true, url: "https://rpc.ankr.com/arbitrum_one"}
     ].find(
       (rpc) => rpc.primary
     )?.url||'',
