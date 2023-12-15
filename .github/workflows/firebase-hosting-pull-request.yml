@@ -8,17 +8,19 @@ jobs:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
     runs-on: ubuntu-latest
     steps:
-      - name: Extract NPM version
-        id: extract_version
-        uses: Saionaro/extract-package-version@v1.2.1
-        
       - name: "Set current date as env variable"
         run: |
           echo "builddate=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
         id: version  # this is used on variable path
 
       - uses: actions/checkout@v3
-      - run:  | 
+      
+      - name: Extract NPM version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.2.1
+        
+      - name: Set Environement and Build
+        run:  | 
           touch .env.local
           echo NEXT_PUBLIC_APP_ONBOARD_APIKEY=${{ secrets.NEXT_PUBLIC_APP_ONBOARD_APIKEY }} >> .env.local
           echo NEXT_PUBLIC_APP_ANKR_APIKEY=${{ secrets.NEXT_PUBLIC_APP_ANKR_APIKEY }} >> .env.local
@@ -28,6 +30,7 @@ jobs:
           npm ci && npm run build
         env:
           CI: false
+
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
