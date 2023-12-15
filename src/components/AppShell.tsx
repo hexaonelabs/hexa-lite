@@ -122,7 +122,7 @@ const AppShell = () => {
                   opacity: 0.4
                 }}>
                   <small>
-                    {`HexaLite v${process.env.NEXT_PUBLIC_APP_VERSION}`}
+                    {`HexaLite v${process.env.NEXT_PUBLIC_APP_VERSION} - ${process.env.NEXT_PUBLIC_APP_BUILD_DATE}`}
                   </small>
                 </div>
               )}
