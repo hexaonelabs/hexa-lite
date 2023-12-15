@@ -8,13 +8,22 @@ jobs:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
     runs-on: ubuntu-latest
     steps:
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+        
+      - name: "Set current date as env variable"
+        run: |
+          echo "builddate=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+        id: version  # this is used on variable path
+
       - uses: actions/checkout@v3
       - run:  | 
           touch .env.local
           echo NEXT_PUBLIC_APP_ONBOARD_APIKEY=${{ secrets.NEXT_PUBLIC_APP_ONBOARD_APIKEY }} >> .env.local
           echo NEXT_PUBLIC_APP_ANKR_APIKEY=${{ secrets.NEXT_PUBLIC_APP_ANKR_APIKEY }} >> .env.local
-          echo NEXT_PUBLIC_APP_VERSION=$npm_package_version >> .env.local
-          echo NEXT_PUBLIC_APP_BUILD_DATE=$(date +%Y-%m-%d) >> .env.local
+          echo NEXT_PUBLIC_APP_VERSION=${{ steps.package-version.outputs.current-version}} >> .env.local
+          echo NEXT_PUBLIC_APP_BUILD_DATE=${{ steps.version.outputs.builddate }} >> .env.local
           echo NEXT_PUBLIC_APP_IS_PROD=true >> .env.local
           npm ci && npm run build
         env:
