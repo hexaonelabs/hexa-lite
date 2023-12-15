@@ -6,8 +6,8 @@ import { useContext, createContext, useState, useEffect } from "react";
 import { useAave } from "./AaveContext";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { getBaseAPRstETH } from "../servcies/lido.service";
-import { IReserve } from "../interfaces/reserve.interface";
 import { NETWORK } from "../constants/chains";
+import { IAavePool } from "@/pool/Aave.pool";
 
 export type EthOptimizedContextType = {
   maxLeverageFactor: number;
@@ -34,7 +34,7 @@ export type EthOptimizedContextType = {
     title:string;
     description: string;
     protocol: string
-    reserve?: (ReserveDataHumanized & FormatReserveUSDResponse);
+    reserve?: IAavePool;
     }[]
 };
 
@@ -90,13 +90,13 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
   const userSummaryAndIncentives = userSummaryAndIncentivesGroup?.find(p => p.chainId === NETWORK.optimism);
   // find `wstETH` and `WETH` reserves from AAVE `poolReserves`
   const poolReserveWSTETH = poolGroups
-    ?.find(p => p.symbol === 'wstETH')?.reserves
-    ?.find((r: IReserve) => r.chainId === NETWORK.optimism);
+    ?.find(p => p.symbol === 'wstETH')?.pools
+    ?.find((r) => r.chainId === NETWORK.optimism) as IAavePool;
   const poolReserveWETH =  poolGroups
-    ?.find(p => p.symbol === 'WETH')?.reserves
-    ?.find((r: IReserve) => r.chainId === NETWORK.optimism);
+    ?.find(p => p.symbol === 'WETH')?.pools
+    ?.find((r) => r.chainId === NETWORK.optimism) as IAavePool;
   // calcul apr using `baseAPRstETH` and `poolReserveWETH.variableBorrowAPR * 100`
-  const diffAPR = baseAPRstETH - Number(poolReserveWETH?.variableBorrowAPR||0) * 100;
+  const diffAPR = baseAPRstETH - Number(poolReserveWETH?.borrowAPY||0) * 100;
   
   const userLiquidationThreshold =  Number(userSummaryAndIncentives?.currentLiquidationThreshold||0) > 0 
   ? Number(userSummaryAndIncentives?.currentLiquidationThreshold||0)
@@ -104,7 +104,7 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
   
   const maxLeverageFactor = getMaxLeverageFactor(userLiquidationThreshold);
   const DEFAULT_MAX_APY = 14.02;
-  const superMaxAPRstETH = ((baseAPRstETH * (maxLeverageFactor)) - (Number(poolReserveWETH?.variableBorrowAPR||0) * 100)) || DEFAULT_MAX_APY;
+  const superMaxAPRstETH = ((baseAPRstETH * (maxLeverageFactor)) - (Number(poolReserveWETH?.borrowAPY||0) * 100)) || DEFAULT_MAX_APY;
   
   useEffect(() => {
     setState((prev) => ({
@@ -142,7 +142,7 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
           title: 'Deposit wstETH as collateral',
           description: `By deposit wstETH as collateral on AAVE you will be able to borrow up to ${userLiquidationThreshold*100}% of your wstETH value in WETH`,
           protocol: 'aave',
-          reserve: poolReserveWSTETH as (ReserveDataHumanized & FormatReserveUSDResponse),
+          reserve: poolReserveWSTETH,
         }, {
           type: 'borrow',
           from: 'WETH',
@@ -150,7 +150,7 @@ export const EthOptimizedStrategyProvider = ({ children }: { children: React.Rea
           title: 'Borrow WETH',
           description: `By borrowing WETH on AAVE you will be able to increase your WETH holdings and use it for laverage stacking with wstETH APY reward.`,
           protocol: 'aave',
-          reserve: poolReserveWETH as (ReserveDataHumanized & FormatReserveUSDResponse),
+          reserve: poolReserveWETH,
         }
       ]
     }));
