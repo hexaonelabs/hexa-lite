@@ -64,7 +64,7 @@ export const DefiContainer = ({
 }) => {
   console.log("[INFO] {{DefiContainer}} rendering...");
   const { walletAddress, assets } = useWeb3Provider();
-  const { poolGroups, totalTVL, refresh } =
+  const { poolGroups, totalTVL, refresh, userSummaryAndIncentivesGroup } =
     useAave();
   const [filterBy, setFilterBy] = useState<{ [key: string]: string } | null>(
     null
@@ -74,11 +74,14 @@ export const DefiContainer = ({
     .map((pool) => valueToBigNumber(pool.totalBorrowBalance).multipliedBy(pool.priceInUSD).toFixed(2))
     .map((amount) => Number(amount))
     .reduce((a, b) => a + b, 0) || 0;
-  const totalCollateralUsd = poolGroups
+  const totalSupplyUsd = poolGroups
     .map((pool) => valueToBigNumber(pool.totalSupplyBalance).multipliedBy(pool.priceInUSD).toFixed(2))
     .map((amount) => Number(amount))
     .reduce((a, b) => a + b, 0) || 0;
-
+  const totalCollateralUsd =
+    userSummaryAndIncentivesGroup
+      ?.map((summary) => Number(summary?.totalCollateralUSD || 0))
+      .reduce((a, b) => a + b, 0) || 0;
   // The % of your total borrowing power used.
   // This is based on the amount of your collateral supplied (totalCollateralUSD) and the total amount that you can borrow (totalCollateralUSD - totalBorrowsUsd)
   // remove `currentLiquidationThreshold` present in the `userSummaryAndIncentivesGroup` response
@@ -89,7 +92,7 @@ export const DefiContainer = ({
     );
   const totalLiquidationThreshold = poolGroupsWithUserLiquidationThresholdValue
     .map((pool) =>pool.userLiquidationThreshold )
-    .reduce((a, b) => a + b, 0) / poolGroupsWithUserLiquidationThresholdValue.length;
+    .reduce((a, b) => a + b, 0) / poolGroupsWithUserLiquidationThresholdValue.length||0;
 
   const totalBorrowableUsd = totalCollateralUsd * totalLiquidationThreshold;
   const percentBorrowingCapacity =
@@ -97,7 +100,7 @@ export const DefiContainer = ({
   const progressBarFormatedValue = percentBorrowingCapacity / 100;
   const totalAbailableToBorrow = totalBorrowableUsd - totalBorrowsUsd;
 
-  console.log("[INFO] {{DefiContainer}} poolGroups > ", poolGroups, poolGroupsWithUserLiquidationThresholdValue);
+  console.log("[INFO] {{DefiContainer}} poolGroups > ", poolGroups, totalCollateralUsd);
 
   useEffect(() => {}, []);
 
@@ -158,13 +161,13 @@ export const DefiContainer = ({
                       size-md="4"
                       class=" ion-padding-vertical"
                     >
-                      <h3>{currencyFormat(+totalCollateralUsd)}</h3>
+                      <h3>{currencyFormat(totalSupplyUsd)}</h3>
                       <p>
                         DEPOSIT BALANCE
                         <IonText color="medium">
                           <br />
                           <small>
-                            Total of all collaterals used to borrow assets
+                            Total funds deposited as collateral to borrow
                           </small>
                         </IonText>
                       </p>
@@ -474,6 +477,8 @@ export const DefiContainer = ({
                                     background: "var(--ion-color-danger)",
                                     height: "0.2rem",
                                     marginTop: "0.25rem",
+                                    maxWidth: '250px',
+                                    display: 'inline-block'
                                   }}
                                 ></IonProgressBar>
                               </IonCol>
