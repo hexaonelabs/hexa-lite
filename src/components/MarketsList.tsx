@@ -16,6 +16,7 @@ import { PoolAccordionGroup } from "./PoolAccordionGroup";
 import { useAave } from "../context/AaveContext";
 import { useState } from "react";
 import { CHAIN_AVAILABLES } from "../constants/chains";
+import { IReserve } from "../interfaces/reserve.interface";
 
 export function MarketList(props: {
   filterBy?: {
@@ -24,20 +25,22 @@ export function MarketList(props: {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
   const { handleSegmentChange, filterBy: filterFromParent } = props;
-  const { poolGroups, userSummaryAndIncentivesGroup } = useAave();
+  const { poolGroups } = useAave();
   const [filterBy, setFilterBy] = useState<{
     [key: string]: string;
   }|null>(
     (filterFromParent as any)
   );
-  const filterArgs = { ...filterFromParent, ...filterBy };
+  const filterArgs = { ...filterFromParent, ...filterBy } ;
   // remove all group from `poolGroup` that not respect all filterBy argument
-  // and return only reserve pool that respect all filterBy argument
-  const groups = (poolGroups||[])
+  // and return only pool that respect all filterBy argument
+  const groups = poolGroups
     .map((group) => {
       const poolGroup = {
         ...group,
-        reserves: group.reserves.filter((pool: any) => {
+        pools: group.pools
+        .filter(pool => pool.isFrozen === false && pool.isActive === true && pool.isPaused === false)
+        .filter((pool: any) => {
           if (filterArgs) {
             return Object.keys(filterArgs).every((key) => {
               // value string if a boolean value
@@ -65,17 +68,17 @@ export function MarketList(props: {
       };
       return poolGroup;
     })
-    .filter((group) => group.reserves.length > 0);
+    .filter((group) => group.pools.length > 0);
 
   return (
     <>
       <IonGrid className="ion-no-padding ion-padding-vertical">
-        <IonRow class="ion-justify-content-between ion-align-items-center"
+        <IonRow class="ion-justify-content-between ion-align-items-center marketFilters"
               style={{
                 padding: 0,
                 margin: "0rem auto 1rem",
               }}>
-          <IonCol size="12" sizeMd="auto" class="ion-padding-horizontal">
+          <IonCol size="12" sizeMd="3" class="ion-padding-horizontal">
             <IonInput 
               label="Symbol" 
               labelPlacement="stacked"
@@ -119,7 +122,9 @@ export function MarketList(props: {
               }}
             >
               <IonSelectOption value="*">All</IonSelectOption>
-              {CHAIN_AVAILABLES.map((chain, index) => (
+              {CHAIN_AVAILABLES
+              .filter(chain => chain.type === 'evm')
+              .map((chain, index) => (
                 <IonSelectOption key={`option_chainId_${index}`} value={chain.id.toString()}>
                   {chain.name}
                 </IonSelectOption>
@@ -153,7 +158,7 @@ export function MarketList(props: {
               <IonSelectOption value="AAVE">AAVE V3</IonSelectOption>
             </IonSelect>
           </IonCol>
-          <IonCol size="12" sizeMd="auto" class="ion-padding-horizontal">
+          <IonCol size="12" sizeMd="3" class="ion-padding-horizontal ion-text-end">
             <IonToggle 
               labelPlacement="start"
               aria-label="active"
@@ -197,7 +202,6 @@ export function MarketList(props: {
               <PoolAccordionGroup
                 key={index}
                 poolGroup={poolGroup}
-                userSummaryAndIncentivesGroup={userSummaryAndIncentivesGroup}
                 handleSegmentChange={handleSegmentChange}
               />
             ))}
@@ -210,7 +214,7 @@ export function MarketList(props: {
             <IonCol size="12" class="ion-text-center">
               <IonText>
                 <p>
-                  <small>No available assets</small>
+                  <small>No available markets</small>
                 </p>
               </IonText>
             </IonCol>

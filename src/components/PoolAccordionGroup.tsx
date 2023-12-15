@@ -10,60 +10,21 @@ import {
   IonLabel,
   IonRow,
   IonText,
-  useIonModal,
 } from "@ionic/react";
-import { openOutline, warningOutline } from "ionicons/icons";
-import { useUser } from "../context/UserContext";
 import { getReadableAmount } from "../utils/getReadableAmount";
-import {
-  CircularProgressbarWithChildren,
-  buildStyles,
-} from "react-circular-progressbar";
-import {
-  FormatReserveUSDResponse,
-  FormatUserSummaryAndIncentivesResponse,
-  valueToBigNumber,
-} from "@aave/math-utils";
-import ConnectButton from "./ConnectButton";
-import { ReserveDataHumanized } from "@aave/contract-helpers";
-import { useEthersProvider } from "../context/Web3Context";
-import {
-  MARKETTYPE,
-  borrow,
-  repay,
-  supplyWithPermit,
-  withdraw,
-} from "../servcies/aave.service";
-import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
-import { useLoader } from "../context/LoaderContext";
-import { LoanFormModal } from "./LoanFormModal";
-import { getPercent } from "../utils/utils";
-import { useState } from "react";
-import { getMaxAmount } from "../utils/getMaxAmount";
+import { useWeb3Provider } from "../context/Web3Context";
 import { PoolItemList } from "./PoolItemList";
-import { IPoolGroup, IReserve, IUserSummary } from "../interfaces/reserve.interface";
-import { PoolHeaderList } from "./PoolHeaderList";
+import { IPoolGroup } from "../interfaces/reserve.interface";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 
 interface IPoolAccordionProps {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
   poolGroup: IPoolGroup;
-  userSummaryAndIncentivesGroup: IUserSummary[]|null;
 }
 
 export function PoolAccordionGroup(props: IPoolAccordionProps) {
-  const { poolGroup, userSummaryAndIncentivesGroup, handleSegmentChange } = props;
-  const [state, setState] = useState<
-    | {
-        actionType: "deposit" | "withdraw" | "borrow" | "repay" | undefined;
-        maxAmount: number;
-      }
-    | undefined
-  >(undefined);
-  const { user } = useUser();
-  const { ethereumProvider } = useEthersProvider();
-  const { display: displayLoader, hide: hideLoader } = useLoader();
-  
+  const { poolGroup, handleSegmentChange } = props;
+  const { walletAddress } = useWeb3Provider();
 
   return (
     <IonAccordion>
@@ -80,19 +41,19 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
             >
               <IonAvatar
                 style={{
-                  height: "56px",
-                  width: "56px",
-                  minHeight: "56px",
-                  minWidth: "56px",
+                  height: "64px",
+                  width: "64px",
+                  minHeight: "64px",
+                  minWidth: "64px",
                 }}
               >
                 <IonImg src={poolGroup.logo}></IonImg>
               </IonAvatar>
-              <IonLabel class="ion-padding-start">
+              <IonLabel class="ion-padding-start" style={{fontSize: "1.2rem"}}>
                 {poolGroup?.symbol}
                 <p>
                   <small>{poolGroup?.name}</small>
-                  {user && (
+                  {walletAddress && (
                     <IonText color="dark">
                       <br />
                       <small>
@@ -110,7 +71,8 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                 justifyContent: "center",
               }}
             >
-              {poolGroup.chainIds.map((id, i) => (
+              {poolGroup.chainIds
+              .map((id, i) => (
                 <IonIcon
                   key={i}
                   color="medium"
@@ -132,7 +94,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                   <small>
                     {getReadableAmount(
                       poolGroup.totalSupplyBalance,
-                      Number(poolGroup.reserves?.[0]?.priceInUSD),
+                      Number(poolGroup.pools?.[0]?.priceInUSD),
                       "No deposit"
                     )}
                   </small>
@@ -152,7 +114,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                     <small>
                       {getReadableAmount(
                         +poolGroup?.totalBorrowBalance,
-                        Number(poolGroup.reserves?.[0]?.priceInUSD),
+                        Number(poolGroup.pools?.[0]?.priceInUSD),
                         "No debit"
                       )}
                     </small>
@@ -160,8 +122,8 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                 )}
               </IonLabel>
             </IonCol>
-            <IonCol size="auto" size-md="2" class="ion-text-end">
-              <IonLabel>
+            <IonCol size="auto" size-md="2" class="ion-text-end ion-hide-sm-down">
+              <IonLabel style={{"fontSize": "1.2rem"}}>
                 {poolGroup.topSupplyApy * 100 === 0
                   ? "0"
                   : poolGroup.topSupplyApy * 100 < 0.01
@@ -171,7 +133,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
               </IonLabel>
             </IonCol>
             <IonCol size="2" class="ion-text-end ion-hide-sm-down">
-              <IonLabel>
+              <IonLabel style={{"fontSize": "1.2rem"}}>
                 {poolGroup?.topBorrowApy * 100 === 0
                   ? poolGroup?.borrowingEnabled === false
                     ? "- "
@@ -241,12 +203,11 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
             {/* <IonCol size="1" className="ion-text-end"></IonCol> */}
           </IonRow>
         </IonGrid>
-        {poolGroup.reserves.map((r, i) => (
+        {poolGroup.pools.map((p, i) => (
           <PoolItemList
             key={i}
-            reserveId={r.id}
-            chainId={r.chainId}
-            userSummary={userSummaryAndIncentivesGroup?.find(s => s.chainId === r.chainId)}
+            poolId={p.id}
+            chainId={p.chainId}
             iconSize={"32px"}
             handleSegmentChange={handleSegmentChange}
           />

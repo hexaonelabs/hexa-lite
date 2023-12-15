@@ -2,11 +2,9 @@ import {
   EthereumTransactionTypeExtended,
   InterestRate,
   Pool,
-  PoolBaseCurrencyHumanized,
   ReserveDataHumanized,
   UiIncentiveDataProvider,
   UiPoolDataProvider,
-  UserReserveData,
   WalletBalanceProvider,
 } from "@aave/contract-helpers";
 import { ethers } from "ethers";
@@ -16,13 +14,13 @@ import * as MARKETS from "@bgd-labs/aave-address-book";
 import {
   FormatReserveUSDResponse,
   formatReserves,
-  formatReservesAndIncentives,
   formatUserSummary,
   formatUserSummaryAndIncentives,
 } from "@aave/math-utils";
 import { ChainId } from "@aave/contract-helpers";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
+import { IAavePool } from "@/pool/Aave.pool";
 
 const submitTransaction = async (ops: {
   provider: ethers.providers.Web3Provider; // Signing transactions requires a wallet provider
@@ -72,7 +70,7 @@ export const fetchTVL = async () => {
 
 export const supply = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: IReserve;
+  reserve: IAavePool;
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -112,7 +110,7 @@ export const supply = async (ops: {
 
 export const supplyWithPermit = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: IReserve;
+  reserve: IAavePool;
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -182,7 +180,7 @@ export const supplyWithPermit = async (ops: {
 
 export const withdraw = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: ReserveDataHumanized;
+  reserve: Pick<IAavePool, 'underlyingAsset' | 'aTokenAddress'>;
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -264,7 +262,7 @@ export const borrow = async (ops: {
 
 export const repay = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: ReserveDataHumanized;
+  reserve: {underlyingAsset: string;};
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -304,23 +302,21 @@ export const repay = async (ops: {
 
 export const getMarkets = (chainId: number) => {
   switch (true) {
-    case chainId === 1:
+    case chainId === MARKETS.AaveV3Ethereum.CHAIN_ID:
       return MARKETS.AaveV3Ethereum;
-    case chainId === 5:
-      return MARKETS.AaveV3Goerli;
-    case chainId === 137:
+    case chainId === MARKETS.AaveV3Polygon.CHAIN_ID:
       return MARKETS.AaveV3Polygon;
-    case chainId === 80001:
+    case chainId === MARKETS.AaveV3Mumbai.CHAIN_ID:
       return MARKETS.AaveV3Mumbai;
-    case chainId === 43113:
+    case chainId === MARKETS.AaveV3Fuji.CHAIN_ID:
       return MARKETS.AaveV3Fuji;
-    case chainId === 42170:
+    case chainId === MARKETS.AaveV3Arbitrum.CHAIN_ID:
       return MARKETS.AaveV3Arbitrum;
-    case chainId === 421613:
+    case chainId === MARKETS.AaveV3ArbitrumGoerli.CHAIN_ID:
       return MARKETS.AaveV3ArbitrumGoerli;
-    case chainId === 10:
+    case chainId === MARKETS.AaveV3Optimism.CHAIN_ID:
       return MARKETS.AaveV3Optimism;
-    case chainId === 69:
+    case chainId === MARKETS.AaveV3Avalanche.CHAIN_ID:
       return MARKETS.AaveV3Avalanche;
     default:
       throw new Error(`ChainId ${chainId} not supported`);
@@ -692,7 +688,6 @@ export const supplyWithPermitAndContract = async (ops: {
 
 export type MARKETTYPE =
   | typeof MARKETS.AaveV3Ethereum
-  | typeof MARKETS.AaveV3Goerli
   | typeof MARKETS.AaveV3Polygon
   | typeof MARKETS.AaveV3Mumbai
   | typeof MARKETS.AaveV3Fuji

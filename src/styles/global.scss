@@ -4,6 +4,7 @@
 $font-family: 'Schibsted Grotesk', sans-serif;
 
 html, body, ion-content {
+  background: '#182449';
   background: var(--background-gradient);
   --background: var(--background-gradient);
 }
@@ -20,6 +21,10 @@ p {
   font-family: $font-family;
   font-size: 1rem;
 }
+
+[hidden=true] {
+  display: none!important;
+}
 /* You can add global styles to this file, and also import other style files */
 // global
 * {
@@ -27,14 +32,22 @@ p {
 }
 
 .header-background {
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px)!important;
+  backdrop-filter: blur(20px)!important;
 }
 
 // ion-segment-button {
 //   --background-checked: var(--ion-color-success);
 //   --color-checked: var(--ion-color-success-contrast);
 // }
+
+.connectedIcon {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 0.25rem;
+  -webkit-filter: drop-shadow(rgba(var(--ion-color-success), .7) 0px 0px 8px ); 
+  filter: drop-shadow(rgba(var(--ion-color-success-rgb), .7) 0px 0px 8px );
+}
 
 ion-segment {
   border-radius: 32px !important;
@@ -51,7 +64,9 @@ ion-segment-button{
   --indicator-color : rgba(var(--ion-color-primary-rgb), 0.08)!important; /* this solution */
 
   }
-
+ion-button.button-large {
+    --border-radius: 42px;
+  }
 ion-button {
   --border-radius: 32px;
 }
@@ -185,6 +200,30 @@ ion-accordion {
   }
 }
 
+.marketFilters {
+  ion-col > *:not(ion-toggle) {
+    color: rgba(var(--ion-text-color-rgb),0.5);
+    background: rgba(0,0,0, 0.1);
+    border-radius: 10px;
+    padding: 0 0.3rem 0.3rem!important;
+  }
+  ion-toggle {
+    font-size: 0.8rem;
+    padding: 0.25rem 0;
+  }
+}
+.poolHeaderList {
+  border-top: solid 1px var(--ion-border-color);
+  border-bottom: solid 1px var(--ion-border-color);
+  ion-label {
+    opacity: 0.6;
+    h3 {
+      font-size: 0.8rem;
+      padding: 0.25rem 0.15rem;
+      white-space: nowrap;
+    }
+  }
+}
 // ion-accordion-group {
 //   border: 1px solid var(--ion-border-color);
 //   border-radius: 32px;
@@ -194,9 +233,12 @@ ion-accordion {
   border: 1px solid rgba(var(--ion-color-primary-rgb), 0.4);
   border-radius: 32px;
   overflow: hidden;
-  background-color: rgb(19 19 19 / 40%);
+  background-color: var(--ion-background-color);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+
+  -webkit-filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px); 
+  filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px );
 }
 
 .welcomeSection {
@@ -210,7 +252,7 @@ ion-accordion {
     position: absolute;
     bottom: -0.8rem;
     left: 0;
-    width: 100px;
+    width: 200px;
     height: 3px;
     background: var(--ion-color-gradient);
   
@@ -264,6 +306,8 @@ ion-accordion {
 
 .strategyCard {
   height: 100%;
+  width: 100%;
+  width: 330px;
   justify-content: space-between;
   display: flex;
   flex-direction: column;
@@ -275,6 +319,7 @@ ion-accordion {
     justify-content: space-between;
     align-items: stretch;
     align-content: center;
+    width: 100%;
   }
 }
 
@@ -391,7 +436,7 @@ ion-accordion {
   }
   *[slot="content"] {
     > ion-grid {
-      background: rgba(var(--ion-color-light-rgb), 0.6) !important;
+      background: rgba(0,0,0, 0.65) !important;
       margin: 0rem;
       padding: 0.5rem 0;
 
@@ -401,7 +446,7 @@ ion-accordion {
     }
 
     ion-item {
-      --background: rgba(var(--ion-color-light-rgb), 0.4) !important;
+      --background: rgba(0,0,0, 0.5) !important;
       --padding-top: 0.4rem;
       --padding-bottom: 0.4rem;
       --padding-start: 0;
@@ -480,7 +525,18 @@ ion-accordion {
   z-index: 0;
 }
 .horizontalLineBottom {
-  border-bottom: solid 1px var(--ion-border-color),
+  border-bottom: solid 1px var(--ion-border-color);
+}
+.itemListDetails {
+
+  > ion-label {
+    display: block;
+  }
+
+  ion-list, ion-item {
+    --background: transparent;
+    background: transparent;
+  }
 }
 
 // LiFi widget customisation
@@ -501,8 +557,18 @@ div.MuiScopedCssBaseline-root > .MuiBox-root > .MuiBox-root {
   backdrop-filter: none;
 }
 div.MuiScopedCssBaseline-root {
-  background: rgb(19 19 19 / 40%)!important;
+  background: var(--ion-background-color)!important;
   -webkit-backdrop-filter: blur(10px)!important;
   backdrop-filter: blur(10px)!important;
 }
 
+// Squid Widget
+#squid-widget {
+  display: table;
+  width: auto!important;
+  margin: auto;
+
+  > div {
+    border: 1px solid rgba(var(--ion-color-primary-rgb), 0.4);
+  }
+}

@@ -2,6 +2,7 @@ import {
   IonButton,
   IonCard,
   IonCol,
+  IonContent,
   IonGrid,
   IonIcon,
   IonImg,
@@ -14,6 +15,7 @@ import {
   IonText,
   useIonToast,
 } from "@ionic/react";
+import { ethers } from "ethers";
 import {
   informationCircleOutline,
   closeSharp,
@@ -21,20 +23,19 @@ import {
   warningOutline,
   helpOutline,
 } from "ionicons/icons";
-import { useUser } from "../context/UserContext";
 import ConnectButton from "./ConnectButton";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { getBaseAPRstETH, getETHByWstETH } from "../servcies/lido.service";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
-import { useEthersProvider } from "../context/Web3Context";
+import { useWeb3Provider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
-import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "../constants/chains";
-import { AssetInput } from "./AssetInput";
-import { ethers } from "ethers";
-import { swapWithLiFi } from "../servcies/lifi.service";
+import { CHAIN_AVAILABLES, NETWORK } from "../constants/chains";
 import { HowItWork } from "./HowItWork";
 import { ApyDetail } from "./ApyDetail";
+import { WidgetConfig } from "@lifi/widget";
+import { LIFI_CONFIG } from '../servcies/lifi.service';
+import { LiFiWidgetDynamic } from "../components/LiFiWidgetDynamic";
 
 export interface IStrategyModalProps {
   dismiss?: (
@@ -43,294 +44,126 @@ export interface IStrategyModalProps {
   ) => Promise<boolean> | undefined;
 }
 
-const handleSwap = async (
-  provider: ethers.providers.Web3Provider,
-  amount: number,
-  balanceWETH: number,
-  toToken: { decimals: number; address: string },
-  fromToken: { decimals: number; address: string }
-) => {
-  if (!provider) {
-    return {};
-  }
-  // verify max amount
-  if (amount > balanceWETH) {
-    console.error({
-      message: `{{handleSwap}} Invalid amount: ${amount}. Value must be less or equal than your balance.`,
-    });
-    return {};
-  }
-  // handle invalid amount
-  if (isNaN(amount) || amount <= 0) {
-    throw new Error(
-      "{{handleSwap}} Invalid amount. Value must be greater than 0."
-    );
-  }
-  // convert decimal amount to bigNumber string using token decimals
-  const amountInWei = ethers.utils
-    .parseUnits(amount.toString(), toToken?.decimals || 18)
-    .toString();
-  // call method
-  const fromAddress = await provider?.getSigner().getAddress();
-  const params = {
-    fromAddress,
-    fromAmount: amountInWei,
-    fromChain: provider.network.chainId.toString(),
-    fromToken: fromToken.address,
-    toChain: provider.network.chainId.toString(),
-    toToken: toToken.address,
-  };
-  console.log("{{handleSwap}} params: ", { params });
-  const receipt = await swapWithLiFi(params, provider);
-  console.log("{{handleSwap}} TX result: ", receipt);
-  return { txReceipts: [receipt] };
-};
-
-export function EthLiquidStakingStrategyModal({
-  dismiss,
-}: IStrategyModalProps) {
-  const { ethereumProvider, switchNetwork } = useEthersProvider();
-  const { user, assets, refresh: refreshUser } = useUser();
-  const { display: displayLoader, hide: hideLoader } = useLoader();
-
-  const [successState, setSuccessState] = useState(false);
+export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
+  const { web3Provider, switchNetwork, connectWallet, disconnectWallet, currentNetwork } = useWeb3Provider();
+  const [baseAPRstETH, setBaseAPRstETH] = useState(-1);
   const [wstToEthAmount, setWstToEthAmount] = useState(-1);
-  const [inputSwapValue, setInputSwapValue] = useState(0);
-
+  const { display: displayLoader, hide: hideLoader } = useLoader();
   const toastContext = useIonToast();
   const presentToast = toastContext[0];
   const dismissToast = toastContext[1];
 
-  const walletBalanceWETH =
-    assets?.find(
-      (a) =>
-        a.symbol === "WETH" &&
-        a.chain?.id === (ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id)
-    )?.balance || 0;
-
-  useEffect(() => {
-    if (!ethereumProvider) {
-      return;
-    }
-    getETHByWstETH(1).then((value) => {
-      setWstToEthAmount(() => Number(value));
-    });
-  }, [ethereumProvider]);
-
-  useEffect(() => {
-    setInputSwapValue(() => 0);
-  }, [successState]);
-
-  return (
-    <IonGrid>
-      <IonRow
-        class="ion-text-center ion-padding-top ion-padding-horizontal"
-        style={{ position: "relative" }}
-      >
-        {dismiss && (
-          <IonCol
-            size="12"
-            class="ion-text-end"
-            style={{ marginBottom: "-2rem" }}
-          >
-            <IonButton
-              size="small"
-              fill="clear"
-              style={{
-                zIndex: "1",
-                position: "absolute",
-                right: 0,
-                top: 0,
-              }}
-              onClick={async () => {
-                dismiss(null, "cancel");
-              }}
-            >
-              <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
-            </IonButton>
-          </IonCol>
-        )}
-      </IonRow>
-
-      <IonRow class="ion-text-center ion-padding-horizontal ion-padding-bottom">
-        <IonCol
-          size="12"
-          class="ion-padding-start ion-padding-end ion-padding-bottom"
-        >
-          <IonText>
-            <h2>Swap</h2>
-          </IonText>
-          <IonText color="medium">
-            <p>
-              By swapping WETH to wstETH you will incrase your WETH holdings
-              revard from staking WETH on Lido.
-            </p>
-          </IonText>
-        </IonCol>
-        <IonCol
-          size-xs="12"
-          size-md="6"
-          class="ion-padding-horizontal ion-text-start"
-        >
-          <AssetInput
-            symbol={"WETH"}
-            balance={inputSwapValue}
-            maxBalance={walletBalanceWETH?.toString()}
-            textBalance={"Balance"}
-            onChange={(value) => {
-              const amount = Number(value);
-              setInputSwapValue(() => amount);
-            }}
-          />
-        </IonCol>
-        <IonCol
-          size-xs="12"
-          size-md="6"
-          class="ion-padding-horizontal ion-text-end"
-        >
-          <AssetInput
-            disabled={true}
-            symbol={"wstETH"}
-            value={
-              (inputSwapValue || 0) * wstToEthAmount > 0
-                ? +((inputSwapValue || 0) * wstToEthAmount).toFixed(4)
-                : 0
-            }
-          />
-        </IonCol>
-        <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
-          <IonText color="primary">
-            <p style={{ margin: "0 0 1rem" }}>
-              <small>
-                {`1 WETH = ~${
-                  wstToEthAmount > 0 ? wstToEthAmount.toFixed(4) : 0
-                } wstETH`}
-              </small>
-            </p>
-          </IonText>
-          {/* <IonText color="medium">
-            <small>{noticeMessage("AAVE")}</small>
-          </IonText> */}
-        </IonCol>
-        <IonCol size="12" className="ion-padding-top">
-          <IonButton
-            className="ion-margin-top"
-            expand="block"
-            color="gradient"
-            onClick={async () => {
-              await displayLoader();
-              try {
-                const { txReceipts } = await handleSwap(
-                  ethereumProvider as ethers.providers.Web3Provider,
-                  Number(inputSwapValue || -1),
-                  walletBalanceWETH || 0,
-                  {
-                    decimals: 18,
-                    address: "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
-                  },
-                  {
-                    decimals: 18,
-                    address: "0x4200000000000000000000000000000000000006",
-                  }
-                );
-                await refreshUser();
-                if ((txReceipts?.length || 0) > 0) {
-                  await presentToast({
-                    message: `Swap completed successfully`,
-                    duration: 5000,
-                    color: "success",
-                  });
-                  setSuccessState(() => true);
-                }
-              } catch (error: any) {
-                console.log("handleSwap:", { error });
-                await presentToast({
-                  message: `[ERROR] Exchange Failed with reason: ${
-                    error?.message || error
-                  }`,
-                  color: "danger",
-                  duration: 5000,
-                  buttons: [
-                    {
-                      text: "x",
-                      role: "cancel",
-                      handler: () => {
-                        dismissToast();
-                      },
-                    },
-                  ],
-                });
-              }
-              await hideLoader();
-            }}
-          >
-            Swap
-          </IonButton>
-        </IonCol>
-      </IonRow>
-
-      {/* Congratulation */}
-      {successState === true && (
-        <IonRow class="ion-text-center ion-padding-horizontal ion-padding-bottom">
-          <IonCol
-            size="12"
-            class="ion-padding-start ion-padding-end ion-padding-bottom"
-          >
-            <IonText>
-              <h2>Congratulation</h2>
-            </IonText>
-            <IonText color="medium">
-              <p>You have successfully swap yout token.</p>
-              <p>Now you earn revard from staking WETH on Lido.</p>
-            </IonText>
-          </IonCol>
-
-          <IonCol size="12" className="ion-padding-top">
-            {/* Event Button */}
-            <IonButton
-              className="ion-margin-top"
-              expand="block"
-              color="gradient"
-              onClick={async () => {
-                if (!ethereumProvider) {
-                  return;
-                }
-                setSuccessState(() => false);
-              }}
-            >
-              Done
-            </IonButton>
-          </IonCol>
-        </IonRow>
-      )}
-    </IonGrid>
-  );
-}
-
-export function ETHLiquidStakingstrategyCard() {
-  const { user } = useUser();
-  const { ethereumProvider, switchNetwork } = useEthersProvider();
-  const [baseAPRstETH, setBaseAPRstETH] = useState(-1);
-
   const strategy = {
-    name: "ETH Liquid",
-    type: "staking",
+    name: "ETH",
+    type: "Liquid staking",
     icon: getAssetIconUrl({ symbol: "ETH" }),
     apys: [baseAPRstETH.toFixed(2)],
     locktime: 0,
     providers: ["lido"],
     assets: ["WETH", "wstETH"],
     isStable: true,
-    chainsId: [10],
+    chainsId: [NETWORK.optimism],
     details: {
       description: `
         This strategy will swap your ETH for wstETH to earn ${baseAPRstETH.toFixed(
-          2
-        )}% APY revard from staking WETH on Lido.
+        2
+      )}% APY revard from staking WETH on Lido.
       `,
     },
   };
   const modal = useRef<HTMLIonModalElement>(null);
+  // load environment config
+  const widgetConfig: WidgetConfig = {
+    ...LIFI_CONFIG,
+    walletManagement: {
+      connect: async () => {
+        try {
+          await displayLoader();
+          await connectWallet();
+          if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
+            throw new Error("Provider not found");
+          }
+          const signer = web3Provider?.getSigner();
+          console.log("[INFO] signer", signer);
+          if (!signer) {
+            throw new Error("Signer not found");
+          }
+          // return signer instance from JsonRpcSigner
+          hideLoader();
+          return signer;
+        } catch (error: any) {
+          // Log any errors that occur during the connection process
+          hideLoader();
+          await presentToast({
+            message: `[ERROR] Connect Failed with reason: ${error?.message || error
+              }`,
+            color: "danger",
+            buttons: [
+              {
+                text: "x",
+                role: "cancel",
+                handler: () => {
+                  dismissToast();
+                },
+              },
+            ],
+          });
+          throw new Error("handleConnect:" + error?.message);
+        }
+      },
+      disconnect: async () => {
+        try {
+          displayLoader();
+          await disconnectWallet();
+          hideLoader();
+        } catch (error: any) {
+          // Log any errors that occur during the disconnection process
+          console.log("handleDisconnect:", error);
+          hideLoader();
+          await presentToast({
+            message: `[ERROR] Disconnect Failed with reason: ${error?.message || error
+              }`,
+            color: "danger",
+            buttons: [
+              {
+                text: "x",
+                role: "cancel",
+                handler: () => {
+                  dismissToast();
+                },
+              },
+            ],
+          });
+        }
+      },
+      signer: web3Provider instanceof ethers.providers.Web3Provider ? web3Provider?.getSigner() : undefined,
+    },
+    // set source chain to Polygon
+    fromChain: NETWORK.optimism,
+    // set destination chain to Optimism
+    toChain: NETWORK.optimism,
+    // set source token to ETH (Optimism)
+    fromToken: "0x0000000000000000000000000000000000000000",
+    // set source token to wstETH (Optimism)
+    toToken: "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+    // fromAmount: 10,
+    chains: {
+      allow: [NETWORK.optimism],
+    },
+    tokens: {
+      allow: [
+        {
+          chainId: Number(NETWORK.optimism),
+          address: "0x0000000000000000000000000000000000000000",
+        },
+        {
+          chainId: Number(NETWORK.optimism),
+          address: "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+        },
+      ],
+    },
+    disabledUI: ["fromToken", "toToken"],
+  };
 
   useEffect(() => {
     const { signal, abort } = new AbortController();
@@ -338,31 +171,19 @@ export function ETHLiquidStakingstrategyCard() {
     // return () => abort();
   }, []);
 
-  // UI Component utils
-  const Loader = <IonSpinner name="dots" />;
-  const CardButton = !user ? (
-    <ConnectButton expand="block" />
-  ) : (
-    <IonButton
-      onClick={async () => {
-        // check correct chain
-        const chainId = ethereumProvider?.network?.chainId;
-        if (chainId !== 10) {
-          await switchNetwork(10);
-        }
-        modal.current?.present();
-      }}
-      expand="block"
-      color="gradient"
-    >
-      Start Earning
-    </IonButton>
-  );
+  useEffect(() => {
+    if (!web3Provider) {
+      return;
+    }
+    getETHByWstETH(1).then((value) => {
+      setWstToEthAmount(() => Number(value));
+    });
+  }, [web3Provider]);
 
   return (
     <>
-      <IonCard className="strategyCard" style={{ width: 300 }}>
-        <IonGrid style={{ width: "100%" }}>
+      <IonCard className={props.asImage ? "asImage" : "strategyCard"} >
+        <IonGrid>
           <IonRow class="ion-text-center ion-padding">
             <IonCol size="12" class="ion-padding">
               <IonImg
@@ -381,7 +202,9 @@ export function ETHLiquidStakingstrategyCard() {
                   {strategy.name}
                 </IonText>
                 <br />
-                <small>{strategy.type}</small>
+                <IonText color="dark">
+                  <small>{strategy.type}</small>
+                </IonText>
               </h1>
             </IonCol>
           </IonRow>
@@ -396,7 +219,7 @@ export function ETHLiquidStakingstrategyCard() {
                 }}
               >
                 <IonLabel>
-                  Assets <small>{strategy.isStable ? "(stable)" : null}</small>
+                  Assets
                 </IonLabel>
                 <div slot="end" style={{ display: "flex" }}>
                   {strategy.assets.map((symbol, index) => (
@@ -478,7 +301,9 @@ export function ETHLiquidStakingstrategyCard() {
                 </IonLabel>
                 <div slot="end" style={{ display: "flex" }}>
                   {strategy.apys.map((apy, index) => (
-                    <IonText key={index}>{apy}%</IonText>
+                    <IonText className="ion-color-gradient-text" key={index}>
+                      <strong>{apy}%</strong>
+                    </IonText>
                   ))}
                 </div>
               </IonItem>
@@ -492,7 +317,10 @@ export function ETHLiquidStakingstrategyCard() {
                 <IonLabel>Protocols</IonLabel>
                 <div slot="end" style={{ display: "flex" }}>
                   {strategy.providers
-                    .map((p, index) => p.toLocaleUpperCase())
+                    .map((p) => {
+                      // return capitalized string
+                      return p.charAt(0).toUpperCase() + p.slice(1);
+                    })
                     .join(" + ")}
                 </div>
               </IonItem>
@@ -504,28 +332,52 @@ export function ETHLiquidStakingstrategyCard() {
               <HowItWork>
                 <div className="ion-padding-horizontal">
                   <IonText>
-                    <h4>Staking WETH with Lido</h4>
+                    <h4>Staking ETH with Lido</h4>
                     <p className="ion-no-margin ion-padding-bottom">
                       <small>
-                        By swapping WETH to wstETH you will incrase your WETH
-                        holdings by {baseAPRstETH.toFixed(2)}% APY revard from
-                        staking WETH using{" "}
+                        By swapping your ETH for wstETH, you will increase your ETH holdings
+                        by {baseAPRstETH.toFixed(2)}% APY using ETH staking with{" "}
                         <a
                           href="https://lido.fi/"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          Lido
-                        </a>
-                        .
+                          Lido finance
+                        </a>.
+                      </small>
+                    </p>
+                    <p className="ion-no-margin ion-padding-bottom">
+                      <small>
+                        The wstETH price increases daily with exchange rate reflecting staking rewards.
+                      </small>
+                    </p>
+                    <p className="ion-no-margin ion-padding-bottom">
+                      <small>
+                        You can also use your wstETH to earn more yield on lendings market or swap back to ETH at any time without locking period.
                       </small>
                     </p>
                   </IonText>
                 </div>
               </HowItWork>
-              {CardButton}
+
+              <IonButton
+                onClick={async () => {
+                  const chainId = currentNetwork;
+                  await displayLoader();
+                  if (chainId !== NETWORK.optimism) {
+                    await switchNetwork(NETWORK.optimism);
+                  }
+                  await modal.current?.present();
+                  await hideLoader();
+                }}
+                expand="block"
+                color="gradient"
+              >
+                Start Earning
+              </IonButton>
             </IonCol>
           </IonRow>
+
         </IonGrid>
       </IonCard>
 
@@ -535,17 +387,89 @@ export function ETHLiquidStakingstrategyCard() {
         onWillDismiss={async (ev: CustomEvent<OverlayEventDetail>) => {
           console.log("will dismiss", ev.detail);
         }}
-        style={{
-          "--height": "auto",
-          "--max-height": "90vh",
-          "--border-radius": "32px",
-        }}
+        className="modalPage"
       >
-        <EthLiquidStakingStrategyModal
+        <IonContent>
+          <IonGrid
+            style={{
+              height: "100%",
+            }}
+          >
+            <IonRow>
+              <IonCol size="12" className="ion-text-end">
+                <IonButton
+                  fill="clear"
+                  color="dark"
+                  onClick={async () => {
+                    modal.current?.dismiss();
+                  }}
+                >
+                  <IonIcon icon={closeSharp} />
+                </IonButton>
+              </IonCol>
+              <IonCol
+                size="12"
+                offsetMd="3"
+                sizeMd="6"
+                class="ion-padding-start ion-padding-end ion-padding-bottom ion-text-center"
+              >
+                <h1 className="ion-no-margin" style={{
+                  fontSize: '2.4rem',
+                  lineHeight: '1.85rem'
+                }}>
+                  <IonText className="ion-color-gradient-text">
+                    {strategy.name}
+                  </IonText>
+                  <br />
+                  <span style={{
+                    marginBottom: '1.5rem',
+                    fontSize: '1.4rem',
+                    lineHeight: '1.15rem'
+                  }}>{strategy.type}</span>
+                </h1>
+                <IonText color="medium">
+                  <p>
+                    By exchange ETH to wstETH you will incrase your ETH holdings balance by {baseAPRstETH.toFixed(2)}% APY from staking liquidity on Lido finance.
+                    Rewards are automated and paid out in ETH through daily exchange rate increases reflecting staking rewards.
+                  </p>
+                  <p className="ion-no-margin">
+                    <small>You can exchange backward at anytime without locking period.</small>
+                  </p>
+                </IonText>
+              </IonCol>
+            </IonRow>
+            <IonRow
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "nowrap",
+                justifyContent: "center",
+                alignItems: "center",
+                alignContent: "center",
+              }}
+            >
+              <IonCol>
+                {/* <div className="ion-text-center">
+                  <IonText color="primary">
+                    <p style={{ margin: "0 0 1rem" }}>
+                      <small>
+                        {`1 wstETH = ~${
+                          wstToEthAmount > 0 ? wstToEthAmount.toFixed(4) : 0
+                        } ETH`}
+                      </small>
+                    </p>
+                  </IonText>
+                </div> */}
+                <LiFiWidgetDynamic config={widgetConfig} integrator="hexa-lite" />
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonContent>
+        {/* <EthLiquidStakingStrategyModal
           dismiss={(data?: any, role?: string | undefined) =>
             modal.current?.dismiss(data, role)
           }
-        />
+        /> */}
       </IonModal>
     </>
   );

@@ -18,11 +18,15 @@ import { chevronDownOutline } from "ionicons/icons";
 import { useAave } from "../context/AaveContext";
 import { ChainId } from "@aave/contract-helpers";
 
-import { useUser, IAsset } from "../context/UserContext";
 import { getPercent } from "../utils/utils";
 import { CHAIN_AVAILABLES } from "../constants/chains";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MarketList } from "../components/MarketsList";
+import { currencyFormat } from "../utils/currency-format";
+import { useWeb3Provider } from "../context/Web3Context";
+import { A } from "@bgd-labs/aave-address-book/dist/AaveV2EthereumAMM-7c73b6ab";
+import { valueToBigNumber } from "@aave/math-utils";
+import { getReadableAmount } from "@/utils/getReadableAmount";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -59,54 +63,46 @@ export const DefiContainer = ({
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) => {
   console.log("[INFO] {{DefiContainer}} rendering...");
-  const { user, assets } = useUser();
+  const { walletAddress, assets } = useWeb3Provider();
   const { poolGroups, totalTVL, refresh, userSummaryAndIncentivesGroup } =
     useAave();
   const [filterBy, setFilterBy] = useState<{ [key: string]: string } | null>(
     null
   );
-  function currencyFormat(
-    num: number,
-    ops?: { currency?: string; language?: string }
-  ) {
-    const currency = ops?.currency || "USD";
-    const language = ops?.language || "en-US";
-    return num.toLocaleString(language, {
-      style: "currency",
-      currency,
-    });
-  }
-
-  const totalBorrowsUsd =
-    userSummaryAndIncentivesGroup
-      ?.map((summary) => Number(summary?.totalBorrowsUSD || 0))
-      .reduce((a, b) => a + b, 0) || 0;
+  
+  const totalBorrowsUsd = poolGroups
+    .map((pool) => valueToBigNumber(pool.totalBorrowBalance).multipliedBy(pool.priceInUSD).toFixed(2))
+    .map((amount) => Number(amount))
+    .reduce((a, b) => a + b, 0) || 0;
+  const totalSupplyUsd = poolGroups
+    .map((pool) => valueToBigNumber(pool.totalSupplyBalance).multipliedBy(pool.priceInUSD).toFixed(2))
+    .map((amount) => Number(amount))
+    .reduce((a, b) => a + b, 0) || 0;
   const totalCollateralUsd =
     userSummaryAndIncentivesGroup
       ?.map((summary) => Number(summary?.totalCollateralUSD || 0))
       .reduce((a, b) => a + b, 0) || 0;
-
   // The % of your total borrowing power used.
   // This is based on the amount of your collateral supplied (totalCollateralUSD) and the total amount that you can borrow (totalCollateralUSD - totalBorrowsUsd)
   // remove `currentLiquidationThreshold` present in the `userSummaryAndIncentivesGroup` response
-  const totalLiquidationThreshold =
-    (userSummaryAndIncentivesGroup
-      ?.filter(
-        (summary) => Number(summary?.currentLiquidationThreshold || 0) > 0
-      )
-      ?.map((summary) => Number(summary?.currentLiquidationThreshold || 0))
-      .reduce((a, b) => a + b, 0) || 0) /
-      ((
-        userSummaryAndIncentivesGroup?.filter(
-          (summary) => Number(summary?.currentLiquidationThreshold || 0) > 0
-        ) || []
-      )?.length || 0) || 0;
+  const poolGroupsWithUserLiquidationThresholdValue = poolGroups
+    .flatMap(({pools}) => pools)
+    .filter(
+        (pool) => pool.userLiquidationThreshold > 0
+    );
+  const totalLiquidationThreshold = poolGroupsWithUserLiquidationThresholdValue
+    .map((pool) =>pool.userLiquidationThreshold )
+    .reduce((a, b) => a + b, 0) / poolGroupsWithUserLiquidationThresholdValue.length||0;
 
   const totalBorrowableUsd = totalCollateralUsd * totalLiquidationThreshold;
   const percentBorrowingCapacity =
     100 - getPercent(totalBorrowsUsd, totalBorrowableUsd);
   const progressBarFormatedValue = percentBorrowingCapacity / 100;
   const totalAbailableToBorrow = totalBorrowableUsd - totalBorrowsUsd;
+
+  console.log("[INFO] {{DefiContainer}} poolGroups > ", poolGroups, totalCollateralUsd);
+
+  useEffect(() => {}, []);
 
   return !poolGroups || poolGroups.length === 0 ? (
     <IonGrid class="ion-padding">
@@ -130,7 +126,7 @@ export const DefiContainer = ({
               }}
             >
               <span style={{ maxWidth: "800px", display: "inline-block" }}>
-                Connect to the best DeFi liquidity protocols, borrow assets
+                Connect to DeFi liquidity protocols and access to {poolGroups.length} markets across {CHAIN_AVAILABLES.filter(chain => chain.type === 'evm').length} networks, borrow assets
                 using your crypto as collateral and earn interest by providing
                 liquidity over
               </span>
@@ -165,13 +161,13 @@ export const DefiContainer = ({
                       size-md="4"
                       class=" ion-padding-vertical"
                     >
-                      <h3>{currencyFormat(+totalCollateralUsd)}</h3>
+                      <h3>{currencyFormat(totalSupplyUsd)}</h3>
                       <p>
                         DEPOSIT BALANCE
                         <IonText color="medium">
                           <br />
                           <small>
-                            Total of all collaterals used to borrow assets
+                            Total funds deposited as collateral to borrow
                           </small>
                         </IonText>
                       </p>
@@ -241,7 +237,7 @@ export const DefiContainer = ({
               </IonItem>
 
               <div slot="content">
-                {user && totalCollateralUsd > 0 && (
+                {walletAddress && totalCollateralUsd > 0 && (
                   <>
                     <IonGrid className="ion-no-padding">
                       <IonRow class="ion-no-padding ion-padding-start ion-align-items-center ion-justify-content-between">
@@ -291,14 +287,50 @@ export const DefiContainer = ({
                         </IonCol>
                       </IonRow>
                     </IonGrid>
-                    {/* AAVE Protocol */}
-                    {userSummaryAndIncentivesGroup
-                      ?.filter(
-                        (summary) =>
-                          Number(summary.totalBorrowsUSD) > 0 ||
-                          Number(summary.totalCollateralUSD) > 0
-                      )
-                      ?.map((summary, index) => (
+                    {/* Pools grouped by Protocol and Chain */}
+                    {poolGroups
+                      .flatMap(({pools})=> pools)
+                      .filter(pool => pool.borrowBalance > 0 || pool.supplyBalance > 0)
+                      .reduce((acc, pool) => {
+                        // check if the pool is already in the array
+                        const index = acc.findIndex(
+                          (p) => p.chainId === pool.chainId && p.provider === pool.provider
+                        );
+                        const totalBorrowsUSD = Number(valueToBigNumber(
+                          pool.borrowBalance).multipliedBy(pool.priceInUSD));
+                        const totalCollateralUSD = Number(valueToBigNumber(
+                          pool.supplyBalance).multipliedBy(pool.priceInUSD));
+                        
+                        if (index > -1) {
+                          // if it is, update the totalBorrowsUSD
+                          acc[index].totalBorrowsUSD = (
+                            Number(acc[index].totalBorrowsUSD) +
+                            totalBorrowsUSD
+                          );
+                          // update the totalCollateralUSD
+                          acc[index].totalCollateralUSD = (
+                            Number(acc[index].totalCollateralUSD) +
+                            totalCollateralUSD
+                          );
+                        } else {
+                          // if it is not, add it to the array
+                          acc.push({
+                            chainId: pool.chainId,
+                            provider: pool.provider,
+                            totalCollateralUSD,
+                            totalBorrowsUSD,
+                            currentLiquidationThreshold: pool.userLiquidationThreshold,
+                          });
+                        }
+                        return acc;
+                      }, [] as {
+                        chainId: number;
+                        provider: string;
+                        totalCollateralUSD: number;
+                        totalBorrowsUSD: number;
+                        currentLiquidationThreshold: number;
+                      }[])
+                      .map((summary, index) => (
                         <IonItem
                           key={index}
                           lines="none"
@@ -307,7 +339,7 @@ export const DefiContainer = ({
                             setFilterBy((s) => ({
                               ...s,
                               chainId: summary.chainId.toString(),
-                              protocol: "AAVE",
+                              protocol: summary.provider,
                             }));
                           }}
                         >
@@ -316,7 +348,7 @@ export const DefiContainer = ({
                             style={{
                               paddingBottom:
                                 index ===
-                                userSummaryAndIncentivesGroup.length - 1
+                                poolGroups.length - 1
                                   ? "0"
                                   : "1rem",
                             }}
@@ -445,6 +477,8 @@ export const DefiContainer = ({
                                     background: "var(--ion-color-danger)",
                                     height: "0.2rem",
                                     marginTop: "0.25rem",
+                                    maxWidth: '250px',
+                                    display: 'inline-block'
                                   }}
                                 ></IonProgressBar>
                               </IonCol>
@@ -454,13 +488,13 @@ export const DefiContainer = ({
                       ))}
                   </>
                 )}
-                {(!user || totalCollateralUsd === 0) && (
+                {(!walletAddress || totalCollateralUsd === 0) && (
                   <IonGrid class="ion-no-padding">
                     <IonRow class="ion-text-center">
                       <IonCol size="12" class="ion-text-center ion-padding-horizontal">
                         <IonText>
                           <p>
-                            {!user ? "Connect wallet and deposit" : "Deposit"}{" "}
+                            {!walletAddress ? "Connect wallet and deposit" : "Deposit"}{" "}
                             assets as collateral to borrow and start earning
                             interest
                           </p>

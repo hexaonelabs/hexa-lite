@@ -1,7 +1,6 @@
 
 import { useLoader } from "../context/LoaderContext";
-import { useEthersProvider } from "../context/Web3Context"
-import { connect } from "../servcies/magic"
+import { useWeb3Provider } from "../context/Web3Context"
 import { IonButton, useIonToast } from "@ionic/react"
 
 const ConnectButton = (props: {
@@ -13,7 +12,7 @@ const ConnectButton = (props: {
   const presentToast = toastContext[0];
   const dismissToast = toastContext[1];
   // Get the initializeWeb3 function from the Web3 context
-  const { initializeWeb3 } = useEthersProvider()
+  const { connectWallet } = useWeb3Provider()
   const { display: displayLoader, hide: hideLoader } = useLoader();
   // Define the event handler for the button click
   const handleConnect = async () => {
@@ -39,12 +38,10 @@ const ConnectButton = (props: {
 
     try {
       // Display the loader while the connection is being made
-      await displayLoader()
-      await connect();
-      // If connection to the wallet was successful, initialize new Web3 instance
-      await initializeWeb3()
+      await displayLoader();
+      await connectWallet();
       // Hide the loader
-      await hideLoader()
+      await hideLoader();
     } catch (error:any) {
       // Hide the loader
       await hideLoader();

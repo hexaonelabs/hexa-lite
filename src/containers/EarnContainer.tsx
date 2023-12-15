@@ -1,7 +1,7 @@
 import { IonCol, IonGrid, IonRow, IonText } from "@ionic/react";
-import { EthOptimizedStrategyProvider } from "../context/EthOptimizedContext";
-import { EthOptimizedStrategyCard } from "../components/ETHOptimizedStrategy";
 import { ETHLiquidStakingstrategyCard } from "../components/ETHLiquidStakingstrategy";
+import { MATICLiquidStakingstrategyCard } from "../components/MATICLiquidStakingstrategy";
+import { ATOMLiquidStakingstrategyCard } from "@/components/ATOMLiquidStakingstrategy";
 
 export function EarnContainer() {
   return (
@@ -25,8 +25,8 @@ export function EarnContainer() {
             >
               <span style={{ maxWidth: "800px", display: "inline-block" }}>
                 Unlock the full potential of your assets by earning interest
-                through optimized liquid staking while simultaneously
-                contributing to the network's security.
+                through liquid staking while simultaneously
+                contributing to the networks security.
               </span>
             </p>
           </IonText>
@@ -39,21 +39,28 @@ export function EarnContainer() {
           size-lg="10"
           size-xl="10"
         >
-          <IonGrid class="ion-no-padding" style={{height: '100%'}}>
-            <IonRow class="ion-justify-content-center" style={{height: '100%'}}>
-              
+          <IonGrid class="ion-no-padding" style={{ height: "100%" }}>
+            <IonRow
+              class="ion-justify-content-center"
+              style={{ height: "100%" }}
+            >
               {/* ETH Staking Strategy */}
               <IonCol size="auto" className="ion-padding-bottom">
                 <ETHLiquidStakingstrategyCard />
               </IonCol>
 
               {/* ETH Optimized Strategy */}
-              <IonCol size="auto" className="ion-padding-bottom">
+              {/* <IonCol size="auto" className="ion-padding-bottom">
                 <EthOptimizedStrategyProvider>
                   <EthOptimizedStrategyCard />
                 </EthOptimizedStrategyProvider>
+              </IonCol> */}
+              <IonCol size="auto" className="ion-padding-bottom">
+                <MATICLiquidStakingstrategyCard />
               </IonCol>
-
+              {/* <IonCol size="auto" className="ion-padding-bottom">
+                <ATOMLiquidStakingstrategyCard />
+              </IonCol> */}
             </IonRow>
           </IonGrid>
         </IonCol>

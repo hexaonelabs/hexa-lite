@@ -2,7 +2,8 @@ import { IonButton, IonCard, IonCol, IonGrid, IonIcon, IonImg, IonItem, IonLabel
 import { logoGithub, checkmarkCircle, chevronForwardCircle, chevronForward } from "ionicons/icons";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { EthOptimizedStrategyProvider } from "../context/EthOptimizedContext";
-import { EthOptimizedStrategyCard } from "./ETHOptimizedStrategy";
+import { ETHLiquidStakingstrategyCard } from "./ETHLiquidStakingstrategy";
+import { CHAIN_AVAILABLES } from "@/constants/chains";
 
 export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail: {value: string}}) => void}) {
 
@@ -13,7 +14,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
     >
       <IonRow
         class="ion-justify-content-center ion-padding"
-        style={{ minHeight: "90vh", marginBottom: "20vh" }}
+        style={{ minHeight: "95vh", marginBottom: "-0vh" }}
       >
         <IonCol size="12" class="ion-text-center"></IonCol>
         <IonCol size="12" size-md="7" class="ion-text-center">
@@ -36,7 +37,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
               <span
                 style={{
                   display: "block",
-                  fontSize: "4.5rem",
+                  fontSize: "4.3rem",
                   lineHeight: "4.8rem",
                   marginTop: "0.2rem",
                 }}
@@ -48,8 +49,8 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
           <IonText>
             <p
               style={{
-                fontSize: "1.2rem",
-                lineHeight: "1.6rem",
+                fontSize: "0.9rem",
+                lineHeight: "1.3rem",
                 margin: "1rem 0 2.5rem 0",
               }}
             >
@@ -63,7 +64,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
             size="large"
             color="gradient"
             onClick={(e) =>
-              handleSegmentChange({ detail: { value: "earn" } })
+              handleSegmentChange({ detail: { value: "swap" } })
             }
           >
             Launch App
@@ -75,7 +76,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         class="ion-justify-content-center ion-align-items-center  ion-padding"
         style={{ 
           minHeight: "100vh", 
-          background: "#272747",
+          background: "#182449",
           paddingTop: "5rem",
           paddingBottom: "5rem",
         }}
@@ -144,10 +145,39 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                       lineHeight: "2rem",
                     }}
                   >
-                    Increase digital assets yield 
+                    Deposit liquidity & earn interest
                   </h3>
                   <p>
-                    Hexa Lite level up your strategy to earn interest on leading crypto assets at the click of a button.
+                    Securely deposit your liquidity into DeFi protocols across +35 markets and {CHAIN_AVAILABLES.filter(c => c.type === 'evm').length} EVM-Compatible blockchains to earn substantial interest while maintaining full control over your assets.
+                  </p>
+                </IonText>
+              </IonCol>
+              <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
+                <div className="ion-padding">
+                  <IonImg 
+                      style={{
+                        margin: '0 auto',
+                        maxWidth: 'fit-content' 
+                      }} src="./assets/images/coins-b.png" />
+                </div>
+              </IonCol>
+            </IonRow>
+
+            <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '20vh 0'}}>
+              <IonCol size="12" size-md="6">
+                <IonText>
+                  <h3
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: "2rem",
+                      lineHeight: "2rem",
+                    }}
+                  >
+                    Earn interest with liquid Staking
+                  </h3>
+                  <p>
+                    Hexa Lite allow you to stake your assets into DeFi protocols to earn interest 
+                    without lockup period or any other restrictions.
                   </p>
                 </IonText>
               </IonCol>
@@ -158,7 +188,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                   transform: 'matrix3d(1, 0.0, 0, -0.0004, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
                   }}>
                   <EthOptimizedStrategyProvider>
-                    <EthOptimizedStrategyCard asImage={true} />
+                    <ETHLiquidStakingstrategyCard asImage={true} />
                   </EthOptimizedStrategyProvider>
                 </div>
               </IonCol>
@@ -284,7 +314,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
             size="large"
             color="gradient"
             onClick={(e) =>
-              handleSegmentChange({ detail: { value: "earn" } })
+              handleSegmentChange({ detail: { value: "swap" } })
             }>
             Launch App
             </IonButton>
@@ -295,7 +325,10 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         <IonCol size="auto" class="ion-padding-horizontal">
           <IonText color="medium">
             <p style={{fontSize: '12px'}}>
-              Open source software by HexaOneLabs
+              Open source software by <a 
+                href="https://hexaonelabs.com/" 
+                rel="noreferrer noopener"
+                target="_blank">HexaOneLabs</a>
             </p>
           </IonText>
         </IonCol>

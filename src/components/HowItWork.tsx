@@ -38,7 +38,7 @@ export function HowItWork({ children }: { children?: React.ReactNode }) {
                 </h3>
               </IonText>
               <IonText color="medium">
-                <p className="ion-no-margin">
+                <p className="ion-no-margin" style={{"lineHeight": "85%", "marginTop": "0.5rem"}}>
                   <small>
                     Strategy process below explained how you can incrase your
                     APY revard.

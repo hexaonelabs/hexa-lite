@@ -11,7 +11,7 @@ import {
   IonText,
 } from "@ionic/react";
 import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "../constants/chains";
-import { useEthersProvider } from "../context/Web3Context";
+import { useWeb3Provider } from "../context/Web3Context";
 import { useRef } from "react";
 import { RPC_NODE_OPTIONS, getRPCNodeOptions } from "../servcies/magic";
 
@@ -95,7 +95,7 @@ function NetworkPopover({
 }
 
 export function NetworkButton() {
-  const { ethereumProvider, initializeWeb3 } = useEthersProvider();
+  const { web3Provider, currentNetwork } = useWeb3Provider();
   const popoverRef = useRef<HTMLIonPopoverElement>(null);
 
   const getChainData = (chainId: number) => {
@@ -105,13 +105,13 @@ export function NetworkButton() {
   };
 
   const chain = getChainData(
-    ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id
+    currentNetwork || CHAIN_DEFAULT.id
   );
   const handleSwitchNetwork = async (chainId: number) => {
-    const isMagic = (ethereumProvider as any)?.provider?.sdk?.rpcProvider
+    const isMagic = (web3Provider as any)?.provider?.sdk?.rpcProvider
       ?.isMagic;
     console.log(
-      "{{NetworkButton}} handleSwitchNetwork(): ethereumProvider",
+      "{{NetworkButton}} handleSwitchNetwork(): web3Provider",
       isMagic,
       Number(BigInt(chainId).toString())
     );
@@ -121,47 +121,49 @@ export function NetworkButton() {
       `${Number(BigInt(chainId).toString())}`
     );
     try {
-      if (!isMagic) {
-        // convert decimal to hexa
-        const hexaChainId = `0x${Number(BigInt(chainId).toString()).toString(
-          16
-        )}`;
-        await ethereumProvider?.provider.request?.({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: hexaChainId }],
-        });
-      } else {
-        await initializeWeb3();
-      }
+      throw new Error("Not implemented");
+      // if (!isMagic) {
+      //   // convert decimal to hexa
+      //   const hexaChainId = `0x${Number(BigInt(chainId).toString()).toString(
+      //     16
+      //   )}`;
+      //   await web3Provider?.provider.request?.({
+      //     method: "wallet_switchEthereumChain",
+      //     params: [{ chainId: hexaChainId }],
+      //   });
+      // } else {
+      //   await initializeWeb3();
+      // }
       // save the new chainId to localstorage
     } catch (error: any) {
       console.log("{{NetworkButton}} handleSwitchNetwork(): error", error);
+      throw error;
       // This error code indicates that the chain has not been added to MetaMask.
-      if (error.code === 4902 && chain) {
-        try {
-          await ethereumProvider?.provider.request?.({
-            method: "wallet_addEthereumChain",
-            params: [
-              {
-                chainId: "0x" + Number(BigInt(chainId).toString()),
-                chainName: chain.name,
-                nativeCurrency: {
-                  name: chain.nativeSymbol,
-                  symbol: chain.nativeSymbol,
-                  decimals: 18,
-                },
-                rpcUrls: [(await getRPCNodeOptions()).rpcUrl],
-              },
-            ],
-          });
-        } catch (addError) {
-          console.log(
-            "{{NetworkButton}} handleSwitchNetwork(): addError",
-            addError
-          );
-          // handle "add" error
-        }
-      }
+      // if (error.code === 4902 && chain) {
+      //   try {
+      //     await web3Provider?.provider.request?.({
+      //       method: "wallet_addEthereumChain",
+      //       params: [
+      //         {
+      //           chainId: "0x" + Number(BigInt(chainId).toString()),
+      //           chainName: chain.name,
+      //           nativeCurrency: {
+      //             name: chain.nativeSymbol,
+      //             symbol: chain.nativeSymbol,
+      //             decimals: 18,
+      //           },
+      //           rpcUrls: [(await getRPCNodeOptions()).rpcUrl],
+      //         },
+      //       ],
+      //     });
+      //   } catch (addError) {
+      //     console.log(
+      //       "{{NetworkButton}} handleSwitchNetwork(): addError",
+      //       addError
+      //     );
+      //     // handle "add" error
+      //   }
+      // }
     }
   };
   return !chain ? (

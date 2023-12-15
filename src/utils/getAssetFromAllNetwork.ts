@@ -1,5 +1,5 @@
 import { CHAIN_AVAILABLES } from "../constants/chains";
-import { IAsset } from "../context/UserContext";
+import { IAsset } from "../interfaces/asset.interface";
 import { IUserSummary } from "../interfaces/reserve.interface";
 
 export const getAssetFromAllNetwork = ({

@@ -1,4 +1,5 @@
 
+import { HiddenUI, WidgetConfig } from "@lifi/widget";
 import { ethers, Contract } from "ethers";
 
 export interface LiFiQuoteResponse {
@@ -797,3 +798,44 @@ export const swapWithLiFi = async (
   const receipt = await sendTransaction(quote, provider);
   return receipt;
 }
+
+export const LIFI_CONFIG = Object.freeze<WidgetConfig>({
+  // integrator: "cra-example",
+  integrator: process.env.NEXT_PUBLIC_APP_IS_PROD ? "hexa-lite" : "",
+  fee: 0.005,
+  variant: "expandable",
+  insurance: true,
+  containerStyle: {
+    border: `1px solid rgba(var(--ion-color-primary-rgb), 0.4);`,
+    borderRadius: "32px",
+    filter: "drop-shadow(rgba(var(--ion-color-primary-rgb), .1) 0px 0px 50px )"
+  },
+  theme: {
+    shape: {
+      borderRadius: 12,
+      borderRadiusSecondary: 24,
+    },
+    palette: {
+      grey: {
+        "800": 'rgba(var(--ion-color-primary-rgb), 0.2)'
+      },
+      background: {
+        paper: "#0f1629", // green
+        // default: '#182449',
+      },
+      primary: {
+        main: "#0090FF",
+        contrastText: "#fff",
+      },
+      secondary: {
+        main: '#4CCCE6',
+        contrastText: "#fff",
+      }
+    },
+  },
+  languages: {
+    default: "en",
+  },
+  appearance: "dark",
+  hiddenUI: [HiddenUI.Appearance, HiddenUI.PoweredBy, HiddenUI.Language],
+});

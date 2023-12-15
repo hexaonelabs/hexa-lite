@@ -1,6 +1,5 @@
 import { IChain, CHAIN_AVAILABLES } from "../constants/chains";
 
-
 interface IAnkrTokenReponse {
   blockchain: string;
   tokenName: string;
@@ -45,14 +44,17 @@ const formatingTokensBalances = (assets: IAnkrTokenReponse[], address: string, c
  * @returns object with balances property that contains an array of TokenInterface
  */
 export const getTokensBalances = async (chainIds: number[], address: string) => {
+  const APP_ANKR_APIKEY = process.env.NEXT_PUBLIC_APP_ANKR_APIKEY;
   const chainsList =
     chainIds.length <= 0
       ? CHAIN_AVAILABLES
       : CHAIN_AVAILABLES.filter((availableChain) =>
           chainIds.find((c) => c === availableChain.id)
         );
-  const blockchain = chainsList.map((c) => c.value);
-  const url = `https://rpc.ankr.com/multichain/${process.env?.REACT_APP_ANKR_APIKEY}`;
+  const blockchain = chainsList
+    .filter(({type})=> type === 'evm')
+    .map(({value}) => value);
+  const url = `https://rpc.ankr.com/multichain/${APP_ANKR_APIKEY}`;
   const options: RequestInit = {
     method: 'POST',
     headers: {

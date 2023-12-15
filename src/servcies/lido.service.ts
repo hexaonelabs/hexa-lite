@@ -20,3 +20,25 @@ export const getETHByWstETH = async (
   const ethAmount = json["wrapped-steth"].eth * wstAmount;
   return ethAmount;
 };
+
+export const getBaseAPRstMATIC = async (signal?: AbortSignal) => {
+  const response = await fetch(
+    "https://pol-api-pub.lido.fi/stats",
+    { signal }
+  );
+  const { apr } = await response.json();
+  return { apr };
+};
+
+export const getMATICBystMATIC = async (
+  wstAmount: number,
+  signal?: AbortSignal
+) => {
+  const response = await fetch(
+    "https://api.coingecko.com/api/v3/simple/price?ids=smatic&vs_currencies=matic",
+    { signal }
+  );
+  const json = await response.json();
+  const ethAmount = json["wrapped-steth"].eth * wstAmount;
+  return ethAmount;
+};

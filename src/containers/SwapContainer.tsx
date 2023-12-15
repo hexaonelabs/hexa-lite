@@ -1,132 +1,22 @@
-import { IonCol, IonGrid, IonRow, IonText, useIonToast } from "@ionic/react";
-import { HiddenUI, LiFiWidget, WidgetConfig } from "@lifi/widget";
-import { useMemo } from "react";
-import { connect, disconnect } from "../servcies/magic";
-import { useEthersProvider } from "../context/Web3Context";
+import { IonButton, IonCol, IonGrid, IonRow, IonText, useIonToast } from "@ionic/react";
+import { HiddenUI, WidgetConfig } from "@lifi/widget";
+import { useEffect, useMemo } from "react";
+import { useWeb3Provider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
-import { CHAIN_DEFAULT } from "../constants/chains";
+import { CHAIN_AVAILABLES, CHAIN_DEFAULT, NETWORK } from "../constants/chains";
+import { ethers } from "ethers";
+import { LiFiWidgetDynamic } from "../components/LiFiWidgetDynamic";
+import { LIFI_CONFIG } from '../servcies/lifi.service';
+// import { SquidWidgetDynamic } from "@/components/SquidWidgetDynamic";
+import { SquidWidget } from "@0xsquid/widget";
+import { SQUID_CONFIG } from '@/servcies/squid.service';
 
 export function SwapContainer() {
-  const { initializeWeb3, ethereumProvider } = useEthersProvider();
+  const { web3Provider, currentNetwork, connectWallet, disconnectWallet, walletAddress, switchNetwork } = useWeb3Provider();
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const toastContext = useIonToast();
   const presentToast = toastContext[0];
   const dismissToast = toastContext[1];
-
-  // load environment config
-  const widgetConfig = useMemo((): WidgetConfig => {
-    return {
-      // integrator: "cra-example",
-      integrator: "hexa-lite",
-      fee: 0.005,
-      variant: "expandable",
-      insurance: true,
-      containerStyle: {
-        border: `1px solid rgba(var(--ion-color-primary-rgb), 0.4);`,
-        borderRadius: "32px",
-      },
-      theme: {
-        shape: {
-          borderRadius: 12,
-          borderRadiusSecondary: 24,
-        },
-        palette: {
-          background: {
-            paper: "#1c2b42", //"rgb(39 39 71 / 80%)", // green
-            // default: '#272747',
-          },
-          primary: {
-            main: "#428cff",
-            contrastText: "#fff",
-          },
-          secondary: {
-            main: '#0cceea',
-            contrastText: "#fff",
-          }
-        },
-      },
-      languages: {
-        default: "en",
-      },
-      appearance: "dark",
-      hiddenUI: [HiddenUI.Appearance, HiddenUI.PoweredBy, HiddenUI.Language],
-      walletManagement: {
-        connect: async () => {
-          try {
-            await displayLoader();
-            await connect();
-            // If connection to the wallet was successful, initialize new Web3 instance
-            const provider = await initializeWeb3();
-            const signer = provider?.getSigner();
-            console.log("signer", signer);
-            if (!signer) {
-              throw new Error("Signer not found");
-            }
-            // return signer instance from JsonRpcSigner
-            hideLoader();
-            return signer;
-          } catch (error: any) {
-            // Log any errors that occur during the connection process
-            hideLoader();
-            await presentToast({
-              message: `[ERROR] Connect Failed with reason: ${
-                error?.message || error
-              }`,
-              color: "danger",
-              buttons: [
-                {
-                  text: "x",
-                  role: "cancel",
-                  handler: () => {
-                    dismissToast();
-                  },
-                },
-              ],
-            });
-            throw new Error("handleConnect:" + error?.message);
-          }
-        },
-        disconnect: async () => {
-          try {
-            displayLoader();
-            await disconnect();
-            // After successful disconnection, re-initialize the Web3 instance
-            await initializeWeb3();
-            hideLoader();
-          } catch (error: any) {
-            // Log any errors that occur during the disconnection process
-            console.log("handleDisconnect:", error);
-            hideLoader();
-            await presentToast({
-              message: `[ERROR] Disconnect Failed with reason: ${
-                error?.message || error
-              }`,
-              color: "danger",
-              buttons: [
-                {
-                  text: "x",
-                  role: "cancel",
-                  handler: () => {
-                    dismissToast();
-                  },
-                },
-              ],
-            });
-          }
-        },
-      },
-      // set source chain to Polygon
-      fromChain: ethereumProvider?.network?.chainId || CHAIN_DEFAULT.id,
-      // set destination chain to Optimism
-      toChain: 10,
-      // set source token to ETH (Ethereum)
-      fromToken: "0x0000000000000000000000000000000000000000",
-      // set source token to USDC (Optimism)
-      // toToken: '0x7f5c764cbc14f9669b88837ca1490cca17c31607',
-      // // set source token amount to 10 USDC (Polygon)
-      // fromAmount: 10,
-    };
-  }, []);
 
   // useEffect(() => {
   //   const fetchConfig = async () => {
@@ -150,6 +40,132 @@ export function SwapContainer() {
   //   };
   //   fetchConfig();
   // }, []);
+
+  const setNetwort = async () => {
+    await displayLoader();
+    const isEVM = CHAIN_AVAILABLES.find((chain) => chain.id === currentNetwork)?.type === "evm";
+    if (!isEVM) {
+      console.log(`[INFO] Switch to ${NETWORK.optimism} network`);
+      await switchNetwork(NETWORK.optimism);
+    }
+    await hideLoader();
+  }
+
+  let SwapComponent; 
+  const chain = CHAIN_AVAILABLES.find((chain) => chain.id === currentNetwork);
+  switch (true) {
+    case chain?.type === "evm":{
+      const signer = web3Provider instanceof ethers.providers.Web3Provider && walletAddress ? web3Provider?.getSigner() : undefined;
+      // load environment config
+      const widgetConfig: WidgetConfig = {
+        ...LIFI_CONFIG,
+        walletManagement: {
+          connect: async () => {
+            try {
+              await displayLoader();
+              await connectWallet();
+              if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
+                  throw new Error('[ERROR] Only support ethers.providers.Web3Provider');
+              } 
+              const signer = web3Provider?.getSigner();
+              console.log("signer", signer);
+              if (!signer) {
+                throw new Error("Signer not found");
+              }
+              // return signer instance from JsonRpcSigner
+              hideLoader();
+              return signer;
+            } catch (error: any) {
+              // Log any errors that occur during the connection process
+              hideLoader();
+              await presentToast({
+                message: `[ERROR] Connect Failed with reason: ${
+                  error?.message || error
+                }`,
+                color: "danger",
+                buttons: [
+                  {
+                    text: "x",
+                    role: "cancel",
+                    handler: () => {
+                      dismissToast();
+                    },
+                  },
+                ],
+              });
+              throw new Error("handleConnect:" + error?.message);
+            }
+          },
+          disconnect: async () => {
+            try {
+              displayLoader();
+              await disconnectWallet();
+              hideLoader();
+            } catch (error: any) {
+              // Log any errors that occur during the disconnection process
+              console.log("handleDisconnect:", error);
+              hideLoader();
+              await presentToast({
+                message: `[ERROR] Disconnect Failed with reason: ${
+                  error?.message || error
+                }`,
+                color: "danger",
+                buttons: [
+                  {
+                    text: "x",
+                    role: "cancel",
+                    handler: () => {
+                      dismissToast();
+                    },
+                  },
+                ],
+              });
+            }
+          },
+          signer,
+        },
+        // set source chain to Polygon
+        fromChain: currentNetwork || CHAIN_DEFAULT.id,
+        // set destination chain to Optimism
+        toChain: currentNetwork || CHAIN_DEFAULT.id,
+        // set source token to ETH (Ethereum)
+        fromToken: "0x0000000000000000000000000000000000000000",
+      };   
+      SwapComponent = <LiFiWidgetDynamic config={widgetConfig} integrator="hexa-lite" />;
+      break;
+    }
+    case chain?.type === 'cosmos': {
+      SwapComponent = <SquidWidget config={{
+        ...SQUID_CONFIG
+      }} />;
+      break;
+    }
+    default:
+      SwapComponent = (<>
+        <div className="ion-text-center">
+          <IonText className="ion-text-center">
+            <p>
+              Exchange with {chain?.name} network is not supported yet.
+            </p>
+          </IonText>
+          <IonButton 
+            color="gradient"
+            onClick={async()=> {
+              await displayLoader();
+              await switchNetwork(CHAIN_DEFAULT.id);
+              await hideLoader();
+            }}>
+            Switch to EVM Network
+          </IonButton>
+        </div>
+      </>
+      );
+      break;
+  }
+
+  // useEffect(()=> {
+  //   setNetwort();
+  // }, [currentNetwork]);
 
   return (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
@@ -177,10 +193,10 @@ export function SwapContainer() {
           <div
             style={{
               paddingTop: "1rem",
-              paddingBottom: "10rem",
+              paddingBottom: "10rem"
             }}
           >
-            <LiFiWidget config={widgetConfig} integrator="hexa-lite" />
+            {SwapComponent}
           </div>
         </IonCol>
       </IonRow>
