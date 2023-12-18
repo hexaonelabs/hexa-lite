@@ -32,14 +32,18 @@ export class EVMWalletUtils extends MagicWalletUtils {
     ) {
       this.isMagicWallet = false;
       await this._setMetamaskNetwork();
+    } else {
+      this.isMagicWallet = true;
     }
-    
     // get account address and wallet type
     try {
       const signer = web3Provider?.getSigner();
       this.walletAddress = (await signer?.getAddress()) || undefined;
     } catch (error) {
-      console.error('[ERROR] User is not connected. Unable to get wallet address.', error);
+      console.error(
+        "[ERROR] User is not connected. Unable to get wallet address.",
+        error
+      );
       // return;
     }
     if (this.walletAddress) {
