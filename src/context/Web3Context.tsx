@@ -5,7 +5,6 @@ import { ethers } from "ethers";
 import { CHAIN_DEFAULT, NETWORK } from "../constants/chains";
 import { StargateClient } from "@cosmjs/stargate";
 import { IAsset } from "../interfaces/asset.interface";
-import { connect, disconnect, getMagic } from "@/servcies/magic";
 import { MagicWalletUtils } from "@/network/MagicWallet";
 
 import { Connection as SolanaClient } from '@solana/web3.js';
@@ -47,57 +46,25 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
     walletAddress: undefined,
     isMagicWallet: false,
     connectWallet: async (ops?: {email: string;}) => {
-      const magicUtils = await MagicWalletUtils.create();
-      await magicUtils.connect(ops);
-      const address = magicUtils.walletAddress;
-      const web3Provider = magicUtils.web3Provider;
-      const currentNetwork = magicUtils.network;
-      const assets = magicUtils.assets;
-      // const address = await connect();
-      // const magic = await getMagic()
-      // console.log(`[INFO] {{Web3Context}} connectWallet() - `, address);
-      // const info = await magic.user.getInfo();
-      // const isLoggedIn = await magic.user.isLoggedIn();
-      // const provider = await magic.wallet.getProvider();
-      // const web3Provider = new ethers.providers.Web3Provider(
-      //   provider,
-      //   "any"
-      // );
-      // const signer = web3Provider.getSigner();
-      setWeb3State((prev) => ({
-        ...prev,
-        currentNetwork,
-        walletAddress: address || undefined,
-        web3Provider,
-        assets
-      }));
+      throw new Error('connectWallet() not implemented');
     },
     disconnectWallet: async () => {
-      await disconnect();
-      setWeb3State((prev) => ({
-        ...prev,
-        currentNetwork: CHAIN_DEFAULT.id,
-        walletAddress: undefined,
-        web3Provider: null,
-      }));
+      throw new Error('disconnectWallet() not implemented');
     },
     switchNetwork: async (chainId: number) => {
       console.log('[INFO] {{Web3Context}} switchNetwork() - ', chainId)
-      const magicUtils = await MagicWalletUtils.create(chainId);
-      setWeb3State((prev) => ({
-        ...prev,
-        currentNetwork: magicUtils.network,
-        walletAddress: magicUtils.walletAddress,
-        web3Provider: magicUtils.web3Provider,
-      }));
+      await initializeWeb3(chainId);
     },
     web3Provider: null
   });
 
-  const initializeWeb3 = async () => {
-    console.log(`[INFO] {{Web3Context}} initializeWeb3() - `, CHAIN_DEFAULT.id);
-    
-    const magicUtils = await MagicWalletUtils.create(CHAIN_DEFAULT.id);
+  const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
+    console.log(`[INFO] {{Web3Context}} initializeWeb3() - `, chainId);
+    const magicUtils = await MagicWalletUtils.create(chainId);
+    setStateValue(magicUtils);
+  };
+
+  const setStateValue = (magicUtils: MagicWalletUtils) => {
     const web3Provider = magicUtils.web3Provider;
     const walletAddress = magicUtils.walletAddress;
     const currentNetwork = magicUtils.network;
@@ -109,9 +76,17 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
       walletAddress,
       currentNetwork,
       assets,
-      isMagicWallet
+      isMagicWallet,
+      disconnectWallet: async () => {
+        await magicUtils.disconnect();
+        setStateValue(magicUtils);
+      },
+      connectWallet: async (ops?: {email: string;}) => {
+        await magicUtils.connect(ops);
+        setStateValue(magicUtils);
+      }
     }));
-  };
+  }
 
   useEffect(() => {
     initializeWeb3();
