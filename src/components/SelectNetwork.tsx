@@ -9,6 +9,7 @@ import {
   IonItem,
   IonLabel,
   IonAvatar,
+  IonText,
 } from "@ionic/react";
 import { closeSharp } from "ionicons/icons";
 import { IChain } from "@/constants/chains";
@@ -28,9 +29,19 @@ export const SelectNetwork: React.FC<SelectNetworkProps> = ({
     <IonGrid className="ion-no-padding">
       <IonRow>
         <IonCol size="10" className="ion-padding-start">
-          <h3 className="ion-padding">
+          <h3 className="ion-padding-horizontal ion-padding-top">
             <b>Select network</b>
           </h3>
+          {!isMagicWallet && (
+            <IonText color="medium">
+              <p
+                className="ion-no-margin ion-padding-horizontal ion-padding-bottom"
+                style={{ marginTop: "-0.5rem" }}
+              >
+                <small>Use e-mail or social login to enable all chains</small>
+              </p>
+            </IonText>
+          )}
         </IonCol>
         <IonCol size="2" class="ion-text-end">
           <IonButton
@@ -51,28 +62,31 @@ export const SelectNetwork: React.FC<SelectNetworkProps> = ({
             }}
           >
             {chains
-            .filter(chain => isMagicWallet ? true : chain.type === "evm")
-            .map((chain, index) => (
-              <IonItem
-                key={index}
-                lines="none"
-                button={true}
-                detail={false}
-                style={{ "--background": "transparent" }}
-                onClick={() => dismiss(chain.id, "getAddressFromNetwork")}
-              >
-                <IonAvatar slot="start">
-                  <IonIcon
-                    className="ion-padding-start"
-                    style={{ fontSize: "1.5rem" }}
-                    src={chain.logo}
-                  ></IonIcon>
-                </IonAvatar>
-                <IonLabel>
-                  <h2>{chain.name}</h2>
-                </IonLabel>
-              </IonItem>
-            ))}
+              // .filter(chain => isMagicWallet ? true : chain.type === "evm")
+              .map((chain, index) => (
+                <IonItem
+                  key={index}
+                  lines="none"
+                  button={true}
+                  detail={false}
+                  disabled={
+                    isMagicWallet ? false : chain.type === "evm" ? false : true
+                  }
+                  style={{ "--background": "transparent" }}
+                  onClick={() => dismiss(chain.id, "getAddressFromNetwork")}
+                >
+                  <IonAvatar slot="start">
+                    <IonIcon
+                      className="ion-padding-start"
+                      style={{ fontSize: "1.5rem" }}
+                      src={chain.logo}
+                    ></IonIcon>
+                  </IonAvatar>
+                  <IonLabel>
+                    <h2>{chain.name}</h2>
+                  </IonLabel>
+                </IonItem>
+              ))}
           </IonList>
         </IonCol>
       </IonRow>
