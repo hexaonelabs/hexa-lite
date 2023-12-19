@@ -129,11 +129,11 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
           ? Number(reserve.variableBorrowAPY)
           : 0;
         const supplyAPY = Number(reserve.supplyAPY);
-        /// TODO: implement value
         const walletBalance = 0;
         const supplyBalance = 0;
         const borrowBalance = 0;
         const userLiquidationThreshold = -1;
+        const poolLiquidationThreshold = Number(reserve.formattedEModeLiquidationThreshold);
         const marketPool = MarketPool.create<AavePool>({
           ...reserve,
           provider: 'aave-v3',
@@ -144,7 +144,8 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
           walletBalance,
           supplyBalance,
           borrowBalance,
-          userLiquidationThreshold
+          userLiquidationThreshold,
+          poolLiquidationThreshold,
         });
         const poolGroup = acc.find((r) => r.symbol === symbol);
         if (poolGroup) {
@@ -275,6 +276,8 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
               (asset) => asset.chain?.id === pool.chainId 
               && asset.contractAddress === pool.underlyingAsset
             )?.balance || 0;
+
+            const poolLiquidationThreshold =  Number(userReserve?.reserve?.formattedReserveLiquidationThreshold||-1);
             // get `userLiquidationThreshold` from `userSummaryAndIncentivesGroup` Object
             const userLiquidationThreshold = userSummaryAndIncentivesGroup
             .find((userSummary) => userSummary.chainId === pool.chainId)?.currentLiquidationThreshold;
@@ -286,7 +289,8 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
               supplyBalance: Number(userReserve?.underlyingBalance) || 0,
               borrowBalance: Number(userReserve?.totalBorrows) || 0,
               walletBalance,
-              userLiquidationThreshold: Number(userLiquidationThreshold)
+              userLiquidationThreshold: Number(userLiquidationThreshold),
+              poolLiquidationThreshold
             });
           })
           .sort((a, b) => {
