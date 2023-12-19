@@ -1,10 +1,14 @@
-import { IonCol, IonGrid, IonLabel, IonRow } from "@ionic/react";
+import { IonCol, IonGrid, IonIcon, IonLabel, IonRow } from "@ionic/react";
+import { chevronExpandSharp } from 'ionicons/icons';
 
 interface IPoolHeaderListProps {
   titles: string[];
   colSize?: string;
+  handleEvent: (action: {
+    type: string,
+    payload?: any
+  })=> void;
 }
-
 export function PoolHeaderList(props: IPoolHeaderListProps) {
   const { titles, colSize } = props;
 
@@ -16,9 +20,18 @@ export function PoolHeaderList(props: IPoolHeaderListProps) {
           if (index === 0) {
             Col = (
               <IonCol key={index} size-md={colSize ? colSize : '3'} class="ion-padding-start">
-                <IonLabel>
+                <IonLabel onClick={()=> props.handleEvent({
+                  type: 'sort',
+                  payload: 'symbol'
+                })}>
                   <h3>
                     {title}
+                    <IonIcon style={{
+                      fontSize: '0.6rem',
+                      marginLeft: '0.25rem',
+                      display: 'inline-block',
+                      cursor: 'pointer'
+                    }} icon={chevronExpandSharp} />
                   </h3>
                 </IonLabel>
               </IonCol>
@@ -32,7 +45,9 @@ export function PoolHeaderList(props: IPoolHeaderListProps) {
                 class="ion-text-center ion-hide-md-down"
               >
                 <IonLabel>
-                  <h3>{title}</h3>
+                  <h3>
+                    {title}
+                  </h3>
                 </IonLabel>
               </IonCol>
             );
@@ -43,6 +58,10 @@ export function PoolHeaderList(props: IPoolHeaderListProps) {
                 size="auto" 
                 size-md="2" 
                 class="ion-hide-md-down ion-text-end"
+                onClick={()=> props.handleEvent({
+                  type: 'sort',
+                  payload: title
+                })}
               >
                 <IonLabel>
                   <h3 
@@ -53,6 +72,12 @@ export function PoolHeaderList(props: IPoolHeaderListProps) {
                        }}
                   >
                     {title}
+                    <IonIcon style={{
+                      fontSize: '0.6rem',
+                      marginLeft: '0.25rem',
+                      display: 'inline-block',
+                      cursor: 'pointer'
+                    }} icon={chevronExpandSharp} />
                   </h3>
                 </IonLabel>
               </IonCol>
@@ -60,41 +85,6 @@ export function PoolHeaderList(props: IPoolHeaderListProps) {
           }
           return Col;
         })}
-
-        {/* <IonCol size-md="3" class="ion-padding-start">
-          <IonLabel color="medium">
-            <h3>Asset</h3>
-          </IonLabel>
-        </IonCol>
-        <IonCol
-          size="auto"
-          size-md="1"
-          class="ion-text-center ion-hide-md-down"
-        >
-          <IonLabel color="medium">
-            <h3>Protocol</h3>
-          </IonLabel>
-        </IonCol>
-        <IonCol size="auto" size-md="2" class="ion-text-end  ion-hide-md-down">
-          <IonLabel color="medium">
-            <h3 style={{ marginRight: "0.6rem" }}>Deposits</h3>
-          </IonLabel>
-        </IonCol>
-        <IonCol size="auto" size-md="2" class="ion-text-end  ion-hide-md-down">
-          <IonLabel color="medium">
-            <h3 style={{ marginRight: "1.2rem" }}>Borrows</h3>
-          </IonLabel>
-        </IonCol>
-        <IonCol size="auto" size-md="2" class="ion-text-end">
-          <IonLabel color="medium">
-            <h3 style={{ marginRight: "1.8rem" }}>Deposit APY</h3>
-          </IonLabel>
-        </IonCol>
-        <IonCol size="auto" size-md="2" class="ion-text-end ion-hide-sm-down">
-          <IonLabel color="medium">
-            <h3 style={{ paddingRight: "2rem" }}>Borrow APY</h3>
-          </IonLabel>
-        </IonCol> */}
       </IonRow>
     </IonGrid>
   );

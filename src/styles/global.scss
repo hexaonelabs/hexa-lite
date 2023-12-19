@@ -216,6 +216,7 @@ ion-accordion {
   border-top: solid 1px var(--ion-border-color);
   border-bottom: solid 1px var(--ion-border-color);
   ion-label {
+    cursor: default;
     opacity: 0.6;
     h3 {
       font-size: 0.8rem;

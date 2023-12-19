@@ -24,9 +24,9 @@ import { useEffect, useState } from "react";
 import { MarketList } from "../components/MarketsList";
 import { currencyFormat } from "../utils/currency-format";
 import { useWeb3Provider } from "../context/Web3Context";
-import { A } from "@bgd-labs/aave-address-book/dist/AaveV2EthereumAMM-7c73b6ab";
 import { valueToBigNumber } from "@aave/math-utils";
 import { getReadableAmount } from "@/utils/getReadableAmount";
+import { IAavePool } from "@/pool/Aave.pool";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -69,15 +69,26 @@ export const DefiContainer = ({
   const [filterBy, setFilterBy] = useState<{ [key: string]: string } | null>(
     null
   );
-  
-  const totalBorrowsUsd = poolGroups
-    .map((pool) => valueToBigNumber(pool.totalBorrowBalance).multipliedBy(pool.priceInUSD).toFixed(2))
-    .map((amount) => Number(amount))
-    .reduce((a, b) => a + b, 0) || 0;
-  const totalSupplyUsd = poolGroups
-    .map((pool) => valueToBigNumber(pool.totalSupplyBalance).multipliedBy(pool.priceInUSD).toFixed(2))
-    .map((amount) => Number(amount))
-    .reduce((a, b) => a + b, 0) || 0;
+
+  const totalBorrowsUsd =
+    poolGroups
+      .map((pool) =>
+        valueToBigNumber(pool.totalBorrowBalance)
+          .multipliedBy(pool.priceInUSD)
+          .toFixed(2)
+      )
+      .map((amount) => Number(amount))
+      .reduce((a, b) => a + b, 0) || 0;
+  const totalSupplyUsd =
+    poolGroups
+      .map((pool) =>
+        valueToBigNumber(pool.totalSupplyBalance)
+          .multipliedBy(pool.priceInUSD)
+          .toFixed(2)
+      )
+      .map((amount) => Number(amount))
+      .reduce((a, b) => a + b, 0) || 0;
+
   const totalCollateralUsd =
     userSummaryAndIncentivesGroup
       ?.map((summary) => Number(summary?.totalCollateralUSD || 0))
@@ -86,21 +97,83 @@ export const DefiContainer = ({
   // This is based on the amount of your collateral supplied (totalCollateralUSD) and the total amount that you can borrow (totalCollateralUSD - totalBorrowsUsd)
   // remove `currentLiquidationThreshold` present in the `userSummaryAndIncentivesGroup` response
   const poolGroupsWithUserLiquidationThresholdValue = poolGroups
-    .flatMap(({pools}) => pools)
-    .filter(
-        (pool) => pool.userLiquidationThreshold > 0
-    );
-  const totalLiquidationThreshold = poolGroupsWithUserLiquidationThresholdValue
-    .map((pool) =>pool.userLiquidationThreshold )
-    .reduce((a, b) => a + b, 0) / poolGroupsWithUserLiquidationThresholdValue.length||0;
+    .flatMap(({ pools }) => pools)
+    .filter((pool) => !(pool as IAavePool).isIsolated)
+    .filter((pool) => pool.borrowBalance > 0)
+    .filter((pool) => pool.userLiquidationThreshold > 0);
+  const totalLiquidationThreshold =
+    poolGroupsWithUserLiquidationThresholdValue
+      .map((pool) => pool.userLiquidationThreshold)
+      .reduce((a, b) => a + b, 0) /
+      poolGroupsWithUserLiquidationThresholdValue.length || 0;
 
   const totalBorrowableUsd = totalCollateralUsd * totalLiquidationThreshold;
   const percentBorrowingCapacity =
     100 - getPercent(totalBorrowsUsd, totalBorrowableUsd);
-  const progressBarFormatedValue = percentBorrowingCapacity / 100;
+  // const progressBarFormatedValue = percentBorrowingCapacity / 100;
   const totalAbailableToBorrow = totalBorrowableUsd - totalBorrowsUsd;
 
-  console.log("[INFO] {{DefiContainer}} poolGroups > ", poolGroups, totalCollateralUsd);
+  const protocolSummary = poolGroups
+    .flatMap(({ pools }) => pools)
+    .filter((pool) => pool.borrowBalance > 0 || pool.supplyBalance > 0)
+    .reduce(
+      (acc, pool) => {
+        // check if the pool is already in the array
+        const index = acc.findIndex(
+          (p) => p.chainId === pool.chainId && p.provider === pool.provider
+        );
+        const totalSupplyUSD = Number(
+          valueToBigNumber(pool.supplyBalance).multipliedBy(pool.priceInUSD)
+        );
+        const totalBorrowsUSD = Number(
+          valueToBigNumber(pool.borrowBalance).multipliedBy(pool.priceInUSD)
+        );
+        const totalCollateralUSD = Number(
+          valueToBigNumber(
+            pool.supplyBalance * pool.userLiquidationThreshold
+          ).multipliedBy(pool.priceInUSD)
+        );
+
+        if (index > -1) {
+          // if it is, update the totalBorrowsUSD
+          acc[index].totalBorrowsUSD =
+            Number(acc[index].totalBorrowsUSD) + totalBorrowsUSD;
+          // update the totalCollateralUSD
+          acc[index].totalCollateralUSD =
+            Number(acc[index].totalCollateralUSD) + totalCollateralUSD;
+          acc[index].totalSupplyUSD =
+            Number(acc[index].totalSupplyUSD) + totalSupplyUSD;
+        } else {
+          // if it is not, add it to the array
+          acc.push({
+            chainId: pool.chainId,
+            provider: pool.provider,
+            totalSupplyUSD,
+            totalCollateralUSD,
+            totalBorrowsUSD,
+            currentLiquidationThreshold: pool.userLiquidationThreshold,
+          });
+        }
+        return acc;
+      },
+      [] as {
+        chainId: number;
+        provider: string;
+        totalSupplyUSD: number;
+        totalCollateralUSD: number;
+        totalBorrowsUSD: number;
+        currentLiquidationThreshold: number;
+      }[]
+    );
+  console.log("[INFO] {{DefiContainer}} poolGroups > ", {
+    poolGroups,
+    poolGroupsWithUserLiquidationThresholdValue,
+    userSummaryAndIncentivesGroup,
+    totalLiquidationThreshold,
+    totalCollateralUsd,
+    totalBorrowableUsd,
+    protocolSummary,
+  });
 
   useEffect(() => {}, []);
 
@@ -126,9 +199,14 @@ export const DefiContainer = ({
               }}
             >
               <span style={{ maxWidth: "800px", display: "inline-block" }}>
-                Connect to DeFi liquidity protocols and access to {poolGroups.length} markets across {CHAIN_AVAILABLES.filter(chain => chain.type === 'evm').length} networks, borrow assets
-                using your crypto as collateral and earn interest by providing
-                liquidity over
+                Connect to DeFi liquidity protocols and access to{" "}
+                {poolGroups.length} markets across{" "}
+                {
+                  CHAIN_AVAILABLES.filter((chain) => chain.type === "evm")
+                    .length
+                }{" "}
+                networks, borrow assets using your crypto as collateral and earn
+                interest by providing liquidity over
               </span>
               <span
                 className="ion-color-gradient-text"
@@ -156,27 +234,19 @@ export const DefiContainer = ({
               <IonItem slot="header">
                 <IonGrid class="ion-no-padding">
                   <IonRow class="ion-text-center">
-                    <IonCol
-                      size="12"
-                      size-md="4"
-                      class=" ion-padding-vertical"
-                    >
+                    <IonCol size="12" size-md="4" class=" ion-padding-vertical">
                       <h3>{currencyFormat(totalSupplyUsd)}</h3>
                       <p>
                         DEPOSIT BALANCE
                         <IonText color="medium">
                           <br />
                           <small>
-                            Total funds deposited as collateral to borrow
+                            Total funds deposited across all protocols
                           </small>
                         </IonText>
                       </p>
                     </IonCol>
-                    <IonCol
-                      size="12"
-                      size-md="4"
-                      class=" ion-padding-vertical"
-                    >
+                    <IonCol size="12" size-md="4" class=" ion-padding-vertical">
                       <h3>{Number(percentBorrowingCapacity.toFixed(2))}%</h3>
                       <p>
                         BORROWING CAPACITY
@@ -200,11 +270,7 @@ export const DefiContainer = ({
                           ></IonProgressBar>
                         </div> */}
                     </IonCol>
-                    <IonCol
-                      size="12"
-                      size-md="4"
-                      class=" ion-padding-vertical"
-                    >
+                    <IonCol size="12" size-md="4" class=" ion-padding-vertical">
                       <h3>{currencyFormat(totalAbailableToBorrow)}</h3>
                       <p>
                         AVAILABLE TO BORROW
@@ -288,215 +354,180 @@ export const DefiContainer = ({
                       </IonRow>
                     </IonGrid>
                     {/* Pools grouped by Protocol and Chain */}
-                    {poolGroups
-                      .flatMap(({pools})=> pools)
-                      .filter(pool => pool.borrowBalance > 0 || pool.supplyBalance > 0)
-                      .reduce((acc, pool) => {
-                        // check if the pool is already in the array
-                        const index = acc.findIndex(
-                          (p) => p.chainId === pool.chainId && p.provider === pool.provider
-                        );
-                        const totalBorrowsUSD = Number(valueToBigNumber(
-                          pool.borrowBalance).multipliedBy(pool.priceInUSD));
-                        const totalCollateralUSD = Number(valueToBigNumber(
-                          pool.supplyBalance).multipliedBy(pool.priceInUSD));
-                        
-                        if (index > -1) {
-                          // if it is, update the totalBorrowsUSD
-                          acc[index].totalBorrowsUSD = (
-                            Number(acc[index].totalBorrowsUSD) +
-                            totalBorrowsUSD
-                          );
-                          // update the totalCollateralUSD
-                          acc[index].totalCollateralUSD = (
-                            Number(acc[index].totalCollateralUSD) +
-                            totalCollateralUSD
-                          );
-                        } else {
-                          // if it is not, add it to the array
-                          acc.push({
-                            chainId: pool.chainId,
-                            provider: pool.provider,
-                            totalCollateralUSD,
-                            totalBorrowsUSD,
-                            currentLiquidationThreshold: pool.userLiquidationThreshold,
-                          });
-                        }
-                        return acc;
-                      }, [] as {
-                        chainId: number;
-                        provider: string;
-                        totalCollateralUSD: number;
-                        totalBorrowsUSD: number;
-                        currentLiquidationThreshold: number;
-                      }[])
-                      .map((summary, index) => (
-                        <IonItem
-                          key={index}
-                          lines="none"
-                          style={{ cursor: "default" }}
-                          onClick={() => {
-                            setFilterBy((s) => ({
-                              ...s,
-                              chainId: summary.chainId.toString(),
-                              protocol: summary.provider,
-                            }));
+                    {protocolSummary.map((summary, i) => (
+                      <IonItem
+                        key={i}
+                        lines="none"
+                        style={{ cursor: "default" }}
+                        onClick={() => {
+                          setFilterBy((s) => ({
+                            ...s,
+                            chainId: summary.chainId.toString(),
+                            protocol: summary.provider,
+                          }));
+                        }}
+                      >
+                        <IonGrid
+                          className={"ion-no-padding "}
+                          style={{
+                            paddingBottom:
+                              i !== protocolSummary.length - 1 ? "0" : "1rem",
                           }}
                         >
-                          <IonGrid
-                            className="ion-no-padding"
-                            style={{
-                              paddingBottom:
-                                index ===
-                                poolGroups.length - 1
-                                  ? "0"
-                                  : "1rem",
-                            }}
-                          >
-                            <IonRow className="poolItemList ion-align-items-center ion-justify-content-between ion-no-padding ion-padding-start">
-                              <IonCol
-                                size-md="3"
-                                class="ion-padding-horizontal ion-text-start"
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  alignContent: "center",
-                                }}
-                              >
-                                <div>
-                                  <IonAvatar
-                                    style={{
-                                      height: "38px",
-                                      width: "38px",
-                                      minHeight: "38px",
-                                      minWidth: "38px",
-                                    }}
-                                  >
-                                    <IonImg src="./assets/icons/aave.svg"></IonImg>
-                                  </IonAvatar>
-                                  <IonIcon
-                                    style={{
-                                      fontSize: "0.8rem",
-                                      transform: "translateX(-0.2rem)",
-                                      position: "absolute",
-                                      bottom: "0.15rem",
-                                    }}
-                                    src={
+                          <IonRow className="poolItemList ion-align-items-center ion-justify-content-between ion-no-padding ion-padding-start ion-padding-vertical">
+                            <IonCol
+                              size-md="3"
+                              class="ion-padding-horizontal ion-text-start"
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                alignContent: "center",
+                              }}
+                            >
+                              <div>
+                                <IonAvatar
+                                  style={{
+                                    height: "38px",
+                                    width: "38px",
+                                    minHeight: "38px",
+                                    minWidth: "38px",
+                                  }}
+                                >
+                                  <IonImg src="./assets/icons/aave.svg"></IonImg>
+                                </IonAvatar>
+                                <IonIcon
+                                  style={{
+                                    fontSize: "0.8rem",
+                                    transform: "translateX(-0.2rem)",
+                                    position: "absolute",
+                                    bottom: "0.15rem",
+                                  }}
+                                  src={
+                                    CHAIN_AVAILABLES.find(
+                                      (c) => c.id === summary.chainId
+                                    )?.logo
+                                  }
+                                ></IonIcon>
+                              </div>
+                              <IonLabel class="ion-padding-start">
+                                AAVE V3
+                                <p>
+                                  <small>
+                                    {
                                       CHAIN_AVAILABLES.find(
                                         (c) => c.id === summary.chainId
-                                      )?.logo
-                                    }
-                                  ></IonIcon>
-                                </div>
-                                <IonLabel class="ion-padding-start">
-                                  AAVE V3
-                                  <p>
-                                    <small>
-                                      {
-                                        CHAIN_AVAILABLES.find(
-                                          (c) => c.id === summary.chainId
-                                        )?.name
-                                      }{" "}
-                                      network
-                                    </small>
-                                  </p>
-                                </IonLabel>
-                              </IonCol>
-                              <IonCol
-                                size="auto"
-                                size-md="2"
-                                class="ion-padding-horizontal ion-text-end ion-hide-md-down"
-                              >
-                                <IonText color="dark">
-                                  {currencyFormat(+summary.totalCollateralUSD)}
-                                </IonText>
-                              </IonCol>
-                              <IonCol
-                                size="auto"
-                                size-md="2"
-                                class="ion-padding-horizontal ion-text-end ion-hide-md-down"
-                              >
-                                <IonText color="dark">
-                                  {currencyFormat(+summary.totalBorrowsUSD)}
-                                </IonText>
-                              </IonCol>
-                              <IonCol
-                                size="auto"
-                                size-md="2"
-                                class="ion-padding-horizontal ion-text-end ion-hide-md-down"
-                              >
-                                <IonText color="dark">
-                                  {currencyFormat(
-                                    Number(summary.totalCollateralUSD) *
-                                      Number(
-                                        summary.currentLiquidationThreshold
-                                      ) -
-                                      Number(summary.totalBorrowsUSD)
-                                  )}
-                                </IonText>
-                              </IonCol>
-                              <IonCol
-                                size="6"
-                                size-md="3"
-                                class="ion-padding-horizontal ion-text-end"
-                              >
-                                <IonText color="dark">
-                                  {currencyFormat(+summary.totalBorrowsUSD)} of{" "}
-                                  {currencyFormat(
-                                    Number(summary.totalCollateralUSD) *
-                                      Number(
-                                        summary.currentLiquidationThreshold
-                                      )
-                                  )}{" "}
+                                      )?.name
+                                    }{" "}
+                                    network
+                                  </small>
+                                </p>
+                              </IonLabel>
+                            </IonCol>
+                            <IonCol
+                              size="auto"
+                              size-md="2"
+                              class="ion-padding-horizontal ion-text-end ion-hide-md-down"
+                            >
+                              <IonText color="dark">
+                                {currencyFormat(+summary.totalSupplyUSD)}
+                                <br />
+                                <IonText color="medium">
                                   <small>
-                                    (
-                                    {(
-                                      100 -
-                                      getPercent(
-                                        +summary.totalBorrowsUSD,
-                                        Number(summary.totalCollateralUSD) *
-                                          Number(
-                                            summary.currentLiquidationThreshold
-                                          )
-                                      )
-                                    ).toFixed(2)}
-                                    %)
+                                    {currencyFormat(
+                                      summary.totalSupplyUSD *
+                                        summary.currentLiquidationThreshold
+                                    )}{" "}
+                                    as Collatreral
                                   </small>
                                 </IonText>
-                                <IonProgressBar
-                                  color="success"
-                                  value={
-                                    (100 -
-                                      getPercent(
-                                        +summary.totalBorrowsUSD,
-                                        +summary.totalCollateralUSD
-                                      )) /
-                                    100
-                                  }
-                                  style={{
-                                    background: "var(--ion-color-danger)",
-                                    height: "0.2rem",
-                                    marginTop: "0.25rem",
-                                    maxWidth: '250px',
-                                    display: 'inline-block'
-                                  }}
-                                ></IonProgressBar>
-                              </IonCol>
-                            </IonRow>
-                          </IonGrid>
-                        </IonItem>
-                      ))}
+                              </IonText>
+                            </IonCol>
+                            <IonCol
+                              size="auto"
+                              size-md="2"
+                              class="ion-padding-horizontal ion-text-end ion-hide-md-down"
+                            >
+                              <IonText color="dark">
+                                {currencyFormat(+summary.totalBorrowsUSD)}
+                              </IonText>
+                            </IonCol>
+                            <IonCol
+                              size="auto"
+                              size-md="2"
+                              class="ion-padding-horizontal ion-text-end ion-hide-md-down"
+                            >
+                              <IonText color="dark">
+                                {currencyFormat(
+                                  summary.totalCollateralUSD *
+                                    summary.currentLiquidationThreshold -
+                                    summary.totalBorrowsUSD
+                                )}
+                              </IonText>
+                            </IonCol>
+                            <IonCol
+                              size="6"
+                              size-md="3"
+                              class="ion-padding-horizontal ion-text-end"
+                            >
+                              <IonText color="dark">
+                                {currencyFormat(+summary.totalBorrowsUSD)} of{" "}
+                                {currencyFormat(
+                                  summary.totalCollateralUSD *
+                                    summary.currentLiquidationThreshold
+                                )}{" "}
+                                <small>
+                                  (
+                                  {(
+                                    100 -
+                                    getPercent(
+                                      +summary.totalBorrowsUSD,
+                                      summary.totalCollateralUSD *
+                                        summary.currentLiquidationThreshold
+                                    )
+                                  ).toFixed(2)}
+                                  %)
+                                </small>
+                              </IonText>
+                              <IonProgressBar
+                                color="success"
+                                value={
+                                  (100 -
+                                    getPercent(
+                                      +summary.totalBorrowsUSD,
+                                      summary.totalCollateralUSD *
+                                        summary.currentLiquidationThreshold
+                                    )) /
+                                  100
+                                }
+                                style={{
+                                  background: "var(--ion-color-danger)",
+                                  height: "0.2rem",
+                                  marginTop: "0.25rem",
+                                  maxWidth: "250px",
+                                  display: "inline-block",
+                                }}
+                              ></IonProgressBar>
+                            </IonCol>
+                          </IonRow>
+                        </IonGrid>
+                      </IonItem>
+                    ))}
                   </>
                 )}
                 {(!walletAddress || totalCollateralUsd === 0) && (
                   <IonGrid class="ion-no-padding">
                     <IonRow class="ion-text-center">
-                      <IonCol size="12" class="ion-text-center ion-padding-horizontal">
+                      <IonCol
+                        size="12"
+                        class="ion-text-center ion-padding-horizontal"
+                      >
                         <IonText>
                           <p>
-                            {!walletAddress ? "Connect wallet and deposit" : "Deposit"}{" "}
-                            assets as collateral to borrow and start earning
-                            interest
+                            {!walletAddress
+                              ? "Connect wallet and deposit"
+                              : "Deposit"}{" "}
+                            assets as collateral to start earning
+                            interest and enable borrowing
                           </p>
                         </IonText>
                       </IonCol>

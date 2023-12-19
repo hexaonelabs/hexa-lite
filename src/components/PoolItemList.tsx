@@ -69,8 +69,8 @@ export function PoolItemList(props: IPoolItemListProps) {
                 iconSize={iconSize}
                 />
               <IonLabel class="ion-padding-start">
-                {pool?.symbol}
-                {(pool?.usageAsCollateralEnabled === false) && (
+                {pool.symbol} 
+                {(pool.usageAsCollateralEnabled === false) && (
                   <IonIcon
                     icon={warningOutline}
                     color="warning"

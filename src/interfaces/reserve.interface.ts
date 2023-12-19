@@ -33,6 +33,7 @@ export interface IMarketPool {
       readonly walletBalance: number;
       readonly supplyBalance: number;
       readonly borrowBalance: number;
+      readonly poolLiquidationThreshold: number;
       readonly userLiquidationThreshold: number;
       readonly logo?: string;
 };
