@@ -35,6 +35,7 @@ export abstract class MarketPool implements IMarketPool {
   readonly supplyBalance: number;
   readonly borrowBalance: number;
   readonly userLiquidationThreshold: number;
+  readonly poolLiquidationThreshold: number;
   readonly logo?: string;
 
 
@@ -76,6 +77,7 @@ export abstract class MarketPool implements IMarketPool {
     this.supplyBalance = pool.supplyBalance;
     this.borrowBalance = pool.borrowBalance;
     this.userLiquidationThreshold = pool.userLiquidationThreshold;
+    this.poolLiquidationThreshold = pool.poolLiquidationThreshold;
     this.logo = pool.logo;
   }
 

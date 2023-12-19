@@ -16,7 +16,7 @@ import { PoolAccordionGroup } from "./PoolAccordionGroup";
 import { useAave } from "../context/AaveContext";
 import { useState } from "react";
 import { CHAIN_AVAILABLES } from "../constants/chains";
-import { IReserve } from "../interfaces/reserve.interface";
+import { IPoolGroup, IReserve } from "../interfaces/reserve.interface";
 
 export function MarketList(props: {
   filterBy?: {
@@ -31,6 +31,8 @@ export function MarketList(props: {
   }|null>(
     (filterFromParent as any)
   );
+  // sort state
+  const [sortBy, setSortBy] = useState<Partial<Record<keyof IPoolGroup, "asc" | "desc">> | null>(null);
   const filterArgs = { ...filterFromParent, ...filterBy } ;
   // remove all group from `poolGroup` that not respect all filterBy argument
   // and return only pool that respect all filterBy argument
@@ -192,13 +194,52 @@ export function MarketList(props: {
               "Assets",
               "Networks",
               "Total deposits",
-              " Total borrows",
+              "Total borrows",
               "Best deposit APY",
               "Best borrow APY",
             ]}
+            handleEvent={(e) => {
+              const { payload } = e;
+              switch (true) {
+                case payload === "Total deposits":
+                  setSortBy((s) => ({
+                    'totalSupplyBalance': s?.totalSupplyBalance === 'asc' ? 'desc' : 'asc'
+                  }));
+                  break;
+                case payload === "Total borrows":
+                  setSortBy((s) => ({
+                    'totalBorrowBalance': s?.totalBorrowBalance === 'asc' ? 'desc' : 'asc'
+                  }));
+                  break;
+                case payload === "Best deposit APY":
+                  setSortBy((s) => ({
+                    'topSupplyApy': s?.topSupplyApy === 'asc' ? 'desc' : 'asc'
+                  }));
+                  break;
+                case payload === "Best borrow APY":
+                  setSortBy((s) => ({
+                    'topBorrowApy': s?.topBorrowApy === 'asc' ? 'desc' : 'asc'
+                  }));
+                  break;
+              }
+            }}
           />
           <IonAccordionGroup>
-            {groups.map((poolGroup, index) => (
+            {groups
+            .sort((a: any, b: any) => {
+              // use state to sort
+              if (sortBy) {
+                const [key, order] = Object.entries(sortBy)[0];
+                if (order === "asc") {
+                  return a[key] > b[key] ? 1 : -1;
+                }
+                return a[key] < b[key] ? 1 : -1;
+              }
+              // default do not sort
+              return 0;
+              
+            })
+            .map((poolGroup, index) => (
               <PoolAccordionGroup
                 key={index}
                 poolGroup={poolGroup}
