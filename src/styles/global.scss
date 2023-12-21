@@ -269,12 +269,20 @@ ion-accordion {
       height: 84px;
       padding: 0.5rem;
     }
+
+    @media screen and (max-width: 1400px) {
+      ion-icon {
+        width: 55px;
+        height: 55px;
+      }
+      
+    }
   }
 
   .asImage {
 
     box-shadow: 0 0px 100px -40px var(--ion-color-tertiary);
-    
+    max-width: 330px;
 
     &::after {
       content: '';
@@ -292,6 +300,8 @@ ion-accordion {
     a {
       text-decoration: none;
       color: inherit;
+      padding: 0.5rem;
+      display: block;
     }
   }
   
@@ -315,7 +325,7 @@ ion-accordion {
 .strategyCard {
   height: 100%;
   width: 100%;
-  width: 330px;
+  max-width: 315px;
   justify-content: space-between;
   display: flex;
   flex-direction: column;
