@@ -10,7 +10,6 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
   return (
     <IonGrid
       class="ion-no-padding welcomeSection"
-      style={{ marginBottom: "2rem" }}
     >
       <IonRow
         class="ion-justify-content-center ion-padding"
@@ -288,9 +287,146 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         </IonCol> */}
       </IonRow>
 
+        {/* Partners Section */}
+      <IonRow 
+        class="ion-padding ion-text-center"
+        style={{background: 'rgba(0,0,0, 0.5)'}}>
+        <IonCol size="12" className="ion-padding-vertical ion-margin-top">
+          <IonGrid className="ion-margin-bottom ion-padding-vertical">
+            <IonRow>
+              <IonCol size="12" className="ion-margin-bottom ion-padding-bottom">
+                <IonText>
+                  <h2
+                    style={{
+                      fontSize: "3.5rem",
+                      lineHeight: "3.8rem",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Partners
+                  </h2>
+                </IonText>
+                <IonText color="medium">
+                  <p className="ion-no-margin">
+                    Hexa Lite Ecosystem and integrations
+                  </p>
+                </IonText>
+              </IonCol>
+            </IonRow>
+            <IonRow className="partners ion-justify-content-center ion-align-items-center ion-padding-vertical ion-margin-vertical">
+              <IonCol class="ion-text-center">
+                <a href="https://aave.com/" target="_blank" rel="noreferrer noopener">
+                  <IonImg
+                    style={{
+                      width: "65px",
+                      height: "65px",
+                      margin: "0.5rem auto",
+                    }}
+                    src={"./assets/images/Aave-Ghost-Gradient.svg"}
+                  ></IonImg>
+                  <IonText>AAVE</IonText>
+                </a>
+              </IonCol>
+              <IonCol class="ion-text-center">
+                <a href="https://lido.fi/" target="_blank" rel="noreferrer noopener">
+                  <IonImg
+                    style={{
+                      width: "65px",
+                      height: "65px",
+                      margin: "0.5rem auto",
+                    }}
+                    src={"./assets/images/lido-symbol.svg"}
+                  ></IonImg>
+                  <IonText>LIDO</IonText>
+                </a>
+              </IonCol>
+              <IonCol class="ion-text-center">
+                <a href="https://www.ankr.com/" target="_blank" rel="noreferrer noopener">
+                  <IonImg
+                    style={{
+                      width: "65px",
+                      height: "65px",
+                      margin: "0.5rem auto",
+                    }}
+                    src="./assets/images/Ankr-blue-symbol.svg"
+                  ></IonImg>
+                  <IonText>ANKR</IonText>
+                </a>
+              </IonCol>
+              <IonCol class="ion-text-center">
+                <a href="https://1inch.io/" target="_blank" rel="noreferrer noopener">
+                  <IonImg
+                    style={{
+                      width: "65px",
+                      height: "65px",
+                      margin: "0.5rem auto",
+                    }}
+                    src="./assets/images/1inch-logo.svg"
+                  ></IonImg>
+                  <IonText>1INCH</IonText>
+                </a>
+              </IonCol>
+              <IonCol class="ion-text-center">
+                <a href="https://li.fi/" target="_blank" rel="noreferrer noopener">
+                  <IonImg
+                    style={{
+                      width: "65px",
+                      height: "65px",
+                      margin: "0.5rem auto",
+                    }}
+                    src="./assets/images/logo-lifi-mark.svg"
+                  ></IonImg>
+                  <IonText>LIFI</IonText>
+                </a>
+              </IonCol>
+              <IonCol class="ion-text-center">
+                <a href="https://axelar.network/" target="_blank" rel="noreferrer noopener">
+                  <IonImg
+                    style={{
+                      width: "65px",
+                      height: "65px",
+                      margin: "0.5rem auto",
+                    }}
+                    src="./assets/images/Axelar-logo-symbol-blue.svg"
+                  ></IonImg>
+                  <IonText>AXELAR</IonText>
+                </a>
+              </IonCol>
+              <IonCol class="ion-text-center">
+                <a href="https://magic.link/" target="_blank" rel="noreferrer noopener">
+                  <IonImg
+                    style={{
+                      width: "65px",
+                      height: "65px",
+                      margin: "0.5rem auto",
+                    }}
+                    src="./assets/images/Magic.svg"
+                  ></IonImg>
+                  <IonText>MAGIC</IonText>
+                </a>
+              </IonCol>
+              <IonCol class="ion-text-center">
+                <a href="https://onramper.com/" target="_blank" rel="noreferrer noopener">
+                  <IonImg
+                    style={{
+                      width: "65px",
+                      height: "65px",
+                      margin: "0.5rem auto",
+                    }}
+                    src="./assets/images/onramp-logo-emblem.svg"
+                  ></IonImg>
+                  <IonText>ONRAMP</IonText>
+                </a>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonCol>
+      </IonRow>
+
+      {/* Last call Action */}
       <IonRow
         class="ion-justify-content-center ion-align-items-center ion-padding"
-        style={{ minHeight: "100vh", marginBottom: "-4rem", }}
+        style={{ minHeight: "100vh" }}
       >
         <IonCol size="12" class="ion-text-center ">
             <p>
@@ -321,6 +457,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         </IonCol>
       </IonRow>
 
+      {/* Footer Section */}
       <IonRow class="ion-align-items-center ion-justify-content-between">
         <IonCol size="auto" class="ion-padding-horizontal">
           <IonText color="medium">
