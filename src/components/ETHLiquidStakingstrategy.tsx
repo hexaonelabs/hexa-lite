@@ -390,11 +390,7 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
         className="modalPage"
       >
         <IonContent>
-          <IonGrid
-            style={{
-              height: "100%",
-            }}
-          >
+          <IonGrid>
             <IonRow>
               <IonCol size="12" className="ion-text-end">
                 <IonButton
@@ -446,6 +442,7 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
                 justifyContent: "center",
                 alignItems: "center",
                 alignContent: "center",
+                paddingBottom:'3rem'
               }}
             >
               <IonCol>

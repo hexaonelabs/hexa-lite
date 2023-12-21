@@ -382,11 +382,7 @@ export function MATICLiquidStakingstrategyCard() {
         className="modalPage"
       >
         <IonContent>
-          <IonGrid
-            style={{
-              height: "100%",
-            }}
-          >
+          <IonGrid>
             <IonRow>
               <IonCol size="12" className="ion-text-end">
                 <IonButton
@@ -438,6 +434,7 @@ export function MATICLiquidStakingstrategyCard() {
                 justifyContent: "center",
                 alignItems: "center",
                 alignContent: "center",
+                paddingBottom:'3rem'
               }}
             >
               <IonCol>
