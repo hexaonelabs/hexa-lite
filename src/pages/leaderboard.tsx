@@ -68,12 +68,14 @@ const Leaderboard: React.FC = () => {
           >
             <IonRow className="ion-margin-vertical ion-padding-top ion-padding-horizontal">
               <IonCol
+                sizeSm="12"
                 sizeMd="8"
                 offsetMd="2"
                 sizeLg="4"
                 offsetLg="4"
                 class="ion-text-center ion-margin-top ion-padding-top"
               >
+                <a href="/" >
                   <IonImg
                     style={{
                       width: "124px",
@@ -82,6 +84,7 @@ const Leaderboard: React.FC = () => {
                     }}
                     src={"./assets/images/logo.svg"}
                   ></IonImg>
+                </a>
                   <div className="ion-padding-vertical ">
                     <IonText>
                       <h1>Leaderboard</h1>
@@ -98,6 +101,7 @@ const Leaderboard: React.FC = () => {
               </IonCol>
               <IonCol
                 className="ion-text-center"
+                size="12"
                 sizeMd="8"
                 offsetMd="2"
                 sizeLg="4"
