@@ -39,9 +39,8 @@ import { RouteExecutionUpdate, WidgetConfig, WidgetEvent, useWidgetEvents } from
 import { LIFI_CONFIG } from '../servcies/lifi.service';
 import { LiFiWidgetDynamic } from "../components/LiFiWidgetDynamic";
 import type { Route } from '@lifi/sdk';
-import { PointsData } from "@/pages/api/points/[address]";
-import { fetcher } from "@/utils/fetcher";
-import { addAddressPoints } from "@/servcies/datas.service";
+import { PointsData, addAddressPoints } from "@/servcies/datas.service";
+
 export interface IStrategyModalProps {
   dismiss?: (
     data?: any,

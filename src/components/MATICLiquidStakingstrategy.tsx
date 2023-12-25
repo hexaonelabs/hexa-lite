@@ -21,11 +21,7 @@ import { ethers } from "ethers";
 import {
   informationCircleOutline,
   closeSharp,
-  openOutline,
-  warningOutline,
-  helpOutline,
 } from "ionicons/icons";
-import ConnectButton from "./ConnectButton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { getBaseAPRstMATIC, getETHByWstETH } from "../servcies/lido.service";
@@ -38,10 +34,8 @@ import { ApyDetail } from "./ApyDetail";
 import { HiddenUI, LiFiWidget, WidgetConfig, WidgetEvent, useWidgetEvents } from "@lifi/widget";
 import { LiFiWidgetDynamic } from "./LiFiWidgetDynamic";
 import { LIFI_CONFIG } from '../servcies/lifi.service';
-import { PointsData } from "@/pages/api/points/[address]";
-import { fetcher } from "@/utils/fetcher";
 import type { Route } from '@lifi/sdk';
-import { addAddressPoints } from "@/servcies/datas.service";
+import { PointsData, addAddressPoints } from "@/servcies/datas.service";
 
 export interface IStrategyModalProps {
   dismiss?: (
