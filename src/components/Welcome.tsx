@@ -4,6 +4,8 @@ import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { EthOptimizedStrategyProvider } from "../context/EthOptimizedContext";
 import { ETHLiquidStakingstrategyCard } from "./ETHLiquidStakingstrategy";
 import { CHAIN_AVAILABLES } from "@/constants/chains";
+import RevealComp from '@/components/RevealComp';
+import { FooterComponent } from "./FooterComponent";
 
 export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail: {value: string}}) => void}) {
 
@@ -12,62 +14,65 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
       class="ion-no-padding welcomeSection"
     >
       <IonRow
-        class="ion-justify-content-center ion-padding"
+        class="ion-justify-content-center ion-align-items-center ion-padding"
         style={{ minHeight: "95vh", marginBottom: "-0vh" }}
       >
-        <IonCol size="12" class="ion-text-center"></IonCol>
         <IonCol size="12" size-md="7" class="ion-text-center">
-          <IonImg
-            style={{
-              width: "200px",
-              height: "200px",
-              margin: "auto",
-            }}
-            src={"./assets/images/logo.svg"}
-          ></IonImg>
-          <IonText>
-            <h1
+          <RevealComp x={0} duration='300ms' threshold={0.9}>
+            <IonImg
               style={{
-                fontWeight: "bold",
-                marginTop: "2rem",
-                letterSpacing: "-0.1rem",
+                width: "200px",
+                height: "200px",
+                margin: "auto",
               }}
-            >
-              <span
+              src={"./assets/images/logo.svg"}
+            ></IonImg>
+          </RevealComp>
+          <RevealComp x={0} duration='300ms' threshold={0.9}>
+            <IonText>
+              <h1
                 style={{
-                  display: "block",
-                  fontSize: "4.3rem",
-                  lineHeight: "4.8rem",
-                  marginTop: "0.2rem",
+                  fontWeight: "bold",
+                  marginTop: "2rem",
+                  letterSpacing: "-0.1rem",
                 }}
               >
-                Hexa Lite
-              </span>
-            </h1>
-          </IonText>
-          <IonText>
-            <p
-              style={{
-                fontSize: "0.9rem",
-                lineHeight: "1.3rem",
-                margin: "1rem 0 2.5rem 0",
-              }}
+                <span
+                  style={{
+                    display: "block",
+                    fontSize: "4.3rem",
+                    lineHeight: "4.8rem",
+                    marginTop: "0.2rem",
+                  }}
+                >
+                  Hexa Lite
+                </span>
+              </h1>
+            </IonText>
+            <IonText>
+              <p
+                style={{
+                  fontSize: "0.9rem",
+                  lineHeight: "1.3rem",
+                  margin: "1rem 0 2.5rem 0",
+                }}
+              >
+                Buy digitals assets with fiats, exchange at best rate, lend
+                and borrow money on DeFi protocols without any intermediate 
+                smart contract or third-party to enforce security and increase earn
+                interest.
+              </p>
+            </IonText>
+            <IonButton
+              size="large"
+              color="gradient"
+              onClick={(e) =>
+                handleSegmentChange({ detail: { value: "swap" } })
+              }
             >
-              Buy digitals assets with fiats, exchange at best rate, lend
-              and borrow money on DeFi protocols without any intermediate 
-              smart contract or third-party to enforce security and increase earn
-              interest.
-            </p>
-          </IonText>
-          <IonButton
-            size="large"
-            color="gradient"
-            onClick={(e) =>
-              handleSegmentChange({ detail: { value: "swap" } })
-            }
-          >
-            Launch App
-          </IonButton>
+              Launch App
+            </IonButton>
+          </RevealComp>
         </IonCol>
       </IonRow>
 
@@ -81,191 +86,224 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         }}
       >
         <IonCol size="12" class="ion-text-center ">
-          <IonText>
-            <h2
-              style={{
-                fontSize: "3.5rem",
-                lineHeight: "3.8rem",
-                fontWeight: "bold",
-              }}
-            >
-              Onboard on <IonText className="ion-color-gradient-text">Web3</IonText>
-            </h2>
-          </IonText>
-          <IonText color="medium">
-            <p className="ion-no-margin">
-              Take full controls of your digitals assets
-            </p>
-          </IonText>
+          <RevealComp y={20} duration='225ms' threshold={0.9}>
+            <IonText>
+              <h2
+                style={{
+                  fontSize: "3.5rem",
+                  lineHeight: "3.8rem",
+                  fontWeight: "bold",
+                }}
+              >
+                Onboard on <IonText className="ion-color-gradient-text">DeFi</IonText>
+              </h2>
+            </IonText>
+            <IonText color="medium">
+              <p className="ion-no-margin">
+                Take full controls of your digitals assets
+              </p>
+            </IonText>
+          </RevealComp>
         </IonCol>
         <IonCol size="12">
           <IonGrid>
             <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '5rem 0'}}>
               <IonCol size="12" size-md="6">
-                <IonText>
-                  <h3
-                    style={{
-                      fontWeight: 'bold',
-                      fontSize: "2rem",
-                      lineHeight: "2rem",
-                    }}
-                  >
-                    Frictionless onBoarding
-                  </h3>
-                  <p>
-                    Hexa Lite is secure and reliable for everyone to use and
-                    enjoy the benefits of blockchain technology & DeFi services
-                    without the need to manage private keys or seed phrases.
-                  </p>
-                </IonText>
+                <RevealComp y={20} duration='225ms' threshold={0.9}>
+                  <IonText>
+                    <h3
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: "2rem",
+                        lineHeight: "2rem",
+                      }}
+                    >
+                      Frictionless onBoarding
+                    </h3>
+                    <p>
+                      Hexa Lite ensures a secure and reliable user experience, 
+                      enabling everyone to enjoy the advantages of blockchain technology and DeFi services 
+                      without the need to manage private keys or seed phrases.
+                    </p>
+                  </IonText>
+                </RevealComp>
               </IonCol>
               <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
-                <div className="ion-padding">
-                  <IonImg 
-                    style={{
-                      margin: '0 auto', 
-                      borderRadius: '32px', 
-                      overflow: 'hidden',
-                      maxWidth: 'fit-content',
-                      border: 'solid 2px var(--ion-color-primary)',
-                      boxShadow: '0 0px 100px -30px var(--ion-color-tertiary)',
-                      transform: 'matrix3d(1, 0.0, 0, -0.0004, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
-                    }} src="./assets/images/onboarding.png" />
-                </div>
+                <RevealComp x={50} duration='300ms' threshold={0.75}>
+                  <div className="ion-padding">
+                    <IonImg 
+                      style={{
+                        margin: '0 auto', 
+                        borderRadius: '32px', 
+                        overflow: 'hidden',
+                        maxWidth: 'fit-content',
+                        border: 'solid 2px var(--ion-color-primary)',
+                        boxShadow: '0 0px 100px -30px var(--ion-color-tertiary)',
+                        transform: 'matrix3d(1, 0.0, 0, -0.0004, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
+                      }} src="./assets/images/onboarding.png" />
+                  </div>
+                </RevealComp>
               </IonCol>
             </IonRow>
             <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '20vh 0'}}>
               <IonCol size="12" size-md="6">
-                <IonText>
-                  <h3
-                    style={{
-                      fontWeight: 'bold',
-                      fontSize: "2rem",
-                      lineHeight: "2rem",
-                    }}
-                  >
-                    Deposit liquidity & earn interest
-                  </h3>
-                  <p>
-                    Securely deposit your liquidity into DeFi protocols across +35 markets and {CHAIN_AVAILABLES.filter(c => c.type === 'evm').length} EVM-Compatible blockchains to earn substantial interest while maintaining full control over your assets.
-                  </p>
-                </IonText>
+                <RevealComp y={20} duration='225ms' threshold={0.9}>
+                  <IonText>
+                    <h3
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: "2rem",
+                        lineHeight: "2rem",
+                      }}
+                    >
+                      Deposit liquidity & earn interest
+                    </h3>
+                    <p>
+                      Safely deposit your liquidity into DeFi protocols across more than 35 markets and {CHAIN_AVAILABLES.filter(c => c.type === 'evm').length} EVM-Compatible blockchains. Earn substantial interest while retaining complete control over your assets.
+                    </p>
+                  </IonText>
+                </RevealComp>
               </IonCol>
               <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
-                <div className="ion-padding">
-                  <IonImg 
-                      style={{
-                        margin: '0 auto',
-                        maxWidth: 'fit-content' 
-                      }} src="./assets/images/coins-b.png" />
-                </div>
+                <RevealComp x={50} duration='300ms' threshold={0.75}>
+                  <div className="ion-padding">
+                    <IonImg 
+                        style={{
+                          margin: '0 auto',
+                          maxWidth: 'fit-content',
+                          'filter': 'drop-shadow(0px 0px 60px rgba(var(--ion-color-tertiary-rgb),0.5))'
+                        }} src="./assets/images/coins-b.png" />
+                  </div>
+                </RevealComp>
               </IonCol>
             </IonRow>
 
             <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '20vh 0'}}>
               <IonCol size="12" size-md="6">
-                <IonText>
-                  <h3
-                    style={{
-                      fontWeight: 'bold',
-                      fontSize: "2rem",
-                      lineHeight: "2rem",
-                    }}
-                  >
-                    Earn interest with liquid Staking
-                  </h3>
-                  <p>
-                    Hexa Lite allow you to stake your assets into DeFi protocols to earn interest 
-                    without lockup period or any other restrictions.
-                  </p>
-                </IonText>
+                <RevealComp y={20} duration='225ms' threshold={0.9}>
+                  <IonText>
+                    <h3
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: "2rem",
+                        lineHeight: "2rem",
+                      }}
+                    >
+                      Earn interest with liquid Staking
+                    </h3>
+                    <p>
+                      Unlock the potential to earn interest through Liquid Staking. <br/>
+                      Stake your assets in DeFi protocols without any lockup periods or restrictions.
+                    </p>
+                  </IonText>
+                </RevealComp>
               </IonCol>
               <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
-                <div className="ion-padding" style={{
-                  margin: 'auto', 
-                  display: 'inline-block',
-                  transform: 'matrix3d(1, 0.0, 0, -0.0004, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
-                  }}>
-                  <EthOptimizedStrategyProvider>
-                    <ETHLiquidStakingstrategyCard asImage={true} />
-                  </EthOptimizedStrategyProvider>
-                </div>
+                <RevealComp x={50} duration='300ms' threshold={0.75}>
+                  <div className="ion-padding" style={{
+                    margin: 'auto', 
+                    display: 'inline-block',
+                    transform: 'matrix3d(1, 0.0, 0, -0.0004, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
+                    }}>
+                    <EthOptimizedStrategyProvider>
+                      <ETHLiquidStakingstrategyCard asImage={true} />
+                    </EthOptimizedStrategyProvider>
+                  </div>
+                </RevealComp>
               </IonCol>
             </IonRow>
             <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '20vh 0'}}>
               <IonCol size="12" size-md="6">
-                <IonText>
-                  <h3
-                    style={{
-                      fontWeight: 'bold',
-                      fontSize: "2rem",
-                      lineHeight: "2rem",
-                    }}
-                  >
-                    EVM-Compatible Chains
-                  </h3>
-                  <p>
-                    Hexa Lite support 20 EVM-Compatible blockchain such as
-                    Ethereum, Polygon, Binance Smart Chain, Optimism, Arbitrum,
-                    etc. without have to care about how to manage networks
-                    changes.
-                  </p>
-                </IonText>
+                <RevealComp y={20} duration='225ms' threshold={0.9}>
+                  <IonText>
+                    <h3
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: "2rem",
+                        lineHeight: "2rem",
+                      }}
+                    >
+                      EVM-Compatible Chains
+                    </h3>
+                    <p>
+                      Hexa Lite support 20 EVM-Compatible blockchain such as
+                      Ethereum, Polygon, Binance Smart Chain, Optimism, Arbitrum,
+                      etc. without have to care about how to manage networks
+                      changes.
+                    </p>
+                  </IonText>
+                </RevealComp>
               </IonCol>
               <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
-                <svg width="256px" height="417px" viewBox="0 0 256 417" version="1.1" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid">
-                  <g>
-                    <polygon fill="#999" points="127.9611 0 125.1661 9.5 125.1661 285.168 127.9611 287.958 255.9231 212.32"/>
-                    <polygon fill="#fff" points="127.962 0 0 212.32 127.962 287.959 127.962 154.158"/>
-                    <polygon fill="#999" points="127.9611 312.1866 126.3861 314.1066 126.3861 412.3056 127.9611 416.9066 255.9991 236.5866"/>
-                    <polygon fill="#fff" points="127.962 416.9052 127.962 312.1852 0 236.5852"/>
-                    <polygon fill="#777" points="127.9611 287.9577 255.9211 212.3207 127.9611 154.1587"/>
-                    <polygon fill="#999" points="0.0009 212.3208 127.9609 287.9578 127.9609 154.1588"/>
-                  </g>
-                </svg>
-                <div className="homeIconsEVM">
-                  <IonIcon src="./assets/icons/op.svg" />
-                  {/* <IonIcon src="./assets/icons/arb.svg" /> */}
-                  <IonIcon src="./assets/cryptocurrency-icons/bnb.svg" style={{transform: 'translateY(2.5rem)'}} />
-                  <IonIcon src="./assets/cryptocurrency-icons/matic.svg" style={{transform: 'translateY(2.5rem)'}} />
-                  <IonIcon src="./assets/icons/arb.svg" />
-                </div>
+                <RevealComp x={50} duration='300ms' threshold={0.75}>
+                  <svg 
+                    width="256px" 
+                    height="417px" 
+                    viewBox="0 0 256 417" 
+                    version="1.1" 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    preserveAspectRatio="xMidYMid"
+                    style={{
+                      'filter': 'drop-shadow(0px 0px 60px rgba(var(--ion-color-tertiary-rgb),0.5))'
+                    }}>
+                    <g>
+                      <polygon fill="#999" points="127.9611 0 125.1661 9.5 125.1661 285.168 127.9611 287.958 255.9231 212.32"/>
+                      <polygon fill="#fff" points="127.962 0 0 212.32 127.962 287.959 127.962 154.158"/>
+                      <polygon fill="#999" points="127.9611 312.1866 126.3861 314.1066 126.3861 412.3056 127.9611 416.9066 255.9991 236.5866"/>
+                      <polygon fill="#fff" points="127.962 416.9052 127.962 312.1852 0 236.5852"/>
+                      <polygon fill="#777" points="127.9611 287.9577 255.9211 212.3207 127.9611 154.1587"/>
+                      <polygon fill="#999" points="0.0009 212.3208 127.9609 287.9578 127.9609 154.1588"/>
+                    </g>
+                  </svg>
+                  <div className="homeIconsEVM">
+                    <IonIcon src="./assets/icons/op.svg" />
+                    {/* <IonIcon src="./assets/icons/arb.svg" /> */}
+                    <IonIcon src="./assets/cryptocurrency-icons/bnb.svg" style={{transform: 'translateY(2.5rem)'}} />
+                    <IonIcon src="./assets/cryptocurrency-icons/matic.svg" style={{transform: 'translateY(2.5rem)'}} />
+                    <IonIcon src="./assets/icons/arb.svg" />
+                  </div>
+                </RevealComp>
               </IonCol>
             </IonRow>
             <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '5rem 0'}}>
               <IonCol size="12" size-md="6">
-                <IonText>      
-                  <h3
-                    style={{
-                      fontWeight: 'bold',
-                      fontSize: "2rem",
-                      lineHeight: "2rem",
-                    }}
-                  >                    
-                    Security & Privacy
-                  </h3>
-                  <p>
-                    Hexa Lite is open-source, non-custodial and does not store any user data
-                    or private keys. Users are in full control of their assets
-                    and can interact with DeFi protocols and services without
-                    intermediates smart contracts or any third-party services
-                    without need to leave the platform.
-                  </p>
-                </IonText>
+                <RevealComp y={20} duration='225ms' threshold={0.9}>
+                  <IonText>      
+                    <h3
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: "2rem",
+                        lineHeight: "2rem",
+                      }}
+                    >                    
+                      Security & Privacy
+                    </h3>
+                    <p>
+                      As an open-source and non-custodial platform, 
+                      we don't store any user data or private keys.
+                      You retain complete control over your assets, 
+                      enabling direct interaction with DeFi protocols 
+                      without intermediaries smart contracts or third-party services,
+                    </p>
+                  </IonText>
+                </RevealComp>
               </IonCol>
               <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
-                <IonIcon
-                    style={{
-                      color: "#fff",
-                      width: '256px',
-                      height: '256px',
-                      cursor: 'pointer'
-                    }}
-                    icon={logoGithub}
-                    onClick={() => {
-                      window.open('https://github.com/hexaonelabs/hexa-lite', '_blank')
-                    }}
-                  ></IonIcon>
+                <RevealComp x={50} duration='300ms' threshold={0.75}>
+                  <IonIcon
+                      style={{
+                        color: "#fff",
+                        width: '256px',
+                        height: '256px',
+                        cursor: 'pointer',
+                        'filter': 'drop-shadow(0px 0px 60px rgba(var(--ion-color-tertiary-rgb),0.5))'
+                      }}
+                      icon={logoGithub}
+                      onClick={() => {
+                        window.open('https://github.com/hexaonelabs/hexa-lite', '_blank')
+                      }}
+                    ></IonIcon>
+                </RevealComp>
               </IonCol>
             </IonRow>
           </IonGrid>
@@ -292,134 +330,136 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         class="ion-padding ion-text-center"
         style={{background: 'rgba(0,0,0, 0.5)'}}>
         <IonCol size="12" className="ion-padding-vertical ion-margin-top">
-          <IonGrid className="ion-margin-bottom ion-padding-vertical">
-            <IonRow>
-              <IonCol size="12" className="ion-margin-bottom ion-padding-bottom">
-                <IonText>
-                  <h2
-                    style={{
-                      fontSize: "3.5rem",
-                      lineHeight: "3.8rem",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Partners
-                  </h2>
-                </IonText>
-                <IonText color="medium">
-                  <p className="ion-no-margin">
-                    Hexa Lite Ecosystem and integrations
-                  </p>
-                </IonText>
-              </IonCol>
-            </IonRow>
-            <IonRow className="partners ion-justify-content-center ion-align-items-center ion-padding-vertical ion-margin-vertical">
-              <IonCol class="ion-text-center">
-                <a href="https://aave.com/" target="_blank" rel="noreferrer noopener">
-                  <IonImg
-                    style={{
-                      width: "65px",
-                      height: "65px",
-                      margin: "0.5rem auto",
-                    }}
-                    src={"./assets/images/Aave-Ghost-Gradient.svg"}
-                  ></IonImg>
-                  <IonText>AAVE</IonText>
-                </a>
-              </IonCol>
-              <IonCol class="ion-text-center">
-                <a href="https://lido.fi/" target="_blank" rel="noreferrer noopener">
-                  <IonImg
-                    style={{
-                      width: "65px",
-                      height: "65px",
-                      margin: "0.5rem auto",
-                    }}
-                    src={"./assets/images/lido-symbol.svg"}
-                  ></IonImg>
-                  <IonText>LIDO</IonText>
-                </a>
-              </IonCol>
-              <IonCol class="ion-text-center">
-                <a href="https://www.ankr.com/" target="_blank" rel="noreferrer noopener">
-                  <IonImg
-                    style={{
-                      width: "65px",
-                      height: "65px",
-                      margin: "0.5rem auto",
-                    }}
-                    src="./assets/images/Ankr-blue-symbol.svg"
-                  ></IonImg>
-                  <IonText>ANKR</IonText>
-                </a>
-              </IonCol>
-              <IonCol class="ion-text-center">
-                <a href="https://1inch.io/" target="_blank" rel="noreferrer noopener">
-                  <IonImg
-                    style={{
-                      width: "65px",
-                      height: "65px",
-                      margin: "0.5rem auto",
-                    }}
-                    src="./assets/images/1inch-logo.svg"
-                  ></IonImg>
-                  <IonText>1INCH</IonText>
-                </a>
-              </IonCol>
-              <IonCol class="ion-text-center">
-                <a href="https://li.fi/" target="_blank" rel="noreferrer noopener">
-                  <IonImg
-                    style={{
-                      width: "65px",
-                      height: "65px",
-                      margin: "0.5rem auto",
-                    }}
-                    src="./assets/images/logo-lifi-mark.svg"
-                  ></IonImg>
-                  <IonText>LIFI</IonText>
-                </a>
-              </IonCol>
-              <IonCol class="ion-text-center">
-                <a href="https://axelar.network/" target="_blank" rel="noreferrer noopener">
-                  <IonImg
-                    style={{
-                      width: "65px",
-                      height: "65px",
-                      margin: "0.5rem auto",
-                    }}
-                    src="./assets/images/Axelar-logo-symbol-blue.svg"
-                  ></IonImg>
-                  <IonText>AXELAR</IonText>
-                </a>
-              </IonCol>
-              <IonCol class="ion-text-center">
-                <a href="https://magic.link/" target="_blank" rel="noreferrer noopener">
-                  <IonImg
-                    style={{
-                      width: "65px",
-                      height: "65px",
-                      margin: "0.5rem auto",
-                    }}
-                    src="./assets/images/Magic.svg"
-                  ></IonImg>
-                  <IonText>MAGIC</IonText>
-                </a>
-              </IonCol>
-              <IonCol class="ion-text-center">
-                <a href="https://onramper.com/" target="_blank" rel="noreferrer noopener">
-                  <IonImg
-                    style={{
-                      width: "65px",
-                      height: "65px",
-                      margin: "0.5rem auto",
-                    }}
-                    src="./assets/images/onramp-logo-emblem.svg"
-                  ></IonImg>
-                  <IonText>ONRAMP</IonText>
-                </a>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
+          <RevealComp y={20} duration='225ms' threshold={0.9}>
+            <IonGrid className="ion-margin-bottom ion-padding-vertical">
+              <IonRow>
+                <IonCol size="12" className="ion-margin-bottom ion-padding-bottom">
+                  <IonText>
+                    <h2
+                      style={{
+                        fontSize: "3.5rem",
+                        lineHeight: "3.8rem",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Partners
+                    </h2>
+                  </IonText>
+                  <IonText color="medium">
+                    <p className="ion-no-margin">
+                      Hexa Lite Ecosystem and integrations
+                    </p>
+                  </IonText>
+                </IonCol>
+              </IonRow>
+              <IonRow className="partners ion-justify-content-center ion-align-items-center ion-padding-vertical ion-margin-vertical">
+                <IonCol class="ion-text-center">
+                  <a href="https://aave.com/" target="_blank" rel="noreferrer noopener">
+                    <IonImg
+                      style={{
+                        width: "65px",
+                        height: "65px",
+                        margin: "0.5rem auto",
+                      }}
+                      src={"./assets/images/Aave-Ghost-Gradient.svg"}
+                    ></IonImg>
+                    <IonText>AAVE</IonText>
+                  </a>
+                </IonCol>
+                <IonCol class="ion-text-center">
+                  <a href="https://lido.fi/" target="_blank" rel="noreferrer noopener">
+                    <IonImg
+                      style={{
+                        width: "65px",
+                        height: "65px",
+                        margin: "0.5rem auto",
+                      }}
+                      src={"./assets/images/lido-symbol.svg"}
+                    ></IonImg>
+                    <IonText>LIDO</IonText>
+                  </a>
+                </IonCol>
+                <IonCol class="ion-text-center">
+                  <a href="https://www.ankr.com/" target="_blank" rel="noreferrer noopener">
+                    <IonImg
+                      style={{
+                        width: "65px",
+                        height: "65px",
+                        margin: "0.5rem auto",
+                      }}
+                      src="./assets/images/Ankr-blue-symbol.svg"
+                    ></IonImg>
+                    <IonText>ANKR</IonText>
+                  </a>
+                </IonCol>
+                <IonCol class="ion-text-center">
+                  <a href="https://1inch.io/" target="_blank" rel="noreferrer noopener">
+                    <IonImg
+                      style={{
+                        width: "65px",
+                        height: "65px",
+                        margin: "0.5rem auto",
+                      }}
+                      src="./assets/images/1inch-logo.svg"
+                    ></IonImg>
+                    <IonText>1INCH</IonText>
+                  </a>
+                </IonCol>
+                <IonCol class="ion-text-center">
+                  <a href="https://li.fi/" target="_blank" rel="noreferrer noopener">
+                    <IonImg
+                      style={{
+                        width: "65px",
+                        height: "65px",
+                        margin: "0.5rem auto",
+                      }}
+                      src="./assets/images/logo-lifi-mark.svg"
+                    ></IonImg>
+                    <IonText>LIFI</IonText>
+                  </a>
+                </IonCol>
+                <IonCol class="ion-text-center">
+                  <a href="https://axelar.network/" target="_blank" rel="noreferrer noopener">
+                    <IonImg
+                      style={{
+                        width: "65px",
+                        height: "65px",
+                        margin: "0.5rem auto",
+                      }}
+                      src="./assets/images/Axelar-logo-symbol-blue.svg"
+                    ></IonImg>
+                    <IonText>AXELAR</IonText>
+                  </a>
+                </IonCol>
+                <IonCol class="ion-text-center">
+                  <a href="https://magic.link/" target="_blank" rel="noreferrer noopener">
+                    <IonImg
+                      style={{
+                        width: "65px",
+                        height: "65px",
+                        margin: "0.5rem auto",
+                      }}
+                      src="./assets/images/Magic.svg"
+                    ></IonImg>
+                    <IonText>MAGIC</IonText>
+                  </a>
+                </IonCol>
+                <IonCol class="ion-text-center">
+                  <a href="https://onramper.com/" target="_blank" rel="noreferrer noopener">
+                    <IonImg
+                      style={{
+                        width: "65px",
+                        height: "65px",
+                        margin: "0.5rem auto",
+                      }}
+                      src="./assets/images/onramp-logo-emblem.svg"
+                    ></IonImg>
+                    <IonText>ONRAMP</IonText>
+                  </a>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
+          </RevealComp>
         </IonCol>
       </IonRow>
 
@@ -429,64 +469,38 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         style={{ minHeight: "100vh" }}
       >
         <IonCol size="12" class="ion-text-center ">
+          <RevealComp y={20} duration='225ms' threshold={0.9}>
             <p>
-          <IonText className="ion-color-gradient-text">
-              Earn interest with your assets
-          </IonText>
+              <IonText className="ion-color-gradient-text">
+                  Earn interest with your assets
+              </IonText>
             </p>
-          <IonText>
-            <h2
-              style={{
-                fontSize: "3.5rem",
-                lineHeight: "3.8rem",
-                fontWeight: "bold",
-              }}
-            >
-              Try Hexa Lite now
-            </h2>
-          </IonText>
-          <IonButton
-            className="ion-margin-top"
-            size="large"
-            color="gradient"
-            onClick={(e) =>
-              handleSegmentChange({ detail: { value: "swap" } })
-            }>
-            Launch App
+            <IonText>
+              <h2
+                style={{
+                  fontSize: "3.5rem",
+                  lineHeight: "3.8rem",
+                  fontWeight: "bold",
+                }}
+              >
+                Try Hexa Lite now
+              </h2>
+            </IonText>
+            <IonButton
+              className="ion-margin-top"
+              size="large"
+              color="gradient"
+              onClick={(e) =>
+                handleSegmentChange({ detail: { value: "swap" } })
+              }>
+              Launch App
             </IonButton>
+          </RevealComp>
         </IonCol>
       </IonRow>
 
       {/* Footer Section */}
-      <IonRow class="ion-align-items-center ion-justify-content-between">
-        <IonCol size="auto" class="ion-padding-horizontal">
-          <IonText color="medium">
-            <p style={{fontSize: '12px'}}>
-              Open source software by <a 
-                href="https://hexaonelabs.com/" 
-                rel="noreferrer noopener"
-                target="_blank">HexaOneLabs</a>
-            </p>
-          </IonText>
-        </IonCol>
-        <IonCol
-          size="auto"
-          class="ion-padding-horizontal ion-text-end"
-        >
-          <a
-            href="https://github.com/hexaonelabs"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <IonIcon
-              style={{
-                color: "#fff",
-              }}
-              icon={logoGithub}
-            ></IonIcon>
-          </a>
-        </IonCol>
-      </IonRow>
+      <FooterComponent />
     </IonGrid>
   );
 } 

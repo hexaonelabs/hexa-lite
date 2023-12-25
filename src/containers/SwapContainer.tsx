@@ -1,5 +1,6 @@
 import { IonButton, IonCol, IonGrid, IonRow, IonText, useIonToast } from "@ionic/react";
-import { HiddenUI, WidgetConfig } from "@lifi/widget";
+import { HiddenUI, RouteExecutionUpdate, WidgetConfig, WidgetEvent, useWidgetEvents } from "@lifi/widget";
+import type { Route } from '@lifi/sdk';
 import { useEffect, useMemo } from "react";
 import { useWeb3Provider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
@@ -10,6 +11,7 @@ import { LIFI_CONFIG } from '../servcies/lifi.service';
 // import { SquidWidgetDynamic } from "@/components/SquidWidgetDynamic";
 import { SquidWidget } from "@0xsquid/widget";
 import { SQUID_CONFIG } from '@/servcies/squid.service';
+import { PointsData, addAddressPoints } from "@/servcies/datas.service";
 
 export function SwapContainer() {
   const { web3Provider, currentNetwork, connectWallet, disconnectWallet, walletAddress, switchNetwork } = useWeb3Provider();
@@ -17,6 +19,35 @@ export function SwapContainer() {
   const toastContext = useIonToast();
   const presentToast = toastContext[0];
   const dismissToast = toastContext[1];
+
+
+  const widgetEvents = useWidgetEvents();
+
+  useEffect(() => {
+    const onRouteExecutionStarted = (route: Route) => {
+      console.log('[INFO] onRouteExecutionStarted fired.');
+    };
+    const onRouteExecutionCompleted = async (route: Route) => {
+      console.log('[INFO] onRouteExecutionCompleted fired.', route);
+      const data: PointsData = {
+        route,
+        actionType: 'swap'
+      };
+      if (!walletAddress) {
+        return;
+      }
+      await addAddressPoints(walletAddress, data);
+    };
+    const onRouteExecutionFailed = (update: RouteExecutionUpdate) => {
+      console.log('[INFO] onRouteExecutionFailed fired.', update);
+    };
+    
+    widgetEvents.on(WidgetEvent.RouteExecutionStarted, onRouteExecutionStarted);
+    widgetEvents.on(WidgetEvent.RouteExecutionCompleted, onRouteExecutionCompleted);
+    widgetEvents.on(WidgetEvent.RouteExecutionFailed, onRouteExecutionFailed);
+    
+    return () => widgetEvents.all.clear();
+  }, [widgetEvents]);
 
   // useEffect(() => {
   //   const fetchConfig = async () => {
@@ -59,6 +90,7 @@ export function SwapContainer() {
       // load environment config
       const widgetConfig: WidgetConfig = {
         ...LIFI_CONFIG,
+        fee: 0, // set fee to 0 for main swap feature
         walletManagement: {
           connect: async () => {
             try {

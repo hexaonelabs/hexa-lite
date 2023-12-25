@@ -10,6 +10,8 @@ import {
   IonLabel,
   IonModal,
   IonRow,
+  IonSegment,
+  IonSegmentButton,
   IonSkeletonText,
   IonSpinner,
   IonText,
@@ -33,10 +35,13 @@ import { useLoader } from "../context/LoaderContext";
 import { CHAIN_AVAILABLES, NETWORK } from "../constants/chains";
 import { HowItWork } from "./HowItWork";
 import { ApyDetail } from "./ApyDetail";
-import { WidgetConfig } from "@lifi/widget";
+import { RouteExecutionUpdate, WidgetConfig, WidgetEvent, useWidgetEvents } from "@lifi/widget";
 import { LIFI_CONFIG } from '../servcies/lifi.service';
 import { LiFiWidgetDynamic } from "../components/LiFiWidgetDynamic";
-
+import type { Route } from '@lifi/sdk';
+import { PointsData } from "@/pages/api/points/[address]";
+import { fetcher } from "@/utils/fetcher";
+import { addAddressPoints } from "@/servcies/datas.service";
 export interface IStrategyModalProps {
   dismiss?: (
     data?: any,
@@ -48,6 +53,7 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
   const { web3Provider, switchNetwork, connectWallet, disconnectWallet, currentNetwork } = useWeb3Provider();
   const [baseAPRstETH, setBaseAPRstETH] = useState(-1);
   const [wstToEthAmount, setWstToEthAmount] = useState(-1);
+  const [action, setAction] = useState<"stake" | "unstake">("stake");
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const toastContext = useIonToast();
   const presentToast = toastContext[0];
@@ -143,26 +149,33 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
     // set destination chain to Optimism
     toChain: NETWORK.optimism,
     // set source token to ETH (Optimism)
-    fromToken: "0x0000000000000000000000000000000000000000",
+    fromToken: action === 'stake' ? "0x0000000000000000000000000000000000000000" : "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
     // set source token to wstETH (Optimism)
-    toToken: "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+    toToken: action === 'stake' ?  "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb" : "0x0000000000000000000000000000000000000000",
     // fromAmount: 10,
     chains: {
       allow: [NETWORK.optimism],
     },
     tokens: {
-      allow: [
+      allow:
+       [
         {
           chainId: Number(NETWORK.optimism),
-          address: "0x0000000000000000000000000000000000000000",
+          address: "0x4200000000000000000000000000000000000006", // WETH
         },
         {
           chainId: Number(NETWORK.optimism),
-          address: "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb",
+          address: "0x0000000000000000000000000000000000000000", // ETH
         },
+        // {
+        //   chainId: Number(NETWORK.optimism),
+        //   address: "0x1f32b1c2345538c0c6f582fcb022739c4a194ebb", // wstETH
+        // },
       ],
     },
-    disabledUI: ["fromToken", "toToken"],
+    disabledUI: action === 'stake'
+      ? [ "toToken"]
+      : ["fromToken"],
   };
 
   useEffect(() => {
@@ -179,6 +192,24 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
       setWstToEthAmount(() => Number(value));
     });
   }, [web3Provider]);
+
+  const widgetEvents = useWidgetEvents();
+  useEffect(() => {
+    const onRouteExecutionCompleted = async (route: Route) => {
+      console.log('[INFO] onRouteExecutionCompleted fired.', route);
+      const data: PointsData = {
+        route,
+        actionType: 'liquid-staking'
+      };
+      if (!route.fromAddress) {
+        console.log('[INFO] Add points faild: fromAddress is not defined.')
+        return;
+      }
+      await addAddressPoints(route.fromAddress, data);
+    };
+    widgetEvents.on(WidgetEvent.RouteExecutionCompleted, onRouteExecutionCompleted);
+    return () => widgetEvents.all.clear();
+  }, [widgetEvents]);
 
   return (
     <>
@@ -457,6 +488,17 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
                     </p>
                   </IonText>
                 </div> */}
+                <div className="ion-padding-bottom" style={{maxWidth:'394px', margin: 'auto'}}>
+
+                  <IonSegment value={action}>
+                    <IonSegmentButton value="stake" onClick={() => setAction(() => 'stake')}>
+                      <IonLabel>Stake</IonLabel>
+                    </IonSegmentButton>
+                    <IonSegmentButton value="unstake" onClick={() => setAction(() => 'unstake')}>
+                      <IonLabel>Unstake</IonLabel>
+                    </IonSegmentButton>
+                  </IonSegment>
+                </div>
                 <LiFiWidgetDynamic config={widgetConfig} integrator="hexa-lite" />
               </IonCol>
             </IonRow>
