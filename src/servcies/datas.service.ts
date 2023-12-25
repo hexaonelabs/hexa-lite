@@ -88,7 +88,7 @@ export const getAddressPoints = async (address: string) => {
   }
   try {
     // Create a reference to the user's points in the Firebase database
-    const addressPointsRef = ref(database, `points/${address}`);
+    const addressPointsRef = ref(database, `points/${address.toLocaleLowerCase()}`);
     // Get the existing tasks from the database
     const snapshot = await getFirebaseData(addressPointsRef);
     if (!snapshot.exists()) {
@@ -139,7 +139,7 @@ export const addAddressPoints = async (address: string, data: PointsData) => {
       ...data,
     };
     // Create a reference to the user's points in the Firebase database
-    const addressPointsRef = ref(database, `points/${address}`);
+    const addressPointsRef = ref(database, `points/${address.toLocaleLowerCase()}`);
     // Use push method to add the new task object inside the array
     await push(addressPointsRef, newPointsObj);
     return {
