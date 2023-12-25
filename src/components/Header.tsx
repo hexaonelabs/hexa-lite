@@ -29,6 +29,7 @@ import { useEffect, useState } from "react";
 import { useWeb3Provider } from "../context/Web3Context";
 import { getReadableValue } from "@/utils/getReadableValue";
 import { getAddressPoints } from "@/servcies/datas.service";
+import { PointsPopover } from "./PointsPopover";
 
 const styleLogo = {
   // margin: '15px auto 20px',
@@ -48,62 +49,6 @@ const styleChip = {
   margin: 0,
   "--color": "var(--ion-color-primary)",
   "--background": "var(--ion-color-warning)",
-};
-
-
-const PointsValueComponent: React.FC<{ points: string | null }> = ({ points }) => {
-  return points === null ? (
-    <IonSkeletonText
-      animated
-      style={{
-        width: "34px",
-        display: "inline-block",
-      }}
-    />
-  ) : (
-    <IonText className="ion-color-gradient-text">
-      {getReadableValue(points)}
-    </IonText>
-  );
-};
-
-const PointsPopover: React.FC<{ points: string | null }> = ({ points }) => {
-  return (<IonGrid>
-    <IonRow>
-      <IonCol>
-        <IonListHeader>
-          <IonLabel>Points</IonLabel>
-        </IonListHeader>
-        <p className="ion-margin-horizontal">
-          You have <PointsValueComponent points={points} />{" "}
-          points.
-        </p>
-        <p  className="ion-margin-horizontal">
-        <IonText color="medium">
-            <small>
-            Points are earned by using the app. 
-            They are used to rank users on the leaderboard.
-            </small>
-          </IonText>
-        </p>
-      </IonCol>
-    </IonRow>
-    {/* Leaderboard link */}
-    <IonRow>
-      <IonCol>
-        <IonButton
-          color="gradient"
-          expand="block"
-          fill="clear"
-          size="small"
-          routerLink="/leaderboard"
-          routerDirection="forward"
-        >
-          view leaderboard
-        </IonButton>
-      </IonCol>
-    </IonRow>
-  </IonGrid>)
 };
 
 export function Header({
@@ -226,6 +171,7 @@ export function Header({
                             const response =
                               await getAddressPoints(walletAddress)
                               .catch((error) => {});
+                            console.log("response", response);
                             if (response?.data?.totalPoints) {
                               setPoints(() => response.data.totalPoints);
                             } else {
@@ -238,7 +184,26 @@ export function Header({
                       </div>
                     </>
                   ) : (
-                    <ConnectButton />
+                    <div style={{ display: "flex" }}>
+                      <IonButton
+                        fill="clear"
+                        color="gradient"
+                        disabled={true}
+                        style={{ cursor: "pointer" }}
+                        size={"small"}
+                      >
+                        <IonIcon
+                          color="gradient"
+                          size="small"
+                          style={{ marginRight: "0.25rem" }}
+                          src={ribbonOutline}
+                        ></IonIcon>
+                        <IonText className="ion-color-gradient-text">
+                          Points
+                        </IonText>
+                      </IonButton>
+                      <ConnectButton />
+                    </div>
                   )}
                 </IonCol>
                 {/* Mobile nav button */}
