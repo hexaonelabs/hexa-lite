@@ -10,6 +10,8 @@ import {
   IonLabel,
   IonModal,
   IonRow,
+  IonSegment,
+  IonSegmentButton,
   IonSkeletonText,
   IonSpinner,
   IonText,
@@ -19,11 +21,7 @@ import { ethers } from "ethers";
 import {
   informationCircleOutline,
   closeSharp,
-  openOutline,
-  warningOutline,
-  helpOutline,
 } from "ionicons/icons";
-import ConnectButton from "./ConnectButton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { getBaseAPRstMATIC, getETHByWstETH } from "../servcies/lido.service";
@@ -33,9 +31,11 @@ import { useLoader } from "../context/LoaderContext";
 import { CHAIN_AVAILABLES, NETWORK } from "../constants/chains";
 import { HowItWork } from "./HowItWork";
 import { ApyDetail } from "./ApyDetail";
-import { HiddenUI, LiFiWidget, WidgetConfig } from "@lifi/widget";
+import { HiddenUI, LiFiWidget, WidgetConfig, WidgetEvent, useWidgetEvents } from "@lifi/widget";
 import { LiFiWidgetDynamic } from "./LiFiWidgetDynamic";
 import { LIFI_CONFIG } from '../servcies/lifi.service';
+import type { Route } from '@lifi/sdk';
+import { PointsData, addAddressPoints } from "@/servcies/datas.service";
 
 export interface IStrategyModalProps {
   dismiss?: (
@@ -47,6 +47,7 @@ export interface IStrategyModalProps {
 export function MATICLiquidStakingstrategyCard() {
   const { web3Provider, switchNetwork, connectWallet, disconnectWallet, currentNetwork } = useWeb3Provider();
   const [baseAPRst, setBaseAPRst] = useState(-1);
+  const [action, setAction] = useState<"stake" | "unstake">("stake");
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const toastContext = useIonToast();
   const presentToast = toastContext[0];
@@ -142,9 +143,9 @@ export function MATICLiquidStakingstrategyCard() {
     // set destination chain to Optimism
     toChain: NETWORK.polygon,
     // set source token to ETH (Ethereum)
-    fromToken: "0x0000000000000000000000000000000000000000",
+    fromToken: action === 'stake' ? "0x0000000000000000000000000000000000000000" : "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4",
     // set source token to USDC (Optimism)
-    toToken: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4",
+    toToken: action === 'stake' ? "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4" : "0x0000000000000000000000000000000000000000",
     // fromAmount: 10,
     chains: {
       allow: [NETWORK.polygon],
@@ -153,15 +154,21 @@ export function MATICLiquidStakingstrategyCard() {
       allow: [
         {
           chainId: Number(NETWORK.polygon),
-          address: "0x0000000000000000000000000000000000000000",
+          address: "0x0000000000000000000000000000000000000000", // MATIC
         },
         {
           chainId: Number(NETWORK.polygon),
-          address: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4",
+          address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270", // WMATIC
         },
+        // {
+        //   chainId: Number(NETWORK.polygon),
+        //   address: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4", // wstMATIC
+        // },
       ],
     },
-    disabledUI: ["fromToken", "toToken"],
+    disabledUI: action === 'stake'
+      ? [ "toToken"]
+      : ["fromToken"],
   };
 
   useEffect(() => {
@@ -169,6 +176,24 @@ export function MATICLiquidStakingstrategyCard() {
     getBaseAPRstMATIC().then(({ apr }) => setBaseAPRst(() => apr));
     // return () => abort();
   }, []);
+
+  const widgetEvents = useWidgetEvents();
+  useEffect(() => {
+    const onRouteExecutionCompleted = async (route: Route) => {
+      console.log('[INFO] onRouteExecutionCompleted fired.', route);
+      const data: PointsData = {
+        route,
+        actionType: 'liquid-staking'
+      };
+      if (!route.fromAddress) {
+        console.log('[INFO] Add points faild: fromAddress is not defined.')
+        return;
+      }
+      await addAddressPoints(route.fromAddress, data);
+    };
+    widgetEvents.on(WidgetEvent.RouteExecutionCompleted, onRouteExecutionCompleted);
+    return () => widgetEvents.all.clear();
+  }, [widgetEvents]);
 
   return (
     <>
@@ -449,7 +474,18 @@ export function MATICLiquidStakingstrategyCard() {
                     </p>
                   </IonText>
                 </>
-                 */}
+                 */}                
+                 <div className="ion-padding-bottom" style={{maxWidth:'394px', margin: 'auto'}}>
+
+                  <IonSegment value={action}>
+                    <IonSegmentButton value="stake" onClick={() => setAction(() => 'stake')}>
+                      <IonLabel>Stake</IonLabel>
+                    </IonSegmentButton>
+                    <IonSegmentButton value="unstake" onClick={() => setAction(() => 'unstake')}>
+                      <IonLabel>Unstake</IonLabel>
+                    </IonSegmentButton>
+                  </IonSegment>
+                </div>
                 <LiFiWidgetDynamic config={widgetConfig} integrator="hexa-lite" />
               </IonCol>
             </IonRow>

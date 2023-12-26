@@ -131,6 +131,11 @@ ion-popover.profil-popover {
   }
 }
 
+ion-popover.points-popover {
+  --width: 100%;
+  --max-width: 350px;
+}
+
 .modalAlert {
   // --width: fit-content;
   --max-width: 350px;
@@ -230,7 +235,7 @@ ion-accordion {
 //   border-radius: 32px;
 //   overflow: hidden;
 // }
-.widgetWrapper, ion-card {
+.widgetWrapper, ion-card, .leaderboardPage ion-list {
   border: 1px solid rgba(var(--ion-color-primary-rgb), 0.4);
   border-radius: 32px;
   overflow: hidden;
@@ -296,12 +301,16 @@ ion-accordion {
     }
   }
 
+  a {
+    color: inherit;
+  }
+  
   .partners {
     a {
       text-decoration: none;
-      color: inherit;
       padding: 0.5rem;
       display: block;
+      font-size: 0.8rem;
     }
   }
   
@@ -589,4 +598,14 @@ div.MuiScopedCssBaseline-root {
   > div {
     border: 1px solid rgba(var(--ion-color-primary-rgb), 0.4);
   }
+}
+
+.transition {
+  transition: all 225ms ease-in-out;
+}
+.opacity-0 {
+  opacity: 0!important;
+}
+.opacity-100 {
+  opacity: 1!important;
 }

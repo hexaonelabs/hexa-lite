@@ -27,5 +27,6 @@ yarn-error.log*
 *.cache
 .next
 
+press-paper
 rfp
 .firebase/

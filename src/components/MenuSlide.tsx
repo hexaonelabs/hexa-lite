@@ -12,11 +12,14 @@ import {
   IonItemDivider,
   IonButton,
   IonModal,
+  IonPopover,
 } from "@ionic/react";
-import { radioButtonOn } from "ionicons/icons";
+import { radioButtonOn, ribbonOutline } from "ionicons/icons";
 import ConnectButton from "./ConnectButton";
 import { AuthBadge } from "./AuthBadge";
 import { useWeb3Provider } from "../context/Web3Context";
+import { getAddressPoints } from "@/servcies/datas.service";
+import { PointsPopover } from "./PointsPopover";
 
 interface MenuSlideProps {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
@@ -27,6 +30,7 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
   const menuRef = useRef<HTMLIonMenuElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const { walletAddress } = useWeb3Provider();
+  const [points, setPoints] = useState<string | null>(null);
 
   return (
     <IonMenu ref={menuRef} side="end" contentId="main-content">
@@ -73,9 +77,7 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
               <h2>Earn Interest</h2>
             </IonText>
             <IonText color="medium">
-              <p>
-                Earn interest on your crypto with liquid staking
-              </p>
+              <p>Earn interest on your crypto with liquid staking</p>
             </IonText>
           </IonLabel>
         </IonItem>
@@ -127,10 +129,41 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
         ></IonItemDivider>
 
         <div className="ion-padding ion-text-center">
-          {!walletAddress ? (
+          {!walletAddress ? (<>
+            <IonButton
+                disabled={true}
+                fill="clear"
+                color="gradient"
+                style={{ cursor: "pointer" }}
+                size={"small"}
+              >
+                <IonIcon
+                  color="gradient"
+                  size="small"
+                  style={{ marginRight: "0.25rem" }}
+                  src={ribbonOutline}
+                ></IonIcon>
+                <IonText className="ion-color-gradient-text">Points</IonText>
+              </IonButton>
             <ConnectButton size="default" expand="block"></ConnectButton>
+          </>
           ) : (
             <>
+              <IonButton
+                id="points-btn-mobile"
+                fill="clear"
+                color="gradient"
+                style={{ cursor: "pointer" }}
+                size={"small"}
+              >
+                <IonIcon
+                  color="gradient"
+                  size="small"
+                  style={{ marginRight: "0.25rem" }}
+                  src={ribbonOutline}
+                ></IonIcon>
+                <IonText className="ion-color-gradient-text">Points</IonText>
+              </IonButton>
               <IonButton
                 id="badge-auth-mobile"
                 size={"default"}
@@ -138,10 +171,11 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
                 color="gradient"
                 expand={"block"}
               >
-                <IonIcon 
-                  color="success" 
-                  className="connectedIcon" 
-                  src={radioButtonOn}></IonIcon>
+                <IonIcon
+                  color="success"
+                  className="connectedIcon"
+                  src={radioButtonOn}
+                ></IonIcon>
                 Connected
               </IonButton>
               <IonModal
@@ -150,6 +184,25 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
                 onIonModalWillDismiss={() => menuRef.current?.close()}
               >
                 <AuthBadge />
+              </IonModal>
+              <IonModal
+                trigger="points-btn-mobile"
+                className="points-popover modalAlert"
+                onDidDismiss={() => setPoints(() => null)}
+                
+                onWillPresent={async () => {
+                  const response = await getAddressPoints(walletAddress).catch(
+                    (error) => {}
+                  );
+                  console.log("response", response);
+                  if (response?.data?.totalPoints) {
+                    setPoints(() => response.data.totalPoints);
+                  } else {
+                    setPoints(() => "0");
+                  }
+                }}
+              >
+                <PointsPopover points={points} />
               </IonModal>
             </>
           )}

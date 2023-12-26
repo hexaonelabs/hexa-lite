@@ -28,6 +28,13 @@ jobs:
           echo NEXT_PUBLIC_APP_VERSION=${{ steps.extract_version.outputs.version }} >> .env.local
           echo NEXT_PUBLIC_APP_BUILD_DATE=${{ steps.version.outputs.builddate }} >> .env.local
           echo NEXT_PUBLIC_APP_IS_PROD=true >> .env.local
+          echo NEXT_PUBLIC_APP_FIREBASE_APIKEY=${{ secrets.NEXT_PUBLIC_APP_FIREBASE_APIKEY }} >> .env.local 
+          echo NEXT_PUBLIC_APP_FIREBASE_AUTHDOMAIN=${{ secrets.NEXT_PUBLIC_APP_FIREBASE_AUTHDOMAIN }} >> .env.local 
+          echo NEXT_PUBLIC_APP_FIREBASE_PROJECTID=${{ secrets.NEXT_PUBLIC_APP_FIREBASE_PROJECTID }} >> .env.local 
+          echo NEXT_PUBLIC_APP_FIREBASE_STORAGEBUCKET=${{ secrets.NEXT_PUBLIC_APP_FIREBASE_STORAGEBUCKET }} >> .env.local 
+          echo NEXT_PUBLIC_APP_FIREBASE_MESSAGINGSENDERID=${{ secrets.NEXT_PUBLIC_APP_FIREBASE_MESSAGINGSENDERID }} >> .env.local 
+          echo NEXT_PUBLIC_APP_FIREBASE_APPID=${{ secrets.NEXT_PUBLIC_APP_FIREBASE_APPID }} >> .env.local 
+          echo NEXT_PUBLIC_APP_FIREBASE_DATABASEURL=${{ secrets.NEXT_PUBLIC_APP_FIREBASE_DATABASEURL }} >> .env.local 
           npm ci && npm run build
         env:
           CI: false
