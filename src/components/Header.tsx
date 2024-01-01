@@ -30,6 +30,7 @@ import { useWeb3Provider } from "../context/Web3Context";
 import { getReadableValue } from "@/utils/getReadableValue";
 import { getAddressPoints } from "@/servcies/datas.service";
 import { PointsPopover } from "./PointsPopover";
+import { useRef } from "react";
 
 const styleLogo = {
   // margin: '15px auto 20px',
@@ -63,8 +64,12 @@ export function Header({
   // define states
   const { walletAddress } = useWeb3Provider();
   const [points, setPoints] = useState<string | null>(null);
-  console.log("walletAddress", walletAddress);
-
+  const [isPointsPopoverOpen, setIsPointsPopoverOpen] = useState(false);
+  const pointsPopoverRef = useRef<HTMLIonPopoverElement>(null);
+  const openPopover = (e: any) => {
+    pointsPopoverRef.current!.event = e;
+    setIsPointsPopoverOpen(true);
+  };
   useEffect(() => {
     scrollToTop();
   }, [currentSegment]);
@@ -130,11 +135,11 @@ export function Header({
                     <>
                       <div style={{ display: "flex" }}>
                         <IonButton
-                          id="points-btn"
                           fill="clear"
                           color="gradient"
                           style={{ cursor: "pointer" }}
                           size={"small"}
+                          onClick={(e) => openPopover(e)}
                         >
                           <IonIcon
                             color="gradient"
@@ -164,9 +169,13 @@ export function Header({
                           <AuthBadge />
                         </IonPopover>
                         <IonPopover
-                          trigger="points-btn"
+                          ref={pointsPopoverRef}
                           className="points-popover"
-                          onDidDismiss={() => setPoints(() => null)}
+                          isOpen={isPointsPopoverOpen}
+                          onDidDismiss={() => {
+                            setPoints(() => null);
+                            setIsPointsPopoverOpen(false);
+                          }}
                           onWillPresent={async () => {
                             const response =
                               await getAddressPoints(walletAddress)
@@ -179,7 +188,7 @@ export function Header({
                             }
                           }}
                         >
-                          <PointsPopover points={points} />
+                          <PointsPopover points={points} closePopover={() => setIsPointsPopoverOpen(false)} />
                         </IonPopover>
                       </div>
                     </>
