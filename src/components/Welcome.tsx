@@ -192,8 +192,8 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                       Earn interest with liquid Staking
                     </h3>
                     <p>
-                      Unlock the potential to earn interest through Liquid Staking. <br/>
-                      Stake your assets in DeFi protocols without any lockup periods or restrictions.
+                      Unlock the potential of your assets by earn interest through Liquid Staking. <br/>
+                      Stake with DeFi protocols without any lockup periods or restrictions.
                     </p>
                   </IonText>
                 </RevealComp>

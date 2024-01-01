@@ -35,7 +35,7 @@ import { useLoader } from "../context/LoaderContext";
 import { CHAIN_AVAILABLES, NETWORK } from "../constants/chains";
 import { HowItWork } from "./HowItWork";
 import { ApyDetail } from "./ApyDetail";
-import { RouteExecutionUpdate, WidgetConfig, WidgetEvent, useWidgetEvents } from "@lifi/widget";
+import { HiddenUI, RouteExecutionUpdate, WidgetConfig, WidgetEvent, useWidgetEvents } from "@lifi/widget";
 import { LIFI_CONFIG } from '../servcies/lifi.service';
 import { LiFiWidgetDynamic } from "../components/LiFiWidgetDynamic";
 import type { Route } from '@lifi/sdk';
@@ -172,6 +172,10 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
         // },
       ],
     },
+    hiddenUI: [
+      ...LIFI_CONFIG?.hiddenUI as any,
+      HiddenUI.ToAddress
+    ],
     disabledUI: action === 'stake'
       ? [ "toToken"]
       : ["fromToken"],

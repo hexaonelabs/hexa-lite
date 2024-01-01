@@ -180,7 +180,7 @@ const Leaderboard: React.FC = () => {
               </IonCol>
             </IonRow>
             <IonRow>
-              <IonCol>
+              <IonCol className="ion-margin-bottom ion-padding-bottom">
                 <IonButton
                   color="gradient"
                   expand="block"
@@ -207,4 +207,4 @@ const LeaderboardDynamic = dynamic(() => Promise.resolve(Leaderboard), {
   ssr: false,
 });
 
-export default LeaderboardDynamic;
+export default function LeaderboardPage() {return (<LeaderboardDynamic />)}

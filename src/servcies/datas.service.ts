@@ -134,6 +134,11 @@ export const getAddressPoints = async (address: string) => {
 }
 
 export const addAddressPoints = async (address: string, data: PointsData) => {
+  if (!isValidEVMAddress(address)) {
+    return {
+      message: "Invalid address",
+    };
+  }
   try {
     const newPointsObj = {
       ...data,
