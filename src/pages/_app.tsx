@@ -33,6 +33,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         />
 
         <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+        <link rel="manifest" href="manifest.webmanifest" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="theme-color" content="#182449" />
         <meta name="color-scheme" content="dark" />
@@ -53,13 +54,63 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta property="og:title" content="Hexa Lite - Onboard to DeFi" />
         <meta property="og:site_name" content="Hexa Lite" />
         <meta property="og:url" content="https://hexa-lite.web.app/" />
-        <meta property="og:image" content="https://hexa-lite.web.app/assets/images/logo.svg" />
+        <meta property="og:image" content="https://hexa-lite.web.app/assets/app-logo/192.png" />
         <meta property="og:description" content="Buy digitals assets with fiats, exchange at best rate, lend and borrow money on DeFi protocols without any intermediate smart contract or third-party to enforce security and increase earn interest." />
           
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
+
+        {/* <!-- link to all app icon for PWA --> */}
+        <link
+          rel="apple-touch-icon"
+          sizes="72x72"
+          href="./assets/app-logo/72.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="96x96"
+          href="./assets/app-logo/96.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="128x128"
+          href="./assets/app-logo/128.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="144x144"
+          href="./assets/app-logo/144.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="152x152"
+          href="assets/app-logo/152.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="192x192"
+          href="./assets/app-logo/192.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="512x512"
+          href="./assets/app-logo/512.png"
+        />
+        <link
+          rel="icon"
+          sizes="192x192"
+          href="./assets/app-logo/192.png"
+          type="image/png"
+        />
+        <link
+          rel="icon"
+          sizes="96x96"
+          href="./assets/app-logo/96.png"
+          type="image/png"
+        />
+        
         <style>
           {`
               html {
