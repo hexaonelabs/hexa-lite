@@ -54,7 +54,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta property="og:title" content="Hexa Lite - Onboard to DeFi" />
         <meta property="og:site_name" content="Hexa Lite" />
         <meta property="og:url" content="https://hexa-lite.web.app/" />
-        <meta property="og:image" content="https://hexa-lite.web.app/assets/images/logo.svg" />
+        <meta property="og:image" content="https://hexa-lite.web.app/assets/app-logo/192.png" />
         <meta property="og:description" content="Buy digitals assets with fiats, exchange at best rate, lend and borrow money on DeFi protocols without any intermediate smart contract or third-party to enforce security and increase earn interest." />
           
         <meta
