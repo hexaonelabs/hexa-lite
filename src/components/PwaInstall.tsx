@@ -16,7 +16,7 @@ const PwaInstall = (): JSX.Element => {
   console.log("PwaInstall");
   return  <pwa-install 
       id="pwa-install" 
-      manifest-url="./manifest.json"></pwa-install>;
+      manifest-url="./manifest.webmanifest"></pwa-install>;
 };
 
 export default PwaInstall;
