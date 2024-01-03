@@ -1,4 +1,4 @@
-import { IonApp, IonLabel, IonRouterOutlet, setupIonicReact, IonText, IonChip, IonContent, IonGrid, IonRow, IonCol, IonPage } from '@ionic/react';
+import { IonApp, IonButton, IonRouterOutlet, setupIonicReact, IonText, IonChip, IonContent, IonGrid, IonRow, IonCol, IonPage } from '@ionic/react';
 import { StatusBar, Style } from '@capacitor/status-bar';
 
 import { IonReactRouter } from '@ionic/react-router';
@@ -12,6 +12,11 @@ import { DefiContainer } from '@/containers/DefiContainer';
 import { EarnContainer } from '@/containers/EarnContainer';
 import { Header } from './Header';
 import MenuSlide from './MenuSlide';
+import { Web3Provider } from '@/context/Web3Context';
+import { LoaderProvider } from '@/context/LoaderContext';
+import { Leaderboard } from '@/containers/LeaderboardContainer';
+import { NotFoundPage } from '@/containers/NotFoundPage';
+import PwaInstall from './PwaInstall';
 
 
 setupIonicReact({ mode: 'ios' });
@@ -93,51 +98,59 @@ const AppShell = () => {
   };
   return (
     <IonApp>
-      <MenuSlide handleSegmentChange={handleSegmentChange}/>
-      <Header currentSegment={currentSegment} handleSegmentChange={handleSegmentChange} scrollToTop={scrollToTop} />
-      <IonContent ref={contentRef} id="main-content" scrollEvents={true} fullscreen={true}>
-        <IonGrid class="ion-no-padding" style={{ minHeight: "100vh" }}>
-          <IonRow
-            style={{
-              minHeight: "100%",
-              height: currentSegment !== "welcome" ? "100%" : "90vh",
-            }}
-            class={
-              currentSegment !== "welcome"
-                ? "ion-align-items-top ion-justify-content-center ion-no-padding"
-                : "ion-align-items-center ion-justify-content-center ion-no-padding"
-            }
-          >
-            <IonCol size="12" class="ion-no-padding">
-              {renderSwitch(currentSegment)}
-              {currentSegment !== "welcome" && (
-                <div style={{
-                  position: 'fixed',
-                  bottom: '0.5rem',
-                  margin: 'auto',
-                  width: '100%',
-                  left: 0,
-                  textAlign: 'center',
-                  zIndex: -1,
-                  opacity: 0.4
-                }}>
-                  <small>
-                    {`HexaLite v${process.env.NEXT_PUBLIC_APP_VERSION} - ${process.env.NEXT_PUBLIC_APP_BUILD_DATE}`}
-                  </small>
-                </div>
-              )}
-            </IonCol>
-          </IonRow>
-        </IonGrid>
-      </IonContent>
-
-
-      {/* <IonReactRouter>
+      <IonReactRouter>
         <IonRouterOutlet id="main">
-          <Route path="/index" render={() => <Feed />} />
+          <Route path="/index" render={() => (<>  
+            <Web3Provider>
+              <LoaderProvider>
+                <IonPage>
+                  <MenuSlide handleSegmentChange={handleSegmentChange}/>
+                  <Header currentSegment={currentSegment} handleSegmentChange={handleSegmentChange} scrollToTop={scrollToTop} />
+                  <IonContent ref={contentRef} id="main-content" scrollEvents={true} fullscreen={true}>
+                    <IonGrid class="ion-no-padding" style={{ minHeight: "100vh" }}>
+                      <IonRow
+                        style={{
+                          minHeight: "100%",
+                          height: currentSegment !== "welcome" ? "100%" : "90vh",
+                        }}
+                        class={
+                          currentSegment !== "welcome"
+                            ? "ion-align-items-top ion-justify-content-center ion-no-padding"
+                            : "ion-align-items-center ion-justify-content-center ion-no-padding"
+                        }
+                      >
+                        <IonCol size="12" class="ion-no-padding">
+                          {renderSwitch(currentSegment)}
+                          {currentSegment !== "welcome" && (
+                            <div style={{
+                              position: 'fixed',
+                              bottom: '0.5rem',
+                              margin: 'auto',
+                              width: '100%',
+                              left: 0,
+                              textAlign: 'center',
+                              zIndex: -1,
+                              opacity: 0.4
+                            }}>
+                              <small>
+                                {`HexaLite v${process.env.NEXT_PUBLIC_APP_VERSION} - ${process.env.NEXT_PUBLIC_APP_BUILD_DATE}`}
+                              </small>
+                            </div>
+                          )}
+                        </IonCol>
+                      </IonRow>
+                    </IonGrid>
+                  </IonContent>
+                </IonPage>
+              </LoaderProvider>
+            </Web3Provider>
+          </>)} />
+          <Route path="/leaderboard" render={() => <Leaderboard />} />
           <Route path="/" render={() => <Redirect to="/index" />} exact={true} />
+          <Route component={NotFoundPage} />
         </IonRouterOutlet>
-      </IonReactRouter> */}
+      </IonReactRouter>
+      <PwaInstall />
     </IonApp>
   );
 };

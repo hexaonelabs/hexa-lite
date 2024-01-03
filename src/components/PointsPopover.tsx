@@ -17,7 +17,10 @@ const PointsValueComponent: React.FC<{ points: string | null }> = ({ points }) =
   );
 };
 
-export const PointsPopover: React.FC<{ points: string | null }> = ({ points }) => {
+export const PointsPopover: React.FC<{ 
+  points: string | null;
+  closePopover?: () => void;
+ }> = ({ points, closePopover }) => {
   return (<IonGrid>
     <IonRow>
       <IonCol>
@@ -48,6 +51,7 @@ export const PointsPopover: React.FC<{ points: string | null }> = ({ points }) =
           size="small"
           routerLink="/leaderboard"
           routerDirection="forward"
+          onClick={() => closePopover?.()}
         >
           view leaderboard
         </IonButton>

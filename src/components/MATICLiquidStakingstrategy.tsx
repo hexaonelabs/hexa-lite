@@ -165,7 +165,11 @@ export function MATICLiquidStakingstrategyCard() {
         //   address: "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4", // wstMATIC
         // },
       ],
-    },
+    },    
+    hiddenUI: [
+      ...LIFI_CONFIG?.hiddenUI as any,
+      HiddenUI.ToAddress
+    ],
     disabledUI: action === 'stake'
       ? [ "toToken"]
       : ["fromToken"],
@@ -400,7 +404,6 @@ export function MATICLiquidStakingstrategyCard() {
 
       <IonModal
         ref={modal}
-        trigger="open-modal"
         onWillDismiss={async (ev: CustomEvent<OverlayEventDetail>) => {
           console.log("will dismiss", ev.detail);
         }}

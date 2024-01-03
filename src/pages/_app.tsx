@@ -1,6 +1,5 @@
 import Head from 'next/head';
 
-// import 'tailwindcss/tailwind.css';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
@@ -26,34 +25,46 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>⚡ Hexa Lite - Onboard to DeFi</title>
         <meta charSet="utf-8" />
-        <link rel="icon" type="image/x-icon" href="./favicon.ico" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#000000" />
+        <title>Hexa Lite - Onboard to DeFi</title>
         <meta
           name="description"
-          content="Censorship-resistant, tamper-proof and privacy-compliant solution for finance."
+          content="Buy digitals assets with fiats, exchange at best rate, lend and borrow money on DeFi protocols without any intermediate smart contract or third-party to enforce security and increase earn interest."
         />
+
+        <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="theme-color" content="#182449" />
+        <meta name="color-scheme" content="dark" />
+
+        <meta name="author" content="HexaOneLabs" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="Hexa Lite" />
-        <meta name="mobile-web-app-capable" content="yes" />
+        
         <meta name="apple-mobile-web-app-title" content="Hexa Lite" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-        {/* <meta property="twitter:image" content="%PUBLIC_URL%/logo192.png" /> */}
-        {/* <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" /> */}
-
+        <meta name="msapplication-tooltip" content="Hexa Lite" />
+        <meta name="msapplication-starturl" content="/" />
+        <meta name="msapplication-TileColor" content="#182449" />
+        
+        <meta property="og:type" content="product" />
+        <meta property="og:title" content="Hexa Lite - Onboard to DeFi" />
+        <meta property="og:site_name" content="Hexa Lite" />
+        <meta property="og:url" content="https://hexa-lite.web.app/" />
+        <meta property="og:image" content="https://hexa-lite.web.app/assets/images/logo.svg" />
+        <meta property="og:description" content="Buy digitals assets with fiats, exchange at best rate, lend and borrow money on DeFi protocols without any intermediate smart contract or third-party to enforce security and increase earn interest." />
+          
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
         <style>
           {`
               html {
                 background: '#182449';
               }
-            
           `}
         </style>
       </Head>

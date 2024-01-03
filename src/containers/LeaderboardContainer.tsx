@@ -16,32 +16,12 @@ import {
   IonImg,
   IonSkeletonText,
 } from "@ionic/react";
-import dynamic from "next/dynamic";
-import { StatusBar, Style } from "@capacitor/status-bar";
 import { FooterComponent } from "@/components/FooterComponent";
 import { getReadableValue } from "@/utils/getReadableValue";
 import { getLeaderboardDatas } from "@/servcies/datas.service";
 
-interface LeaderboardData {
-  leaderboardData: { address: string; points: number }[];
-}
-
-const Leaderboard: React.FC = () => {
+export const Leaderboard: React.FC = () => {
   const [datas, setDatas] = React.useState<{address: string; totalPoints: string;}[]|null>(null);
-  useEffect(() => {
-    window
-      .matchMedia("(prefers-color-scheme: dark)")
-      .addListener(async (status) => {
-        console.log(
-          `[INFO] Dark mode is ${status.matches ? "enabled" : "disabled"}`
-        );
-        try {
-          await StatusBar.setStyle({
-            style: status.matches ? Style.Dark : Style.Light,
-          });
-        } catch {}
-      });
-  }, []);
   useEffect(() => {
     getLeaderboardDatas()
     .then((response) => {
@@ -180,13 +160,13 @@ const Leaderboard: React.FC = () => {
               </IonCol>
             </IonRow>
             <IonRow>
-              <IonCol>
+              <IonCol className="ion-margin-bottom ion-padding-bottom">
                 <IonButton
                   color="gradient"
                   expand="block"
                   fill="clear"
                   size="small"
-                  routerLink="/"
+                  routerLink="/index"
                   routerDirection="back"
                 >
                   back to dApp
@@ -200,11 +180,3 @@ const Leaderboard: React.FC = () => {
     </IonPage>
   );
 };
-
-setupIonicReact({ mode: "ios" });
-
-const LeaderboardDynamic = dynamic(() => Promise.resolve(Leaderboard), {
-  ssr: false,
-});
-
-export default LeaderboardDynamic;
