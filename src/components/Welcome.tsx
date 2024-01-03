@@ -6,6 +6,7 @@ import { ETHLiquidStakingstrategyCard } from "./ETHLiquidStakingstrategy";
 import { CHAIN_AVAILABLES } from "@/constants/chains";
 import RevealComp from '@/components/RevealComp';
 import { FooterComponent } from "./FooterComponent";
+import { FAQ } from "./FAQ";
 
 export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail: {value: string}}) => void}) {
 
@@ -463,6 +464,22 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         </IonCol>
       </IonRow>
 
+      {/* FAQ */}
+      <IonRow
+        class="ion-justify-content-center ion-align-items-center ion-padding"
+        style={{ minHeight: "100vh" }}
+      >
+        <IonCol  sizeMd="8" sizeLg="6" style={{marginBottom: '8rem', marginTop: '8rem',}}>
+            <h2 className="ion-text-center" style={{
+                        fontWeight: 'bold',
+                        fontSize: "3.5rem",
+                        lineHeight: "3.8rem",
+                        marginBottom: '2rem'
+                      }}>FAQ</h2>
+            <FAQ />
+        </IonCol>
+      </IonRow>
+
       {/* Last call Action */}
       <IonRow
         class="ion-justify-content-center ion-align-items-center ion-padding"
@@ -498,6 +515,7 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
           </RevealComp>
         </IonCol>
       </IonRow>
+
 
       {/* Footer Section */}
       <FooterComponent />

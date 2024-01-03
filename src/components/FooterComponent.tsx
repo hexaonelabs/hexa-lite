@@ -9,7 +9,7 @@ export const FooterComponent: React.FC = () => {
     >
       <IonCol size="auto" class="ion-padding-horizontal">
         <IonText color="medium">
-          <p style={{ fontSize: "12px" }}>
+          <p style={{ fontSize: "12px", lineHeight: '0.9rem' }}>
             Open source software by{" "}
             <a
               href="https://hexaonelabs.com/"
@@ -17,11 +17,21 @@ export const FooterComponent: React.FC = () => {
               target="_blank"
             >
               HexaOneLabs
-            </a>
+            </a>. <br/><a 
+              href="./terms-conditions.pdf" 
+              target="_blank"
+              rel="noreferrer noopener">Terms & Conditions</a>
           </p>
         </IonText>
       </IonCol>
       <IonCol size="auto" class="ion-padding-horizontal ion-text-end">
+        {/* <a 
+          href="https://snapshot.org/#/hexaonelabs.eth" 
+          target="_blank" 
+          rel="noreferrer noopener"
+          style={{textDecoration: 'none', fontSize: '0.7rem'}}>
+          <span>⚡</span>
+        </a> */}
         <a
           href="https://twitter.com/hexa_one_labs"
           target="_blank"

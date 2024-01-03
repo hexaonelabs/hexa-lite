@@ -417,7 +417,6 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
 
       <IonModal
         ref={modal}
-        trigger="open-modal"
         onWillDismiss={async (ev: CustomEvent<OverlayEventDetail>) => {
           console.log("will dismiss", ev.detail);
         }}

@@ -26,7 +26,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <meta charSet="utf-8" />
-        <title>⚡ Hexa Lite - Onboard to DeFi</title>
+        <title>Hexa Lite - Onboard to DeFi</title>
         <meta
           name="description"
           content="Buy digitals assets with fiats, exchange at best rate, lend and borrow money on DeFi protocols without any intermediate smart contract or third-party to enforce security and increase earn interest."

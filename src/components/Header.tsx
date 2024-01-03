@@ -98,7 +98,7 @@ export function Header({
                       style={styleLogo}
                       src={"./assets/images/logo.svg"}
                     ></IonImg>
-                    <IonChip style={styleChip}>beta</IonChip>
+                    {/* <IonChip style={styleChip}>beta</IonChip> */}
                   </div>
                 </IonCol>
                 <IonCol

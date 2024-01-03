@@ -452,7 +452,7 @@ ion-accordion {
   user-select: none; /* Standard syntax */
 }
 
-ion-accordion {
+ion-accordio:not(.faq) {
   *[slot="header"] {
     --padding-top: 0.8rem;
     --padding-bottom: 0.8rem;

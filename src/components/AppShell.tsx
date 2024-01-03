@@ -16,6 +16,7 @@ import { Web3Provider } from '@/context/Web3Context';
 import { LoaderProvider } from '@/context/LoaderContext';
 import { Leaderboard } from '@/containers/LeaderboardContainer';
 import { NotFoundPage } from '@/containers/NotFoundPage';
+import PwaInstall from './PwaInstall';
 
 
 setupIonicReact({ mode: 'ios' });
@@ -149,6 +150,7 @@ const AppShell = () => {
           <Route component={NotFoundPage} />
         </IonRouterOutlet>
       </IonReactRouter>
+      <PwaInstall />
     </IonApp>
   );
 };
