@@ -1,5 +1,6 @@
 import {
   IonAvatar,
+  IonBadge,
   IonButton,
   IonCol,
   IonFabButton,
@@ -22,6 +23,7 @@ import { useAave } from "../context/AaveContext";
 import { useMemo, useRef, useState } from "react";
 import { useWeb3Provider } from "../context/Web3Context";
 import { SymbolIcon } from "./SymbolIcon";
+import { usePools } from "@/context/PoolContext";
 
 interface IPoolItemListProps {
   poolId: string;
@@ -32,30 +34,84 @@ interface IPoolItemListProps {
 export function PoolItemList(props: IPoolItemListProps) {
   const { poolId, iconSize, chainId, handleSegmentChange } = props;
   const { walletAddress } = useWeb3Provider();
-  const { markets, poolGroups } = useAave();
+  const { markets } = useAave();
+  const { poolGroups } = usePools();
   const modal = useRef<HTMLIonModalElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   // find pool in `poolGroups[*].pool` by `poolId`
-  const pool = useMemo(
-    () => {
-      return poolGroups
-      .find((pg) => pg.pools.find((p) => p.id === poolId))?.pools.find((p) => p.id === poolId);
-    },
-    [poolId]
-  );
+  const pool = useMemo(() => {
+    return poolGroups
+      .find((pg) => pg.pools.find((p) => p.id === poolId))
+      ?.pools.find((p) => p.id === poolId);
+  }, [poolId]);
   if (!pool) return null;
+
+  const LogoProviderImage = (props: { provider: string }) => {
+    const { provider } = props;
+    let url = "./assets/icons/aave.svg";
+    switch (true) {
+      case provider.includes("aave"):
+        break;
+      case provider.includes("solend"):
+        url = "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/SLNDpmoWTVADgEdndyvWzroNL7zSi1dF9PC3xHGtPwp/logo.png";
+        break;
+    }
+    return (
+      <IonImg
+        style={{
+          width: "18px",
+          heigth: "18px",
+          position: "absolute",
+          right: "0",
+          borderRadius: '50%',
+          overflow: 'hidden'
+        }}
+        src={url} />
+    );
+  };
+  const ActionBtn = (props: {provider: string}) => {
+    const { provider } = props;
+    if (provider === 'aave-v3') {
+      return (
+        <IonFabButton
+          slot="end"
+          color="gradient"
+          size="small"
+          className="ion-margin-horizontal"
+        >
+          <IonIcon size="small" icon={searchOutline} />
+        </IonFabButton>
+      )
+    }
+    return (
+      <IonButton 
+      disabled={true}
+      className="ion-margin-horizontal"
+      slot="end"
+      size="small"
+      color="gradient">
+        <small>
+          Coming  soon
+        </small>
+      </IonButton>
+    );
+  }
   return (
     <>
-      <IonItem 
-        lines="none" 
+      <IonItem
+        lines="none"
         onClick={() => {
-          console.log({pool})
+          console.log(`[INFO] Pool: `,{ pool });
+          if (pool.provider !== 'aave-v3') {
+            return;
+          }
           setIsModalOpen(() => true);
         }}
       >
         <IonGrid className="ion-no-padding">
           <IonRow className="poolItemList ion-align-items-center ion-justify-content-between ion-no-padding ion-padding-start">
-            <IonCol size-md="2"
+            <IonCol
+              size-md="2"
               class="ion-text-start ion-padding-start"
               style={{
                 display: "flex",
@@ -63,14 +119,15 @@ export function PoolItemList(props: IPoolItemListProps) {
                 alignContent: "center",
               }}
             >
-              <SymbolIcon  
+              <SymbolIcon
                 symbol={pool.symbol}
                 chainId={pool.chainId}
+                assetIconURL={pool.logo}
                 iconSize={iconSize}
-                />
+              />
               <IonLabel class="ion-padding-start">
-                {pool.symbol} 
-                {(pool.usageAsCollateralEnabled === false) && (
+                {pool.symbol}
+                {pool.usageAsCollateralEnabled === false && (
                   <IonIcon
                     icon={warningOutline}
                     color="warning"
@@ -79,7 +136,8 @@ export function PoolItemList(props: IPoolItemListProps) {
                 )}
                 <p>
                   <small>
-                    {CHAIN_AVAILABLES.find((c) => c.id === chainId)?.name} network
+                    {CHAIN_AVAILABLES.find((c) => c.id === chainId)?.name}{" "}
+                    network
                   </small>
                   {walletAddress && (
                     <IonText color="dark">
@@ -92,18 +150,8 @@ export function PoolItemList(props: IPoolItemListProps) {
                 </p>
               </IonLabel>
             </IonCol>
-            <IonCol size="1"
-              class="ion-text-end ion-hide-md-down"
-            >
-              <IonImg
-                style={{
-                  width: "18px",
-                  heigth: "18px",
-                  position: "absolute",
-                  right: "0",
-                }}
-                src="./assets/icons/aave.svg"
-              ></IonImg>
+            <IonCol size="1" class="ion-text-end ion-hide-md-down">
+              <LogoProviderImage provider={pool.provider} />
             </IonCol>
             <IonCol size-md="2" class="ion-text-end ion-hide-md-down">
               <IonLabel>
@@ -122,7 +170,11 @@ export function PoolItemList(props: IPoolItemListProps) {
                 </IonText>
               </IonLabel>
             </IonCol>
-            <IonCol size="auto" size-md="2" class="ion-text-end ion-hide-md-down">
+            <IonCol
+              size="auto"
+              size-md="2"
+              class="ion-text-end ion-hide-md-down"
+            >
               <IonLabel>
                 {pool.borrowBalance > 0
                   ? pool.borrowBalance.toFixed(6)
@@ -153,7 +205,11 @@ export function PoolItemList(props: IPoolItemListProps) {
                 %
               </IonLabel>
             </IonCol>
-            <IonCol size="auto" size-md="2" class="ion-text-end ion-hide-md-down">
+            <IonCol
+              size="auto"
+              size-md="2"
+              class="ion-text-end ion-hide-md-down"
+            >
               <IonLabel className="ion-padding-end">
                 {Number(pool?.borrowAPY || 0) * 100 === 0
                   ? pool?.borrowingEnabled === false
@@ -161,34 +217,27 @@ export function PoolItemList(props: IPoolItemListProps) {
                     : `0%`
                   : Number(pool?.borrowAPY || 0) * 100 < 0.01
                   ? `< 0.01%`
-                  : (Number(pool?.borrowAPY || 0) * 100).toFixed(2) +
-                    "%"}
+                  : (Number(pool?.borrowAPY || 0) * 100).toFixed(2) + "%"}
               </IonLabel>
             </IonCol>
           </IonRow>
         </IonGrid>
-        
-        <IonFabButton
-          slot="end"
-          color="gradient"
-          size="small"
-          className="ion-margin-horizontal"
-        > 
-          <IonIcon size="small" icon={searchOutline} />
-        </IonFabButton>
+
+        <ActionBtn provider={pool.provider} />
       </IonItem>
 
-      <IonModal 
-        ref={modal} 
+      <IonModal
+        ref={modal}
         isOpen={isModalOpen}
         className="modalPage"
         onDidDismiss={() => setIsModalOpen(() => false)}
       >
-        <ReserveDetail 
+        <ReserveDetail
           pool={pool}
           markets={markets?.find((m) => m.CHAIN_ID === chainId)}
           dismiss={() => modal.current?.dismiss()}
-          handleSegmentChange={handleSegmentChange} />
+          handleSegmentChange={handleSegmentChange}
+        />
       </IonModal>
     </>
   );

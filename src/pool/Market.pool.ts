@@ -88,6 +88,10 @@ export abstract class MarketPool implements IMarketPool {
         const { AavePool } = require("./Aave.pool");
         poolInstance = new AavePool(pool as IAavePool) ;
         break;
+      case "solend":
+        const { SolendPool } = require("./solend.pool");
+        poolInstance = new SolendPool( pool ) ;
+        break;
       default:
         throw new Error("Invalid pool provider");
     }

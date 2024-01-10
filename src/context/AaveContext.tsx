@@ -56,6 +56,7 @@ const stub = (): never => {
 // Define the type for the AAVE context.
 type AaveContextType = {
   markets: MARKETTYPE[] | null;
+  pools: AavePool[];
   poolGroups: IPoolGroup[];
   userSummaryAndIncentivesGroup: IUserSummary[] | null;
   totalTVL: number | null;
@@ -64,6 +65,7 @@ type AaveContextType = {
 
 const AaveContextDefault: AaveContextType = {
   markets: null,
+  pools: [],
   poolGroups: [],
   totalTVL: null,
   userSummaryAndIncentivesGroup: null,
@@ -147,6 +149,7 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
           userLiquidationThreshold,
           poolLiquidationThreshold,
         });
+
         const poolGroup = acc.find((r) => r.symbol === symbol);
         if (poolGroup) {
           // add reserve to existing reserves group
@@ -202,9 +205,11 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
         if (a.symbol > b.symbol) return 1;
         return 0;
       });
+    const pools: AavePool[]  = poolGroups.flatMap(({pools}) =>  pools as AavePool[] );
     // update state
     setState((prev) => ({
       ...prev,
+      pools,
       markets,
       poolGroups,
     }));
@@ -326,10 +331,12 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
           poolGroups,
         });
         // update `poolGroups.` with userSummaryAndIncentivesGroup
+        const pools  = poolGroups.flatMap(({pools}) =>  pools as AavePool[] );
         setState((prev) => ({
           ...prev,
           userSummaryAndIncentivesGroup,
           poolGroups,
+          pools,
         }));
         console.log("[INFO] {{AaveProvider}} loadUserSummary loaded " );
       }

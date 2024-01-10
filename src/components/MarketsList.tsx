@@ -2,6 +2,7 @@ import {
   IonAccordionGroup,
   IonCol,
   IonGrid,
+  IonImg,
   IonInput,
   IonRow,
   IonSearchbar,
@@ -17,6 +18,7 @@ import { useAave } from "../context/AaveContext";
 import { useState } from "react";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { IPoolGroup, IReserve } from "../interfaces/reserve.interface";
+import { usePools } from "@/context/PoolContext";
 
 export function MarketList(props: {
   filterBy?: {
@@ -25,7 +27,7 @@ export function MarketList(props: {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
   const { handleSegmentChange, filterBy: filterFromParent } = props;
-  const { poolGroups } = useAave();
+  const { poolGroups } = usePools();
   const [filterBy, setFilterBy] = useState<{
     [key: string]: string;
   }|null>(
@@ -72,6 +74,29 @@ export function MarketList(props: {
     })
     .filter((group) => group.pools.length > 0);
 
+  const LogoProviderImage = (props: { provider: string }) => {
+      const { provider } = props;
+      let url = "./assets/icons/aave.svg";
+      switch (true) {
+        case provider.includes("aave"):
+          break;
+        case provider.includes("solend"):
+          url = "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/SLNDpmoWTVADgEdndyvWzroNL7zSi1dF9PC3xHGtPwp/logo.png";
+          break;
+      }
+      return (
+        <IonImg
+          style={{
+            width: "18px",
+            heigth: "18px",
+            position: "absolute",
+            right: "0",
+            borderRadius: '50%',
+            overflow: 'hidden'
+          }}
+          src={url} />
+      );
+    };
   return (
     <>
       <IonGrid className="ion-no-padding ion-padding-vertical">
@@ -125,7 +150,7 @@ export function MarketList(props: {
             >
               <IonSelectOption value="*">All</IonSelectOption>
               {CHAIN_AVAILABLES
-              .filter(chain => chain.type === 'evm')
+              .filter(chain => chain.type === 'evm' || chain.type === 'solana')
               .map((chain, index) => (
                 <IonSelectOption key={`option_chainId_${index}`} value={chain.id.toString()}>
                   {chain.name}
@@ -142,22 +167,24 @@ export function MarketList(props: {
               placeholder="Select protocol"
               onIonChange={(e) => {
                 const name = e.detail.value && e.detail.value.length > 0 
-                  ? Number(e.detail.value)
+                  ? e.detail.value
                   : null;
+                console.log(name)
                 if (name) {
                   setFilterBy((s) => ({
                     ...s,
-                    "protocol": e.detail.value || "",
+                    "provider": e.detail.value || "",
                   }));
                 } else {
-                  // remove chainId from `filterBy`
-                  const { chainId, ...rest } = filterBy || {};
+                  // remove provider from `filterBy`
+                  const { provider, ...rest } = filterBy || {};
                   setFilterBy(() => rest);
                 }
               }}
             >
               <IonSelectOption value="">All</IonSelectOption>
-              <IonSelectOption value="AAVE">AAVE V3</IonSelectOption>
+              <IonSelectOption value="aave-v3">AAVE v3</IonSelectOption>
+              <IonSelectOption value="solend">Solend</IonSelectOption>
             </IonSelect>
           </IonCol>
           <IonCol size="12" sizeMd="3" class="ion-padding-horizontal ion-text-end">

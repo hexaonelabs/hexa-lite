@@ -58,6 +58,7 @@ import { currencyFormat } from "../utils/currency-format";
 import { ApyDetail } from "./ApyDetail";
 import { UseCrossChaineCollateralButton } from "./UseCrossChainCollateralBtn";
 import { IAavePool } from "@/pool/Aave.pool";
+import { usePools } from "@/context/PoolContext";
 
 interface IReserveDetailProps {
   pool: IMarketPool;
@@ -130,7 +131,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
       }
     | undefined
   >(undefined);
-  const { refresh, poolGroups, userSummaryAndIncentivesGroup } = useAave();
+  const { refresh, poolGroups, userSummaryAndIncentivesGroup } = usePools();
   const modal = useRef<HTMLIonModalElement>(null);
   const [isCrossChain, setIsCrossChain] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -512,6 +513,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     <SymbolIcon
                       symbol={pool?.symbol}
                       chainId={pool?.chainId}
+                      assetIconURL={pool?.logo}
                       iconSize="124px"
                     />
                     <div className="ion-padding-start ion-hide-sm-down">

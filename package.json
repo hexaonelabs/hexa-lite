@@ -34,6 +34,7 @@
     "@magic-ext/polkadot": "^16.4.0",
     "@magic-ext/solana": "^18.2.0",
     "@solana/web3.js": "^1.87.6",
+    "@solendprotocol/solend-sdk": "^0.7.1-lite.0",
     "@types/jest": "^26.0.20",
     "@types/node": "^12.19.15",
     "@types/react": "^18.0.17",

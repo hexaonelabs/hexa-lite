@@ -17,6 +17,8 @@ import { LoaderProvider } from '@/context/LoaderContext';
 import { Leaderboard } from '@/containers/LeaderboardContainer';
 import { NotFoundPage } from '@/containers/NotFoundPage';
 import PwaInstall from './PwaInstall';
+import { SolendProvider } from '@/context/SolendContext';
+import { PoolsProvider } from '@/context/PoolContext';
 
 
 setupIonicReact({ mode: 'ios' });
@@ -63,14 +65,16 @@ const AppShell = () => {
       case "defi":
         return (
           <AaveProvider>
-            <DefiContainer handleSegmentChange={handleSegmentChange} />
+            <SolendProvider >
+              <PoolsProvider>  
+                <DefiContainer handleSegmentChange={handleSegmentChange} />
+              </PoolsProvider>
+            </SolendProvider>
           </AaveProvider>
         );
       case "earn": {
         return (
-          <AaveProvider>
-            <EarnContainer />
-          </AaveProvider>
+          <EarnContainer />
         )
       }
       default:

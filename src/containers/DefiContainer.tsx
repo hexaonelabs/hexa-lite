@@ -27,6 +27,7 @@ import { useWeb3Provider } from "../context/Web3Context";
 import { valueToBigNumber } from "@aave/math-utils";
 import { getReadableAmount } from "@/utils/getReadableAmount";
 import { IAavePool } from "@/pool/Aave.pool";
+import { usePools } from "@/context/PoolContext";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -65,7 +66,7 @@ export const DefiContainer = ({
   console.log("[INFO] {{DefiContainer}} rendering...");
   const { walletAddress, assets } = useWeb3Provider();
   const { poolGroups, totalTVL, refresh, userSummaryAndIncentivesGroup } =
-    useAave();
+    usePools();
   const [filterBy, setFilterBy] = useState<{ [key: string]: string } | null>(
     null
   );
@@ -202,7 +203,7 @@ export const DefiContainer = ({
                 Connect to DeFi liquidity protocols and access to{" "}
                 {poolGroups.length} markets across{" "}
                 {
-                  CHAIN_AVAILABLES.filter((chain) => chain.type === "evm")
+                  CHAIN_AVAILABLES.filter((chain) => chain.type === "evm" || chain.type === 'solana')
                     .length
                 }{" "}
                 networks, borrow assets using your crypto as collateral and earn
