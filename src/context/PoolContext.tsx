@@ -47,14 +47,12 @@ export const PoolsProvider = ({ children }: { children: React.ReactNode }) => {
         const chainId = pool.chainId;
         const borrowAPY = pool.borrowAPY;
         const supplyAPY = pool.supplyAPY;
-        const walletBalance = 0;
-        const supplyBalance = 0;
-        const borrowBalance = 0;
-        const userLiquidationThreshold = -1;
-        const poolLiquidationThreshold = Number(pool.poolLiquidationThreshold);
+        const supplyBalance = pool.supplyBalance;
+        const borrowBalance = pool.borrowBalance;
+          // build group
         const poolGroup = acc.find((g) => g.symbol === pool.symbol);
         if (poolGroup) {
-          // add reserve to existing reserves group
+          // add reserve to existing reserves group with wallet balance
           poolGroup.pools.push(pool);
           // check if chainId exist and add if not
           if (!poolGroup.chainIds.includes(chainId)) {
@@ -69,11 +67,11 @@ export const PoolsProvider = ({ children }: { children: React.ReactNode }) => {
             poolGroup.topSupplyApy = supplyAPY;
           }
           // update totalBorrowBalance
-          poolGroup.totalBorrowBalance += Number(pool.borrowBalance);
+          poolGroup.totalBorrowBalance += borrowBalance;
           // update totalSupplyBalance
-          poolGroup.totalSupplyBalance += Number(pool.supplyBalance);
+          poolGroup.totalSupplyBalance += supplyBalance;
           // update totalWalletBalance
-          poolGroup.totalWalletBalance += Number(pool.walletBalance);
+          poolGroup.totalWalletBalance += pool.walletBalance;
           // update borrowingEnabled if is disable and pool is enabled
           if (pool.borrowingEnabled && !poolGroup.borrowingEnabled) {
             poolGroup.borrowingEnabled = pool.borrowingEnabled;
@@ -94,7 +92,7 @@ export const PoolsProvider = ({ children }: { children: React.ReactNode }) => {
             borrowingEnabled: pool.borrowingEnabled,
             totalBorrowBalance: borrowBalance,
             totalSupplyBalance: supplyBalance,
-            totalWalletBalance: walletBalance,
+            totalWalletBalance: pool.walletBalance,
             priceInUSD: pool.priceInUSD,
           };
           acc.push(newGroup);
@@ -102,7 +100,14 @@ export const PoolsProvider = ({ children }: { children: React.ReactNode }) => {
         return acc;
       },
       [] as IPoolGroup[]
-    ).sort((a, b) => {
+    )
+    .sort((a, b) => {
+      if (a.totalSupplyBalance > b.totalSupplyBalance) return -1;
+      if (a.totalSupplyBalance < b.totalSupplyBalance) return 1;
+      if (a.totalBorrowBalance > b.totalBorrowBalance) return -1;
+      if (a.totalBorrowBalance < b.totalBorrowBalance) return 1;
+      if (a.totalWalletBalance > b.totalWalletBalance) return -1;
+      if (a.totalWalletBalance < b.totalWalletBalance) return 1;
       return a.symbol > b.symbol ? 1 : -1;
     });
     console.log("[INFO] {{PoolsProvider}} init context... ", poolGroups ); 

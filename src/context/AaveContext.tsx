@@ -57,7 +57,6 @@ const stub = (): never => {
 type AaveContextType = {
   markets: MARKETTYPE[] | null;
   pools: AavePool[];
-  poolGroups: IPoolGroup[];
   userSummaryAndIncentivesGroup: IUserSummary[] | null;
   totalTVL: number | null;
   refresh: (type?: 'init'|'userSummary') => Promise<void>;
@@ -66,7 +65,6 @@ type AaveContextType = {
 const AaveContextDefault: AaveContextType = {
   markets: null,
   pools: [],
-  poolGroups: [],
   totalTVL: null,
   userSummaryAndIncentivesGroup: null,
   refresh: stub,
@@ -104,7 +102,7 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
     if (!markets || markets.length === 0) {
       return;
     }
-    console.log("[INFO] {{AaveProvider}} fetchPools... ");
+    // console.log("[INFO] {{AaveProvider}} fetchPools... ");
     const reserves = [];
     for (let i = 0; i < markets.length; i++) {
       const market = markets[i];
@@ -116,102 +114,48 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       });
       reserves.push(...pools);
     }
-    console.log("[INFO] {{AaveProvider}} fetchPools done: ", { reserves });
+    // console.log("[INFO] {{AaveProvider}} fetchPools done: ", { reserves });
     // groups poolReserves by symbol (e.g. DAI, USDC, USDT, ...)
-    const poolGroups: IPoolGroup[] = reserves        
+    const pools: AavePool[] = reserves        
       .filter(reserve => 
         reserve.isFrozen === false 
         && reserve.isActive === true 
         && reserve.isPaused === false 
       )
-      .reduce((acc, reserve) => {
-        const symbol = reserve.symbol;
-        const chainId = +reserve.id.split("-")[0];
-        const borrowAPY = reserve
-          ? Number(reserve.variableBorrowAPY)
-          : 0;
-        const supplyAPY = Number(reserve.supplyAPY);
-        const walletBalance = 0;
-        const supplyBalance = 0;
-        const borrowBalance = 0;
-        const userLiquidationThreshold = -1;
-        const poolLiquidationThreshold = Number(reserve.formattedEModeLiquidationThreshold);
-        const marketPool = MarketPool.create<AavePool>({
+      .map((reserve) => {
+          const provider = 'aave-v3';
+          const symbol = reserve.symbol;
+          const chainId = +reserve.id.split("-")[0];
+          const logo = getAssetIconUrl({ symbol })
+          const borrowAPY = reserve
+            ? Number(reserve.variableBorrowAPY)
+            : 0;
+          const supplyAPY = Number(reserve.supplyAPY||0);
+          const walletBalance = 0;
+          const supplyBalance = 0;
+          const borrowBalance = 0;
+          const userLiquidationThreshold = -1;
+          const poolLiquidationThreshold = Number(reserve.formattedEModeLiquidationThreshold);
+        return MarketPool.create<AavePool>({
           ...reserve,
-          provider: 'aave-v3',
-          logo: getAssetIconUrl({ symbol: reserve.symbol }),
-          chainId,
-          borrowAPY,
-          supplyAPY,
-          walletBalance,
+          symbol,
+          provider,
           supplyBalance,
           borrowBalance,
+          walletBalance,
+          borrowAPY,
+          supplyAPY,
+          chainId,
           userLiquidationThreshold,
           poolLiquidationThreshold,
+          logo,
         });
-
-        const poolGroup = acc.find((r) => r.symbol === symbol);
-        if (poolGroup) {
-          // add reserve to existing reserves group
-          poolGroup.pools.push(marketPool);
-          // check if chainId exist and add if not
-          if (!poolGroup.chainIds.includes(chainId)) {
-            poolGroup.chainIds.push(chainId);
-          }
-          // check if borrowApy is lower than topBorrowApy
-          if (borrowAPY < poolGroup.topBorrowApy) {
-            poolGroup.topBorrowApy = borrowAPY;
-          }
-          // check if supplyApy is higher than topSupplyApy
-          if (supplyAPY > poolGroup.topSupplyApy) {
-            poolGroup.topSupplyApy = supplyAPY;
-          }
-          // update totalBorrowBalance
-          poolGroup.totalBorrowBalance += Number(marketPool.borrowBalance);
-          // update totalSupplyBalance
-          poolGroup.totalSupplyBalance += Number(marketPool.supplyBalance);
-          // update totalWalletBalance
-          poolGroup.totalWalletBalance += Number(marketPool.walletBalance);
-          // update borrowingEnabled if is disable and marketPool is enabled
-          if (marketPool.borrowingEnabled && !poolGroup.borrowingEnabled) {
-            poolGroup.borrowingEnabled = marketPool.borrowingEnabled;
-          }
-          // add priceInUSD if not exist
-          if (!poolGroup.priceInUSD) {
-            poolGroup.priceInUSD = marketPool.priceInUSD;
-          }
-        } else {
-          const newGroup: IPoolGroup = {
-            pools: [marketPool],
-            symbol,
-            name: marketPool.name,
-            chainIds: [chainId],
-            logo: getAssetIconUrl({ symbol }),
-            topBorrowApy: borrowAPY,
-            topSupplyApy: supplyAPY,
-            borrowingEnabled: marketPool.borrowingEnabled,
-            totalBorrowBalance: borrowBalance,
-            totalSupplyBalance: supplyBalance,
-            totalWalletBalance: walletBalance,
-            priceInUSD: marketPool.priceInUSD,
-          };
-          acc.push(newGroup);
-        }
-        return acc;
-      }, [] as IPoolGroup[])
-      // sort by existing ballances then by name
-      .sort((a, b) => {
-        if (a.symbol < b.symbol) return -1;
-        if (a.symbol > b.symbol) return 1;
-        return 0;
       });
-    const pools: AavePool[]  = poolGroups.flatMap(({pools}) =>  pools as AavePool[] );
     // update state
     setState((prev) => ({
       ...prev,
       pools,
       markets,
-      poolGroups,
     }));
   };
 
@@ -232,110 +176,63 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
         );
         return null;
       });
-      console.log("[INFO] {{AaveProvider}} fetchUserSummaryAndIncentives: ", {
-        userSummaryAndIncentivesGroup,
-      });
       // update `poolGroups.` with userSummaryAndIncentives data
       if (
         userSummaryAndIncentivesGroup &&
-        state.poolGroups &&
-        state.poolGroups.length > 0
+        state.pools &&
+        state.pools.length > 0
       ) {
-        const poolGroups = state.poolGroups.map((poolGroup) => {
-          const symbol = poolGroup.symbol;
-          const borrowingEnabled = poolGroup.borrowingEnabled;
-          // get `totalBorrowBalance`from  for a specific `symbol` using `userSummaryAndIncentivesGroup` Object
-          // to calculate `borrowBalance` for each network and sum them up to get `totalBorrowBalance`
-          const totalBorrowBalance = getTotalBorrowBalanceBySymbol(
-            userSummaryAndIncentivesGroup,
-            symbol
-          );
-          // get `totalSupplyBalance`from  for a specific `symbol` using `userSummaryAndIncentivesGroup` Object
-          // to calculate `supplyBalance` for each network and sum them up to get `totalBorrowBalance`
-          const totalSupplyBalance = getTotalSupplyBalanceBySymbol(
-            userSummaryAndIncentivesGroup,
-            symbol
-          );
-          const assetFromAllNetwork = getAssetFromAllNetwork({
-            assets, symbol, userSummaryAndIncentivesGroup
-          });
-          const totalWalletBalance = assetFromAllNetwork.reduce((acc, asset) => {
-            return acc + asset.balance;
-          }, 0) || 0;
-          // implememnt `supplyBalance` and `borrowBalance` for each reserve from poolGroup
-          const pools = poolGroup.pools
-          .map((pool) => {
-            const userReserve = userSummaryAndIncentivesGroup
-              .find((userSummary) => userSummary.chainId === pool.chainId)
-              ?.userReservesData
-              ?.find((userReserve) => {
-                const {
-                  reserve: { symbol },
-                } = userReserve;
-                if (symbol === pool.symbol) {
-                  return userReserve.reserve;
-                }
-                return null;
-              });
-            const walletBalance = assetFromAllNetwork.find(
-              (asset) => asset.chain?.id === pool.chainId 
-              && asset.contractAddress === pool.underlyingAsset
-            )?.balance || 0;
-
-            const poolLiquidationThreshold =  Number(userReserve?.reserve?.formattedReserveLiquidationThreshold||-1);
-            // get `userLiquidationThreshold` from `userSummaryAndIncentivesGroup` Object
-            const userLiquidationThreshold = userSummaryAndIncentivesGroup
-            .find((userSummary) => userSummary.chainId === pool.chainId)?.currentLiquidationThreshold;
-            // return `reserve` Object with `supplyBalance` and `borrowBalance` from `userReserve` Object
-            // and `totalWalletBalance` from `userAssets` Object
-            return MarketPool.create<AavePool>({
-              ...pool,
-              provider: 'aave-v3',
-              supplyBalance: Number(userReserve?.underlyingBalance) || 0,
-              borrowBalance: Number(userReserve?.totalBorrows) || 0,
-              walletBalance,
-              userLiquidationThreshold: Number(userLiquidationThreshold),
-              poolLiquidationThreshold
+        
+        const pools = state.pools.map((pool) => {
+          const userReserve = userSummaryAndIncentivesGroup
+            .find((userSummary) => userSummary.chainId === pool.chainId)
+            ?.userReservesData
+            ?.find((userReserve) => {
+              const {
+                reserve: { symbol },
+              } = userReserve;
+              if (symbol === pool.symbol) {
+                return userReserve.reserve;
+              }
+              return null;
             });
-          })
-          .sort((a, b) => {
-            if (a.supplyBalance > b.supplyBalance) return -1;
-            if (a.supplyBalance < b.supplyBalance) return 1;
-            if (a.borrowBalance > b.borrowBalance) return -1;
-            if (a.borrowBalance < b.borrowBalance) return 1;
-            return 0;
+          const supplyBalance = Number(userReserve?.underlyingBalance) || 0;
+          const borrowBalance = Number(userReserve?.totalBorrows) || 0;
+          // get wallet balance for this pool asset
+          const walletBalance = assets.find(
+            (a) => a.symbol === pool.symbol && a.chain?.id === pool.chainId && a.contractAddress === pool.underlyingAsset
+          )?.balance || 0;
+          const poolLiquidationThreshold =  Number(userReserve?.reserve?.formattedReserveLiquidationThreshold||-1);
+          // get `userLiquidationThreshold` from `userSummaryAndIncentivesGroup` Object
+          const {currentLiquidationThreshold: userLiquidationThreshold = -1} = userSummaryAndIncentivesGroup.find(
+            (userSummary) => userSummary.chainId === pool.chainId
+          )||{}
+          // return `reserve` Object with `supplyBalance` and `borrowBalance` from `userReserve` Object
+          // and `totalWalletBalance` from `userAssets` Object
+          return MarketPool.create<AavePool>({
+            ...pool,
+            supplyBalance,
+            borrowBalance,
+            walletBalance,
+            userLiquidationThreshold: Number(userLiquidationThreshold),
+            poolLiquidationThreshold
           });
-          const newState: IPoolGroup = {
-            ...poolGroup,
-            borrowingEnabled,
-            totalBorrowBalance,
-            totalSupplyBalance,
-            totalWalletBalance,
-            pools,
-          };
-          return newState;
         })
-        // sort by existing ballances then by walletbalance then by symbol
         .sort((a, b) => {
-          if (a.totalSupplyBalance > b.totalSupplyBalance) return -1;
-          if (a.totalSupplyBalance < b.totalSupplyBalance) return 1;
-          if (a.totalBorrowBalance > b.totalBorrowBalance) return -1;
-          if (a.totalBorrowBalance < b.totalBorrowBalance) return 1;
-          if (a.totalWalletBalance > b.totalWalletBalance) return -1;
-          if (a.totalWalletBalance < b.totalWalletBalance) return 1;
-          if (a.symbol < b.symbol) return -1;
-          if (a.symbol > b.symbol) return 1;
+          if (a.supplyBalance > b.supplyBalance) return -1;
+          if (a.supplyBalance < b.supplyBalance) return 1;
+          if (a.borrowBalance > b.borrowBalance) return -1;
+          if (a.borrowBalance < b.borrowBalance) return 1;
+          if (a.walletBalance > b.walletBalance) return -1;
+          if (a.walletBalance < b.walletBalance) return 1;
           return 0;
         })
-        console.log("[INFO] {{AaveProvider}} updated poolGroups: ", {
-          poolGroups,
+        console.log("[INFO] {{AaveProvider}} updated pools: ", {
+          pools,
         });
-        // update `poolGroups.` with userSummaryAndIncentivesGroup
-        const pools  = poolGroups.flatMap(({pools}) =>  pools as AavePool[] );
         setState((prev) => ({
           ...prev,
           userSummaryAndIncentivesGroup,
-          poolGroups,
           pools,
         }));
         console.log("[INFO] {{AaveProvider}} loadUserSummary loaded " );
