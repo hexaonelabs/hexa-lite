@@ -496,6 +496,16 @@ ion-accordion:not(.faq) {
           opacity: 1; 
         }
       }
+      &.item-disabled {
+        opacity: 1;
+        --background: rgba(0,0,0, 0.5) !important;
+        pointer-events: none;
+
+        ion-grid {
+          opacity: 0.5;
+        } 
+        
+      }
     }
 
     // > ion-item {

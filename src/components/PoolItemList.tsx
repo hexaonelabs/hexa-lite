@@ -85,13 +85,13 @@ export function PoolItemList(props: IPoolItemListProps) {
     }
     return (
       <IonButton 
-      disabled={true}
-      className="ion-margin-horizontal"
-      slot="end"
-      size="small"
-      color="gradient">
+        disabled={true}
+        className="ion-margin-horizontal"
+        slot="end"
+        size="small"
+        color="gradient">
         <small>
-          Coming  soon
+          soon
         </small>
       </IonButton>
     );
@@ -100,6 +100,8 @@ export function PoolItemList(props: IPoolItemListProps) {
     <>
       <IonItem
         lines="none"
+        className="poolItem"
+        disabled={pool.provider !== 'aave-v3'}
         onClick={() => {
           console.log(`[INFO] Pool: `,{ pool });
           if (pool.provider !== 'aave-v3') {
