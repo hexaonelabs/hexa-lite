@@ -57,11 +57,13 @@ import { SymbolIcon } from "./SymbolIcon";
 import { currencyFormat } from "../utils/currency-format";
 import { ApyDetail } from "./ApyDetail";
 import { UseCrossChaineCollateralButton } from "./UseCrossChainCollateralBtn";
-import { IAavePool } from "@/pool/Aave.pool";
+import { AavePool, IAavePool } from "@/pool/Aave.pool";
 import { usePools } from "@/context/PoolContext";
+import { MarketPool } from "@/pool/Market.pool";
+import { A } from "@bgd-labs/aave-address-book/dist/AaveV2EthereumAMM-aAo4xAj8";
 
 interface IReserveDetailProps {
-  pool: IMarketPool;
+  pool: MarketPool;
   markets: MARKETTYPE | undefined;
   dismiss: () => void;
   handleSegmentChange: (e: { detail: { value: string } }) => void;
@@ -222,117 +224,31 @@ export function ReserveDetail(props: IReserveDetailProps) {
     let provider = web3Provider;
     if (currentNetwork !== pool.chainId) {
       await switchNetwork(pool.chainId);
+      // update provider after switch network
       provider = web3Provider;
     }
     if (!provider) {
       throw new Error("No provider found or update failed");
     }
     // perform action
-    const type = state?.actionType;
+    const type = state?.actionType;        
+    const value = ev.detail.data;
+    const amount = Number(value);
     switch (true) {
       case type === "deposit": {
-        const value = ev.detail.data;
-        const amount = Number(value);
-        // handle invalid amount
-        if (isNaN(amount) || amount <= 0) {
-          throw new Error("Invalid amount. Value must be greater than 0.");
-        }
-        // call method
-        const params = {
-          provider: (provider as ethers.providers.Web3Provider),
-          reserve: pool as IAavePool,
-          amount: amount.toString(),
-          onBehalfOf: undefined,
-          poolAddress: `${markets?.POOL}`,
-          gatewayAddress: `${markets?.WETH_GATEWAY}`,
-        };
-        console.log("params: ", params);
-        try {
-          const txReceipts = await supplyWithPermit(params);
-          console.log("TX result: ", txReceipts);
-        } catch (error) {
-          throw error;
-        }
+        await pool.deposit(amount, provider);
         break;
       }
       case type === "withdraw": {
-        const value = ev.detail.data;
-        const amount = Number(value);
-        // handle invalid amount
-        if (isNaN(amount) || amount <= 0) {
-          throw new Error("Invalid amount. Value must be greater than 0.");
-        }
-        // call method
-        const params = {
-          provider: (provider as ethers.providers.Web3Provider),
-          reserve: pool as IAavePool,
-          amount: amount.toString(),
-          onBehalfOf: undefined,
-          poolAddress: `${markets?.POOL}`,
-          gatewayAddress: `${markets?.WETH_GATEWAY}`,
-        };
-        console.log("params: ", params);
-        try {
-          const txReceipts = await withdraw(params);
-          console.log("TX result: ", txReceipts);
-        } catch (error) {
-          throw error;
-        }
+        await pool.withdraw(amount, provider);
         break;
       }
       case type === "borrow": {
-        const value = ev.detail.data;
-        const amount = Number(value);
-        // handle invalid amount
-        if (isNaN(amount) || amount <= 0) {
-          throw new Error("Invalid amount. Value must be greater than 0.");
-        }
-        // call method
-        const params = {
-          provider: (provider as ethers.providers.Web3Provider),
-          reserve: pool,
-          amount: amount.toString(),
-          onBehalfOf: undefined,
-          poolAddress: `${markets?.POOL}`,
-          gatewayAddress: `${markets?.WETH_GATEWAY}`,
-        };
-        console.log("params: ", params);
-        try {
-          const txReceipts = await borrow(params);
-          console.log("TX result: ", txReceipts);
-        } catch (error) {
-          throw error;
-        }
+        await pool.borrow(amount, provider);
         break;
       }
       case type === "repay": {
-        const value = ev.detail.data;
-        const amount = Number(value);
-        // handle invalid amount
-        if (isNaN(amount) || amount <= 0) {
-          throw new Error("Invalid amount. Value must be greater than 0.");
-        }
-        // call method
-        const params = {
-          provider: (provider as ethers.providers.Web3Provider),
-          reserve: pool,
-          amount: amount.toString(),
-          onBehalfOf: undefined,
-          poolAddress: `${markets?.POOL}`,
-          gatewayAddress: `${markets?.WETH_GATEWAY}`,
-        };
-        console.log("params: ", params);
-        try {
-          const txReceipts = await repay(params);
-          console.log("TX result: ", txReceipts);
-          // await hideLoader();
-          // await refresh();
-        } catch (error) {
-          console.log("[ERROR]: ", error);
-          // await hideLoader();
-          // await refresh();
-          throw error;
-        }
+        await pool.repay(amount, provider);
         break;
       }
       default:
@@ -384,7 +300,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
         handleOpenModal("withdraw");
       }}
     >
-      Withdraw deposit
+      Withdraw
     </IonButton>
     ) : (<></>);
 
@@ -924,7 +840,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
       >
         <LoanFormModal
           selectedPool={{
-            pool: pool as IAavePool,
+            pool: pool as AavePool,
             actionType: state?.actionType || "deposit",
             userSummary: userSummary as IUserSummary,
           }}

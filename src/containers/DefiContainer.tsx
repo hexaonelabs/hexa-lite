@@ -26,7 +26,7 @@ import { currencyFormat } from "../utils/currency-format";
 import { useWeb3Provider } from "../context/Web3Context";
 import { valueToBigNumber } from "@aave/math-utils";
 import { getReadableAmount } from "@/utils/getReadableAmount";
-import { IAavePool } from "@/pool/Aave.pool";
+import { AavePool, IAavePool } from "@/pool/Aave.pool";
 import { usePools } from "@/context/PoolContext";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
@@ -99,7 +99,7 @@ export const DefiContainer = ({
   // remove `currentLiquidationThreshold` present in the `userSummaryAndIncentivesGroup` response
   const poolGroupsWithUserLiquidationThresholdValue = poolGroups
     .flatMap(({ pools }) => pools)
-    .filter((pool) => !(pool as IAavePool).isIsolated)
+    .filter((pool) => !(pool as AavePool).isIsolated)
     .filter((pool) => pool.borrowBalance > 0)
     .filter((pool) => pool.userLiquidationThreshold > 0);
   const totalLiquidationThreshold =

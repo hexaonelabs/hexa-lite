@@ -1,6 +1,6 @@
 import { IMarketPool } from "@/interfaces/reserve.interface";
 import { IAavePool } from "./Aave.pool";
-import { valueToBigNumber } from "@aave/math-utils";
+import { Web3ProviderType } from "@/context/Web3Context";
 
 export abstract class MarketPool implements IMarketPool {
   readonly id: string;
@@ -39,10 +39,10 @@ export abstract class MarketPool implements IMarketPool {
   readonly logo?: string;
 
 
-  public abstract deposit(amount: number): Promise<void>;
-  public abstract withdraw(amount: number): Promise<void>;
-  public abstract borrow(amount: number): Promise<void>;
-  public abstract repay(amount: number): Promise<void>;
+  public abstract deposit(amount: number, provider: Web3ProviderType): Promise<void>;
+  public abstract withdraw(amount: number, provider: Web3ProviderType): Promise<void>;
+  public abstract borrow(amount: number, provider: Web3ProviderType): Promise<void>;
+  public abstract repay(amount: number, provider: Web3ProviderType): Promise<void>;
 
   constructor(pool: IMarketPool) {
     this.id = pool.id;
