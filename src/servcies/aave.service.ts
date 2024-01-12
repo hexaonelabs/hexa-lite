@@ -61,11 +61,13 @@ const submitMultiplesTransaction = async (ops: {
   return txResponses;
 };
 
-export const fetchTVL = async () => {
-  const response = await fetch("https://api.llama.fi/tvl/aave");
-  const data = await response.json();
-  console.log("[INFO] {{AAVEService}} fetchTVL: ", data);
-  return data;
+export const fetchTVL = async (reserves: {totalLiquidityUSD: string;}[]): Promise<number> => {
+  // const response = await fetch("https://api.llama.fi/tvl/aave");
+  // const data = await response.json();
+  // console.log("[INFO] {{AAVEService}} fetchTVL: ", data);
+  // return data;
+  const tvl = reserves.reduce((acc, {totalLiquidityUSD}) => acc + Number(totalLiquidityUSD), 0);
+  return Number(tvl.toFixed(0));
 };
 
 export const supply = async (ops: {
