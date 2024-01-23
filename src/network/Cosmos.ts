@@ -128,7 +128,7 @@ export class CosmosWalletUtils extends MagicWalletUtils {
     }
   }
   
-  protected async _loadBalances() {
-    throw new Error("Method not implemented.");
+  async loadBalances() {
+    throw new Error("loadBalances() - Method not implemented.");
   }
 }
