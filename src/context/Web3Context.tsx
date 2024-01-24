@@ -61,7 +61,17 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
   const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
     console.log(`[INFO] {{Web3Context}} initializeWeb3() - `, chainId);
     const magicUtils = await MagicWalletUtils.create(chainId);
+    console.log(`[INFO] {{Web3Context}} initialized - `, magicUtils);
     setStateValue(magicUtils);
+
+    if (magicUtils?.walletAddress) {
+      console.log('[INFO] {{Web3Context}} load balance - ', web3State?.assets);
+      await magicUtils.loadBalances();
+      setWeb3State((prev) => ({
+        ...prev,
+        assets: magicUtils.assets
+      }));
+    }
   };
 
   const setStateValue = (magicUtils: MagicWalletUtils) => {

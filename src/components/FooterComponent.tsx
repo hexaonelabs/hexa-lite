@@ -32,6 +32,22 @@ export const FooterComponent: React.FC = () => {
           style={{textDecoration: 'none', fontSize: '0.7rem'}}>
           <span>⚡</span>
         </a> */}
+        {/* medium link */}
+        <a
+          href="https://medium.com/@hexaonelabs"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          <IonIcon
+            style={{
+              color: "#fff",
+              marginRight: "0.25rem",
+              fontSize: " 0.8rem",
+            }}
+            src={"./assets/icons/medium-icon.svg"}
+          ></IonIcon>
+        </a>
+        {/* twitter link */}
         <a
           href="https://twitter.com/hexa_one_labs"
           target="_blank"
@@ -46,6 +62,7 @@ export const FooterComponent: React.FC = () => {
             src={"./assets/images/x-logo.svg"}
           ></IonIcon>
         </a>
+        {/* github link */}
         <a
           href="https://github.com/hexaonelabs"
           target="_blank"

@@ -20,6 +20,7 @@ h1, h2, h3, h4 {
 p {
   font-family: $font-family;
   font-size: 1rem;
+  word-break: break-word!important;
 }
 
 [hidden=true] {
@@ -160,6 +161,9 @@ ion-popover.points-popover {
     }
   }
 }
+.modalAlert.autoSize {
+  --max-width: 100%;
+}
 
 .modalPage {
   --min-width: 100vw;
@@ -235,7 +239,11 @@ ion-accordion {
 //   border-radius: 32px;
 //   overflow: hidden;
 // }
-.widgetWrapper, ion-card, .leaderboardPage ion-list {
+ion-card {
+  border-radius: 32px;
+}
+
+.widgetWrapper, ion-card:not(.ion-color), .leaderboardPage ion-list {
   border: 1px solid rgba(var(--ion-color-primary-rgb), 0.4);
   border-radius: 32px;
   overflow: hidden;

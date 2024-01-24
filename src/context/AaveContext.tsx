@@ -251,7 +251,13 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     init();
-    fetchTVL()
+  }, []);
+
+  useEffect(() => {
+    if (!state.poolGroups || state.poolGroups.length === 0) {
+      return;
+    }
+    fetchTVL(state.poolGroups.flatMap(({pools}) => pools))
     .then((totalTVL) => {
       setState((prev) => ({
         ...prev,
@@ -262,7 +268,9 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("[ERROR] {{AaveProvider}} fetchTVL: ", error);
       return -1;
     });
-  }, []);
+ 
+    
+  }, [state.poolGroups]);
 
   useEffect(() => {
     loadUserSummary();

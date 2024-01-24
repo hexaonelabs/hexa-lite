@@ -31,7 +31,7 @@ export abstract class MagicWalletUtils {
 
   public abstract web3Provider: Web3ProviderType | null;
   public abstract isMagicWallet: boolean;
-  protected abstract _loadBalances(): Promise<void>;
+  public abstract loadBalances(): Promise<void>;
   protected abstract _initializeWeb3(): Promise<void>;
 
   /**

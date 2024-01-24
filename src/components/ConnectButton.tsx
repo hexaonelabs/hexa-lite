@@ -1,7 +1,7 @@
 
 import { useLoader } from "../context/LoaderContext";
 import { useWeb3Provider } from "../context/Web3Context"
-import { IonButton, useIonToast } from "@ionic/react"
+import { IonButton, IonSkeletonText, useIonToast } from "@ionic/react"
 
 const ConnectButton = (props: {
   style?: any;
@@ -12,7 +12,7 @@ const ConnectButton = (props: {
   const presentToast = toastContext[0];
   const dismissToast = toastContext[1];
   // Get the initializeWeb3 function from the Web3 context
-  const { connectWallet } = useWeb3Provider()
+  const { connectWallet, web3Provider } = useWeb3Provider()
   const { display: displayLoader, hide: hideLoader } = useLoader();
   // Define the event handler for the button click
   const handleConnect = async () => {
@@ -68,8 +68,11 @@ const ConnectButton = (props: {
     size={props?.size||'default'} 
     style={props.style||{}} 
     expand={props?.expand||undefined}
+    disabled={web3Provider === null}
     color="gradient"
-    onClick={handleConnect}>Connect</IonButton>
+    onClick={handleConnect}>{web3Provider === null 
+      ? <IonSkeletonText animated style={{ width: '80px', height: '50%' }} /> 
+      : 'Connect'}</IonButton>
 }
 
 export default ConnectButton

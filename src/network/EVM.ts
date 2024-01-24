@@ -46,12 +46,9 @@ export class EVMWalletUtils extends MagicWalletUtils {
       );
       // return;
     }
-    if (this.walletAddress) {
-      await this._loadBalances();
-    }
   }
 
-  async _loadBalances() {
+  async loadBalances() {
     if (!this.walletAddress) return;
     const assets = await fetchUserAssets(this.walletAddress);
     if (!assets) return;
@@ -70,7 +67,7 @@ export class EVMWalletUtils extends MagicWalletUtils {
     // switch network with ether
     try {
       await this.web3Provider.send("wallet_switchEthereumChain", [
-        { chainId: ethers.utils.hexlify(this.network) },
+        { chainId: ethers.utils.hexValue(this.network) },
       ]);
     } catch (error) {
       throw new Error(
