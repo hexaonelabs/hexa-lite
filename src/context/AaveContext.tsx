@@ -254,10 +254,10 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (!state.poolGroups || state.poolGroups.length === 0) {
+    if (!state.pools || state.pools.length === 0) {
       return;
     }
-    fetchTVL(state.poolGroups.flatMap(({pools}) => pools))
+    fetchTVL(state.pools)
     .then((totalTVL) => {
       setState((prev) => ({
         ...prev,
@@ -270,7 +270,7 @@ export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
     });
  
     
-  }, [state.poolGroups]);
+  }, [state.pools]);
 
   useEffect(() => {
     loadUserSummary();
