@@ -1,7 +1,9 @@
 import { useWeb3Provider } from "@/context/Web3Context";
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonGrid, IonIcon, IonNote, IonRow, IonText, useIonAlert, useIonModal, useIonToast } from "@ionic/react";
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCheckbox, IonCol, IonGrid, IonIcon, IonItem, IonLabel, IonNote, IonRow, IonText, useIonAlert, useIonModal, useIonToast } from "@ionic/react";
 import { closeSharp } from "ionicons/icons";
 import { useEffect } from "react";
+
+const STORAGE_KEY = 'hexa-fiat-modal-disabled';
 
 const ModalAlertMessageComponent = (props: {walletAddress: string; dismiss: () => void}) => {
   const { walletAddress, dismiss } = props;
@@ -32,7 +34,7 @@ const ModalAlertMessageComponent = (props: {walletAddress: string; dismiss: () =
         <IonText>
           <h3 style={{ marginBottom: 0 }}>
             <b>
-              Important informations
+              Informations
             </b>
           </h3>
         </IonText>
@@ -70,6 +72,30 @@ const ModalAlertMessageComponent = (props: {walletAddress: string; dismiss: () =
               )
               : (<p style={{fontSize: '0.8rem'}}>Connect your wallet to get your wallet address.</p>)
             }
+            <div className="ion-margin-vertical">
+              <IonCheckbox 
+                mode="md" 
+                labelPlacement="end" 
+                className="ion-margin-bottom" 
+                onIonChange={(event)=> {
+                  // get state of checkbox
+                  const checked = event.detail.checked;
+                  // save state to local storage if checked and delete if not
+                  if (checked) {
+                    localStorage.setItem(STORAGE_KEY, 'true');
+                  } else {
+                    localStorage.removeItem(STORAGE_KEY);
+                  }
+                }}>
+                <small>Don't show this message again</small>
+              </IonCheckbox>
+            </div>
+            <IonButton 
+              expand="block" 
+              size="small"
+              onClick={() => {
+                dismiss();
+              }}>Ok</IonButton>
         </div>
       </IonCol>
     </IonRow>
@@ -83,6 +109,11 @@ export function FiatContainer() {
   const [present, dismiss] = useIonModal(ModalAlertMessageComponent, {walletAddress, dismiss: () => dismiss()});
 
   useEffect(() => {
+    // check if have disabled open modal
+    const modalDisabled = localStorage.getItem(STORAGE_KEY);
+    if (modalDisabled) {
+      return;
+    }
     present({
       cssClass: 'modalAlert autoSize'
     });
