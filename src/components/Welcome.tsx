@@ -7,9 +7,10 @@ import { CHAIN_AVAILABLES } from "@/constants/chains";
 import RevealComp from '@/components/RevealComp';
 import { FooterComponent } from "./FooterComponent";
 import { FAQ } from "./FAQ";
+import { useWeb3Provider } from "@/context/Web3Context";
 
 export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail: {value: string}}) => void}) {
-
+  const { connectWallet } = useWeb3Provider();
   return (
     <IonGrid
       class="ion-no-padding welcomeSection"
@@ -127,6 +128,23 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                       without the need to manage private keys or seed phrases.
                     </p>
                   </IonText>
+                  <IonButton
+                    size="default"
+                    color="gradient"
+                    onClick={async (e) =>{
+                      const html = (e.target as HTMLElement).innerHTML;
+                      (e.target as HTMLElement).innerHTML = 'Connecting...';
+                      try {
+                        await connectWallet();
+                        handleSegmentChange({ detail: { value: "fiat" } })
+                      } catch (error) {
+                        console.error('[ERROR] handleConnect:', error);
+                      }
+                      (e.target as HTMLElement).innerHTML = html;
+                    }}
+                  >
+                    Start onBoarding
+                  </IonButton>  
                 </RevealComp>
               </IonCol>
               <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
@@ -163,6 +181,15 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                       Safely deposit your liquidity into DeFi protocols across more than 35 markets and {CHAIN_AVAILABLES.filter(c => c.type === 'evm').length} EVM-Compatible blockchains. Earn substantial interest while retaining complete control over your assets.
                     </p>
                   </IonText>
+                  <IonButton
+                    size="default"
+                    color="gradient"
+                    onClick={(e) =>
+                      handleSegmentChange({ detail: { value: "defi" } })
+                    }
+                  >
+                    Start Deposit
+                  </IonButton>             
                 </RevealComp>
               </IonCol>
               <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
@@ -196,6 +223,15 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                       Unlock the potential of your assets by earn interest through Liquid Staking. <br/>
                       Stake with DeFi protocols without any lockup periods or restrictions.
                     </p>
+                    <IonButton
+                      size="default"
+                      color="gradient"
+                      onClick={(e) =>
+                        handleSegmentChange({ detail: { value: "earn" } })
+                      }
+                    >
+                      Start Earning
+                    </IonButton> 
                   </IonText>
                 </RevealComp>
               </IonCol>
