@@ -158,3 +158,25 @@ export const addAddressPoints = async (address: string, data: PointsData) => {
     };
   }
 }
+
+/**
+ * Add UTM to the database
+ * @param data Object to add to the database
+ * @returns {Object} Response object message and error if any
+ */
+export const addUTM = async (data: {[kex: string]: string}): Promise<{message: string; error?: any}> => {
+  try {
+    // Create a reference to the user's points in the Firebase database
+    const utmRef = ref(database, `utm`);
+    // Use push method to add the new task object inside the array
+    await push(utmRef, data);
+    return {
+      message: "UTM added successfully 👍"
+    };
+  } catch (error: unknown) {
+    return {
+      message: "UTM added failed 👎",
+      error: error instanceof Error ? error.message : error,
+    };
+  }
+}
