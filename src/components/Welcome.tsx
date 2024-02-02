@@ -1,26 +1,34 @@
-import { IonButton, IonCard, IonCol, IonGrid, IonIcon, IonImg, IonItem, IonLabel, IonRow, IonText } from "@ionic/react";
-import { logoGithub, checkmarkCircle, chevronForwardCircle, chevronForward } from "ionicons/icons";
-import { getAssetIconUrl } from "../utils/getAssetIconUrl";
+import {
+  IonButton,
+  IonCol,
+  IonGrid,
+  IonIcon,
+  IonImg,
+  IonRow,
+  IonText,
+} from "@ionic/react";
+import {
+  logoGithub,
+} from "ionicons/icons";
 import { EthOptimizedStrategyProvider } from "../context/EthOptimizedContext";
 import { ETHLiquidStakingstrategyCard } from "./ETHLiquidStakingstrategy";
 import { CHAIN_AVAILABLES } from "@/constants/chains";
-import RevealComp from '@/components/RevealComp';
+import RevealComp from "@/components/RevealComp";
 import { FooterComponent } from "./FooterComponent";
 import { FAQ } from "./FAQ";
 import { useWeb3Provider } from "@/context/Web3Context";
 
-export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail: {value: string}}) => void}) {
+export function Welcome({
+  handleSegmentChange,
+}: {
+  handleSegmentChange: (e: { detail: { value: string } }) => void;
+}) {
   const { connectWallet } = useWeb3Provider();
   return (
-    <IonGrid
-      class="ion-no-padding welcomeSection"
-    >
-      <IonRow
-        class="ion-justify-content-center ion-align-items-center ion-padding"
-        style={{ minHeight: "95vh", marginBottom: "-0vh" }}
-      >
+    <IonGrid class="ion-no-padding welcomeSection">
+      <IonRow class="rowSection ion-justify-content-center ion-align-items-center ion-padding">
         <IonCol size="12" size-md="7" class="ion-text-center">
-          <RevealComp x={0} duration='300ms' threshold={0.9}>
+          <RevealComp x={0} duration="200ms" threshold={0.9}>
             <IonImg
               style={{
                 width: "200px",
@@ -30,65 +38,44 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
               src={"./assets/images/logo.svg"}
             ></IonImg>
           </RevealComp>
-          <RevealComp x={0} duration='300ms' threshold={0.9}>
+          <RevealComp x={0} duration="200ms" threshold={0.9}>
             <IonText>
-              <h1
-                style={{
-                  fontWeight: "bold",
-                  marginTop: "2rem",
-                  letterSpacing: "-0.1rem",
-                }}
-              >
-                <span
-                  style={{
-                    display: "block",
-                    fontSize: "4.3rem",
-                    lineHeight: "4.8rem",
-                    marginTop: "0.2rem",
-                  }}
-                >
-                  Hexa Lite
-                </span>
-              </h1>
+              <h1 className="homeTitle">Hexa Lite</h1>
+              <p className="slogan">Build your wealth with cryptoassets</p>
             </IonText>
-            <IonText>
-              <p
-                style={{
-                  fontSize: "0.9rem",
-                  lineHeight: "1.3rem",
-                  margin: "1rem 0 2.5rem 0",
-                }}
-              >
-                Buy digitals assets with fiats, exchange at best rate, lend
-                and borrow money on DeFi protocols without any intermediate 
-                smart contract or third-party to enforce security and increase earn
+            <IonText color="medium" className="ion-hide-lg-down">
+              <p className="ion-no-padding">
+                Buy digitals assets with fiats, exchange at best rate, lend and
+                borrow money on DeFi protocols without any intermediate smart
+                contract or third-party to enforce security and increase earn
                 interest.
               </p>
             </IonText>
+          </RevealComp>
+          <RevealComp y={-10} duration="225ms" threshold={0.9}>
             <IonButton
               size="large"
               color="gradient"
+              style={{marginTop: '2rem'}}
               onClick={(e) =>
                 handleSegmentChange({ detail: { value: "swap" } })
               }
             >
               Launch App
             </IonButton>
+
           </RevealComp>
         </IonCol>
       </IonRow>
 
       <IonRow
-        class="ion-justify-content-center ion-align-items-center  ion-padding"
-        style={{ 
-          minHeight: "100vh", 
+        class="rowSection withPadding ion-justify-content-center ion-align-items-center  ion-padding"
+        style={{
           background: "#182449",
-          paddingTop: "5rem",
-          paddingBottom: "5rem",
         }}
       >
         <IonCol size="12" class="ion-text-center ">
-          <RevealComp y={20} duration='225ms' threshold={0.9}>
+          <RevealComp y={20} duration="225ms" threshold={0.9}>
             <IonText>
               <h2
                 style={{
@@ -97,7 +84,8 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                   fontWeight: "bold",
                 }}
               >
-                Onboard on <IonText className="ion-color-gradient-text">DeFi</IonText>
+                Onboard on{" "}
+                <IonText className="ion-color-gradient-text">DeFi</IonText>
               </h2>
             </IonText>
             <IonText color="medium">
@@ -109,13 +97,15 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         </IonCol>
         <IonCol size="12">
           <IonGrid>
-            <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '5rem 0'}}>
+            <IonRow
+              class="withPadding ion-justify-content-center ion-align-items-center"
+              >
               <IonCol size="12" size-md="6">
-                <RevealComp y={20} duration='225ms' threshold={0.9}>
-                  <IonText>
+                <RevealComp y={20} duration="200ms" threshold={0.9}>
+                  <IonText className="withMaxWidth">
                     <h3
                       style={{
-                        fontWeight: 'bold',
+                        fontWeight: "bold",
                         fontSize: "2rem",
                         lineHeight: "2rem",
                       }}
@@ -123,54 +113,65 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                       Frictionless onBoarding
                     </h3>
                     <p>
-                      Hexa Lite ensures a secure and reliable user experience, 
-                      enabling everyone to enjoy the advantages of blockchain technology and DeFi services 
-                      without the need to manage private keys or seed phrases.
+                      Hexa Lite ensures a secure and reliable user experience,
+                      enabling everyone to own their own assets. Users can enjoy the advantages of blockchain
+                      technology and DeFi services without the need to manage
+                      private keys or seed phrases.
                     </p>
                   </IonText>
                   <IonButton
                     size="default"
                     color="gradient"
-                    onClick={async (e) =>{
+                    onClick={async (e) => {
                       const html = (e.target as HTMLElement).innerHTML;
-                      (e.target as HTMLElement).innerHTML = 'Connecting...';
+                      (e.target as HTMLElement).innerHTML = "Connecting...";
                       try {
                         await connectWallet();
-                        handleSegmentChange({ detail: { value: "fiat" } })
+                        handleSegmentChange({ detail: { value: "fiat" } });
                       } catch (error) {
-                        console.error('[ERROR] handleConnect:', error);
+                        console.error("[ERROR] handleConnect:", error);
                       }
                       (e.target as HTMLElement).innerHTML = html;
                     }}
                   >
-                    Start onBoarding
-                  </IonButton>  
+                    Easy onBoarding
+                  </IonButton>
                 </RevealComp>
               </IonCol>
-              <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
-                <RevealComp x={50} duration='300ms' threshold={0.75}>
+              <IonCol
+                size="12"
+                size-md="4"
+                className="ion-text-center ion-padding"
+              >
+                <RevealComp x={50} duration="200ms" threshold={0.75}>
                   <div className="ion-padding">
-                    <IonImg 
+                    <IonImg
                       style={{
-                        margin: '0 auto', 
-                        borderRadius: '32px', 
-                        overflow: 'hidden',
-                        maxWidth: 'fit-content',
-                        border: 'solid 2px var(--ion-color-primary)',
-                        boxShadow: '0 0px 100px -30px var(--ion-color-tertiary)',
-                        transform: 'matrix3d(1, 0.0, 0, -0.0004, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
-                      }} src="./assets/images/onboarding.png" />
+                        minWidth: "200px",
+                        margin: "0 2rem",
+                        borderRadius: "32px",
+                        overflow: "hidden",
+                        maxWidth: "fit-content",
+                        border: "solid 2px var(--ion-color-primary)",
+                        boxShadow:
+                          "0 0px 100px -30px var(--ion-color-tertiary)",
+                      }}
+                      src="./assets/images/onboarding.png"
+                    />
                   </div>
                 </RevealComp>
               </IonCol>
             </IonRow>
-            <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '20vh 0'}}>
+            <IonRow
+              class="ion-justify-content-center ion-align-items-center"
+              style={{ padding: "20vh 0" }}
+            >
               <IonCol size="12" size-md="6">
-                <RevealComp y={20} duration='225ms' threshold={0.9}>
-                  <IonText>
+                <RevealComp y={20} duration="200ms" threshold={0.9}>
+                  <IonText className="withMaxWidth">
                     <h3
                       style={{
-                        fontWeight: 'bold',
+                        fontWeight: "bold",
                         fontSize: "2rem",
                         lineHeight: "2rem",
                       }}
@@ -178,7 +179,11 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                       Deposit liquidity & earn interest
                     </h3>
                     <p>
-                      Safely deposit your liquidity into DeFi protocols across more than 35 markets and {CHAIN_AVAILABLES.filter(c => c.type === 'evm').length} EVM-Compatible blockchains. Earn substantial interest while retaining complete control over your assets.
+                      Safely deposit your liquidity into DeFi protocols across
+                      more than 40 markets and{" "}
+                      {CHAIN_AVAILABLES.filter((c) => c.type === "evm").length}{" "}
+                      EVM-Compatible blockchains. Earn substantial interest
+                      while retaining complete control over your assets.
                     </p>
                   </IonText>
                   <IonButton
@@ -189,30 +194,40 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                     }
                   >
                     Start Deposit
-                  </IonButton>             
+                  </IonButton>
                 </RevealComp>
               </IonCol>
-              <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
-                <RevealComp x={50} duration='300ms' threshold={0.75}>
+              <IonCol
+                size="12"
+                size-md="4"
+                className="ion-text-center ion-padding"
+              >
+                <RevealComp x={50} duration="200ms" threshold={0.75}>
                   <div className="ion-padding">
-                    <IonImg 
-                        style={{
-                          margin: '0 auto',
-                          maxWidth: 'fit-content',
-                          'filter': 'drop-shadow(0px 0px 60px rgba(var(--ion-color-tertiary-rgb),0.5))'
-                        }} src="./assets/images/coins-b.png" />
+                    <IonImg
+                      style={{
+                        margin: "0 auto",
+                        maxWidth: "fit-content",
+                        filter:
+                          "drop-shadow(0px 0px 60px rgba(var(--ion-color-tertiary-rgb),0.5))",
+                      }}
+                      src="./assets/images/coins-b.png"
+                    />
                   </div>
                 </RevealComp>
               </IonCol>
             </IonRow>
 
-            <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '20vh 0'}}>
+            <IonRow
+              class="ion-justify-content-center ion-align-items-center"
+              style={{ padding: "20vh 0" }}
+            >
               <IonCol size="12" size-md="6">
-                <RevealComp y={20} duration='225ms' threshold={0.9}>
-                  <IonText>
+                <RevealComp y={20} duration="200ms" threshold={0.9}>
+                  <IonText className="withMaxWidth">
                     <h3
                       style={{
-                        fontWeight: 'bold',
+                        fontWeight: "bold",
                         fontSize: "2rem",
                         lineHeight: "2rem",
                       }}
@@ -220,8 +235,10 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                       Earn interest with liquid Staking
                     </h3>
                     <p>
-                      Unlock the potential of your assets by earn interest through Liquid Staking. <br/>
-                      Stake with DeFi protocols without any lockup periods or restrictions.
+                      Unlock the potential of your assets by earn interest
+                      through Liquid Staking. <br />
+                      Stake with DeFi protocols without any lockup periods or
+                      restrictions.
                     </p>
                     <IonButton
                       size="default"
@@ -231,17 +248,23 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                       }
                     >
                       Start Earning
-                    </IonButton> 
+                    </IonButton>
                   </IonText>
                 </RevealComp>
               </IonCol>
-              <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
-                <RevealComp x={50} duration='300ms' threshold={0.75}>
-                  <div className="ion-padding" style={{
-                    margin: 'auto', 
-                    display: 'inline-block',
-                    transform: 'matrix3d(1, 0.0, 0, -0.0004, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
-                    }}>
+              <IonCol
+                size="12"
+                size-md="4"
+                className="ion-text-center ion-padding"
+              >
+                <RevealComp x={50} duration="200ms" threshold={0.75}>
+                  <div
+                    className="ion-padding"
+                    style={{
+                      margin: "auto",
+                      display: "inline-block",
+                    }}
+                  >
                     <EthOptimizedStrategyProvider>
                       <ETHLiquidStakingstrategyCard asImage={true} />
                     </EthOptimizedStrategyProvider>
@@ -249,97 +272,141 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                 </RevealComp>
               </IonCol>
             </IonRow>
-            <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '20vh 0'}}>
+            <IonRow
+              class="ion-justify-content-center ion-align-items-center"
+              style={{ padding: "20vh 0" }}
+            >
               <IonCol size="12" size-md="6">
-                <RevealComp y={20} duration='225ms' threshold={0.9}>
+                <RevealComp y={20} duration="225ms" threshold={0.9}>
                   <IonText>
                     <h3
                       style={{
-                        fontWeight: 'bold',
+                        fontWeight: "bold",
                         fontSize: "2rem",
                         lineHeight: "2rem",
                       }}
                     >
-                      EVM-Compatible Chains
+                      Multi Chains
                     </h3>
                     <p>
-                      Hexa Lite support 20 EVM-Compatible blockchain such as
-                      Ethereum, Polygon, Binance Smart Chain, Optimism, Arbitrum,
-                      etc. without have to care about how to manage networks
-                      changes.
+                      Hexa Lite support Bitcoin, Solana and +20 EVM-Compatible blockchain such as
+                      Ethereum, Polygon, Binance Smart Chain, Optimism,
+                      Arbitrum, etc. without have to care about how to manage
+                      networks changes.
                     </p>
                   </IonText>
                 </RevealComp>
               </IonCol>
-              <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
-                <RevealComp x={50} duration='300ms' threshold={0.75}>
-                  <svg 
-                    width="256px" 
-                    height="417px" 
-                    viewBox="0 0 256 417" 
-                    version="1.1" 
-                    xmlns="http://www.w3.org/2000/svg" 
+              <IonCol
+                size="12"
+                size-md="4"
+                className="ion-text-center ion-padding"
+              >
+                <RevealComp x={50} duration="200ms" threshold={0.75}>
+                  <svg
+                    width="256px"
+                    height="417px"
+                    viewBox="0 0 256 417"
+                    version="1.1"
+                    xmlns="http://www.w3.org/2000/svg"
                     preserveAspectRatio="xMidYMid"
                     style={{
-                      'filter': 'drop-shadow(0px 0px 60px rgba(var(--ion-color-tertiary-rgb),0.5))'
-                    }}>
+                      filter:
+                        "drop-shadow(0px 0px 60px rgba(var(--ion-color-tertiary-rgb),0.5))",
+                    }}
+                  >
                     <g>
-                      <polygon fill="#999" points="127.9611 0 125.1661 9.5 125.1661 285.168 127.9611 287.958 255.9231 212.32"/>
-                      <polygon fill="#fff" points="127.962 0 0 212.32 127.962 287.959 127.962 154.158"/>
-                      <polygon fill="#999" points="127.9611 312.1866 126.3861 314.1066 126.3861 412.3056 127.9611 416.9066 255.9991 236.5866"/>
-                      <polygon fill="#fff" points="127.962 416.9052 127.962 312.1852 0 236.5852"/>
-                      <polygon fill="#777" points="127.9611 287.9577 255.9211 212.3207 127.9611 154.1587"/>
-                      <polygon fill="#999" points="0.0009 212.3208 127.9609 287.9578 127.9609 154.1588"/>
+                      <polygon
+                        fill="#999"
+                        points="127.9611 0 125.1661 9.5 125.1661 285.168 127.9611 287.958 255.9231 212.32"
+                      />
+                      <polygon
+                        fill="#fff"
+                        points="127.962 0 0 212.32 127.962 287.959 127.962 154.158"
+                      />
+                      <polygon
+                        fill="#999"
+                        points="127.9611 312.1866 126.3861 314.1066 126.3861 412.3056 127.9611 416.9066 255.9991 236.5866"
+                      />
+                      <polygon
+                        fill="#fff"
+                        points="127.962 416.9052 127.962 312.1852 0 236.5852"
+                      />
+                      <polygon
+                        fill="#777"
+                        points="127.9611 287.9577 255.9211 212.3207 127.9611 154.1587"
+                      />
+                      <polygon
+                        fill="#999"
+                        points="0.0009 212.3208 127.9609 287.9578 127.9609 154.1588"
+                      />
                     </g>
                   </svg>
                   <div className="homeIconsEVM">
                     <IonIcon src="./assets/icons/op.svg" />
                     {/* <IonIcon src="./assets/icons/arb.svg" /> */}
-                    <IonIcon src="./assets/cryptocurrency-icons/bnb.svg" style={{transform: 'translateY(2.5rem)'}} />
-                    <IonIcon src="./assets/cryptocurrency-icons/matic.svg" style={{transform: 'translateY(2.5rem)'}} />
+                    <IonIcon
+                      src="./assets/cryptocurrency-icons/bnb.svg"
+                      style={{ transform: "translateY(2.5rem)" }}
+                    />
+                    <IonIcon
+                      src="./assets/cryptocurrency-icons/matic.svg"
+                      style={{ transform: "translateY(2.5rem)" }}
+                    />
                     <IonIcon src="./assets/icons/arb.svg" />
                   </div>
                 </RevealComp>
               </IonCol>
             </IonRow>
-            <IonRow class="ion-justify-content-center ion-align-items-center" style={{padding: '5rem 0'}}>
+            <IonRow
+              class="ion-justify-content-center ion-align-items-center"
+              style={{ padding: "5rem 0" }}
+            >
               <IonCol size="12" size-md="6">
-                <RevealComp y={20} duration='225ms' threshold={0.9}>
-                  <IonText>      
+                <RevealComp y={20} duration="225ms" threshold={0.9}>
+                  <IonText>
                     <h3
                       style={{
-                        fontWeight: 'bold',
+                        fontWeight: "bold",
                         fontSize: "2rem",
                         lineHeight: "2rem",
                       }}
-                    >                    
+                    >
                       Security & Privacy
                     </h3>
                     <p>
-                      As an open-source and non-custodial platform, 
-                      we don't store any user data or private keys.
-                      You retain complete control over your assets, 
-                      enabling direct interaction with DeFi protocols 
-                      without intermediaries smart contracts or third-party services,
+                      As an open-source and non-custodial platform, we don't
+                      store any user data or private keys. You retain complete
+                      control over your assets, enabling direct interaction with
+                      DeFi protocols without intermediaries smart contracts or
+                      third-party services,
                     </p>
                   </IonText>
                 </RevealComp>
               </IonCol>
-              <IonCol size="12" size-md="4" className="ion-text-center ion-padding">
-                <RevealComp x={50} duration='300ms' threshold={0.75}>
+              <IonCol
+                size="12"
+                size-md="4"
+                className="ion-text-center ion-padding"
+              >
+                <RevealComp x={50} duration="200ms" threshold={0.75}>
                   <IonIcon
-                      style={{
-                        color: "#fff",
-                        width: '256px',
-                        height: '256px',
-                        cursor: 'pointer',
-                        'filter': 'drop-shadow(0px 0px 60px rgba(var(--ion-color-tertiary-rgb),0.5))'
-                      }}
-                      icon={logoGithub}
-                      onClick={() => {
-                        window.open('https://github.com/hexaonelabs/hexa-lite', '_blank')
-                      }}
-                    ></IonIcon>
+                    style={{
+                      color: "#fff",
+                      width: "256px",
+                      height: "256px",
+                      cursor: "pointer",
+                      filter:
+                        "drop-shadow(0px 0px 60px rgba(var(--ion-color-tertiary-rgb),0.5))",
+                    }}
+                    icon={logoGithub}
+                    onClick={() => {
+                      window.open(
+                        "https://github.com/hexaonelabs/hexa-lite",
+                        "_blank"
+                      );
+                    }}
+                  ></IonIcon>
                 </RevealComp>
               </IonCol>
             </IonRow>
@@ -362,15 +429,19 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
         </IonCol> */}
       </IonRow>
 
-        {/* Partners Section */}
-      <IonRow 
+      {/* Partners Section */}
+      <IonRow
         class="ion-padding ion-text-center"
-        style={{background: 'rgba(0,0,0, 0.5)'}}>
+        style={{ background: "rgba(0,0,0, 0.5)" }}
+      >
         <IonCol size="12" className="ion-padding-vertical ion-margin-top">
-          <RevealComp y={20} duration='225ms' threshold={0.9}>
+          <RevealComp y={20} duration="225ms" threshold={0.9}>
             <IonGrid className="ion-margin-bottom ion-padding-vertical">
               <IonRow>
-                <IonCol size="12" className="ion-margin-bottom ion-padding-bottom">
+                <IonCol
+                  size="12"
+                  className="ion-margin-bottom ion-padding-bottom"
+                >
                   <IonText>
                     <h2
                       style={{
@@ -391,7 +462,11 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
               </IonRow>
               <IonRow className="partners ion-justify-content-center ion-align-items-center ion-padding-vertical ion-margin-vertical">
                 <IonCol class="ion-text-center">
-                  <a href="https://aave.com/" target="_blank" rel="noreferrer noopener">
+                  <a
+                    href="https://aave.com/"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
                     <IonImg
                       style={{
                         width: "65px",
@@ -404,7 +479,11 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                   </a>
                 </IonCol>
                 <IonCol class="ion-text-center">
-                  <a href="https://lido.fi/" target="_blank" rel="noreferrer noopener">
+                  <a
+                    href="https://lido.fi/"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
                     <IonImg
                       style={{
                         width: "65px",
@@ -417,7 +496,11 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                   </a>
                 </IonCol>
                 <IonCol class="ion-text-center">
-                  <a href="https://www.ankr.com/" target="_blank" rel="noreferrer noopener">
+                  <a
+                    href="https://www.ankr.com/"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
                     <IonImg
                       style={{
                         width: "65px",
@@ -430,7 +513,11 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                   </a>
                 </IonCol>
                 <IonCol class="ion-text-center">
-                  <a href="https://1inch.io/" target="_blank" rel="noreferrer noopener">
+                  <a
+                    href="https://1inch.io/"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
                     <IonImg
                       style={{
                         width: "65px",
@@ -443,7 +530,11 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                   </a>
                 </IonCol>
                 <IonCol class="ion-text-center">
-                  <a href="https://li.fi/" target="_blank" rel="noreferrer noopener">
+                  <a
+                    href="https://li.fi/"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
                     <IonImg
                       style={{
                         width: "65px",
@@ -456,7 +547,11 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                   </a>
                 </IonCol>
                 <IonCol class="ion-text-center">
-                  <a href="https://axelar.network/" target="_blank" rel="noreferrer noopener">
+                  <a
+                    href="https://axelar.network/"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
                     <IonImg
                       style={{
                         width: "65px",
@@ -469,7 +564,11 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                   </a>
                 </IonCol>
                 <IonCol class="ion-text-center">
-                  <a href="https://magic.link/" target="_blank" rel="noreferrer noopener">
+                  <a
+                    href="https://magic.link/"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
                     <IonImg
                       style={{
                         width: "65px",
@@ -482,7 +581,11 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
                   </a>
                 </IonCol>
                 <IonCol class="ion-text-center">
-                  <a href="https://onramper.com/" target="_blank" rel="noreferrer noopener">
+                  <a
+                    href="https://onramper.com/"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
                     <IonImg
                       style={{
                         width: "65px",
@@ -501,31 +604,34 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
       </IonRow>
 
       {/* FAQ */}
-      <IonRow
-        class="ion-justify-content-center ion-align-items-center ion-padding"
-        style={{ minHeight: "100vh" }}
-      >
-        <IonCol  sizeMd="8" sizeLg="6" style={{marginBottom: '8rem', marginTop: '8rem',}}>
-            <h2 className="ion-text-center" style={{
-                        fontWeight: 'bold',
-                        fontSize: "3.5rem",
-                        lineHeight: "3.8rem",
-                        marginBottom: '2rem'
-                      }}>FAQ</h2>
-            <FAQ />
+      <IonRow class="rowSection ion-justify-content-center ion-align-items-center ion-padding">
+        <IonCol
+          sizeMd="8"
+          sizeLg="6"
+          style={{ marginBottom: "8rem", marginTop: "8rem" }}
+        >
+          <h2
+            className="ion-text-center"
+            style={{
+              fontWeight: "bold",
+              fontSize: "3.5rem",
+              lineHeight: "3.8rem",
+              marginBottom: "2rem",
+            }}
+          >
+            FAQ
+          </h2>
+          <FAQ />
         </IonCol>
       </IonRow>
 
       {/* Last call Action */}
-      <IonRow
-        class="ion-justify-content-center ion-align-items-center ion-padding"
-        style={{ minHeight: "100vh" }}
-      >
+      <IonRow class="rowSection ion-justify-content-center ion-align-items-center ion-padding">
         <IonCol size="12" class="ion-text-center ">
-          <RevealComp y={20} duration='225ms' threshold={0.9}>
+          <RevealComp y={20} duration="225ms" threshold={0.9}>
             <p>
               <IonText className="ion-color-gradient-text">
-                  Earn interest with your assets
+                Earn interest with your assets
               </IonText>
             </p>
             <IonText>
@@ -545,16 +651,16 @@ export function Welcome({handleSegmentChange}: {handleSegmentChange: (e: {detail
               color="gradient"
               onClick={(e) =>
                 handleSegmentChange({ detail: { value: "swap" } })
-              }>
+              }
+            >
               Launch App
             </IonButton>
           </RevealComp>
         </IonCol>
       </IonRow>
 
-
       {/* Footer Section */}
       <FooterComponent />
     </IonGrid>
   );
-} 
+}

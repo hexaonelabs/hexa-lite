@@ -1,6 +1,6 @@
 {
   "name": "hexa-lite",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "homepage": ".",
   "private": false,
   "scripts": {
@@ -18,7 +18,7 @@
     "@aave/contract-helpers": "^1.21.1",
     "@aave/math-utils": "^1.21.1",
     "@avalabs/avalanchejs": "^3.17.0",
-    "@bgd-labs/aave-address-book": "^2.12.0",
+    "@bgd-labs/aave-address-book": "^2.19.0",
     "@capacitor/android": "^5.0.0",
     "@capacitor/core": "^5.0.0",
     "@capacitor/ios": "^5.0.0",

@@ -20,6 +20,7 @@ import '../styles/variables.scss';
 import '../styles/global.scss';
 
 import { AppProps } from 'next/app';
+import { outfit } from '@/styles/fonts';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -120,7 +121,12 @@ function MyApp({ Component, pageProps }: AppProps) {
           `}
         </style>
       </Head>
-      <Component className="dark" {...pageProps} />
+      <style jsx global>{`
+        :root {
+          --font-outfit: ${outfit.style.fontFamily};
+        }
+      `}</style>
+      <Component {...pageProps} />
     </>
   );
 }
