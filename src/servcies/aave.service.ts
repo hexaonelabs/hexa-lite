@@ -320,6 +320,10 @@ export const getMarkets = (chainId: number) => {
       return MARKETS.AaveV3Optimism;
     case chainId === MARKETS.AaveV3Avalanche.CHAIN_ID:
       return MARKETS.AaveV3Avalanche;
+    case chainId === MARKETS.AaveV3BNB.CHAIN_ID:
+      return MARKETS.AaveV3BNB;
+    case chainId === MARKETS.AaveV3PolygonZkEvm.CHAIN_ID:
+      return MARKETS.AaveV3PolygonZkEvm;
     default:
       throw new Error(`ChainId ${chainId} not supported`);
   }
@@ -692,12 +696,13 @@ export type MARKETTYPE =
   | typeof MARKETS.AaveV3Ethereum
   | typeof MARKETS.AaveV3Polygon
   | typeof MARKETS.AaveV3Mumbai
-  | typeof MARKETS.AaveV3Fuji
   | typeof MARKETS.AaveV3Avalanche
+  | typeof MARKETS.AaveV3Fuji
   | typeof MARKETS.AaveV3Arbitrum
   | typeof MARKETS.AaveV3ArbitrumGoerli
   | typeof MARKETS.AaveV3Optimism
-  | typeof MARKETS.AaveV3ArbitrumGoerli;
+  | typeof MARKETS.AaveV3BNB
+  | typeof MARKETS.AaveV3PolygonZkEvm;
 
 export const permitByChainAndToken: {
   [chainId: number]: Record<string, boolean>;
