@@ -94,5 +94,14 @@ export const getAssetIconUrl = ({ symbol }: { symbol: string }) => {
   if (symbol === "AAVE") {
     logoUrl = `./assets/icons/aave.svg`;
   }
+  if (symbol === "BTCB") {
+    logoUrl = `./assets/icons/btcb.svg`;
+  }
+  if (symbol === "WBNB") {
+    logoUrl = `./assets/icons/wbnb.svg`;
+  }
+  if (symbol === "Cake") {
+    logoUrl = `./assets/icons/cake.svg`;
+  }
   return logoUrl;
 };
