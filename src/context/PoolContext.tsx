@@ -110,20 +110,12 @@ export const PoolsProvider = ({ children }: { children: React.ReactNode }) => {
       if (a.totalWalletBalance < b.totalWalletBalance) return 1;
       return a.symbol > b.symbol ? 1 : -1;
     });
-    console.log("[INFO] {{PoolsProvider}} init context... ", poolGroups ); 
     const refresh = async (type: "init" | "userSummary" = "init") => {
       await aaveRefresh(type);
       await solendRefresh(type);
     };
-    const totalTVL = [aaveTotalTVL].reduce(
-      (acc: number, tvl: number | null) => {
-        return acc + (tvl || 0);
-      },
-      0
-    );
     setPoolContexts((prev) => ({
       ...prev,
-      totalTVL,
       poolGroups,
       refresh,
       userSummaryAndIncentivesGroup,
@@ -132,7 +124,21 @@ export const PoolsProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     init();
-  }, [solendPools, aavePools])
+  }, [solendPools, aavePools]);
+
+  useEffect(() => {
+    const totalTVL = [aaveTotalTVL].reduce(
+      (acc: number, tvl: number | null) => {
+        return acc + (tvl || 0);
+      },
+      0
+    );
+    console.log('>>>', totalTVL);    
+    setPoolContexts((prev) => ({
+      ...prev,
+      totalTVL,
+    }));
+  }, [aaveTotalTVL]);
 
   return (
     <PoolsContext.Provider

@@ -1,6 +1,6 @@
 {
   "name": "hexa-lite",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "homepage": ".",
   "private": false,
   "scripts": {
@@ -18,7 +18,7 @@
     "@aave/contract-helpers": "^1.21.1",
     "@aave/math-utils": "^1.21.1",
     "@avalabs/avalanchejs": "^3.17.0",
-    "@bgd-labs/aave-address-book": "^2.12.0",
+    "@bgd-labs/aave-address-book": "^2.19.0",
     "@capacitor/android": "^5.0.0",
     "@capacitor/core": "^5.0.0",
     "@capacitor/ios": "^5.0.0",
@@ -34,7 +34,7 @@
     "@magic-ext/polkadot": "^16.4.0",
     "@magic-ext/solana": "^18.2.0",
     "@solana/web3.js": "^1.87.6",
-    "@solendprotocol/solend-sdk": "^0.7.1-lite.0",
+    "@solendprotocol/solend-sdk": "^0.7.6",
     "@types/jest": "^26.0.20",
     "@types/node": "^12.19.15",
     "@types/react": "^18.0.17",

@@ -1,9 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;700&display=swap');
-
+// @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap');
 // variable font family
-$font-family: 'Schibsted Grotesk', sans-serif;
+$font-family: var(--font-outfit);//'Outfit', sans-serif;
 
 html, body, ion-content {
+  font-size: 20px;
+  line-height: normal;
   background: '#182449';
   background: var(--background-gradient);
   --background: var(--background-gradient);
@@ -256,6 +257,20 @@ ion-card {
 }
 
 .welcomeSection {
+  h1.homeTitle {
+    display: block;
+    font-weight: bold;
+    margin-top: 2rem;
+    letter-spacing: -0.1rem;
+    font-size: 4.8rem;
+    line-height: 4.2rem;
+
+    @media screen and (max-width: 428px) {
+      font-size: 3.8rem;
+      line-height: 3.4rem;
+    }
+  }
+
   h3 {
     position: relative;
     display: inline-block;
@@ -272,8 +287,28 @@ ion-card {
   
   }
   p {
-    // font-size: 1.4rem;
     line-height: 1.4rem;
+
+    &.slogan {
+      font-size: 2rem;
+      margin: 0rem;
+      line-height: 1.8rem;
+
+      @media screen and (max-width: 428px) {
+        font-size: 1.6rem;
+        line-height: 1.6rem;
+      }
+    }
+
+  }
+
+  .rowSection {
+    min-height: 100vh;
+
+  }
+  .withPadding {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
   }
 
   .homeIconsEVM {
@@ -322,6 +357,10 @@ ion-card {
     }
   }
   
+  ion-text.withMaxWidth {
+    max-width: 750px;
+    display: block;
+  }
 }
 
 .bulletStep {
@@ -619,7 +658,7 @@ div.MuiScopedCssBaseline-root {
 }
 
 .transition {
-  transition: all 225ms ease-in-out;
+  transition: all 85ms ease-in-out;
 }
 .opacity-0 {
   opacity: 0!important;

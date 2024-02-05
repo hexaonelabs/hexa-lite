@@ -128,7 +128,7 @@ const AppShell = () => {
                           {currentSegment !== "welcome" && (
                             <div style={{
                               position: 'fixed',
-                              bottom: '0.5rem',
+                              bottom: '1.25rem',
                               margin: 'auto',
                               width: '100%',
                               left: 0,

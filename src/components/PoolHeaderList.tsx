@@ -13,7 +13,7 @@ export function PoolHeaderList(props: IPoolHeaderListProps) {
   const { titles, colSize } = props;
 
   return (
-    <IonGrid className="poolHeaderList">
+    <IonGrid className="poolHeaderList ion-hide-md-down">
       <IonRow class="ion-align-items-center ion-justify-content-between">
         {titles.map((title, index) => {
           let Col = <IonCol key={index}>undefined</IonCol>;

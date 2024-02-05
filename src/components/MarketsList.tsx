@@ -14,7 +14,6 @@ import {
 } from "@ionic/react";
 import { PoolHeaderList } from "./PoolHeaderList";
 import { PoolAccordionGroup } from "./PoolAccordionGroup";
-import { useAave } from "../context/AaveContext";
 import { useState } from "react";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { IPoolGroup, IReserve } from "../interfaces/reserve.interface";
@@ -27,7 +26,7 @@ export function MarketList(props: {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
   const { handleSegmentChange, filterBy: filterFromParent } = props;
-  const { poolGroups } = usePools();
+  const { poolGroups, totalTVL } = usePools();
   const [filterBy, setFilterBy] = useState<{
     [key: string]: string;
   }|null>(
@@ -97,6 +96,15 @@ export function MarketList(props: {
           src={url} />
       );
     };
+  const Spinner = !poolGroups||!totalTVL ? (
+    <IonGrid class="ion-padding">
+      <IonRow class="ion-padding">
+        <IonCol size="12" class="ion-text-center ion-padding">
+          <IonSpinner></IonSpinner>
+        </IonCol>
+      </IonRow>
+    </IonGrid>
+  ) : (<></>);
   return (
     <>
       <IonGrid className="ion-no-padding ion-padding-vertical">
@@ -121,7 +129,7 @@ export function MarketList(props: {
               }}
             ></IonInput>
           </IonCol>
-          <IonCol size="12" sizeMd="3" class="ion-padding-horizontal">
+          <IonCol size="12" sizeMd="3" class="ion-padding-horizontal ion-hide-md-down">
             <IonSelect 
               label="Networks" 
               labelPlacement="stacked" 
@@ -158,7 +166,7 @@ export function MarketList(props: {
               ))}
             </IonSelect>
           </IonCol>
-          <IonCol size="12" sizeMd="3" class="ion-padding-horizontal">
+          <IonCol size="12" sizeMd="3" class="ion-padding-horizontal ion-hide-md-down">
             <IonSelect 
               label="Protocols" 
               labelPlacement="stacked" 
@@ -187,7 +195,7 @@ export function MarketList(props: {
               <IonSelectOption value="solend">Solend</IonSelectOption>
             </IonSelect>
           </IonCol>
-          <IonCol size="12" sizeMd="3" class="ion-padding-horizontal ion-text-end">
+          <IonCol size="12" sizeMd="3" class="ion-padding-horizontal ion-text-end ion-hide-md-down">
             <IonToggle 
               labelPlacement="start"
               aria-label="active"
@@ -213,7 +221,7 @@ export function MarketList(props: {
           </IonCol>
         </IonRow>
       </IonGrid>
-      {groups.length > 0 && (
+      {groups.length > 0 && totalTVL && (
         <>
           {/* list header */}
           <PoolHeaderList
@@ -276,7 +284,8 @@ export function MarketList(props: {
           </IonAccordionGroup>
         </>
       )}
-      {groups.length === 0 && (
+      {Spinner}
+      {groups.length === 0 && totalTVL && (
         <IonGrid class="ion-padding">
           <IonRow class="ion-padding">
             <IonCol size="12" class="ion-text-center">

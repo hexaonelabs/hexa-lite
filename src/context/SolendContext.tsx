@@ -4,13 +4,10 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { useWeb3Provider } from "./Web3Context";
 import { MarketPool } from "@/pool/Market.pool";
 import { SolendPool } from "@/pool/solend.pool";
-import { fetchPools, fetchPoolMetadata, getProgramId, fetchPoolByAddress, fetchPoolMetadataFromChain, TokenMetadata , getReservesOfPool,   SOLEND_PRODUCTION_PROGRAM_ID, ReserveType  } from "@solendprotocol/solend-sdk";
+// import { fetchPools, fetchPoolMetadata,  getReservesOfPool,   SOLEND_PRODUCTION_PROGRAM_ID } from "@solendprotocol/solend-sdk";
 import { PublicKey, Connection as SolanaClient } from '@solana/web3.js';
-import SwitchboardProgram from '@switchboard-xyz/sbv2-lite';
-import { useReserve  }  from "@solendprotocol/solend-sdk/hooks/reserve";
-import {  parseReserve }  from "@solendprotocol/solend-sdk/state";
+// import SwitchboardProgram from '@switchboard-xyz/sbv2-lite';
 import { NETWORK } from "@/constants/chains";
-import BigNumber from 'bignumber.js';
 
 interface LiquidityToken {
   coingeckoID: string;
@@ -78,7 +75,7 @@ export const SolendProvider = ({ children }: { children: React.ReactNode }) => {
 
   const init = async () => {
     const connection = new SolanaClient('https://api.devnet.solana.com', 'confirmed');
-    const poolsMetaData  = await fetchPoolMetadata(connection, 'production', true, true);  
+    // const poolsMetaData  = await fetchPoolMetadata(connection, 'production', true, true);  
     console.log("[INFO] {{SolendProvider}} init context... ");
     const marketsConfig: IMarketConfig[] = await fetch('https://api.solend.fi/v1/markets/configs?ids=4UpD2fh7xH3VP9QQaXtsS1YY3bxzWhtfpks7FatyKvdY&scope=solend&deployment=production')
       .then((response) => response.json());
@@ -86,12 +83,13 @@ export const SolendProvider = ({ children }: { children: React.ReactNode }) => {
     // // load markets from all available chains
     const reserveData = await fetch( `https://api.solend.fi/reserves?scope=production&ids=${ids.join('%2C')}` )
       .then((response) => response.json());
-    const programId =  SOLEND_PRODUCTION_PROGRAM_ID;
-    const slot  = await (connection)?.getSlot();  
-    const switchboardProgram = await SwitchboardProgram.loadMainnet(connection); 
-    const publicKey  = new PublicKey("4UpD2fh7xH3VP9QQaXtsS1YY3bxzWhtfpks7FatyKvdY");
-    const reservesOfPool  = await getReservesOfPool(publicKey, connection, switchboardProgram, programId.toString(), slot, true);
-    console.log(' XXX xx>>>>', {reservesOfPool}); 
+    // const programId =  SOLEND_PRODUCTION_PROGRAM_ID;
+    // const slot  = await (connection)?.getSlot();  
+    // const switchboardProgram = await SwitchboardProgram.loadMainnet(connection); 
+    // const publicKey  = new PublicKey("4UpD2fh7xH3VP9QQaXtsS1YY3bxzWhtfpks7FatyKvdY");
+    // const reservesOfPool  = await getReservesOfPool(publicKey, connection, switchboardProgram, programId.toString(), slot, true);
+    // console.log(' XXX xx>>>>', {reservesOfPool}); 
+
     // const pools = await fetchPools(
     //   Object.values([]), 
     //   connection,
@@ -147,7 +145,7 @@ export const SolendProvider = ({ children }: { children: React.ReactNode }) => {
       });
       return marketPool; 
     });
-    console.log('[INFO] {{SolendProvider}} ', { poolsMetaData, marketsConfig, reserveData, poolsFormated});
+    console.log('[INFO] {{SolendProvider}} ', { marketsConfig, reserveData, poolsFormated});
     // update state
     setState((prev) => ({
       ...prev, 

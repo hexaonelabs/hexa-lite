@@ -20,6 +20,7 @@ import '../styles/variables.scss';
 import '../styles/global.scss';
 
 import { AppProps } from 'next/app';
+import { outfit } from '@/styles/fonts';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -32,7 +33,8 @@ function MyApp({ Component, pageProps }: AppProps) {
           content="Buy digitals assets with fiats, exchange at best rate, lend and borrow money on DeFi protocols without any intermediate smart contract or third-party to enforce security and increase earn interest."
         />
 
-        <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="./favicon.ico" sizes="32x32" />
+        <link rel="icon" type="image/svg+xml" href="/.favicon.svg" />
         <link rel="manifest" href="manifest.webmanifest" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="theme-color" content="#182449" />
@@ -53,8 +55,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta property="og:type" content="product" />
         <meta property="og:title" content="Hexa Lite - Onboard to DeFi" />
         <meta property="og:site_name" content="Hexa Lite" />
-        <meta property="og:url" content="https://hexa-lite.web.app/" />
-        <meta property="og:image" content="https://hexa-lite.web.app/assets/app-logo/192.png" />
+        <meta property="og:url" content="https://hexa-lite.io/" />
+        <meta property="og:image" content="https://hexa-lite.io/assets/app-logo/192.png" />
         <meta property="og:description" content="Buy digitals assets with fiats, exchange at best rate, lend and borrow money on DeFi protocols without any intermediate smart contract or third-party to enforce security and increase earn interest." />
           
         <meta
@@ -119,7 +121,12 @@ function MyApp({ Component, pageProps }: AppProps) {
           `}
         </style>
       </Head>
-      <Component className="dark" {...pageProps} />
+      <style jsx global>{`
+        :root {
+          --font-outfit: ${outfit.style.fontFamily};
+        }
+      `}</style>
+      <Component {...pageProps} />
     </>
   );
 }
