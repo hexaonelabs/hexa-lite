@@ -17,7 +17,9 @@ import { PoolAccordionGroup } from "./PoolAccordionGroup";
 import { useState } from "react";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { IPoolGroup, IReserve } from "../interfaces/reserve.interface";
-import { usePools } from "@/context/PoolContext";
+import Store from "@/store";
+import { getPoolsState, getWeb3State } from "@/store/selectors";
+import { getPoolWalletBalance } from "@/utils/getPoolWalletBalance";
 
 export function MarketList(props: {
   filterBy?: {
@@ -26,7 +28,8 @@ export function MarketList(props: {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
   const { handleSegmentChange, filterBy: filterFromParent } = props;
-  const { poolGroups, totalTVL } = usePools();
+  const { poolGroups, totalTVL } = Store.useState(getPoolsState);
+  const { assets } = Store.useState(getWeb3State);
   const [filterBy, setFilterBy] = useState<{
     [key: string]: string;
   }|null>(
@@ -46,6 +49,11 @@ export function MarketList(props: {
         .filter((pool: any) => {
           if (filterArgs) {
             return Object.keys(filterArgs).every((key) => {
+              // filter for assets balance
+              if (key === "walletBalance") {
+                const balance = getPoolWalletBalance(pool, assets);
+                return Boolean(balance);
+              }
               // value string if a boolean value
               if (filterArgs[key] === "true" || filterArgs[key] === "false") {
                   return Boolean(pool[key]);
@@ -96,7 +104,7 @@ export function MarketList(props: {
           src={url} />
       );
     };
-  const Spinner = !poolGroups||!totalTVL ? (
+  const Spinner = poolGroups.length <= 0 && (!totalTVL) ? (
     <IonGrid class="ion-padding">
       <IonRow class="ion-padding">
         <IonCol size="12" class="ion-text-center ion-padding">
@@ -202,7 +210,6 @@ export function MarketList(props: {
               justify="end"
               onIonChange={(e) => {
                 const checked = e.detail.checked||false; 
-                console.log('>>', e);
                 if (checked) {
                   setFilterBy((s) => ({
                     ...s,

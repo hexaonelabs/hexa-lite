@@ -7,7 +7,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Welcome } from './Welcome';
 import { SwapContainer } from '@/containers/SwapContainer';
 import { FiatContainer } from '@/containers/FiatContainer';
-import { AaveProvider } from '@/context/AaveContext';
 import { DefiContainer } from '@/containers/DefiContainer';
 import { EarnContainer } from '@/containers/EarnContainer';
 import { Header } from './Header';
@@ -16,8 +15,6 @@ import { LoaderProvider } from '@/context/LoaderContext';
 import { Leaderboard } from '@/containers/LeaderboardContainer';
 import { NotFoundPage } from '@/containers/NotFoundPage';
 import PwaInstall from './PwaInstall';
-import { SolendProvider } from '@/context/SolendContext';
-import { PoolsProvider } from '@/context/PoolContext';
 import { initializeWeb3 } from '@/store/effects/web3.effects';
 
 
@@ -61,21 +58,11 @@ const AppShell = () => {
       case "swap":
         return <SwapContainer />;
       case "fiat":
-        return (<FiatContainer />);
+        return <FiatContainer />;
       case "defi":
-        return (
-          <AaveProvider>
-            <SolendProvider >
-              <PoolsProvider>  
-                <DefiContainer handleSegmentChange={handleSegmentChange} />
-              </PoolsProvider>
-            </SolendProvider>
-          </AaveProvider>
-        );
+        return <DefiContainer handleSegmentChange={handleSegmentChange} />;
       case "earn": {
-        return (
-          <EarnContainer />
-        )
+        return <EarnContainer />
       }
       default:
         return currentSegment ?

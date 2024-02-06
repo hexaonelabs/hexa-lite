@@ -33,6 +33,13 @@ export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
     switchNetwork: async (chainId: number) => {
       await initializeWeb3(chainId);
     },
+    loadAssets: async () => {
+      await magicUtils.loadBalances();
+      setWeb3State({
+        ...state,
+        assets: magicUtils.assets,
+      });
+    },
   };
   console.log('[INFO] {{Web3Effect}} state: ', state);
   setWeb3State(state);

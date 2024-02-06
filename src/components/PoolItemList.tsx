@@ -17,12 +17,11 @@ import { warningOutline, searchOutline } from "ionicons/icons";
 import { getReadableAmount } from "../utils/getReadableAmount";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { ReserveDetail } from "./ReserveDetail";
-import { useAave } from "../context/AaveContext";
 import { useMemo, useRef, useState } from "react";
 import { SymbolIcon } from "./SymbolIcon";
-import { usePools } from "@/context/PoolContext";
 import Store from "@/store";
-import { getWeb3State } from "@/store/selectors";
+import { getPoolsState, getWeb3State } from "@/store/selectors";
+import { getPoolSupplyAndBorrowBallance, getPoolWalletBalance } from "@/utils/getPoolWalletBalance";
 
 interface IPoolItemListProps {
   poolId: string;
@@ -32,19 +31,19 @@ interface IPoolItemListProps {
 }
 export function PoolItemList(props: IPoolItemListProps) {
   const { poolId, iconSize, chainId, handleSegmentChange } = props;
-  const { walletAddress } = Store.useState(getWeb3State);
-  const { markets } = useAave();
-  const { poolGroups } = usePools();
+  const { walletAddress, assets } = Store.useState(getWeb3State);
+  const { poolGroups, userSummaryAndIncentivesGroup } = Store.useState(getPoolsState);
   const modal = useRef<HTMLIonModalElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   // find pool in `poolGroups[*].pool` by `poolId`
-  const pool = useMemo(() => {
-    return poolGroups
+  const pool = poolGroups
       .find((pg) => pg.pools.find((p) => p.id === poolId))
       ?.pools.find((p) => p.id === poolId);
-  }, [poolId]);
-  if (!pool) return null;
+  if (!pool) throw new Error(`[ERROR] Pool not found: ${poolId}`);
 
+  const balance = getPoolWalletBalance(pool, assets).toFixed(6);
+  const walletBalance = Number(balance) > 0 ? balance : "0";
+  const { borrowBalance, supplyBalance } = getPoolSupplyAndBorrowBallance(pool, userSummaryAndIncentivesGroup||[])
   const LogoProviderImage = (props: { provider: string }) => {
     const { provider } = props;
     let url = "./assets/icons/aave.svg";
@@ -144,7 +143,7 @@ export function PoolItemList(props: IPoolItemListProps) {
                     <IonText color="dark">
                       <br />
                       <small>
-                        Wallet balance: {Number(pool.walletBalance)}
+                        Balance: {walletBalance}
                       </small>
                     </IonText>
                   )}
@@ -156,14 +155,14 @@ export function PoolItemList(props: IPoolItemListProps) {
             </IonCol>
             <IonCol size-md="2" class="ion-text-end ion-hide-md-down">
               <IonLabel>
-                {pool.supplyBalance > 0
-                  ? pool.supplyBalance.toFixed(6)
+                {supplyBalance > 0
+                  ? supplyBalance.toFixed(6)
                   : "0.00"}
                 <br />
                 <IonText color="medium">
                   <small>
                     {getReadableAmount(
-                      pool.supplyBalance,
+                      supplyBalance,
                       Number(pool.priceInUSD),
                       "No deposit"
                     )}
@@ -177,8 +176,8 @@ export function PoolItemList(props: IPoolItemListProps) {
               class="ion-text-end ion-hide-md-down"
             >
               <IonLabel>
-                {pool.borrowBalance > 0
-                  ? pool.borrowBalance.toFixed(6)
+                {borrowBalance > 0
+                  ? borrowBalance.toFixed(6)
                   : pool.borrowingEnabled === false
                   ? "-"
                   : "0.00"}
@@ -187,7 +186,7 @@ export function PoolItemList(props: IPoolItemListProps) {
                     <br />
                     <small>
                       {getReadableAmount(
-                        +pool?.borrowBalance,
+                        borrowBalance,
                         Number(pool?.priceInUSD),
                         "No debit"
                       )}
@@ -235,7 +234,6 @@ export function PoolItemList(props: IPoolItemListProps) {
       >
         <ReserveDetail
           pool={pool}
-          markets={markets?.find((m) => m.CHAIN_ID === chainId)}
           dismiss={() => modal.current?.dismiss()}
           handleSegmentChange={handleSegmentChange}
         />

@@ -13,6 +13,7 @@ export interface IWeb3State {
   connectWallet(ops?: {email: string;}): Promise<void>;
   disconnectWallet(): Promise<void>;
   switchNetwork: (chainId: number) => Promise<void>;
+  loadAssets: () => Promise<void>;
 }
 
 export interface IPoolsState {
@@ -23,15 +24,11 @@ export interface IPoolsState {
 };
 
 export interface IStore  {
-  safeAreaTop: number;
-  safeAreaBottom: number;
   pools: IPoolsState,
   web3:IWeb3State
 }
 
 const defaultState: IStore = Object.freeze({
-  safeAreaTop: 0,
-  safeAreaBottom: 0,
   pools: {
     poolGroups: [],
     userSummaryAndIncentivesGroup: null,
@@ -54,6 +51,9 @@ const defaultState: IStore = Object.freeze({
     },
     switchNetwork: async (chainId: number) => {
       throw new Error("switchNetwork function not implemented");
+    },
+    loadAssets: async () => {
+      throw new Error("loadAssets function not implemented");
     },
   }
 });

@@ -10,7 +10,6 @@ import {
 import {
   logoGithub,
 } from "ionicons/icons";
-import { EthOptimizedStrategyProvider } from "../context/EthOptimizedContext";
 import { ETHLiquidStakingstrategyCard } from "./ETHLiquidStakingstrategy";
 import { CHAIN_AVAILABLES } from "@/constants/chains";
 import RevealComp from "@/components/RevealComp";
@@ -266,9 +265,7 @@ export function Welcome({
                       display: "inline-block",
                     }}
                   >
-                    <EthOptimizedStrategyProvider>
-                      <ETHLiquidStakingstrategyCard asImage={true} />
-                    </EthOptimizedStrategyProvider>
+                    <ETHLiquidStakingstrategyCard asImage={true} />
                   </div>
                 </RevealComp>
               </IonCol>

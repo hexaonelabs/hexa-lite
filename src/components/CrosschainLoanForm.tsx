@@ -27,7 +27,6 @@ import {
 import { chevronDown } from "ionicons/icons";
 import { SymbolIcon } from "./SymbolIcon";
 import { useEffect, useRef, useState } from "react";
-import { useAave } from "../context/AaveContext";
 import { getReadableAmount } from "../utils/getReadableAmount";
 import { getMaxAmount } from "../utils/getMaxAmount";
 import { IUserSummary } from "../interfaces/reserve.interface";
@@ -41,8 +40,7 @@ import { DangerBox } from "./DangerBox";
 import { useLoader } from "../context/LoaderContext";
 import { IAavePool } from "@/pool/Aave.pool";
 import Store from "@/store";
-import { getWeb3State } from "@/store/selectors";
-import { usePools } from "@/context/PoolContext";
+import { getPoolsState, getWeb3State } from "@/store/selectors";
 
 const isNumberKey = (evt: React.KeyboardEvent<HTMLIonInputElement>) => {
   var charCode = (evt.which) ? evt.which : evt.keyCode
@@ -135,7 +133,7 @@ export function CrosschainLoanForm(props: {
   onSubmit:(data?: string | null | undefined | number, role?:  "confirm" | "cancel") => void;
 }) {
   const { reserve, userSummary, toggleCrosschainForm, onSubmit } = props;
-  const { userSummaryAndIncentivesGroup, poolGroups } = usePools();
+  const { userSummaryAndIncentivesGroup, poolGroups } = Store.useState(getPoolsState)
   const { web3Provider, assets } = Store.useState(getWeb3State);
   const [healthFactor, setHealthFactor] = useState<number | undefined>(
     +userSummary.healthFactor

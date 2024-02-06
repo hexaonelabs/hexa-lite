@@ -86,6 +86,7 @@ export abstract class MagicWalletUtils {
 
   async disconnect() {
     this.walletAddress = undefined;
+    this.assets = [];
     return disconnect();
   }
 

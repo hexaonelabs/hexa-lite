@@ -24,10 +24,11 @@ import { MarketList } from "../components/MarketsList";
 import { currencyFormat } from "../utils/currency-format";
 import { valueToBigNumber } from "@aave/math-utils";
 import { AavePool } from "@/pool/Aave.pool";
-import { usePools } from "@/context/PoolContext";
 import { getReadableValue } from "@/utils/getReadableValue";
 import Store from "@/store";
-import { getWeb3State } from "@/store/selectors";
+import { getPoolsState, getProtocolSummaryState, getWeb3State } from "@/store/selectors";
+import { initializePools, initializeUserSummary } from "@/store/effects/pools.effect";
+import { patchPoolsState } from "@/store/actions";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
@@ -40,110 +41,44 @@ export const DefiContainer = ({
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) => {
   const { walletAddress } = Store.useState(getWeb3State);
-  const { poolGroups, totalTVL, refresh, userSummaryAndIncentivesGroup } =
-    usePools();
+  const { 
+    poolGroups, 
+    totalTVL, 
+    userSummaryAndIncentivesGroup,
+  } = Store.useState(getPoolsState);
+  const protocolSummary = Store.useState(getProtocolSummaryState);
   const [filterBy, setFilterBy] = useState<{ [key: string]: string } | null>(
     null
   );
 
-  const totalBorrowsUsd =
-    poolGroups
-      .map((pool) =>
-        valueToBigNumber(pool.totalBorrowBalance)
-          .multipliedBy(pool.priceInUSD)
-          .toFixed(2)
-      )
-      .map((amount) => Number(amount))
-      .reduce((a, b) => a + b, 0) || 0;
-  const totalSupplyUsd =
-    poolGroups
-      .map((pool) =>
-        valueToBigNumber(pool.totalSupplyBalance)
-          .multipliedBy(pool.priceInUSD)
-          .toFixed(2)
-      )
-      .map((amount) => Number(amount))
-      .reduce((a, b) => a + b, 0) || 0;
-
-  const totalCollateralUsd =
-    userSummaryAndIncentivesGroup
-      ?.map((summary) => Number(summary?.totalCollateralUSD || 0))
-      .reduce((a, b) => a + b, 0) || 0;
+  const totalBorrowsUsd = protocolSummary.reduce((prev, current)=> {
+    return prev + current.totalBorrowsUSD;
+  }, 0);
+  const totalSupplyUsd = protocolSummary.reduce((prev, current)=> {
+    return prev + current.totalSupplyUSD;
+  }, 0);
+  const totalCollateralUsd = protocolSummary.reduce((prev, current)=> {
+    return prev + current.totalCollateralUSD;
+  }, 0);
+  
   // The % of your total borrowing power used.
   // This is based on the amount of your collateral supplied (totalCollateralUSD) and the total amount that you can borrow (totalCollateralUSD - totalBorrowsUsd)
   // remove `currentLiquidationThreshold` present in the `userSummaryAndIncentivesGroup` response
-  const poolGroupsWithUserLiquidationThresholdValue = poolGroups
-    .flatMap(({ pools }) => pools)
-    .filter((pool) => !(pool as AavePool).isIsolated)
-    .filter((pool) => pool.borrowBalance > 0)
-    .filter((pool) => pool.userLiquidationThreshold > 0);
-  const totalLiquidationThreshold =
-    poolGroupsWithUserLiquidationThresholdValue
-      .map((pool) => pool.userLiquidationThreshold)
-      .reduce((a, b) => a + b, 0) /
-      poolGroupsWithUserLiquidationThresholdValue.length || 0;
+  const totalLiquidationThreshold = protocolSummary.reduce((prev, current)=> {
+    return prev + current.currentLiquidationThreshold;
+  }, 0);
 
-  const totalBorrowableUsd = totalCollateralUsd * totalLiquidationThreshold;
-  const percentBorrowingCapacity =
-    100 - getPercent(totalBorrowsUsd, totalBorrowableUsd);
+  const totalBorrowableUsd = protocolSummary.reduce((prev, current)=> {
+    // summary.totalCollateralUSD *
+    //                                   summary.currentLiquidationThreshold
+    return prev + valueToBigNumber(current.totalCollateralUSD).multipliedBy(current.currentLiquidationThreshold).toNumber();
+  }, 0);
+  const percentBorrowingCapacity = 100 - getPercent(totalBorrowsUsd, totalBorrowableUsd);
   // const progressBarFormatedValue = percentBorrowingCapacity / 100;
   const totalAbailableToBorrow = totalBorrowableUsd - totalBorrowsUsd;
 
-  const protocolSummary = poolGroups
-    .flatMap(({ pools }) => pools)
-    .filter((pool) => pool.borrowBalance > 0 || pool.supplyBalance > 0)
-    .reduce(
-      (acc, pool) => {
-        // check if the pool is already in the array
-        const index = acc.findIndex(
-          (p) => p.chainId === pool.chainId && p.provider === pool.provider
-        );
-        const totalSupplyUSD = Number(
-          valueToBigNumber(pool.supplyBalance).multipliedBy(pool.priceInUSD)
-        );
-        const totalBorrowsUSD = Number(
-          valueToBigNumber(pool.borrowBalance).multipliedBy(pool.priceInUSD)
-        );
-        const totalCollateralUSD = Number(
-          valueToBigNumber(
-            pool.supplyBalance * pool.userLiquidationThreshold
-          ).multipliedBy(pool.priceInUSD)
-        );
-
-        if (index > -1) {
-          // if it is, update the totalBorrowsUSD
-          acc[index].totalBorrowsUSD =
-            Number(acc[index].totalBorrowsUSD) + totalBorrowsUSD;
-          // update the totalCollateralUSD
-          acc[index].totalCollateralUSD =
-            Number(acc[index].totalCollateralUSD) + totalCollateralUSD;
-          acc[index].totalSupplyUSD =
-            Number(acc[index].totalSupplyUSD) + totalSupplyUSD;
-        } else {
-          // if it is not, add it to the array
-          acc.push({
-            chainId: pool.chainId,
-            provider: pool.provider,
-            totalSupplyUSD,
-            totalCollateralUSD,
-            totalBorrowsUSD,
-            currentLiquidationThreshold: pool.userLiquidationThreshold,
-          });
-        }
-        return acc;
-      },
-      [] as {
-        chainId: number;
-        provider: string;
-        totalSupplyUSD: number;
-        totalCollateralUSD: number;
-        totalBorrowsUSD: number;
-        currentLiquidationThreshold: number;
-      }[]
-    );
   console.log("[INFO] {{DefiContainer}} poolGroups > ", {
     poolGroups,
-    poolGroupsWithUserLiquidationThresholdValue,
     userSummaryAndIncentivesGroup,
     totalLiquidationThreshold,
     totalCollateralUsd,
@@ -151,14 +86,29 @@ export const DefiContainer = ({
     protocolSummary,
   });
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (poolGroups.length > 0 && totalTVL) {
+      return;
+    }
+    initializePools();
+  }, []);
+
+  useEffect(() => {
+    if (!walletAddress ) {
+      patchPoolsState({ userSummaryAndIncentivesGroup: null });
+      return;
+    }
+    if (!userSummaryAndIncentivesGroup && walletAddress) {
+      initializeUserSummary(walletAddress);
+    }
+  }, [walletAddress, userSummaryAndIncentivesGroup]);
 
   return (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "8rem" }}>
       <IonRow class="ion-justify-content-center ion-padding">
         <IonCol size="12" class="ion-text-center">
           <IonText>
-            <h1>DeFi liquidity protocol</h1>
+            <h1>Lending & Borrowing Markets</h1>
           </IonText>
           <IonText color="medium">
             <p
@@ -176,9 +126,9 @@ export const DefiContainer = ({
                     style={{ width: "20px", display: "inline-block" }}
                   />
                 )}{" "}
-                open markets accessible to all across{" "}
+                open markets across{" "}
                 {
-                  CHAIN_AVAILABLES.filter((chain) => chain.type === "evm")
+                  CHAIN_AVAILABLES.filter((chain) => chain.type === "evm" || chain.type === 'solana')
                     .length
                 }{" "}
                 networks, borrow assets using your crypto as collateral and earn
@@ -195,9 +145,8 @@ export const DefiContainer = ({
                   lineHeight: "1.8rem",
                 }}
               >
-                $
                 {(totalTVL || 0) > 0 ? (
-                  getReadableValue(totalTVL || 0)
+                  '$' + getReadableValue(totalTVL || 0)
                 ) : (
                   <IonSkeletonText
                     animated={true}
@@ -450,8 +399,8 @@ export const DefiContainer = ({
                               >
                                 <IonText color="dark">
                                   {currencyFormat(
-                                    summary.totalCollateralUSD *
-                                      summary.currentLiquidationThreshold -
+                                    (summary.totalCollateralUSD *
+                                      summary.currentLiquidationThreshold) -
                                       summary.totalBorrowsUSD
                                   )}
                                 </IonText>
