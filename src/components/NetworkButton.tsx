@@ -11,9 +11,10 @@ import {
   IonText,
 } from "@ionic/react";
 import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "../constants/chains";
-import { useWeb3Provider } from "../context/Web3Context";
 import { useRef } from "react";
 import { RPC_NODE_OPTIONS, getRPCNodeOptions } from "../servcies/magic";
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
 
 const getAvailableChains = (withTestnet?: boolean) =>
   CHAIN_AVAILABLES.filter((chain) =>
@@ -95,7 +96,7 @@ function NetworkPopover({
 }
 
 export function NetworkButton() {
-  const { web3Provider, currentNetwork } = useWeb3Provider();
+  const { web3Provider, currentNetwork } = Store.useState(getWeb3State);
   const popoverRef = useRef<HTMLIonPopoverElement>(null);
 
   const getChainData = (chainId: number) => {

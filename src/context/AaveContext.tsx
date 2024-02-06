@@ -19,17 +19,14 @@ import {
 import dayjs from "dayjs";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import {
-  IPoolGroup,
-  IReserve,
+
   IUserSummary,
 } from "../interfaces/reserve.interface";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
-import { getTotalSupplyBalanceBySymbol } from "../utils/getTotalSupplyBalanceBySymbol";
-import { getTotalBorrowBalanceBySymbol } from "../utils/getTotalBorrowBalanceBySymbol";
-import { getAssetFromAllNetwork } from "../utils/getAssetFromAllNetwork";
-import { useWeb3Provider } from "./Web3Context";
 import { MarketPool } from "@/pool/Market.pool";
 import { AavePool } from "@/pool/Aave.pool";
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
 
 export type ComputedReserveData = ReturnType<
   typeof formatReservesAndIncentives
@@ -80,7 +77,7 @@ export const useAave = () => useContext(AaveContext);
 export const AaveProvider = ({ children }: { children: React.ReactNode }) => {
   const currentTimestamp = dayjs().unix(); // useCurrentTimestamp(5);
   const [ state, setState ] = useState<AaveContextType>(AaveContextDefault);
-  const { assets, walletAddress } = useWeb3Provider();
+  const { assets, walletAddress } = Store.useState(getWeb3State);
 
   const init = async () => {
     console.log("[INFO] {{AaveProvider}} init context... ");

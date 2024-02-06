@@ -1,7 +1,6 @@
 import {
   IonAccordion,
   IonAvatar,
-  IonButton,
   IonCol,
   IonGrid,
   IonIcon,
@@ -12,10 +11,11 @@ import {
   IonText,
 } from "@ionic/react";
 import { getReadableAmount } from "../utils/getReadableAmount";
-import { useWeb3Provider } from "../context/Web3Context";
 import { PoolItemList } from "./PoolItemList";
 import { IPoolGroup } from "../interfaces/reserve.interface";
 import { CHAIN_AVAILABLES } from "../constants/chains";
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
 
 interface IPoolAccordionProps {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
@@ -24,7 +24,7 @@ interface IPoolAccordionProps {
 
 export function PoolAccordionGroup(props: IPoolAccordionProps) {
   const { poolGroup, handleSegmentChange } = props;
-  const { walletAddress } = useWeb3Provider();
+  const { walletAddress } = Store.useState(getWeb3State);
 
   return (
     <IonAccordion>

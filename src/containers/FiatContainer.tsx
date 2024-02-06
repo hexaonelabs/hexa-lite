@@ -1,17 +1,31 @@
-import { useWeb3Provider } from "@/context/Web3Context";
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCheckbox, IonCol, IonGrid, IonIcon, IonItem, IonLabel, IonNote, IonRow, IonText, useIonAlert, useIonModal, useIonToast } from "@ionic/react";
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
+import {
+  IonButton,
+  IonCheckbox,
+  IonCol,
+  IonGrid,
+  IonIcon,
+  IonRow,
+  IonText,
+  useIonModal,
+  useIonToast,
+} from "@ionic/react";
 import { closeSharp } from "ionicons/icons";
 import { useEffect } from "react";
 
-const STORAGE_KEY = 'hexa-fiat-modal-disabled';
+const STORAGE_KEY = "hexa-fiat-modal-disabled";
 
-const ModalAlertMessageComponent = (props: {walletAddress: string; dismiss: () => void}) => {
+const ModalAlertMessageComponent = (props: {
+  walletAddress: string;
+  dismiss: () => void;
+}) => {
   const { walletAddress, dismiss } = props;
   // toasts
   const [present] = useIonToast();
 
   const copyWalletAddress = () => {
-    if (!walletAddress){
+    if (!walletAddress) {
       return;
     }
     navigator?.clipboard?.writeText(walletAddress);
@@ -21,92 +35,115 @@ const ModalAlertMessageComponent = (props: {walletAddress: string; dismiss: () =
       color: "gradient",
       buttons: [{ text: "X", handler: () => {} }],
     });
-  }
+  };
   useEffect(() => {
     copyWalletAddress();
   }, []);
 
   return (
-
     <IonGrid className="ion-no-padding">
-    <IonRow class="ion-align-items-top ion-padding">
-      <IonCol size="10">
-        <IonText>
-          <h3 style={{ marginBottom: 0 }}>
-            <b>
-              Informations
-            </b>
-          </h3>
-        </IonText>
-      </IonCol>
-      <IonCol size="2" class="ion-text-end">
-        <IonButton
-          size="small"
-          fill="clear"
-          onClick={() => {
-            dismiss();
-          }}
-        >
-          <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
-        </IonButton>
-      </IonCol>
-    </IonRow>
-    <IonRow class="ion-align-items-center ion-padding-horizontal">
-      <IonCol size="12" className="ion-padding-bottom">
-        <div>
-          <p style={{fontSize: '0.8rem'}}>
-            During the purchase process, you will be asked to provide your wallet address and the network.
-          </p>
-            {walletAddress
-              ? (<>
-                <p style={{fontSize: '0.8rem'}}>
-                  Your wallet address is 
-                  <IonText className="ion-color-gradient-text" style={{cursor: 'pointer'}} onClick={()=> copyWalletAddress()}>
+      <IonRow class="ion-align-items-top ion-padding">
+        <IonCol size="10">
+          <IonText>
+            <h3 style={{ marginBottom: 0 }}>
+              <b>Informations</b>
+            </h3>
+          </IonText>
+        </IonCol>
+        <IonCol size="2" class="ion-text-end">
+          <IonButton
+            size="small"
+            fill="clear"
+            onClick={() => {
+              dismiss();
+            }}
+          >
+            <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
+          </IonButton>
+        </IonCol>
+      </IonRow>
+      <IonRow class="ion-align-items-center ion-padding-horizontal">
+        <IonCol size="12" className="ion-padding-bottom">
+          <div>
+            <p style={{ fontSize: "0.8rem" }}>
+              During the purchase process, you will be asked to provide your
+              wallet address and the network.
+            </p>
+            {walletAddress ? (
+              <>
+                <p style={{ fontSize: "0.8rem" }}>
+                  Your wallet address is
+                  <IonText
+                    className="ion-color-gradient-text"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => copyWalletAddress()}
+                  >
                     {walletAddress}
-                  </IonText> and the network is <IonText className="ion-color-gradient-text">Optimism</IonText>.</p>
-                <p style={{fontSize: '0.8rem'}}>
-                  We strongly recommend to purchase <b>ETH</b> with your preferred currency and payement provider. That way you will be able to pay for gas fees when interacting with the dApp and DeFi protocols.
+                  </IonText>{" "}
+                  and the network is{" "}
+                  <IonText className="ion-color-gradient-text">
+                    Optimism
+                  </IonText>
+                  .
                 </p>
-                <p style={{fontSize: '0.8rem'}}>Please make sure you select the correct network when purchasing your crypto.</p>
+                <p style={{ fontSize: "0.8rem" }}>
+                  We strongly recommend to purchase <b>ETH</b> with your
+                  preferred currency and payement provider. That way you will be
+                  able to pay for gas fees when interacting with the dApp and
+                  DeFi protocols.
+                </p>
+                <p style={{ fontSize: "0.8rem" }}>
+                  Please make sure you select the correct network when
+                  purchasing your crypto.
+                </p>
               </>
-              )
-              : (<p style={{fontSize: '0.8rem'}}>Connect your wallet to get your wallet address.</p>)
-            }
+            ) : (
+              <p style={{ fontSize: "0.8rem" }}>
+                Connect your wallet to get your wallet address.
+              </p>
+            )}
             <div className="ion-margin-vertical">
-              <IonCheckbox 
-                mode="md" 
-                labelPlacement="end" 
-                className="ion-margin-bottom" 
-                onIonChange={(event)=> {
+              <IonCheckbox
+                mode="md"
+                labelPlacement="end"
+                className="ion-margin-bottom"
+                onIonChange={(event) => {
                   // get state of checkbox
                   const checked = event.detail.checked;
                   // save state to local storage if checked and delete if not
                   if (checked) {
-                    localStorage.setItem(STORAGE_KEY, 'true');
+                    localStorage.setItem(STORAGE_KEY, "true");
                   } else {
                     localStorage.removeItem(STORAGE_KEY);
                   }
-                }}>
+                }}
+              >
                 <small>Don't show this message again</small>
               </IonCheckbox>
             </div>
-            <IonButton 
-              expand="block" 
+            <IonButton
+              expand="block"
               size="small"
               onClick={() => {
                 dismiss();
-              }}>Ok</IonButton>
-        </div>
-      </IonCol>
-    </IonRow>
-  </IonGrid>
+              }}
+            >
+              Ok
+            </IonButton>
+          </div>
+        </IonCol>
+      </IonRow>
+    </IonGrid>
   );
-}
+};
 
 export function FiatContainer() {
-  const { walletAddress } = useWeb3Provider();
+  const { walletAddress } = Store.useState(getWeb3State);
   // display Alert to explain how to use wallet address on purchass with fiat. Provider will ask you your wallet address...
-  const [present, dismiss] = useIonModal(ModalAlertMessageComponent, {walletAddress, dismiss: () => dismiss()});
+  const [present, dismiss] = useIonModal(ModalAlertMessageComponent, {
+    walletAddress,
+    dismiss: () => dismiss(),
+  });
 
   useEffect(() => {
     // check if have disabled open modal
@@ -115,7 +152,7 @@ export function FiatContainer() {
       return;
     }
     present({
-      cssClass: 'modalAlert autoSize'
+      cssClass: "modalAlert autoSize",
     });
   }, []);
 

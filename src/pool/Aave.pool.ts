@@ -1,7 +1,6 @@
 import { IMarketPool } from "@/interfaces/reserve.interface";
 import { MarketPool } from "./Market.pool";
 import { ethers } from "ethers";
-import { Web3ProviderType } from "@/context/Web3Context";
 import {
   borrow,
   getMarkets,
@@ -9,6 +8,7 @@ import {
   supplyWithPermit,
   withdraw,
 } from "@/servcies/aave.service";
+import { Web3ProviderType } from "@/interfaces/web3.interface";
 
 export interface IAavePool extends IMarketPool {
   readonly unborrowedLiquidity: string;

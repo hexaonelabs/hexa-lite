@@ -3,7 +3,7 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route } from 'react-router-dom';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Welcome } from './Welcome';
 import { SwapContainer } from '@/containers/SwapContainer';
 import { FiatContainer } from '@/containers/FiatContainer';
@@ -12,13 +12,13 @@ import { DefiContainer } from '@/containers/DefiContainer';
 import { EarnContainer } from '@/containers/EarnContainer';
 import { Header } from './Header';
 import MenuSlide from './MenuSlide';
-import { Web3Provider } from '@/context/Web3Context';
 import { LoaderProvider } from '@/context/LoaderContext';
 import { Leaderboard } from '@/containers/LeaderboardContainer';
 import { NotFoundPage } from '@/containers/NotFoundPage';
 import PwaInstall from './PwaInstall';
 import { SolendProvider } from '@/context/SolendContext';
 import { PoolsProvider } from '@/context/PoolContext';
+import { initializeWeb3 } from '@/store/effects/web3.effects';
 
 
 setupIonicReact({ mode: 'ios' });
@@ -100,12 +100,16 @@ const AppShell = () => {
           : (<></>)
     }
   };
+
+  useEffect(()=> {
+    initializeWeb3();
+  }, []);
+  
   return (
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet id="main">
           <Route path="/index" render={() => (<>  
-            <Web3Provider>
               <LoaderProvider>
                 <IonPage>
                   <MenuSlide handleSegmentChange={handleSegmentChange}/>
@@ -147,7 +151,6 @@ const AppShell = () => {
                   </IonContent>
                 </IonPage>
               </LoaderProvider>
-            </Web3Provider>
           </>)} />
           <Route path="/leaderboard" render={() => <Leaderboard />} />
           <Route path="/" render={() => <Redirect to="/index" />} exact={true} />

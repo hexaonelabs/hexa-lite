@@ -1,6 +1,5 @@
 
 import { useState, useRef } from "react"
-import { useWeb3Provider } from "../context/Web3Context"
 import { IonButton, IonCol, IonGrid, IonInput, IonRow, IonText } from "@ionic/react"
 
 const SignMessage = () => {

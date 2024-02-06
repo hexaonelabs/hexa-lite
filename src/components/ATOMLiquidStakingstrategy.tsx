@@ -23,13 +23,14 @@ import { useEffect, useRef, useState } from "react";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { getBaseAPRstMATIC, getETHByWstETH } from "../servcies/lido.service";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
-import { useWeb3Provider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
 import { CHAIN_AVAILABLES, NETWORK } from "../constants/chains";
 import { HowItWork } from "./HowItWork";
 import { ApyDetail } from "./ApyDetail";
 import { SQUID_CONFIG } from '../servcies/squid.service';
 import { SquidWidget } from "@0xsquid/widget";
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
 
 export interface IStrategyModalProps {
   dismiss?: (
@@ -39,7 +40,7 @@ export interface IStrategyModalProps {
 }
 
 export function ATOMLiquidStakingstrategyCard() {
-  const { web3Provider, switchNetwork, connectWallet, disconnectWallet, currentNetwork } = useWeb3Provider();
+  const { web3Provider, switchNetwork, connectWallet, disconnectWallet, currentNetwork } = Store.useState(getWeb3State);
   const [baseAPRst, setBaseAPRst] = useState(-1);
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const toastContext = useIonToast();

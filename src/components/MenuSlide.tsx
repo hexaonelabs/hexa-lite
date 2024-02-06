@@ -12,14 +12,14 @@ import {
   IonItemDivider,
   IonButton,
   IonModal,
-  IonPopover,
 } from "@ionic/react";
 import { radioButtonOn, ribbonOutline } from "ionicons/icons";
 import ConnectButton from "./ConnectButton";
 import { AuthBadge } from "./AuthBadge";
-import { useWeb3Provider } from "../context/Web3Context";
 import { getAddressPoints } from "@/servcies/datas.service";
 import { PointsPopover } from "./PointsPopover";
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
 
 interface MenuSlideProps {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
@@ -28,8 +28,7 @@ interface MenuSlideProps {
 
 const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
   const menuRef = useRef<HTMLIonMenuElement>(null);
-  const [isOpen, setIsOpen] = useState(false);
-  const { walletAddress } = useWeb3Provider();
+  const { walletAddress } = Store.useState(getWeb3State);
   const [points, setPoints] = useState<string | null>(null);
 
   return (
@@ -129,8 +128,9 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
         ></IonItemDivider>
 
         <div className="ion-padding ion-text-center">
-          {!walletAddress ? (<>
-            <IonButton
+          {!walletAddress ? (
+            <>
+              <IonButton
                 disabled={true}
                 fill="clear"
                 color="gradient"
@@ -145,8 +145,8 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
                 ></IonIcon>
                 <IonText className="ion-color-gradient-text">Points</IonText>
               </IonButton>
-            <ConnectButton size="default" expand="block"></ConnectButton>
-          </>
+              <ConnectButton size="default" expand="block"></ConnectButton>
+            </>
           ) : (
             <>
               <IonButton
@@ -189,7 +189,6 @@ const MenuSlide: React.FC<MenuSlideProps> = ({ handleSegmentChange }) => {
                 trigger="points-btn-mobile"
                 className="points-popover modalAlert"
                 onDidDismiss={() => setPoints(() => null)}
-                
                 onWillPresent={async () => {
                   const response = await getAddressPoints(walletAddress).catch(
                     (error) => {}

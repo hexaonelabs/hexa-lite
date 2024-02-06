@@ -35,12 +35,14 @@ import {
   calculateHealthFactorFromBalancesBigUnits,
   valueToBigNumber,
 } from "@aave/math-utils";
-import { useWeb3Provider } from "../context/Web3Context";
 import { getPercent } from "../utils/utils";
 import { WarningBox } from "./WarningBox";
 import { DangerBox } from "./DangerBox";
 import { useLoader } from "../context/LoaderContext";
 import { IAavePool } from "@/pool/Aave.pool";
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
+import { usePools } from "@/context/PoolContext";
 
 const isNumberKey = (evt: React.KeyboardEvent<HTMLIonInputElement>) => {
   var charCode = (evt.which) ? evt.which : evt.keyCode
@@ -133,8 +135,8 @@ export function CrosschainLoanForm(props: {
   onSubmit:(data?: string | null | undefined | number, role?:  "confirm" | "cancel") => void;
 }) {
   const { reserve, userSummary, toggleCrosschainForm, onSubmit } = props;
-  const { userSummaryAndIncentivesGroup, poolGroups } = useAave();
-  const { web3Provider, assets } = useWeb3Provider();
+  const { userSummaryAndIncentivesGroup, poolGroups } = usePools();
+  const { web3Provider, assets } = Store.useState(getWeb3State);
   const [healthFactor, setHealthFactor] = useState<number | undefined>(
     +userSummary.healthFactor
   );
@@ -169,7 +171,7 @@ export function CrosschainLoanForm(props: {
     (poolGroups || [])
       ?.filter((p) => p.chainIds.includes(reserve.chainId))
       ?.flatMap((p) => p.pools)
-      ?.filter((r) => r.chainId === reserve.chainId)[0] as IAavePool
+      ?.filter((r) => r.chainId === reserve.chainId)[0] as unknown as IAavePool
   );
   const [newCollateralAmount, setNewCollateralAmount] = useState(0);
   const [borrowAmount, setBorrowAmount] = useState(0);
@@ -189,13 +191,13 @@ export function CrosschainLoanForm(props: {
           valueToBigNumber(r.totalLiquidityUSD).toNumber(),
           valueToBigNumber(r.supplyCapUSD).toNumber()
         ) < 99
-    ) as IAavePool[];
+    ) as unknown as IAavePool[];
   const maxAmount = selectedCollateral?.id
     ? getMaxAmount(
         "withdraw",
         poolGroups
           ?.map((p) => p.pools.find((r) => r.id === selectedCollateral.id))
-          .filter(Boolean)[0] as IAavePool,
+          .filter(Boolean)[0] as unknown as IAavePool,
         userSummaryAndIncentivesGroup?.find((summary) =>
           summary.userReservesData.find(
             (r) => r.reserve.id === selectedCollateral.id

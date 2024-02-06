@@ -1,6 +1,6 @@
 import { IMarketPool } from "@/interfaces/reserve.interface";
 import { IAavePool } from "./Aave.pool";
-import { Web3ProviderType } from "@/context/Web3Context";
+import { Web3ProviderType } from "@/interfaces/web3.interface";
 
 export abstract class MarketPool implements IMarketPool {
   readonly id: string;

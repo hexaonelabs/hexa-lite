@@ -1,7 +1,7 @@
 import { CHAIN_DEFAULT, NETWORK } from "../constants/chains";
 import { connect, disconnect } from "../servcies/magic";
-import { Web3ProviderType } from "../context/Web3Context";
 import { IAsset } from "../interfaces/asset.interface";
+import { Web3ProviderType } from "@/interfaces/web3.interface";
 
 
 // Abstract class to handle magic network-specific operations

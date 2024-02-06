@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { IonButton, IonSpinner } from "@ionic/react";
-import { useWeb3Provider } from "../context/Web3Context";
 import { getMagic } from "@/servcies/magic";
 
 const ShowUIButton = () => {

@@ -12,18 +12,17 @@ import {
   IonModal,
   IonRow,
   IonText,
-  useIonModal,
 } from "@ionic/react";
 import { warningOutline, searchOutline } from "ionicons/icons";
 import { getReadableAmount } from "../utils/getReadableAmount";
-import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { ReserveDetail } from "./ReserveDetail";
 import { useAave } from "../context/AaveContext";
 import { useMemo, useRef, useState } from "react";
-import { useWeb3Provider } from "../context/Web3Context";
 import { SymbolIcon } from "./SymbolIcon";
 import { usePools } from "@/context/PoolContext";
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
 
 interface IPoolItemListProps {
   poolId: string;
@@ -33,7 +32,7 @@ interface IPoolItemListProps {
 }
 export function PoolItemList(props: IPoolItemListProps) {
   const { poolId, iconSize, chainId, handleSegmentChange } = props;
-  const { walletAddress } = useWeb3Provider();
+  const { walletAddress } = Store.useState(getWeb3State);
   const { markets } = useAave();
   const { poolGroups } = usePools();
   const modal = useRef<HTMLIonModalElement>(null);

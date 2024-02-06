@@ -49,18 +49,16 @@ import {
   supplyWithPermit,
   withdraw,
 } from "../servcies/aave.service";
-import { useWeb3Provider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
-import { useAave } from "../context/AaveContext";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { SymbolIcon } from "./SymbolIcon";
 import { currencyFormat } from "../utils/currency-format";
 import { ApyDetail } from "./ApyDetail";
-import { UseCrossChaineCollateralButton } from "./UseCrossChainCollateralBtn";
 import { AavePool, IAavePool } from "@/pool/Aave.pool";
 import { usePools } from "@/context/PoolContext";
 import { MarketPool } from "@/pool/Market.pool";
-import { A } from "@bgd-labs/aave-address-book/dist/AaveV2EthereumAMM-aAo4xAj8";
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
 
 interface IReserveDetailProps {
   pool: MarketPool;
@@ -75,7 +73,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
     markets,
     handleSegmentChange,
   } = props;
-  const { web3Provider, switchNetwork, currentNetwork, walletAddress } = useWeb3Provider();
+  const { web3Provider, switchNetwork, currentNetwork, walletAddress } = Store.useState(getWeb3State);
   const [present, dismiss] = useIonToast();
   const [presentAlert] = useIonAlert();
   const [presentPomptCrossModal, dismissPromptCrossModal] = useIonModal(

@@ -1,7 +1,6 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from "react";  
-import { useWeb3Provider } from "./Web3Context";
 import { MarketPool } from "@/pool/Market.pool";
 import { SolendPool } from "@/pool/solend.pool";
 // import { fetchPools, fetchPoolMetadata,  getReservesOfPool,   SOLEND_PRODUCTION_PROGRAM_ID } from "@solendprotocol/solend-sdk";
@@ -71,7 +70,6 @@ export const useSolend = () => useContext(SolendContext);
 // Provider component that wraps parts of the app that need user context.
 export const SolendProvider = ({ children }: { children: React.ReactNode }) => { 
   const [ state, setState ] = useState<SolendContextType>(SolendContextDefault);
-  const { assets, walletAddress, web3Provider } = useWeb3Provider();
 
   const init = async () => {
     const connection = new SolanaClient('https://api.devnet.solana.com', 'confirmed');
