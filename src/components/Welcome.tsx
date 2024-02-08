@@ -147,8 +147,8 @@ export function Welcome({
                   <div className="ion-padding">
                     <IonImg
                       style={{
-                        minWidth: "200px",
-                        margin: "0 2rem",
+                        minWidth: "100%",
+                        margin: "0 0.2rem",
                         borderRadius: "32px",
                         overflow: "hidden",
                         maxWidth: "fit-content",
