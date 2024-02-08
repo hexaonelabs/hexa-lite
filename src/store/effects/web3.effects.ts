@@ -13,7 +13,9 @@ export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
 
   if (magicUtils?.walletAddress) {
     console.log('[INFO] {{Web3Effect}} load balance...');
-    await magicUtils.loadBalances();
+    await magicUtils.loadBalances().catch((err) => {
+      console.error('[ERROR] {{Web3Effect}} load balance error: ', err?.message ? err.message : err);
+    });
   }
 
   const state = {
@@ -34,7 +36,9 @@ export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
       await initializeWeb3(chainId);
     },
     loadAssets: async () => {
-      await magicUtils.loadBalances();
+      await magicUtils.loadBalances().catch((err) => {
+        console.error('[ERROR] {{Web3Effect}} load balance error: ', err?.message ? err.message : err);
+      });
       setWeb3State({
         ...state,
         assets: magicUtils.assets,
