@@ -31,7 +31,7 @@ interface IPoolItemListProps {
 }
 export function PoolItemList(props: IPoolItemListProps) {
   const { poolId, iconSize, chainId, handleSegmentChange } = props;
-  const { walletAddress, assets } = Store.useState(getWeb3State);
+  const { walletAddress, assets, loadAssets } = Store.useState(getWeb3State);
   const { poolGroups, userSummaryAndIncentivesGroup } = Store.useState(getPoolsState);
   const modal = useRef<HTMLIonModalElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -234,7 +234,14 @@ export function PoolItemList(props: IPoolItemListProps) {
       >
         <ReserveDetail
           pool={pool}
-          dismiss={() => modal.current?.dismiss()}
+          dismiss={(actionType?: string) => {
+            modal.current?.dismiss();
+            // reload asset if user have trigger an action from ReserveDetails.
+            // Ex: deposit, withdraw, borrow, repay
+            if (actionType) {
+              loadAssets();
+            }
+          }}
           handleSegmentChange={handleSegmentChange}
         />
       </IonModal>
