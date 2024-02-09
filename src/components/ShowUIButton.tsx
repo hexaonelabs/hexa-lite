@@ -22,7 +22,7 @@ const ShowUIButton = () => {
       ///@ts-ignore
       // Determine if the wallet type is "magic"
       // Set 'showButton' state based on the result of the check
-      const isMagicWallet = (await magic.wallet.getInfo())?.walletType === "magic";
+      const isMagicWallet = (await magic.user.getInfo())?.walletType === "magic";
       setIsLoading(false);
       setShowButton(isMagicWallet);
     } catch (error) {
