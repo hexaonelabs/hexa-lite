@@ -2,6 +2,7 @@ import { NETWORK } from '@/constants/chains';
 import { IAsset } from '@/interfaces/asset.interface';
 import { IPoolGroup, IUserSummary } from '@/interfaces/reserve.interface';
 import { Web3ProviderType } from '@/interfaces/web3.interface';
+import { MarketPool } from '@/pool/Market.pool';
 import { Store as PullStateStore } from 'pullstate';
 
 export interface IWeb3State {
@@ -17,7 +18,7 @@ export interface IWeb3State {
 }
 
 export interface IPoolsState {
-  poolGroups: IPoolGroup[];
+  marketPools: MarketPool[];
   userSummaryAndIncentivesGroup: IUserSummary[] | null;
   totalTVL: number | null;
   refresh: (type?: "init" | "userSummary") => Promise<void>;
@@ -30,7 +31,7 @@ export interface IStore  {
 
 const defaultState: IStore = Object.freeze({
   pools: {
-    poolGroups: [],
+    marketPools:[],
     userSummaryAndIncentivesGroup: null,
     totalTVL: null,
     refresh: async (type = "init") => {

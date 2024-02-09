@@ -15,11 +15,7 @@ import { PoolItemList } from "./PoolItemList";
 import { IPoolGroup } from "../interfaces/reserve.interface";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import Store from "@/store";
-import { getPoolsState, getWeb3State } from "@/store/selectors";
-import {
-  getPoolSupplyAndBorrowBallance,
-  getPoolWalletBalance,
-} from "@/utils/getPoolWalletBalance";
+import { getWeb3State } from "@/store/selectors";
 
 interface IPoolAccordionProps {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
@@ -28,35 +24,11 @@ interface IPoolAccordionProps {
 
 export function PoolAccordionGroup(props: IPoolAccordionProps) {
   const { poolGroup, handleSegmentChange } = props;
-  const { walletAddress, assets } = Store.useState(getWeb3State);
-  const { userSummaryAndIncentivesGroup } = Store.useState(getPoolsState);
-  const balance = poolGroup.pools
-    .map((p) => getPoolWalletBalance(p, assets))
-    .reduce((a, b) => a + b, 0)
-    .toFixed(6);
-  const walletBalance = Number(balance) > 0 ? balance : "0";
-  const { 
-    borrowBalance: totalBorrowBalance, 
-    supplyBalance: totalSupplyBalance 
-  } = poolGroup.pools
-    ?.map((p) => {
-      return getPoolSupplyAndBorrowBallance(
-        p,
-        userSummaryAndIncentivesGroup || []
-      );
-    })
-    .reduce(
-      (prev, current) => {
-        return {
-          borrowBalance: prev.borrowBalance + current.borrowBalance,
-          supplyBalance: prev.supplyBalance + current.supplyBalance,
-        };
-      },
-      {
-        borrowBalance: 0,
-        supplyBalance: 0,
-      }
-    );
+  const totalWalletBalance =
+    poolGroup.totalWalletBalance > 0
+      ? poolGroup.totalWalletBalance.toFixed(6)
+      : "0";
+  const { walletAddress } = Store.useState(getWeb3State);
   return (
     <IonAccordion>
       <IonItem slot="header">
@@ -91,7 +63,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                   {walletAddress && (
                     <IonText color="dark">
                       <br />
-                      <small>Wallet balance: {walletBalance}</small>
+                      <small>Wallet balance: {totalWalletBalance}</small>
                     </IonText>
                   )}
                 </p>
@@ -119,14 +91,14 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
             </IonCol>
             <IonCol size="2" class="ion-text-end ion-hide-md-down">
               <IonLabel>
-                {totalSupplyBalance > 0
-                  ? totalSupplyBalance.toFixed(6)
+                {poolGroup.totalSupplyBalance > 0
+                  ? poolGroup.totalSupplyBalance.toFixed(6)
                   : "0.00"}
                 <br />
                 <IonText color="medium">
                   <small>
                     {getReadableAmount(
-                      totalSupplyBalance,
+                      poolGroup.totalSupplyBalance,
                       Number(poolGroup.pools?.[0]?.priceInUSD),
                       "No deposit"
                     )}
@@ -136,8 +108,8 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
             </IonCol>
             <IonCol size="2" class="ion-text-end ion-hide-md-down">
               <IonLabel>
-                {totalBorrowBalance > 0
-                  ? totalBorrowBalance.toFixed(6)
+                {poolGroup.totalBorrowBalance > 0
+                  ? poolGroup.totalBorrowBalance.toFixed(6)
                   : poolGroup?.borrowingEnabled === false
                   ? "-"
                   : "0.00"}
@@ -146,7 +118,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                     <br />
                     <small>
                       {getReadableAmount(
-                        totalBorrowBalance,
+                        poolGroup.totalBorrowBalance,
                         Number(poolGroup.pools?.[0]?.priceInUSD),
                         "No debit"
                       )}
@@ -239,9 +211,19 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
             {/* <IonCol size="1" className="ion-text-end"></IonCol> */}
           </IonRow>
         </IonGrid>
-        {poolGroup.pools.map((p, i) => (
+        {poolGroup.pools.sort((a, b) => {
+          if (a.supplyBalance > b.supplyBalance) return -1;
+          if (a.supplyBalance < b.supplyBalance) return 1;
+          if (a.borrowBalance > b.borrowBalance) return -1;
+          if (a.borrowBalance < b.borrowBalance) return 1;
+          if (a.walletBalance > b.walletBalance) return -1;
+          if (a.walletBalance < b.walletBalance) return 1;
+          if (a.supplyAPY > b.supplyAPY) return -1;
+          if (a.supplyAPY < b.supplyAPY) return 1;
+          return a.symbol > b.symbol ? 1 : -1;
+        }).map((p) => (
           <PoolItemList
-            key={i}
+            key={p.id}
             poolId={p.id}
             chainId={p.chainId}
             iconSize={"32px"}

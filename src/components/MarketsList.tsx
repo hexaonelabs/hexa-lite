@@ -16,9 +16,9 @@ import { PoolHeaderList } from "./PoolHeaderList";
 import { PoolAccordionGroup } from "./PoolAccordionGroup";
 import { useState } from "react";
 import { CHAIN_AVAILABLES } from "../constants/chains";
-import { IPoolGroup, IReserve } from "../interfaces/reserve.interface";
+import { IPoolGroup } from "../interfaces/reserve.interface";
 import Store from "@/store";
-import { getPoolsState, getWeb3State } from "@/store/selectors";
+import { getTotalTVLState, getWeb3State, getPoolGroupsState } from "@/store/selectors";
 import { getPoolWalletBalance } from "@/utils/getPoolWalletBalance";
 
 export function MarketList(props: {
@@ -28,7 +28,8 @@ export function MarketList(props: {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
   const { handleSegmentChange, filterBy: filterFromParent } = props;
-  const { poolGroups, totalTVL } = Store.useState(getPoolsState);
+  const totalTVL  = Store.useState(getTotalTVLState);
+  const poolGroups = Store.useState(getPoolGroupsState);
   const { assets } = Store.useState(getWeb3State);
   const [filterBy, setFilterBy] = useState<{
     [key: string]: string;

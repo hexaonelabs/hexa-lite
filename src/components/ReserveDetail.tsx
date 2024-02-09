@@ -63,8 +63,9 @@ import { AavePool, IAavePool } from "@/pool/Aave.pool";
 import { MarketPool } from "@/pool/Market.pool";
 import Store from "@/store";
 import {
-  getPoolsState,
+  getPoolGroupsState,
   getProtocolSummaryState,
+  getUserSummaryAndIncentivesGroupState,
   getWeb3State,
 } from "@/store/selectors";
 import {
@@ -99,7 +100,8 @@ export function ReserveDetail(props: IReserveDetailProps) {
       }
     | undefined
   >(undefined);
-  const { poolGroups, userSummaryAndIncentivesGroup } = Store.useState(getPoolsState);
+  const poolGroups = Store.useState(getPoolGroupsState);
+  const userSummaryAndIncentivesGroup = Store.useState(getUserSummaryAndIncentivesGroupState);
   const [present, dismiss] = useIonToast();
   const [presentAlert] = useIonAlert();
   const [presentSuccess, dismissSuccess] = useIonModal(
@@ -948,7 +950,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                 console.log("[ERROR] ReserveDetail - onDismiss: ", error);
                 // display toast
                 present({
-                  message: `${error}`,
+                  message: error?.message ? `${error.message}` : `${error}`,
                   color: "danger",
                   duration: 5000,
                   buttons: [

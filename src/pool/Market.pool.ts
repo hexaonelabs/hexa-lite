@@ -31,12 +31,13 @@ export abstract class MarketPool implements IMarketPool {
 
   readonly provider: string;
   readonly chainId: number;
-  readonly walletBalance: number;
-  readonly supplyBalance: number;
-  readonly borrowBalance: number;
   readonly userLiquidationThreshold: number;
   readonly poolLiquidationThreshold: number;
   readonly logo?: string;
+  
+  public walletBalance: number;
+  public supplyBalance: number;
+  public borrowBalance: number;
 
 
   public abstract deposit(amount: number, provider: Web3ProviderType): Promise<void>;

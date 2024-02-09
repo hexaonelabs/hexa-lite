@@ -48,6 +48,7 @@ export interface IReserve extends ReserveDataHumanized, FormatReserveUSDResponse
 }
 
 export interface IPoolGroup {
+      id: string;
       symbol: string;
       name: string;
       topSupplyApy: number;

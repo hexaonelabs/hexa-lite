@@ -20,8 +20,7 @@ import { ReserveDetail } from "./ReserveDetail";
 import { useMemo, useRef, useState } from "react";
 import { SymbolIcon } from "./SymbolIcon";
 import Store from "@/store";
-import { getPoolsState, getWeb3State } from "@/store/selectors";
-import { getPoolSupplyAndBorrowBallance, getPoolWalletBalance } from "@/utils/getPoolWalletBalance";
+import { getWeb3State, getPoolGroupsState } from "@/store/selectors";
 
 interface IPoolItemListProps {
   poolId: string;
@@ -31,8 +30,8 @@ interface IPoolItemListProps {
 }
 export function PoolItemList(props: IPoolItemListProps) {
   const { poolId, iconSize, chainId, handleSegmentChange } = props;
-  const { walletAddress, assets, loadAssets } = Store.useState(getWeb3State);
-  const { poolGroups, userSummaryAndIncentivesGroup } = Store.useState(getPoolsState);
+  const { walletAddress, loadAssets } = Store.useState(getWeb3State);
+  const poolGroups  = Store.useState(getPoolGroupsState);
   const modal = useRef<HTMLIonModalElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   // find pool in `poolGroups[*].pool` by `poolId`
@@ -41,9 +40,8 @@ export function PoolItemList(props: IPoolItemListProps) {
       ?.pools.find((p) => p.id === poolId);
   if (!pool) throw new Error(`[ERROR] Pool not found: ${poolId}`);
 
-  const balance = getPoolWalletBalance(pool, assets).toFixed(6);
-  const walletBalance = Number(balance) > 0 ? balance : "0";
-  const { borrowBalance, supplyBalance } = getPoolSupplyAndBorrowBallance(pool, userSummaryAndIncentivesGroup||[])
+  const walletBalance = pool.walletBalance > 0 ? pool.walletBalance.toFixed(6) : "0";
+  const { borrowBalance, supplyBalance } = pool;
   const LogoProviderImage = (props: { provider: string }) => {
     const { provider } = props;
     let url = "./assets/icons/aave.svg";

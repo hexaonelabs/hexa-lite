@@ -26,7 +26,7 @@ import { valueToBigNumber } from "@aave/math-utils";
 import { AavePool } from "@/pool/Aave.pool";
 import { getReadableValue } from "@/utils/getReadableValue";
 import Store from "@/store";
-import { getPoolsState, getProtocolSummaryState, getWeb3State } from "@/store/selectors";
+import { getPoolGroupsState, getProtocolSummaryState, getTotalTVLState, getUserSummaryAndIncentivesGroupState, getWeb3State } from "@/store/selectors";
 import { initializePools, initializeUserSummary } from "@/store/effects/pools.effect";
 import { patchPoolsState } from "@/store/actions";
 
@@ -41,11 +41,9 @@ export const DefiContainer = ({
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) => {
   const { walletAddress } = Store.useState(getWeb3State);
-  const { 
-    poolGroups, 
-    totalTVL, 
-    userSummaryAndIncentivesGroup,
-  } = Store.useState(getPoolsState);
+  const userSummaryAndIncentivesGroup = Store.useState(getUserSummaryAndIncentivesGroupState);
+  const totalTVL = Store.useState(getTotalTVLState);
+  const poolGroups = Store.useState(getPoolGroupsState);
   const protocolSummary = Store.useState(getProtocolSummaryState);
   const [filterBy, setFilterBy] = useState<{ [key: string]: string } | null>(
     null
