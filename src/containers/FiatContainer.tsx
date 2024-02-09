@@ -147,13 +147,13 @@ export function FiatContainer() {
 
   useEffect(() => {
     // check if have disabled open modal
-    const modalDisabled = localStorage.getItem(STORAGE_KEY);
-    if (modalDisabled) {
-      return;
-    }
-    present({
-      cssClass: "modalAlert autoSize",
-    });
+    // const modalDisabled = localStorage.getItem(STORAGE_KEY);
+    // if (modalDisabled) {
+    //   return;
+    // }
+    // present({
+    //   cssClass: "modalAlert autoSize",
+    // });
   }, []);
 
   return (
@@ -184,7 +184,7 @@ export function FiatContainer() {
               textAlign: "center",
             }}
           >
-            <iframe
+            {/* <iframe
               style={{
                 maxWidth: "90vw",
                 border: "solid 1px rgba(var(--ion-color-primary-rgb), 0.4)",
@@ -197,7 +197,30 @@ export function FiatContainer() {
               height="630px"
               width="450px"
               allow="payment"
-            />
+            /> */}
+            {/* <iframe 
+              style={{
+                maxWidth: "90vw",
+                border: "solid 1px rgba(var(--ion-color-primary-rgb), 0.4)",
+                borderRadius: "32px",
+                overflow: "hidden",
+                display: "inline-block",
+              }}
+              allow="usb; ethereum; clipboard-write" 
+              loading="lazy" 
+              src="https://widget.mtpelerin.com/?lang=en&_ctkn=954139b2-ef3e-4914-82ea-33192d3f43d3" 
+              title="Mt Pelerin exchange widget" /> */}
+              <div className="widgetWrapper ion-padding"               
+              style={{
+                maxWidth: "90vw",
+                display: "inline-block",
+              }}>
+                <IonText>
+                  <p className="ion-padding">
+                    Momentarily unavailable, please try again later
+                  </p>
+                </IonText>
+              </div>
           </div>
         </IonCol>
       </IonRow>
