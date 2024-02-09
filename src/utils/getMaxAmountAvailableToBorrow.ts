@@ -1,15 +1,26 @@
-import { InterestRate } from '@aave/contract-helpers';
-import { FormatUserSummaryAndIncentivesResponse, valueToBigNumber } from '@aave/math-utils';
+import { InterestRate, ReserveDataHumanized } from '@aave/contract-helpers';
+import { FormatUserSummaryAndIncentivesResponse, valueToBigNumber, formatReservesAndIncentives } from '@aave/math-utils';
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
-
-// import {
-//   ComputedReserveData,
-//   ExtendedFormattedUser,
-// } from '../hooks/app-data-provider/useAppDataProvider';
 import { roundToTokenDecimals } from './utils';
-import { ComputedReserveData } from '../context/AaveContext';
-import { ExtendedFormattedUser } from '../context/AaveContext';
+
+export type ComputedReserveData = ReturnType<
+  typeof formatReservesAndIncentives
+>[0] &
+  ReserveDataHumanized & {
+    iconSymbol: string;
+    isEmodeEnabled: boolean;
+    isWrappedBaseAsset: boolean;
+  };
+
+export type ExtendedFormattedUser =
+  FormatUserSummaryAndIncentivesResponse<ComputedReserveData> & {
+    earnedAPY: number;
+    debtAPY: number;
+    netAPY: number;
+    isInEmode: boolean;
+    userEmodeCategoryId: number;
+  };
 
 // Subset of ComputedReserveData
 interface PoolReserveBorrowSubset {
