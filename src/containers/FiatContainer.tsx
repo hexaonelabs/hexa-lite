@@ -217,7 +217,7 @@ export function FiatContainer() {
               }}>
                 <IonText>
                   <p className="ion-padding">
-                    Momentarily unavailable, please try again later
+                    Temporarily unavailable, please try again later
                   </p>
                 </IonText>
               </div>
