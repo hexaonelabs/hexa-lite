@@ -3,6 +3,8 @@ import {
   IonCol,
   IonGrid,
   IonImg,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonInput,
   IonRow,
   IonSearchbar,
@@ -31,6 +33,7 @@ export function MarketList(props: {
   const totalTVL  = Store.useState(getTotalTVLState);
   const poolGroups = Store.useState(getPoolGroupsState);
   const { assets } = Store.useState(getWeb3State);
+  const [maxItemCount, setMaxItemCount] = useState(10);
   const [filterBy, setFilterBy] = useState<{
     [key: string]: string;
   }|null>(
@@ -80,31 +83,21 @@ export function MarketList(props: {
       };
       return poolGroup;
     })
-    .filter((group) => group.pools.length > 0);
-
-  const LogoProviderImage = (props: { provider: string }) => {
-      const { provider } = props;
-      let url = "./assets/icons/aave.svg";
-      switch (true) {
-        case provider.includes("aave"):
-          break;
-        case provider.includes("solend"):
-          url = "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/SLNDpmoWTVADgEdndyvWzroNL7zSi1dF9PC3xHGtPwp/logo.png";
-          break;
+    .filter((group) => group.pools.length > 0)
+    .sort((a: any, b: any) => {
+      // use state to sort
+      if (sortBy) {
+        const [key, order] = Object.entries(sortBy)[0];
+        if (order === "asc") {
+          return a[key] > b[key] ? 1 : -1;
+        }
+        return a[key] < b[key] ? 1 : -1;
       }
-      return (
-        <IonImg
-          style={{
-            width: "18px",
-            heigth: "18px",
-            position: "absolute",
-            right: "0",
-            borderRadius: '50%',
-            overflow: 'hidden'
-          }}
-          src={url} />
-      );
-    };
+      // default do not sort
+      return 0;
+    })
+    .slice(0, maxItemCount);
+
   const Spinner = poolGroups.length <= 0 && (!totalTVL) ? (
     <IonGrid class="ion-padding">
       <IonRow class="ion-padding">
@@ -268,21 +261,7 @@ export function MarketList(props: {
             }}
           />
           <IonAccordionGroup>
-            {groups
-            .sort((a: any, b: any) => {
-              // use state to sort
-              if (sortBy) {
-                const [key, order] = Object.entries(sortBy)[0];
-                if (order === "asc") {
-                  return a[key] > b[key] ? 1 : -1;
-                }
-                return a[key] < b[key] ? 1 : -1;
-              }
-              // default do not sort
-              return 0;
-              
-            })
-            .map((poolGroup, index) => (
+            {groups.map((poolGroup, index) => (
               <PoolAccordionGroup
                 key={index}
                 poolGroup={poolGroup}
@@ -290,6 +269,20 @@ export function MarketList(props: {
               />
             ))}
           </IonAccordionGroup>
+          <IonInfiniteScroll
+            threshold="25%"
+            onIonInfinite={(ev) => {
+              if (maxItemCount >= poolGroups.length) {
+                ev.target.disabled = true;
+                ev.target.complete();
+                return;
+              }
+              setMaxItemCount((s) => s + 10);
+              setTimeout(() => ev.target.complete(), 150);
+            }}
+          >
+            <IonInfiniteScrollContent></IonInfiniteScrollContent>
+          </IonInfiniteScroll>
         </>
       )}
       {Spinner}
