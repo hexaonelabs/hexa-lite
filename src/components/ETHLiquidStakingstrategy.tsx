@@ -12,34 +12,28 @@ import {
   IonRow,
   IonSegment,
   IonSegmentButton,
-  IonSkeletonText,
-  IonSpinner,
   IonText,
   useIonToast,
 } from "@ionic/react";
 import { ethers } from "ethers";
 import {
-  informationCircleOutline,
   closeSharp,
-  openOutline,
-  warningOutline,
-  helpOutline,
 } from "ionicons/icons";
-import ConnectButton from "./ConnectButton";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { getBaseAPRstETH, getETHByWstETH } from "../servcies/lido.service";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
-import { useWeb3Provider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
 import { CHAIN_AVAILABLES, NETWORK } from "../constants/chains";
 import { HowItWork } from "./HowItWork";
 import { ApyDetail } from "./ApyDetail";
-import { HiddenUI, RouteExecutionUpdate, WidgetConfig, WidgetEvent, useWidgetEvents } from "@lifi/widget";
+import { HiddenUI, WidgetConfig, WidgetEvent, useWidgetEvents } from "@lifi/widget";
 import { LIFI_CONFIG } from '../servcies/lifi.service';
 import { LiFiWidgetDynamic } from "../components/LiFiWidgetDynamic";
 import type { Route } from '@lifi/sdk';
 import { PointsData, addAddressPoints } from "@/servcies/datas.service";
+import { getWeb3State } from "@/store/selectors";
+import Store from "@/store";
 
 export interface IStrategyModalProps {
   dismiss?: (
@@ -48,8 +42,14 @@ export interface IStrategyModalProps {
   ) => Promise<boolean> | undefined;
 }
 
-export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
-  const { web3Provider, switchNetwork, connectWallet, disconnectWallet, currentNetwork } = useWeb3Provider();
+export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {  
+  const {
+    currentNetwork,
+    web3Provider,
+    switchNetwork,
+    connectWallet,
+    disconnectWallet,
+  } = Store.useState(getWeb3State);
   const [baseAPRstETH, setBaseAPRstETH] = useState(-1);
   const [wstToEthAmount, setWstToEthAmount] = useState(-1);
   const [action, setAction] = useState<"stake" | "unstake">("stake");

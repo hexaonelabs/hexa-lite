@@ -8,8 +8,6 @@ import {
   WalletBalanceProvider,
 } from "@aave/contract-helpers";
 import { ethers } from "ethers";
-import { splitSignature } from "ethers/lib/utils";
-import lendingPoolABI from "../abi/aavePool.abi.json";
 import * as MARKETS from "@bgd-labs/aave-address-book";
 import {
   FormatReserveUSDResponse,
@@ -19,7 +17,7 @@ import {
 } from "@aave/math-utils";
 import { ChainId } from "@aave/contract-helpers";
 import { CHAIN_AVAILABLES } from "../constants/chains";
-import { IReserve, IUserSummary } from "../interfaces/reserve.interface";
+import { IUserSummary } from "../interfaces/reserve.interface";
 import { IAavePool } from "@/pool/Aave.pool";
 
 const submitTransaction = async (ops: {
@@ -72,13 +70,13 @@ export const fetchTVL = async (reserves: {totalLiquidityUSD: string;}[]): Promis
 
 export const supply = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: IAavePool;
+  reserve: Pick<IAavePool, 'underlyingAsset'>;
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
   gatewayAddress: string;
 }) => {
-  const { provider, reserve, amount, onBehalfOf, poolAddress, gatewayAddress } =
+  const { provider, reserve: {underlyingAsset}, amount, onBehalfOf, poolAddress, gatewayAddress } =
     ops;
   const pool = new Pool(provider, {
     POOL: poolAddress,
@@ -86,12 +84,11 @@ export const supply = async (ops: {
   });
   const signer = provider.getSigner();
   const user = await signer?.getAddress();
-  const tokenAdress = reserve.underlyingAsset;
   let txs: EthereumTransactionTypeExtended[];
   try {
     txs = await pool.supply({
       user,
-      reserve: tokenAdress,
+      reserve: underlyingAsset,
       amount,
       onBehalfOf,
     });
@@ -112,7 +109,7 @@ export const supply = async (ops: {
 
 export const supplyWithPermit = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: IAavePool;
+  reserve: Pick<IAavePool, 'chainId' | 'underlyingAsset' | 'aTokenAddress'>;
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -224,7 +221,7 @@ export const withdraw = async (ops: {
 
 export const borrow = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: {underlyingAsset: string;};
+  reserve:Pick<IAavePool, 'underlyingAsset'>;
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -264,7 +261,7 @@ export const borrow = async (ops: {
 
 export const repay = async (ops: {
   provider: ethers.providers.Web3Provider;
-  reserve: {underlyingAsset: string;};
+  reserve: Pick<IAavePool, 'underlyingAsset'>;
   amount: string;
   onBehalfOf?: string;
   poolAddress: string;
@@ -598,98 +595,6 @@ export const getUserSummaryAndIncentives = async (ops: {
     ),
     chainId: ops.market.CHAIN_ID,
   };
-};
-
-// deprecated
-export const supplyWithPermitAndContract = async (ops: {
-  provider: ethers.providers.Web3Provider;
-  reserve: ReserveDataHumanized;
-  amount: string;
-  onBehalfOf?: string;
-  poolAddress: string;
-  gatewayAddress: string;
-}) => {
-  // display deprecated warning
-  console.warn(
-    "supplyWithPermitAndContract is deprecated, use supplyWithPermit instead"
-  );
-  const { provider, reserve, amount, onBehalfOf, poolAddress, gatewayAddress } =
-    ops;
-
-  const pool = new Pool(provider, {
-    POOL: poolAddress,
-    WETH_GATEWAY: gatewayAddress,
-  });
-
-  const signer = provider.getSigner();
-  const currentAccount = await signer?.getAddress();
-  const tokenAdress = reserve.underlyingAsset;
-  const deadline = `${Date.now() + 3600}`;
-  let dataToSign = undefined;
-  let signature = undefined;
-  console.log(`sign: `, {
-    currentAccount,
-    tokenAdress,
-    deadline,
-  });
-
-  // const lendingPoolABI = await fetch('/assets/abi/aavePool.abi.json').then((res) => res.json());
-
-  //Contracts
-  const poolContract = new ethers.Contract(poolAddress, lendingPoolABI, signer);
-
-  // request signature
-  try {
-    const param = {
-      user: currentAccount,
-      reserve: tokenAdress,
-      amount, // use simple amount, withouth decimals formating
-      deadline,
-    };
-    console.log("param: ", param);
-
-    dataToSign = await pool.signERC20Approval(param);
-  } catch (error) {
-    throw new Error("unable to sign");
-  }
-  console.log("dataToSign: ", { dataToSign, pool });
-
-  if (dataToSign.length > 0) {
-    try {
-      signature = await provider.send("eth_signTypedData_v4", [
-        currentAccount,
-        dataToSign,
-      ]);
-    } catch (error) {
-      console.log("error: ", error);
-    }
-  }
-
-  console.log("signature: ", signature);
-
-  // formmating signature
-  const sig = splitSignature(signature);
-  console.log("sig: ", sig);
-
-  // call supplyWithPermit
-  const supplyTx = await poolContract.functions["supplyWithPermit"](
-    tokenAdress,
-    `${+amount * Math.pow(10, reserve.decimals)}`,
-    onBehalfOf || currentAccount,
-    "0",
-    deadline,
-    sig.v,
-    sig.r,
-    sig.s
-  );
-  console.log("supplyTx: ", supplyTx);
-  try {
-    console.log(`Transaction mined succesfully: ${supplyTx.hash}`);
-    return await supplyTx.wait();
-  } catch (error) {
-    console.log(`Transaction failed with error: ${error}`);
-    throw new Error("Transaction failed");
-  }
 };
 
 export type MARKETTYPE =

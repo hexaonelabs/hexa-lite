@@ -1,20 +1,15 @@
 import {
   IonButton,
-  IonChip,
   IonCol,
   IonGrid,
   IonHeader,
   IonIcon,
   IonImg,
-  IonLabel,
-  IonListHeader,
   IonMenuToggle,
   IonPopover,
   IonRow,
   IonSegment,
   IonSegmentButton,
-  IonSkeletonText,
-  IonSpinner,
   IonText,
   IonToolbar,
 } from "@ionic/react";
@@ -26,11 +21,11 @@ import {
 import { AuthBadge } from "./AuthBadge";
 import ConnectButton from "./ConnectButton";
 import { useEffect, useState } from "react";
-import { useWeb3Provider } from "../context/Web3Context";
-import { getReadableValue } from "@/utils/getReadableValue";
 import { getAddressPoints } from "@/servcies/datas.service";
 import { PointsPopover } from "./PointsPopover";
 import { useRef } from "react";
+import { getWeb3State } from "@/store/selectors";
+import Store from "@/store";
 
 const styleLogo = {
   // margin: '15px auto 20px',
@@ -62,7 +57,7 @@ export function Header({
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
   // define states
-  const { walletAddress } = useWeb3Provider();
+  const { walletAddress } = Store.useState(getWeb3State);
   const [points, setPoints] = useState<string | null>(null);
   const [isPointsPopoverOpen, setIsPointsPopoverOpen] = useState(false);
   const pointsPopoverRef = useRef<HTMLIonPopoverElement>(null);
@@ -98,7 +93,6 @@ export function Header({
                       style={styleLogo}
                       src={"./assets/images/logo.svg"}
                     ></IonImg>
-                    {/* <IonChip style={styleChip}>beta</IonChip> */}
                   </div>
                 </IonCol>
                 <IonCol
@@ -177,9 +171,9 @@ export function Header({
                             setIsPointsPopoverOpen(false);
                           }}
                           onWillPresent={async () => {
-                            const response =
-                              await getAddressPoints(walletAddress)
-                              .catch((error) => {});
+                            const response = await getAddressPoints(
+                              walletAddress
+                            ).catch((error) => {});
                             console.log("response", response);
                             if (response?.data?.totalPoints) {
                               setPoints(() => response.data.totalPoints);
@@ -188,7 +182,10 @@ export function Header({
                             }
                           }}
                         >
-                          <PointsPopover points={points} closePopover={() => setIsPointsPopoverOpen(false)} />
+                          <PointsPopover
+                            points={points}
+                            closePopover={() => setIsPointsPopoverOpen(false)}
+                          />
                         </IonPopover>
                       </div>
                     </>

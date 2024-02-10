@@ -1,43 +1,34 @@
+import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "@/constants/chains";
+import { useLoader } from "@/context/LoaderContext";
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
 import {
   IonAvatar,
-  IonButton,
-  IonCol,
-  IonContent,
-  IonGrid,
   IonIcon,
   IonItem,
   IonLabel,
-  IonList,
   IonListHeader,
-  IonRow,
-  IonSelect,
-  IonSelectOption,
+  IonSpinner,
   IonText,
-  useIonAlert,
-  useIonModal,
-  useIonToast,
+  useIonModal
 } from "@ionic/react";
 import {
-  copyOutline,
-  checkmark,
   checkmarkCircle,
-  closeSharp,
+  copyOutline,
 } from "ionicons/icons";
-import { useEffect, useState } from "react";
-import { getAvatarFromEVMAddress } from "../servcies/avatar";
-import { getSplitedAddress } from "../utils/getSplitedAddress";
 import DisconnectButton from "./DisconnectButton";
-import ShowUIButton from "./ShowUIButton";
-import { useWeb3Provider } from "../context/Web3Context";
-import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "@/constants/chains";
-import { SuccessCopyAddress } from "./SuccessCopyAddress";
-import { LoaderProvider, useLoader } from "@/context/LoaderContext";
 import { SelectNetwork } from "./SelectNetwork";
+import ShowUIButton from "./ShowUIButton";
+import { SuccessCopyAddress } from "./SuccessCopyAddress";
 
 export const AuthBadge: React.FC<any> = () => {
-  const { walletAddress, currentNetwork, switchNetwork, isMagicWallet } = useWeb3Provider();
+  const {
+    walletAddress,
+    currentNetwork,
+    isMagicWallet,
+    switchNetwork,
+  } = Store.useState(getWeb3State);
   const { display: displayLoader, hide: hidLoader } = useLoader();
-  const [avatarUrl, setAvatarUrl] = useState("");
   const chain =
     CHAIN_AVAILABLES.find((chain) => chain.id === currentNetwork) ||
     CHAIN_DEFAULT;
@@ -51,7 +42,11 @@ export const AuthBadge: React.FC<any> = () => {
     )
   );
   const [presentSelectNetwork, dismissSelectNetwork] = useIonModal(() => (
-    <SelectNetwork chains={CHAIN_AVAILABLES} isMagicWallet={isMagicWallet} dismiss={dismissSelectNetwork} />
+    <SelectNetwork
+      chains={CHAIN_AVAILABLES}
+      isMagicWallet={isMagicWallet}
+      dismiss={dismissSelectNetwork}
+    />
   ));
 
   const handleActions = async (type: string, payload: string) => {
@@ -64,7 +59,7 @@ export const AuthBadge: React.FC<any> = () => {
           cssClass: "modalAlert",
           onDidDismiss(event) {
             console.log("onDidDismiss", event.detail.role);
-            if (!event.detail.role || event?.detail?.role === 'cancel') return;
+            if (!event.detail.role || event?.detail?.role === "cancel") return;
             handleActions(event.detail.role, payload);
           },
         });
@@ -74,7 +69,7 @@ export const AuthBadge: React.FC<any> = () => {
         presentSelectNetwork({
           cssClass: "modalAlert",
           onDidDismiss(event) {
-            if (!event.detail.role || event?.detail?.role === 'cancel') return;
+            if (!event.detail.role || event?.detail?.role === "cancel") return;
             handleActions(event.detail.role, event.detail.data).then(() =>
               hidLoader()
             );
@@ -94,23 +89,9 @@ export const AuthBadge: React.FC<any> = () => {
     await hidLoader();
   };
 
-  useEffect(() => {
-    const getAvatar = async () => {
-      if (!walletAddress) return;
-      try {
-        // If account and web3 are available, get the balance
-        const avatarUrl = await getAvatarFromEVMAddress(walletAddress);
-        // Convert the balance from Wei to Ether and set the state variable
-        setAvatarUrl(avatarUrl);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    getAvatar();
-  }, [walletAddress]);
-
-  if (!walletAddress) return <></>;
+  if (!walletAddress) return (<>
+    <IonSpinner />
+  </>);
 
   return (
     <>
@@ -130,10 +111,14 @@ export const AuthBadge: React.FC<any> = () => {
           <IonText color="medium" style={{ display: "block" }}>
             <small>{chain.name} Network</small>
           </IonText>
-          <IonText color="success" style={{ 
-            display: "flex", 
-            alignItems: 'center',
-            padding: '0.15rem 0' }}>
+          <IonText
+            color="success"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              padding: "0.15rem 0",
+            }}
+          >
             <IonIcon
               style={{
                 display: "inline-block",
@@ -146,7 +131,7 @@ export const AuthBadge: React.FC<any> = () => {
         </IonLabel>
         <IonIcon
           size="small"
-          onClick={() => handleActions("copy", walletAddress)}
+          onClick={() => handleActions("copy", walletAddress || "")}
           slot="end"
           icon={copyOutline}
           style={{ cursor: "pointer" }}

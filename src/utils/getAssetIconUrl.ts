@@ -103,5 +103,8 @@ export const getAssetIconUrl = ({ symbol }: { symbol: string }) => {
   if (symbol === "Cake") {
     logoUrl = `./assets/icons/cake.svg`;
   }
+  if (symbol === "FDUSD") {
+    logoUrl = `./assets/icons/fdusd.png`;
+  }
   return logoUrl;
 };

@@ -37,7 +37,12 @@ import { valueToBigNumber } from "@aave/math-utils";
 import ConnectButton from "./ConnectButton";
 import { LoanFormModal } from "./LoanFormModal";
 import { useMemo, useRef, useState } from "react";
-import { closeOutline, warningOutline, closeSharp } from "ionicons/icons";
+import {
+  closeOutline,
+  warningOutline,
+  closeSharp,
+  checkmarkCircleOutline,
+} from "ionicons/icons";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { WarningBox } from "./WarningBox";
 import { getPercent } from "../utils/utils";
@@ -49,32 +54,76 @@ import {
   supplyWithPermit,
   withdraw,
 } from "../servcies/aave.service";
-import { useWeb3Provider } from "../context/Web3Context";
 import { useLoader } from "../context/LoaderContext";
-import { useAave } from "../context/AaveContext";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { SymbolIcon } from "./SymbolIcon";
 import { currencyFormat } from "../utils/currency-format";
 import { ApyDetail } from "./ApyDetail";
-import { UseCrossChaineCollateralButton } from "./UseCrossChainCollateralBtn";
-import { IAavePool } from "@/pool/Aave.pool";
+import { AavePool, IAavePool } from "@/pool/Aave.pool";
+import { MarketPool } from "@/pool/Market.pool";
+import Store from "@/store";
+import {
+  getPoolGroupsState,
+  getProtocolSummaryState,
+  getUserSummaryAndIncentivesGroupState,
+  getWeb3State,
+} from "@/store/selectors";
+import {
+  getPoolSupplyAndBorrowBallance,
+  getPoolWalletBalance,
+} from "@/utils/getPoolWalletBalance";
+import { initializeUserSummary } from "@/store/effects/pools.effect";
+import { ModalMessage } from "./ModalMessage";
 
 interface IReserveDetailProps {
-  pool: IMarketPool;
-  markets: MARKETTYPE | undefined;
-  dismiss: () => void;
+  pool: MarketPool;
+  dismiss: (actionType?: string) => void;
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }
 
 export function ReserveDetail(props: IReserveDetailProps) {
   const {
     pool: { id, chainId },
-    markets,
     handleSegmentChange,
   } = props;
-  const { web3Provider, switchNetwork, currentNetwork, walletAddress } = useWeb3Provider();
+  const {
+    web3Provider,
+    currentNetwork,
+    walletAddress,
+    assets,
+    switchNetwork,
+    loadAssets,
+  } = Store.useState(getWeb3State);
+  const [state, setState] = useState<
+    | {
+        actionType: ReserveDetailActionType;
+      }
+    | undefined
+  >(undefined);
+  const poolGroups = Store.useState(getPoolGroupsState);
+  const userSummaryAndIncentivesGroup = Store.useState(getUserSummaryAndIncentivesGroupState);
   const [present, dismiss] = useIonToast();
   const [presentAlert] = useIonAlert();
+  const [presentSuccess, dismissSuccess] = useIonModal(
+    () => (
+      <ModalMessage dismiss={dismissSuccess}>
+        <IonText>
+          <IonIcon
+            color="success"
+            style={{
+              display: "block",
+              fontSize: "5rem",
+              margin: "1rem auto",
+            }}
+            src={checkmarkCircleOutline}
+          />
+          <h3 className="ion-margin-vertical">
+            {state?.actionType.toLocaleUpperCase()} with Success!
+          </h3>
+        </IonText>
+      </ModalMessage>
+    )
+  );
   const [presentPomptCrossModal, dismissPromptCrossModal] = useIonModal(
     <>
       <IonGrid className="ion-no-padding">
@@ -124,51 +173,39 @@ export function ReserveDetail(props: IReserveDetailProps) {
     </>
   );
   const { display: displayLoader, hide: hideLoader } = useLoader();
-  const [state, setState] = useState<
-    | {
-        actionType: ReserveDetailActionType;
-      }
-    | undefined
-  >(undefined);
-  const { refresh, poolGroups, userSummaryAndIncentivesGroup } = useAave();
   const modal = useRef<HTMLIonModalElement>(null);
   const [isCrossChain, setIsCrossChain] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOptionsOpen, setIsModalOptionsOpen] = useState(false);
 
   // find pool in `poolGroups[*].pool` by `poolId`
-  const poolGroup = poolGroups
-    .find(({pools}) => pools.find((p) => p.id === id));
+  const poolGroup = poolGroups.find(({ pools }) =>
+    pools.find((p) => p.id === id)
+  );
   if (!poolGroup) {
     throw new Error("No poolGroup found");
   }
-  
-  const userSummary = userSummaryAndIncentivesGroup?.find(
-    group => group.userReservesData.find(({reserve}) => reserve.id === id)
+
+  const userSummary = userSummaryAndIncentivesGroup?.find((group) =>
+    group.userReservesData.find(({ reserve }) => reserve.id === id)
   );
-  const pool = useMemo(() => {
-    return poolGroup.pools.find((r) => r.id === id);
-  }, [id, poolGroups]);
+  const pool = poolGroup.pools.find((r) => r.id === id);
 
   if (!pool) {
     throw new Error("No pool found");
   }
 
-  const protocolSummary = poolGroups
-  .flatMap(({pools})=> pools)
-  .filter((p) => p.chainId === pool.chainId && p.provider === pool.provider)
-  .reduce((acc, p) => {
-    return {
-      ...acc,
-      totalSupplyBalance: acc.totalSupplyBalance + p.supplyBalance,
-      totalBorrowBalance: acc.totalBorrowBalance + p.borrowBalance,
-      pools: [...acc.pools, p],
-    };
-  }, {
-    provider: pool.provider,
-    chainId: pool.chainId,
-    pools: [] as IMarketPool[],
-  } as IProtocolSummary);
+  const walletBalance = getPoolWalletBalance(pool, assets);
+  const {
+    borrowBalance,
+    supplyBalance,
+    poolLiquidationThreshold,
+    userLiquidationThreshold,
+  } = getPoolSupplyAndBorrowBallance(pool, userSummaryAndIncentivesGroup || []);
+
+  const protocolSummary = Store.useState(getProtocolSummaryState).find(
+    (p) => p.chainId === pool.chainId && p.provider === pool.provider
+  );
 
   const borrowPoolRatioInPercent = getPercent(
     valueToBigNumber(pool.totalDebtUSD).toNumber(),
@@ -183,13 +220,11 @@ export function ReserveDetail(props: IReserveDetailProps) {
   const percentBorrowingCapacity =
     100 -
     getPercent(
-      protocolSummary.totalBorrowBalance,
-      protocolSummary.totalSupplyBalance
+      protocolSummary?.totalBorrowsUSD || 0,
+      protocolSummary?.totalCollateralUSD || 0
     );
 
-  const handleOpenModal = (
-    type: ReserveDetailActionType,
-  ) => {
+  const handleOpenModal = (type: ReserveDetailActionType) => {
     if (!poolGroup) {
       throw new Error("No poolGroup found");
     }
@@ -221,6 +256,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
     let provider = web3Provider;
     if (currentNetwork !== pool.chainId) {
       await switchNetwork(pool.chainId);
+      // update provider after switch network
       provider = web3Provider;
     }
     if (!provider) {
@@ -228,239 +264,170 @@ export function ReserveDetail(props: IReserveDetailProps) {
     }
     // perform action
     const type = state?.actionType;
+    const value = ev.detail.data;
+    const amount = Number(value);
     switch (true) {
       case type === "deposit": {
-        const value = ev.detail.data;
-        const amount = Number(value);
-        // handle invalid amount
-        if (isNaN(amount) || amount <= 0) {
-          throw new Error("Invalid amount. Value must be greater than 0.");
-        }
-        // call method
-        const params = {
-          provider: (provider as ethers.providers.Web3Provider),
-          reserve: pool as IAavePool,
-          amount: amount.toString(),
-          onBehalfOf: undefined,
-          poolAddress: `${markets?.POOL}`,
-          gatewayAddress: `${markets?.WETH_GATEWAY}`,
-        };
-        console.log("params: ", params);
-        try {
-          const txReceipts = await supplyWithPermit(params);
-          console.log("TX result: ", txReceipts);
-        } catch (error) {
-          throw error;
-        }
+        await pool.deposit(amount, provider);
         break;
       }
       case type === "withdraw": {
-        const value = ev.detail.data;
-        const amount = Number(value);
-        // handle invalid amount
-        if (isNaN(amount) || amount <= 0) {
-          throw new Error("Invalid amount. Value must be greater than 0.");
-        }
-        // call method
-        const params = {
-          provider: (provider as ethers.providers.Web3Provider),
-          reserve: pool as IAavePool,
-          amount: amount.toString(),
-          onBehalfOf: undefined,
-          poolAddress: `${markets?.POOL}`,
-          gatewayAddress: `${markets?.WETH_GATEWAY}`,
-        };
-        console.log("params: ", params);
-        try {
-          const txReceipts = await withdraw(params);
-          console.log("TX result: ", txReceipts);
-        } catch (error) {
-          throw error;
-        }
+        await pool.withdraw(amount, provider);
         break;
       }
       case type === "borrow": {
-        const value = ev.detail.data;
-        const amount = Number(value);
-        // handle invalid amount
-        if (isNaN(amount) || amount <= 0) {
-          throw new Error("Invalid amount. Value must be greater than 0.");
-        }
-        // call method
-        const params = {
-          provider: (provider as ethers.providers.Web3Provider),
-          reserve: pool,
-          amount: amount.toString(),
-          onBehalfOf: undefined,
-          poolAddress: `${markets?.POOL}`,
-          gatewayAddress: `${markets?.WETH_GATEWAY}`,
-        };
-        console.log("params: ", params);
-        try {
-          const txReceipts = await borrow(params);
-          console.log("TX result: ", txReceipts);
-        } catch (error) {
-          throw error;
-        }
+        await pool.borrow(amount, provider);
         break;
       }
       case type === "repay": {
-        const value = ev.detail.data;
-        const amount = Number(value);
-        // handle invalid amount
-        if (isNaN(amount) || amount <= 0) {
-          throw new Error("Invalid amount. Value must be greater than 0.");
-        }
-        // call method
-        const params = {
-          provider: (provider as ethers.providers.Web3Provider),
-          reserve: pool,
-          amount: amount.toString(),
-          onBehalfOf: undefined,
-          poolAddress: `${markets?.POOL}`,
-          gatewayAddress: `${markets?.WETH_GATEWAY}`,
-        };
-        console.log("params: ", params);
-        try {
-          const txReceipts = await repay(params);
-          console.log("TX result: ", txReceipts);
-          // await hideLoader();
-          // await refresh();
-        } catch (error) {
-          console.log("[ERROR]: ", error);
-          // await hideLoader();
-          // await refresh();
-          throw error;
-        }
+        await pool.repay(amount, provider);
         break;
       }
       default:
         break;
     }
-    // update Pool data by update context
-    await refresh("userSummary");
+    // update userSummary & wallet assets after action
+    if (walletAddress) {
+      await initializeUserSummary(walletAddress);
+      await loadAssets();
+    }
   };
 
-  const BuyAssetBtn = walletAddress && +(pool.walletBalance || 0) <= 0 && pool.supplyBalance <= 0 
-    ? (<IonButton
-      fill="solid"
-      expand="block"
-      color="gradient"
-      onClick={() =>{
-        setIsModalOptionsOpen(()=> false);
-        handleSegmentChange({
-          detail: { value: "fiat" },
-        })
-      }}
-    >
-      Buy {pool.symbol}
-    </IonButton>)
-  : (<></>);
-
-  const ExchangeAssetBtn = walletAddress && +(pool.walletBalance || 0) <= 0 && pool.supplyBalance <= 0
-      ? (<IonButton
+  const BuyAssetBtn =
+    walletAddress && +(walletBalance || 0) <= 0 && supplyBalance <= 0 ? (
+      <IonButton
         fill="solid"
         expand="block"
         color="gradient"
         onClick={() => {
-          setIsModalOptionsOpen(()=> false);
+          setIsModalOptionsOpen(() => false);
+          handleSegmentChange({
+            detail: { value: "fiat" },
+          });
+        }}
+      >
+        Buy {pool.symbol}
+      </IonButton>
+    ) : (
+      <></>
+    );
+
+  const ExchangeAssetBtn =
+    walletAddress && (walletBalance || 0) <= 0 && supplyBalance <= 0 ? (
+      <IonButton
+        fill="solid"
+        expand="block"
+        color="gradient"
+        onClick={() => {
+          setIsModalOptionsOpen(() => false);
           handleSegmentChange({
             detail: { value: "swap" },
           });
         }}
       >
         Exchange assets
-      </IonButton>)
-      : (<></>);
+      </IonButton>
+    ) : (
+      <></>
+    );
 
-  const WithdrawBtn = walletAddress && (pool?.supplyBalance || +pool.supplyBalance > 0)
-    ? (<IonButton
-      fill="solid"
-      expand="block"
-      color="gradient"
-      onClick={() => {
-        setIsModalOptionsOpen(()=> false);
-        handleOpenModal("withdraw");
-      }}
-    >
-      Withdraw deposit
-    </IonButton>
-    ) : (<></>);
-
-  const DepositBtn = walletAddress && (pool?.walletBalance||0) > 0 && (supplyPoolRatioInPercent < 99)
-    ? (<IonButton
+  const WithdrawBtn =
+    walletAddress && (supplyBalance || supplyBalance > 0) ? (
+      <IonButton
         fill="solid"
         expand="block"
         color="gradient"
         onClick={() => {
-          setIsModalOptionsOpen(()=> false);
+          setIsModalOptionsOpen(() => false);
+          handleOpenModal("withdraw");
+        }}
+      >
+        Withdraw
+      </IonButton>
+    ) : (
+      <></>
+    );
+
+  const DepositBtn =
+    walletAddress &&
+    (walletBalance || 0) > 0 &&
+    supplyPoolRatioInPercent < 99 ? (
+      <IonButton
+        fill="solid"
+        expand="block"
+        color="gradient"
+        onClick={() => {
+          setIsModalOptionsOpen(() => false);
           handleOpenModal("deposit");
         }}
       >
         Deposit {pool.symbol} as collateral
-      </IonButton>)
-    : (<IonButton
-      fill="solid"
-      expand="block"
-      color="gradient"
-      disabled={true} >Deposit {pool.symbol} as collateral</IonButton>);
+      </IonButton>
+    ) : (
+      <IonButton fill="solid" expand="block" color="gradient" disabled={true}>
+        Deposit {pool.symbol} as collateral
+      </IonButton>
+    );
 
-  const RepayBtn = walletAddress && (pool?.borrowBalance || +pool.borrowBalance > 0)
-      ? (<IonButton
-          fill="solid"
-          expand="block"
-          color="gradient"
-          onClick={() => {
-            setIsModalOptionsOpen(()=> false);
-            handleOpenModal("repay");
-          }}
-        >
-          Repay loan
-        </IonButton>)
-      : (<></>);
+  const RepayBtn =
+    walletAddress && (borrowBalance || borrowBalance > 0) ? (
+      <IonButton
+        fill="solid"
+        expand="block"
+        color="gradient"
+        onClick={() => {
+          setIsModalOptionsOpen(() => false);
+          handleOpenModal("repay");
+        }}
+      >
+        Repay loan
+      </IonButton>
+    ) : (
+      <></>
+    );
 
-  const BorrowBtn = walletAddress && pool.borrowingEnabled && (borrowPoolRatioInPercent < 99)
-        ? (<IonButton
-            fill="solid"
-            color="gradient"
-            expand="block"
-            onClick={() => {
-              setIsModalOptionsOpen(()=> false);
-              if (borrowPoolRatioInPercent > 99.9) {
-                presentAlert({
-                  header: "Information",
-                  message: "Borrowing capacity is over. Add more collaterals to enable borrowing.",
-                  buttons: [{ text: "OK", cssClass: "gradient"}],
-                });
-                return;
-              }
-              if (percentBorrowingCapacity <= 0) {
-                presentPomptCrossModal({
-                  cssClass: ['modalAlert'],
-                  onDidDismiss: ({detail: {data, role}= {}}) => {
-                    if (role !== 'enable-crosschain-collateral') {
-                      return;
-                    }
-                    // handle cross-chain collateral request
-                    console.log("onDidDismiss: ", {data, role});
-                    setIsCrossChain(()=> true);
-                    handleOpenModal("borrow");
-                  }
-                });
-                return;
-              }
-              handleOpenModal("borrow");
-            }}
-          >
-            Borrow {pool.symbol}
-          </IonButton>)
-        : (<IonButton
-          fill="solid"
-          color="gradient"
-          expand="block"
-          disabled={true}>
-            Borrow {pool.symbol}
-          </IonButton>);  
+  const BorrowBtn =
+    walletAddress && pool.borrowingEnabled && borrowPoolRatioInPercent < 99 ? (
+      <IonButton
+        fill="solid"
+        color="gradient"
+        expand="block"
+        onClick={() => {
+          setIsModalOptionsOpen(() => false);
+          if (borrowPoolRatioInPercent > 99.9) {
+            presentAlert({
+              header: "Information",
+              message:
+                "Borrowing capacity is over. Add more collaterals to enable borrowing.",
+              buttons: [{ text: "OK", cssClass: "gradient" }],
+            });
+            return;
+          }
+          if (percentBorrowingCapacity <= 0) {
+            presentPomptCrossModal({
+              cssClass: ["modalAlert"],
+              onDidDismiss: ({ detail: { data, role } = {} }) => {
+                if (role !== "enable-crosschain-collateral") {
+                  return;
+                }
+                // handle cross-chain collateral request
+                console.log("onDidDismiss: ", { data, role });
+                setIsCrossChain(() => true);
+                handleOpenModal("borrow");
+              },
+            });
+            return;
+          }
+          handleOpenModal("borrow");
+        }}
+      >
+        Borrow {pool.symbol}
+      </IonButton>
+    ) : (
+      <IonButton fill="solid" color="gradient" expand="block" disabled={true}>
+        Borrow {pool.symbol}
+      </IonButton>
+    );
 
   return (
     <>
@@ -469,7 +436,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
           <IonButton
             color="primary"
             size="large"
-            onClick={() => props.dismiss()}
+            onClick={() => props.dismiss(state?.actionType)}
           >
             <IonIcon icon={closeOutline}></IonIcon>
           </IonButton>
@@ -482,7 +449,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
             margin: "0rem auto 0",
           }}
         >
-          <h2>Loan market details</h2>
+          <h2>Market details</h2>
         </div>
         <IonGrid
           style={{
@@ -512,13 +479,12 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     <SymbolIcon
                       symbol={pool?.symbol}
                       chainId={pool?.chainId}
+                      assetIconURL={pool?.logo}
                       iconSize="124px"
                     />
                     <div className="ion-padding-start ion-hide-sm-down">
                       <h2>
-                        <b>
-                          {pool?.symbol}
-                        </b>
+                        <b>{pool?.symbol}</b>
                         <IonText color="medium">
                           <small style={{ display: "block" }}>
                             {
@@ -530,7 +496,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                           </small>
                         </IonText>
                       </h2>
-                      {pool.usageAsCollateralEnabled === false  && (
+                      {pool.usageAsCollateralEnabled === false && (
                         <IonIcon
                           icon={warningOutline}
                           color="warning"
@@ -542,9 +508,12 @@ export function ReserveDetail(props: IReserveDetailProps) {
                   <IonCol size-md="6" className="ion-text-end">
                     {walletAddress ? (
                       <>
-                        <IonButton color="gradient" onClick={()=> {
-                          setIsModalOptionsOpen(()=> true);
-                        }}>
+                        <IonButton
+                          color="gradient"
+                          onClick={() => {
+                            setIsModalOptionsOpen(() => true);
+                          }}
+                        >
                           Choose option
                         </IonButton>
                         <IonModal
@@ -563,14 +532,15 @@ export function ReserveDetail(props: IReserveDetailProps) {
                             <IonRow>
                               <IonCol>
                                 <IonText>
-                                  <h3 style={{marginBottom: 0}}>
+                                  <h3 style={{ marginBottom: 0 }}>
                                     <b>Select option</b>
                                   </h3>
                                 </IonText>
                                 <IonText color="medium">
                                   <p className="ion-no-margin">
                                     <small>
-                                      Choose an option to interact with this pool.
+                                      Choose an option to interact with this
+                                      pool.
                                     </small>
                                   </p>
                                 </IonText>
@@ -637,15 +607,11 @@ export function ReserveDetail(props: IReserveDetailProps) {
                       className="itemListDetails horizontalLineBottom ion-padding"
                     >
                       <IonLabel className="ion-padding-start ion-padding-top">
-                        <b>
-                          My positions
-                        </b>
+                        <b>My positions</b>
                       </IonLabel>
                       <IonList lines="none" className="ion-padding-vertical">
                         <IonItem lines="none">
-                          <IonLabel>
-                            Deposit
-                          </IonLabel>
+                          <IonLabel>Deposit</IonLabel>
 
                           <div className="ion-text-end">
                             <IonText style={{ fontSize: "1rem" }}>
@@ -691,22 +657,29 @@ export function ReserveDetail(props: IReserveDetailProps) {
                               </div>
                             </IonItem>
                             <IonItem lines="none">
-                              <IonLabel>
-                                Borrowing capacity
-                              </IonLabel>
+                              <IonLabel>Borrowing capacity</IonLabel>
                               <div slot="end" className="ion-text-end">
                                 {poolGroup &&
-                                  (+protocolSummary.totalSupplyBalance ) > 0 && (
+                                  Number(
+                                    protocolSummary?.totalCollateralUSD || 0
+                                  ) > 0 && (
                                     <>
                                       <IonText color="dark">
                                         {currencyFormat(
-                                          +(protocolSummary.totalSupplyBalance || 0)
+                                          Number(
+                                            protocolSummary?.totalBorrowsUSD ||
+                                              0
+                                          )
                                         )}{" "}
                                         of{" "}
                                         {currencyFormat(
-                                          Number(protocolSummary?.totalSupplyBalance) *
+                                          Number(
+                                            protocolSummary?.totalCollateralUSD ||
+                                              0
+                                          ) *
                                             Number(
-                                              protocolSummary.totalUserLiquidationThreshold / protocolSummary.pools.length
+                                              protocolSummary?.currentLiquidationThreshold ||
+                                                0
                                             )
                                         )}{" "}
                                       </IonText>
@@ -715,8 +688,14 @@ export function ReserveDetail(props: IReserveDetailProps) {
                                         value={
                                           (100 -
                                             getPercent(
-                                              protocolSummary.totalBorrowBalance,
-                                              protocolSummary.totalSupplyBalance
+                                              Number(
+                                                protocolSummary?.totalBorrowsUSD ||
+                                                  0
+                                              ),
+                                              Number(
+                                                protocolSummary?.totalCollateralUSD ||
+                                                  0
+                                              )
                                             )) /
                                           100
                                         }
@@ -728,20 +707,23 @@ export function ReserveDetail(props: IReserveDetailProps) {
                                       ></IonProgressBar>
                                     </>
                                   )}
-                                
-                                {(Number(protocolSummary.totalSupplyBalance) || 0) === 0 && (
-                                    <>
-                                      <IonText color="medium">
-                                        <small>
-                                          Deposit collateral to enable borrowing capacity 
-                                        </small>
-                                        {/* <UseCrossChaineCollateralButton 
+
+                                {(Number(
+                                  protocolSummary?.totalCollateralUSD || 0
+                                ) || 0) === 0 && (
+                                  <>
+                                    <IonText color="medium">
+                                      <small>
+                                        Deposit collateral to enable borrowing
+                                        capacity
+                                      </small>
+                                      {/* <UseCrossChaineCollateralButton 
                                           onlyText={true}
                                           dismissPromptCrossModal={() => dismissPromptCrossModal(null, "enable-crosschain-collateral")}
                                           userSummaryAndIncentivesGroup={userSummaryAndIncentivesGroup||[]} /> */}
-                                      </IonText>
-                                    </>
-                                  )}
+                                    </IonText>
+                                  </>
+                                )}
                               </div>
                             </IonItem>
                           </>
@@ -764,38 +746,48 @@ export function ReserveDetail(props: IReserveDetailProps) {
                         <IonLabel>
                           Deposit APY
                           <IonText color="medium">
-                            <small style={{display: 'block'}}>
+                            <small style={{ display: "block" }}>
                               Incentive rate that you earn
                             </small>
                           </IonText>
                         </IonLabel>
                         <IonText className="ion-color-gradient-text" slot="end">
-                          <span style={{ fontSize: "1.3rem", fontWeight: 'bold' }}>
-                            {(Number(pool?.supplyAPY || 0) * 100).toFixed(2)}
-                            %
+                          <span
+                            style={{ fontSize: "1.3rem", fontWeight: "bold" }}
+                          >
+                            {(Number(pool?.supplyAPY || 0) * 100).toFixed(2)}%
                           </span>
                         </IonText>
                       </IonItem>
-                      {pool.borrowingEnabled && (borrowPoolRatioInPercent < 99) && (
-                        <IonItem lines="none">
-                          <IonLabel>
-                            Borrow APY
-                            <IonText color={"medium"}>
-                              <small style={{display: 'block'}}>
-                                Interest rate that you pay
+                      {pool.borrowingEnabled &&
+                        borrowPoolRatioInPercent < 99 && (
+                          <IonItem lines="none">
+                            <IonLabel>
+                              Borrow APY
+                              <IonText color={"medium"}>
+                                <small style={{ display: "block" }}>
+                                  Interest rate that you pay
                                 </small>
+                              </IonText>
+                            </IonLabel>
+                            <IonText
+                              className="ion-color-gradient-text"
+                              slot="end"
+                            >
+                              <span
+                                style={{
+                                  fontSize: "1.3rem",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                {(Number(pool?.borrowAPY || 0) * 100).toFixed(
+                                  2
+                                )}
+                                %
+                              </span>
                             </IonText>
-                          </IonLabel>
-                          <IonText className="ion-color-gradient-text" slot="end">
-                            <span style={{ fontSize: "1.3rem", fontWeight: 'bold' }}>
-                              {(
-                                Number(pool?.borrowAPY || 0) * 100
-                              ).toFixed(2)}
-                              %
-                            </span>
-                          </IonText>
-                        </IonItem>
-                      ) }
+                          </IonItem>
+                        )}
                     </IonList>
                   </IonCol>
 
@@ -804,9 +796,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     className="itemListDetails horizontalLineBottom ion-padding"
                   >
                     <IonLabel className="ion-padding-start ion-padding-top">
-                      <b>
-                        Pool informations
-                      </b>
+                      <b>Pool informations</b>
                     </IonLabel>
                     <IonList lines="none" className="ion-padding-vertical">
                       <IonItem lines="none" className="ion-padding-bottom">
@@ -859,9 +849,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                           </IonText>
                         </IonItem>
                         <IonItem lines="none">
-                          <IonLabel>
-                            Deposit capitalisation
-                          </IonLabel>
+                          <IonLabel>Deposit capitalisation</IonLabel>
                           <IonText slot="end">
                             {getReadableAmount(Number(pool.supplyCapUSD))}
                           </IonText>
@@ -875,7 +863,13 @@ export function ReserveDetail(props: IReserveDetailProps) {
                       </div>
                       {pool.borrowingEnabled && (
                         <>
-                          <IonItem lines="none" style={{ "--background": "transparent", marginTop: '0.5rem' }}>
+                          <IonItem
+                            lines="none"
+                            style={{
+                              "--background": "transparent",
+                              marginTop: "0.5rem",
+                            }}
+                          >
                             <IonLabel>Debit liquidity</IonLabel>
                             <IonText>
                               {getReadableAmount(Number(pool.totalDebtUSD))}
@@ -885,9 +879,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                             lines="none"
                             style={{ "--background": "transparent" }}
                           >
-                            <IonLabel>
-                              Debit capitalisation
-                            </IonLabel>
+                            <IonLabel>Debit capitalisation</IonLabel>
                             <IonText>
                               {getReadableAmount(Number(pool.borrowCapUSD))}
                             </IonText>
@@ -905,7 +897,6 @@ export function ReserveDetail(props: IReserveDetailProps) {
                 </IonRow>
               </IonGrid>
             </IonCol>
-
           </IonRow>
         </IonGrid>
       </IonContent>
@@ -922,7 +913,14 @@ export function ReserveDetail(props: IReserveDetailProps) {
       >
         <LoanFormModal
           selectedPool={{
-            pool: pool as IAavePool,
+            pool: {
+              ...pool,
+              walletBalance,
+              supplyBalance,
+              borrowBalance,
+              poolLiquidationThreshold,
+              userLiquidationThreshold,
+            } as AavePool,
             actionType: state?.actionType || "deposit",
             userSummary: userSummary as IUserSummary,
           }}
@@ -942,20 +940,9 @@ export function ReserveDetail(props: IReserveDetailProps) {
                 }
                 await hideLoader();
                 console.log("[INFO] ReserveDetail - onDismiss: ", data, role);
-                // display toast
-                present({
-                  message: `Transaction success`,
-                  color: "success",
-                  duration: 5000,
-                  buttons: [
-                    {
-                      text: "x",
-                      role: "cancel",
-                      handler: () => {
-                        dismiss();
-                      },
-                    },
-                  ],
+                // display success message
+                presentSuccess({
+                  cssClass: "modalAlert",
                 });
               })
               .catch(async (error) => {
@@ -963,7 +950,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                 console.log("[ERROR] ReserveDetail - onDismiss: ", error);
                 // display toast
                 present({
-                  message: `${error}`,
+                  message: error?.message ? `${error.message}` : `${error}`,
                   color: "danger",
                   duration: 5000,
                   buttons: [

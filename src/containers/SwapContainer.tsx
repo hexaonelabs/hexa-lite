@@ -1,37 +1,56 @@
-import { IonButton, IonCol, IonGrid, IonRow, IonText, useIonToast } from "@ionic/react";
-import { HiddenUI, RouteExecutionUpdate, WidgetConfig, WidgetEvent, useWidgetEvents } from "@lifi/widget";
-import type { Route } from '@lifi/sdk';
-import { useEffect, useMemo } from "react";
-import { useWeb3Provider } from "../context/Web3Context";
+import {
+  IonButton,
+  IonCol,
+  IonGrid,
+  IonRow,
+  IonText,
+  useIonToast,
+} from "@ionic/react";
+import {
+  RouteExecutionUpdate,
+  WidgetConfig,
+  WidgetEvent,
+  useWidgetEvents,
+} from "@lifi/widget";
+import type { Route } from "@lifi/sdk";
+import { useEffect } from "react";
 import { useLoader } from "../context/LoaderContext";
 import { CHAIN_AVAILABLES, CHAIN_DEFAULT, NETWORK } from "../constants/chains";
 import { ethers } from "ethers";
 import { LiFiWidgetDynamic } from "../components/LiFiWidgetDynamic";
-import { LIFI_CONFIG } from '../servcies/lifi.service';
+import { LIFI_CONFIG } from "../servcies/lifi.service";
 // import { SquidWidgetDynamic } from "@/components/SquidWidgetDynamic";
 import { SquidWidget } from "@0xsquid/widget";
-import { SQUID_CONFIG } from '@/servcies/squid.service';
+import { SQUID_CONFIG } from "@/servcies/squid.service";
 import { PointsData, addAddressPoints } from "@/servcies/datas.service";
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
 
 export function SwapContainer() {
-  const { web3Provider, currentNetwork, connectWallet, disconnectWallet, walletAddress, switchNetwork } = useWeb3Provider();
+  const {
+    web3Provider,
+    currentNetwork,
+    walletAddress,
+    connectWallet,
+    disconnectWallet,
+    switchNetwork,
+  } = Store.useState(getWeb3State);
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const toastContext = useIonToast();
   const presentToast = toastContext[0];
   const dismissToast = toastContext[1];
 
-
   const widgetEvents = useWidgetEvents();
 
   useEffect(() => {
     const onRouteExecutionStarted = (route: Route) => {
-      console.log('[INFO] onRouteExecutionStarted fired.');
+      console.log("[INFO] onRouteExecutionStarted fired.");
     };
     const onRouteExecutionCompleted = async (route: Route) => {
-      console.log('[INFO] onRouteExecutionCompleted fired.', route);
+      console.log("[INFO] onRouteExecutionCompleted fired.", route);
       const data: PointsData = {
         route,
-        actionType: 'swap'
+        actionType: "swap",
       };
       if (!walletAddress) {
         return;
@@ -39,13 +58,16 @@ export function SwapContainer() {
       await addAddressPoints(walletAddress, data);
     };
     const onRouteExecutionFailed = (update: RouteExecutionUpdate) => {
-      console.log('[INFO] onRouteExecutionFailed fired.', update);
+      console.log("[INFO] onRouteExecutionFailed fired.", update);
     };
-    
+
     widgetEvents.on(WidgetEvent.RouteExecutionStarted, onRouteExecutionStarted);
-    widgetEvents.on(WidgetEvent.RouteExecutionCompleted, onRouteExecutionCompleted);
+    widgetEvents.on(
+      WidgetEvent.RouteExecutionCompleted,
+      onRouteExecutionCompleted
+    );
     widgetEvents.on(WidgetEvent.RouteExecutionFailed, onRouteExecutionFailed);
-    
+
     return () => widgetEvents.all.clear();
   }, [widgetEvents]);
 
@@ -72,21 +94,14 @@ export function SwapContainer() {
   //   fetchConfig();
   // }, []);
 
-  const setNetwort = async () => {
-    await displayLoader();
-    const isEVM = CHAIN_AVAILABLES.find((chain) => chain.id === currentNetwork)?.type === "evm";
-    if (!isEVM) {
-      console.log(`[INFO] Switch to ${NETWORK.optimism} network`);
-      await switchNetwork(NETWORK.optimism);
-    }
-    await hideLoader();
-  }
-
-  let SwapComponent; 
+  let SwapComponent;
   const chain = CHAIN_AVAILABLES.find((chain) => chain.id === currentNetwork);
   switch (true) {
-    case chain?.type === "evm":{
-      const signer = web3Provider instanceof ethers.providers.Web3Provider && walletAddress ? web3Provider?.getSigner() : undefined;
+    case chain?.type === "evm": {
+      const signer =
+        web3Provider instanceof ethers.providers.Web3Provider && walletAddress
+          ? web3Provider?.getSigner()
+          : undefined;
       // load environment config
       const widgetConfig: WidgetConfig = {
         ...LIFI_CONFIG,
@@ -97,8 +112,10 @@ export function SwapContainer() {
               await displayLoader();
               await connectWallet();
               if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
-                  throw new Error('[ERROR] Only support ethers.providers.Web3Provider');
-              } 
+                throw new Error(
+                  "[ERROR] Only support ethers.providers.Web3Provider"
+                );
+              }
               const signer = web3Provider?.getSigner();
               console.log("signer", signer);
               if (!signer) {
@@ -162,42 +179,44 @@ export function SwapContainer() {
         toChain: currentNetwork || CHAIN_DEFAULT.id,
         // set source token to ETH (Ethereum)
         fromToken: "0x0000000000000000000000000000000000000000",
-      };   
-      SwapComponent = <LiFiWidgetDynamic config={widgetConfig} integrator="hexa-lite" />;
+      };
+      SwapComponent = (
+        <LiFiWidgetDynamic config={widgetConfig} integrator="hexa-lite" />
+      );
       break;
     }
-    case chain?.type === 'cosmos': {
-      SwapComponent = <SquidWidget config={{
-        ...SQUID_CONFIG
-      }} />;
+    case chain?.type === "cosmos": {
+      SwapComponent = (
+        <SquidWidget
+          config={{
+            ...SQUID_CONFIG,
+          }}
+        />
+      );
       break;
     }
     default:
-      SwapComponent = (<>
-        <div className="ion-text-center">
-          <IonText className="ion-text-center">
-            <p>
-              Exchange with {chain?.name} network is not supported yet.
-            </p>
-          </IonText>
-          <IonButton 
-            color="gradient"
-            onClick={async()=> {
-              await displayLoader();
-              await switchNetwork(CHAIN_DEFAULT.id);
-              await hideLoader();
-            }}>
-            Switch to EVM Network
-          </IonButton>
-        </div>
-      </>
+      SwapComponent = (
+        <>
+          <div className="ion-text-center">
+            <IonText className="ion-text-center">
+              <p>Exchange with {chain?.name} network is not supported yet.</p>
+            </IonText>
+            <IonButton
+              color="gradient"
+              onClick={async () => {
+                await displayLoader();
+                await switchNetwork(CHAIN_DEFAULT.id);
+                await hideLoader();
+              }}
+            >
+              Switch to EVM Network
+            </IonButton>
+          </div>
+        </>
       );
       break;
   }
-
-  // useEffect(()=> {
-  //   setNetwort();
-  // }, [currentNetwork]);
 
   return (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "5rem" }}>
@@ -225,7 +244,7 @@ export function SwapContainer() {
           <div
             style={{
               paddingTop: "1rem",
-              paddingBottom: "10rem"
+              paddingBottom: "10rem",
             }}
           >
             {SwapComponent}

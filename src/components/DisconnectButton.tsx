@@ -1,9 +1,7 @@
-import {
-  IonButton,
-} from "@ionic/react";
-import { useWeb3Provider } from "../context/Web3Context";
+import { IonButton } from "@ionic/react";
 import { useLoader } from "../context/LoaderContext";
-
+import { getWeb3State } from "@/store/selectors";
+import Store from "@/store";
 
 const DisconnectButton = (props: {
   style?: any;
@@ -11,8 +9,7 @@ const DisconnectButton = (props: {
   expand?: "full" | "block";
 }) => {
   const { display: displayLoader, hide: hideLoader } = useLoader();
-  // Get the initializeWeb3 function from the Web3 context
-  const { disconnectWallet } = useWeb3Provider();
+  const { disconnectWallet } = Store.useState(getWeb3State);
 
   // Define the event handler for the button click
   const handleDisconnect = async () => {
@@ -34,7 +31,7 @@ const DisconnectButton = (props: {
   return (
     <IonButton
       size={props?.size || "default"}
-      style={{...props?.style, cursor: "pointer" }}
+      style={{ ...props?.style, cursor: "pointer" }}
       color="gradient"
       expand={props?.expand || "block"}
       onClick={(e) => {

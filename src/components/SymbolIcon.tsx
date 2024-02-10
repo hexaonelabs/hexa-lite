@@ -2,8 +2,8 @@ import { IonAvatar, IonIcon, IonImg } from "@ionic/react";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 
-export function SymbolIcon(props: {symbol: string; chainId?: number; iconSize?: string; id?: string}) {
-  const { symbol, chainId, iconSize = '48px' } = props;
+export function SymbolIcon(props: {symbol: string; chainId?: number; iconSize?: string; id?: string, assetIconURL?: string}) {
+  const { symbol, chainId, iconSize = '48px', assetIconURL } = props;
   const chainIdIcon = chainId ? (
     <IonIcon
       style={{
@@ -27,7 +27,7 @@ export function SymbolIcon(props: {symbol: string; chainId?: number; iconSize?: 
           minWidth: iconSize,
         }}
       >
-        <IonImg src={getAssetIconUrl({ symbol })}></IonImg>
+        <IonImg src={assetIconURL || getAssetIconUrl({ symbol })}></IonImg>
       </IonAvatar>
       {chainIdIcon}
     </div>

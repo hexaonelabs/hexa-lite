@@ -254,6 +254,7 @@ ion-card {
 
   -webkit-filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px); 
   filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px );
+  box-shadow: 0 0 12px 0px rgb(0 0 0 / 25%);
 }
 
 .welcomeSection {
@@ -543,6 +544,16 @@ ion-accordion:not(.faq) {
           opacity: 1; 
         }
       }
+      &.item-disabled {
+        opacity: 1;
+        --background: rgba(0,0,0, 0.5) !important;
+        pointer-events: none;
+
+        ion-grid {
+          opacity: 0.5;
+        } 
+        
+      }
     }
 
     // > ion-item {
@@ -630,6 +641,11 @@ div.MuiScopedCssBaseline-root > .MuiBox-root > .MuiBox-root {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
+
+div[id^="widget-relative-container"]{
+  box-shadow: 0 0 12px 0px rgba(0, 0, 0, 0.25);
+}
+
 div.MuiScopedCssBaseline-root {
   background: var(--ion-background-color)!important;
   -webkit-backdrop-filter: blur(10px)!important;

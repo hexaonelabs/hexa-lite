@@ -1,3 +1,4 @@
+import { MarketPool } from "@/pool/Market.pool";
 import { ReserveDataHumanized } from "@aave/contract-helpers";
 import { FormatReserveUSDResponse, FormatUserSummaryAndIncentivesResponse } from "@aave/math-utils";
 
@@ -47,11 +48,12 @@ export interface IReserve extends ReserveDataHumanized, FormatReserveUSDResponse
 }
 
 export interface IPoolGroup {
+      id: string;
       symbol: string;
       name: string;
       topSupplyApy: number;
       topBorrowApy: number;
-      pools: IMarketPool[];
+      pools: MarketPool[];
       chainIds: number[];
       logo: string;
       borrowingEnabled: boolean;

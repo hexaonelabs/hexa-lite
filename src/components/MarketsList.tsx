@@ -2,6 +2,9 @@ import {
   IonAccordionGroup,
   IonCol,
   IonGrid,
+  IonImg,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonInput,
   IonRow,
   IonSearchbar,
@@ -13,10 +16,12 @@ import {
 } from "@ionic/react";
 import { PoolHeaderList } from "./PoolHeaderList";
 import { PoolAccordionGroup } from "./PoolAccordionGroup";
-import { useAave } from "../context/AaveContext";
 import { useState } from "react";
 import { CHAIN_AVAILABLES } from "../constants/chains";
-import { IPoolGroup, IReserve } from "../interfaces/reserve.interface";
+import { IPoolGroup } from "../interfaces/reserve.interface";
+import Store from "@/store";
+import { getTotalTVLState, getWeb3State, getPoolGroupsState } from "@/store/selectors";
+import { getPoolWalletBalance } from "@/utils/getPoolWalletBalance";
 
 export function MarketList(props: {
   filterBy?: {
@@ -25,7 +30,10 @@ export function MarketList(props: {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
   const { handleSegmentChange, filterBy: filterFromParent } = props;
-  const { poolGroups, totalTVL } = useAave();
+  const totalTVL  = Store.useState(getTotalTVLState);
+  const poolGroups = Store.useState(getPoolGroupsState);
+  const { assets } = Store.useState(getWeb3State);
+  const [maxItemCount, setMaxItemCount] = useState(10);
   const [filterBy, setFilterBy] = useState<{
     [key: string]: string;
   }|null>(
@@ -45,6 +53,11 @@ export function MarketList(props: {
         .filter((pool: any) => {
           if (filterArgs) {
             return Object.keys(filterArgs).every((key) => {
+              // filter for assets balance
+              if (key === "walletBalance") {
+                const balance = getPoolWalletBalance(pool, assets);
+                return Boolean(balance);
+              }
               // value string if a boolean value
               if (filterArgs[key] === "true" || filterArgs[key] === "false") {
                   return Boolean(pool[key]);
@@ -70,9 +83,22 @@ export function MarketList(props: {
       };
       return poolGroup;
     })
-    .filter((group) => group.pools.length > 0);
+    .filter((group) => group.pools.length > 0)
+    .sort((a: any, b: any) => {
+      // use state to sort
+      if (sortBy) {
+        const [key, order] = Object.entries(sortBy)[0];
+        if (order === "asc") {
+          return a[key] > b[key] ? 1 : -1;
+        }
+        return a[key] < b[key] ? 1 : -1;
+      }
+      // default do not sort
+      return 0;
+    })
+    .slice(0, maxItemCount);
 
-  const Spinner = !poolGroups||!totalTVL ? (
+  const Spinner = poolGroups.length <= 0 && (!totalTVL) ? (
     <IonGrid class="ion-padding">
       <IonRow class="ion-padding">
         <IonCol size="12" class="ion-text-center ion-padding">
@@ -134,7 +160,7 @@ export function MarketList(props: {
             >
               <IonSelectOption value="*">All</IonSelectOption>
               {CHAIN_AVAILABLES
-              .filter(chain => chain.type === 'evm')
+              .filter(chain => chain.type === 'evm' || chain.type === 'solana')
               .map((chain, index) => (
                 <IonSelectOption key={`option_chainId_${index}`} value={chain.id.toString()}>
                   {chain.name}
@@ -151,22 +177,24 @@ export function MarketList(props: {
               placeholder="Select protocol"
               onIonChange={(e) => {
                 const name = e.detail.value && e.detail.value.length > 0 
-                  ? Number(e.detail.value)
+                  ? e.detail.value
                   : null;
+                console.log(name)
                 if (name) {
                   setFilterBy((s) => ({
                     ...s,
-                    "protocol": e.detail.value || "",
+                    "provider": e.detail.value || "",
                   }));
                 } else {
-                  // remove chainId from `filterBy`
-                  const { chainId, ...rest } = filterBy || {};
+                  // remove provider from `filterBy`
+                  const { provider, ...rest } = filterBy || {};
                   setFilterBy(() => rest);
                 }
               }}
             >
               <IonSelectOption value="">All</IonSelectOption>
-              <IonSelectOption value="AAVE">AAVE V3</IonSelectOption>
+              <IonSelectOption value="aave-v3">AAVE v3</IonSelectOption>
+              <IonSelectOption value="solend">Solend</IonSelectOption>
             </IonSelect>
           </IonCol>
           <IonCol size="12" sizeMd="3" class="ion-padding-horizontal ion-text-end ion-hide-md-down">
@@ -176,7 +204,6 @@ export function MarketList(props: {
               justify="end"
               onIonChange={(e) => {
                 const checked = e.detail.checked||false; 
-                console.log('>>', e);
                 if (checked) {
                   setFilterBy((s) => ({
                     ...s,
@@ -234,21 +261,7 @@ export function MarketList(props: {
             }}
           />
           <IonAccordionGroup>
-            {groups
-            .sort((a: any, b: any) => {
-              // use state to sort
-              if (sortBy) {
-                const [key, order] = Object.entries(sortBy)[0];
-                if (order === "asc") {
-                  return a[key] > b[key] ? 1 : -1;
-                }
-                return a[key] < b[key] ? 1 : -1;
-              }
-              // default do not sort
-              return 0;
-              
-            })
-            .map((poolGroup, index) => (
+            {groups.map((poolGroup, index) => (
               <PoolAccordionGroup
                 key={index}
                 poolGroup={poolGroup}
@@ -256,6 +269,20 @@ export function MarketList(props: {
               />
             ))}
           </IonAccordionGroup>
+          <IonInfiniteScroll
+            threshold="25%"
+            onIonInfinite={(ev) => {
+              if (maxItemCount >= poolGroups.length) {
+                ev.target.disabled = true;
+                ev.target.complete();
+                return;
+              }
+              setMaxItemCount((s) => s + 10);
+              setTimeout(() => ev.target.complete(), 150);
+            }}
+          >
+            <IonInfiniteScrollContent></IonInfiniteScrollContent>
+          </IonInfiniteScroll>
         </>
       )}
       {Spinner}

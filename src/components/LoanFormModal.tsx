@@ -228,7 +228,7 @@ export function LoanFormModal({
           )}
           <IonRow class="ion-justify-content-between ion-padding">
             <IonCol size="12">
-              {actionType === "borrow" && (
+              {/* {actionType === "borrow" && (
                 <IonButton
                   expand="block"
                   fill="clear"
@@ -237,7 +237,7 @@ export function LoanFormModal({
                 >
                   <small>or use crosschain collateral</small>
                 </IonButton>
-              )}
+              )} */}
               <IonButton
                 expand="block"
                 onClick={() => onDismiss(inputRef.current?.value, "confirm")}

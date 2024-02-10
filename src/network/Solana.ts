@@ -27,7 +27,7 @@ export class SolanaWalletUtils extends MagicWalletUtils {
       throw new Error("RPC Node config fail. Incorect params, ");
     }
     const web3Provider = new Connection(RPC_NODE?.rpcUrl);
-    // this.web3Provider = web3Provider;
+    this.web3Provider = web3Provider;
     // get account address and wallet type
     try {
       const info = await magic.user.getInfo() || undefined;

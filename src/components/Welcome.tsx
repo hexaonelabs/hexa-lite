@@ -10,20 +10,20 @@ import {
 import {
   logoGithub,
 } from "ionicons/icons";
-import { EthOptimizedStrategyProvider } from "../context/EthOptimizedContext";
 import { ETHLiquidStakingstrategyCard } from "./ETHLiquidStakingstrategy";
 import { CHAIN_AVAILABLES } from "@/constants/chains";
 import RevealComp from "@/components/RevealComp";
 import { FooterComponent } from "./FooterComponent";
 import { FAQ } from "./FAQ";
-import { useWeb3Provider } from "@/context/Web3Context";
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
 
 export function Welcome({
   handleSegmentChange,
 }: {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
-  const { connectWallet } = useWeb3Provider();
+  const { connectWallet } = Store.useState(getWeb3State);
   return (
     <IonGrid class="ion-no-padding welcomeSection">
       <IonRow class="rowSection ion-justify-content-center ion-align-items-center ion-padding">
@@ -147,8 +147,8 @@ export function Welcome({
                   <div className="ion-padding">
                     <IonImg
                       style={{
-                        minWidth: "200px",
-                        margin: "0 2rem",
+                        minWidth: "100%",
+                        margin: "0 0.2rem",
                         borderRadius: "32px",
                         overflow: "hidden",
                         maxWidth: "fit-content",
@@ -265,9 +265,7 @@ export function Welcome({
                       display: "inline-block",
                     }}
                   >
-                    <EthOptimizedStrategyProvider>
-                      <ETHLiquidStakingstrategyCard asImage={true} />
-                    </EthOptimizedStrategyProvider>
+                    <ETHLiquidStakingstrategyCard asImage={true} />
                   </div>
                 </RevealComp>
               </IonCol>

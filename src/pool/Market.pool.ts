@@ -1,6 +1,6 @@
 import { IMarketPool } from "@/interfaces/reserve.interface";
 import { IAavePool } from "./Aave.pool";
-import { valueToBigNumber } from "@aave/math-utils";
+import { Web3ProviderType } from "@/interfaces/web3.interface";
 
 export abstract class MarketPool implements IMarketPool {
   readonly id: string;
@@ -31,18 +31,19 @@ export abstract class MarketPool implements IMarketPool {
 
   readonly provider: string;
   readonly chainId: number;
-  readonly walletBalance: number;
-  readonly supplyBalance: number;
-  readonly borrowBalance: number;
   readonly userLiquidationThreshold: number;
   readonly poolLiquidationThreshold: number;
   readonly logo?: string;
+  
+  public walletBalance: number;
+  public supplyBalance: number;
+  public borrowBalance: number;
 
 
-  public abstract deposit(amount: number): Promise<void>;
-  public abstract withdraw(amount: number): Promise<void>;
-  public abstract borrow(amount: number): Promise<void>;
-  public abstract repay(amount: number): Promise<void>;
+  public abstract deposit(amount: number, provider: Web3ProviderType): Promise<void>;
+  public abstract withdraw(amount: number, provider: Web3ProviderType): Promise<void>;
+  public abstract borrow(amount: number, provider: Web3ProviderType): Promise<void>;
+  public abstract repay(amount: number, provider: Web3ProviderType): Promise<void>;
 
   constructor(pool: IMarketPool) {
     this.id = pool.id;
@@ -87,6 +88,10 @@ export abstract class MarketPool implements IMarketPool {
       case "aave-v3":
         const { AavePool } = require("./Aave.pool");
         poolInstance = new AavePool(pool as IAavePool) ;
+        break;
+      case "solend":
+        const { SolendPool } = require("./solend.pool");
+        poolInstance = new SolendPool( pool ) ;
         break;
       default:
         throw new Error("Invalid pool provider");

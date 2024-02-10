@@ -66,6 +66,7 @@ export function PoolHeaderList(props: IPoolHeaderListProps) {
                 <IonLabel>
                   <h3 
                     style={{ 
+                      cursor: 'pointer',
                       marginRight: (index + 1 === titles.length ) 
                         ? "1.6rem"
                         : "0"
