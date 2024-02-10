@@ -478,6 +478,23 @@ export function Welcome({
                 </IonCol>
                 <IonCol class="ion-text-center">
                   <a
+                    href="https://solend.fi"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    <IonImg
+                      style={{
+                        width: "65px",
+                        height: "65px",
+                        margin: "0.5rem auto",
+                      }}
+                      src={"./assets/images/solend.svg"}
+                    ></IonImg>
+                    <IonText>SOLEND</IonText>
+                  </a>
+                </IonCol>
+                <IonCol class="ion-text-center">
+                  <a
                     href="https://lido.fi/"
                     target="_blank"
                     rel="noreferrer noopener"
@@ -578,7 +595,7 @@ export function Welcome({
                     <IonText>MAGIC</IonText>
                   </a>
                 </IonCol>
-                <IonCol class="ion-text-center">
+                {/* <IonCol class="ion-text-center">
                   <a
                     href="https://onramper.com/"
                     target="_blank"
@@ -594,7 +611,7 @@ export function Welcome({
                     ></IonImg>
                     <IonText>ONRAMP</IonText>
                   </a>
-                </IonCol>
+                </IonCol> */}
               </IonRow>
             </IonGrid>
           </RevealComp>
