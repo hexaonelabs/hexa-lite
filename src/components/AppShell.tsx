@@ -1,4 +1,4 @@
-import { IonApp, IonButton, IonRouterOutlet, setupIonicReact, IonText, IonChip, IonContent, IonGrid, IonRow, IonCol, IonPage } from '@ionic/react';
+import { IonApp, IonButton, IonRouterOutlet, setupIonicReact, IonText, IonChip, IonContent, IonGrid, IonRow, IonCol, IonPage, useIonModal, IonIcon, useIonAlert } from '@ionic/react';
 import { StatusBar, Style } from '@capacitor/status-bar';
 
 import { IonReactRouter } from '@ionic/react-router';
@@ -16,6 +16,9 @@ import { Leaderboard } from '@/containers/LeaderboardContainer';
 import { NotFoundPage } from '@/containers/NotFoundPage';
 import PwaInstall from './PwaInstall';
 import { initializeWeb3 } from '@/store/effects/web3.effects';
+import { getMagic } from '@/servcies/magic';
+import Store from '@/store';
+import { getWeb3State } from '@/store/selectors';
 
 
 setupIonicReact({ mode: 'ios' });
@@ -33,6 +36,8 @@ const AppShell = () => {
   // get params from url `s=`
   const urlParams = new URLSearchParams(window.location.search);
   let segment = urlParams.get("s") || "welcome";
+  const {walletAddress, isMagicWallet } = Store.useState(getWeb3State);
+  const [presentFiatWarning, dismissFiatWarning] = useIonAlert();
   // handle unsupported segment
   // if (segment && ['welcome', 'swap', 'fiat', 'defi', 'earn'].indexOf(segment) === -1) {
   //   urlParams.delete('s');
@@ -42,7 +47,21 @@ const AppShell = () => {
   // }
   // use state to handle segment change
   const [currentSegment, setSegment] = useState(segment);
-  const handleSegmentChange = (e: any) => {
+  const handleSegmentChange = async (e: any) => {
+    if (e.detail.value === 'fiat'){ 
+      if (walletAddress && walletAddress !== '' && isMagicWallet) {
+        const magic = await getMagic();
+        magic.wallet.showOnRamp();
+      } else {
+        await presentFiatWarning({
+          header: 'Information',
+          message: 'Connect with e-mail or social login to enable buy crypto with fiat.',
+          buttons: ['OK'],
+          cssClass: 'modalAlert'
+        });
+      };
+      return;
+    };
     setSegment(e.detail.value);
   };
   const contentRef = useRef<HTMLIonContentElement | null>(null);

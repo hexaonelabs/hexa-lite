@@ -2,15 +2,11 @@ import {
   IonAccordionGroup,
   IonCol,
   IonGrid,
-  IonImg,
   IonInfiniteScroll,
-  IonInfiniteScrollContent,
   IonInput,
   IonRow,
-  IonSearchbar,
   IonSelect,
   IonSelectOption,
-  IonSpinner,
   IonText,
   IonToggle,
 } from "@ionic/react";
@@ -22,6 +18,7 @@ import { IPoolGroup } from "../interfaces/reserve.interface";
 import Store from "@/store";
 import { getTotalTVLState, getWeb3State, getPoolGroupsState } from "@/store/selectors";
 import { getPoolWalletBalance } from "@/utils/getPoolWalletBalance";
+import { LoadingPoolGroupsSkeleton } from "./LoadingPoolGroupsSkeleton";
 
 export function MarketList(props: {
   filterBy?: {
@@ -98,15 +95,6 @@ export function MarketList(props: {
     })
     .slice(0, maxItemCount);
 
-  const Spinner = poolGroups.length <= 0 && (!totalTVL) ? (
-    <IonGrid class="ion-padding">
-      <IonRow class="ion-padding">
-        <IonCol size="12" class="ion-text-center ion-padding">
-          <IonSpinner></IonSpinner>
-        </IonCol>
-      </IonRow>
-    </IonGrid>
-  ) : (<></>);
   return (
     <>
       <IonGrid className="ion-no-padding ion-padding-vertical">
@@ -224,7 +212,6 @@ export function MarketList(props: {
       </IonGrid>
       {groups.length > 0 && totalTVL && (
         <>
-          {/* list header */}
           <PoolHeaderList
             titles={[
               "Assets",
@@ -281,11 +268,15 @@ export function MarketList(props: {
               setTimeout(() => ev.target.complete(), 150);
             }}
           >
-            <IonInfiniteScrollContent></IonInfiniteScrollContent>
+            <div className="infinite-scroll-content">
+              <LoadingPoolGroupsSkeleton itemCounts={groups.length - maxItemCount > 10 ? 5 : groups.length - maxItemCount} />
+            </div>
           </IonInfiniteScroll>
         </>
+      )} 
+      {poolGroups.length <= 0 && (!totalTVL) && (
+        <LoadingPoolGroupsSkeleton itemCounts={5} />
       )}
-      {Spinner}
       {groups.length === 0 && totalTVL && (
         <IonGrid class="ion-padding">
           <IonRow class="ion-padding">

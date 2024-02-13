@@ -11,7 +11,7 @@ const GET_POOL_STATE = createSelector(getState, (state) => state.pools);
 export const getWeb3State = createSelector(getState, (state) => state.web3);
 
 // Web3 Selectors
-export const walletAddressState = createSelector(
+export const getWalletAddressState = createSelector(
   getWeb3State,
   (state) => state.walletAddress
 );

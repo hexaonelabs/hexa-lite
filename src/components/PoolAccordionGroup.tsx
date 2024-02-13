@@ -54,7 +54,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                 <IonImg src={poolGroup.logo}></IonImg>
               </IonAvatar>
               <IonLabel
-                class="ion-padding-start"
+                class="ion-padding-start ion-text-nowrap"
                 style={{ fontSize: "1.2rem" }}
               >
                 {poolGroup?.symbol}

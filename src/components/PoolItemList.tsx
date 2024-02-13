@@ -123,7 +123,7 @@ export function PoolItemList(props: IPoolItemListProps) {
                 assetIconURL={pool.logo}
                 iconSize={iconSize}
               />
-              <IonLabel class="ion-padding-start">
+              <IonLabel class="ion-padding-start ion-text-nowrap">
                 {pool.symbol}
                 {pool.usageAsCollateralEnabled === false && (
                   <IonIcon
@@ -132,7 +132,7 @@ export function PoolItemList(props: IPoolItemListProps) {
                     style={{ marginLeft: "0.5rem" }}
                   ></IonIcon>
                 )}
-                <p>
+                <p style={{lineHeight: '80%'}}>
                   <small>
                     {CHAIN_AVAILABLES.find((c) => c.id === chainId)?.name}{" "}
                     network
