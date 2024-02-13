@@ -11,7 +11,7 @@ import {
   IonText,
 } from "@ionic/react";
 import { getReadableAmount } from "../utils/getReadableAmount";
-import { PoolItemList } from "./PoolItemList";
+import { PoolItem } from "./PoolItem";
 import { IPoolGroup } from "../interfaces/reserve.interface";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import Store from "@/store";
@@ -222,7 +222,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
           if (a.supplyAPY < b.supplyAPY) return 1;
           return a.symbol > b.symbol ? 1 : -1;
         }).map((p) => (
-          <PoolItemList
+          <PoolItem
             key={p.id}
             poolId={p.id}
             chainId={p.chainId}

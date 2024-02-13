@@ -22,13 +22,13 @@ import { SymbolIcon } from "./SymbolIcon";
 import Store from "@/store";
 import { getWeb3State, getPoolGroupsState } from "@/store/selectors";
 
-interface IPoolItemListProps {
+interface IPoolItemProps {
   poolId: string;
   chainId: number;
   iconSize: string;
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }
-export function PoolItemList(props: IPoolItemListProps) {
+export function PoolItem(props: IPoolItemProps) {
   const { poolId, iconSize, chainId, handleSegmentChange } = props;
   const { walletAddress, loadAssets } = Store.useState(getWeb3State);
   const poolGroups  = Store.useState(getPoolGroupsState);
