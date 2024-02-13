@@ -109,7 +109,13 @@ export function Header({
                     style={{ maxWidth: "550px" }}
                     mode="ios"
                     value={currentSegment}
-                    onIonChange={(e: any) => handleSegmentChange(e)}
+                    onIonChange={(e: any) => {
+                      if (e.detail.value === 'fiat-segment') {
+                        handleSegmentChange({detail: {value: 'fiat'}});
+                        return;
+                      };
+                      handleSegmentChange(e);
+                    }}
                   >
                     <IonSegmentButton value="swap">Exchange</IonSegmentButton>
                     <IonSegmentButton value="earn">
@@ -118,7 +124,9 @@ export function Header({
                     <IonSegmentButton value="defi">
                       Lending & Borrow
                     </IonSegmentButton>
-                    <IonSegmentButton value="fiat">Buy</IonSegmentButton>
+                    <IonSegmentButton value="fiat-segment">
+                      Buy
+                    </IonSegmentButton>
                   </IonSegment>
                 </IonCol>
                 <IonCol

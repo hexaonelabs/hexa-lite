@@ -22,13 +22,13 @@ import { SymbolIcon } from "./SymbolIcon";
 import Store from "@/store";
 import { getWeb3State, getPoolGroupsState } from "@/store/selectors";
 
-interface IPoolItemListProps {
+interface IPoolItemProps {
   poolId: string;
   chainId: number;
   iconSize: string;
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }
-export function PoolItemList(props: IPoolItemListProps) {
+export function PoolItem(props: IPoolItemProps) {
   const { poolId, iconSize, chainId, handleSegmentChange } = props;
   const { walletAddress, loadAssets } = Store.useState(getWeb3State);
   const poolGroups  = Store.useState(getPoolGroupsState);
@@ -123,7 +123,7 @@ export function PoolItemList(props: IPoolItemListProps) {
                 assetIconURL={pool.logo}
                 iconSize={iconSize}
               />
-              <IonLabel class="ion-padding-start">
+              <IonLabel class="ion-padding-start ion-text-nowrap">
                 {pool.symbol}
                 {pool.usageAsCollateralEnabled === false && (
                   <IonIcon
@@ -132,7 +132,7 @@ export function PoolItemList(props: IPoolItemListProps) {
                     style={{ marginLeft: "0.5rem" }}
                   ></IonIcon>
                 )}
-                <p>
+                <p style={{lineHeight: '80%'}}>
                   <small>
                     {CHAIN_AVAILABLES.find((c) => c.id === chainId)?.name}{" "}
                     network
