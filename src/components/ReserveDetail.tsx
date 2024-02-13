@@ -36,7 +36,7 @@ import { getReadableAmount } from "../utils/getReadableAmount";
 import { valueToBigNumber } from "@aave/math-utils";
 import ConnectButton from "./ConnectButton";
 import { LoanFormModal } from "./LoanFormModal";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   closeOutline,
   warningOutline,
@@ -79,6 +79,50 @@ interface IReserveDetailProps {
   pool: MarketPool;
   dismiss: (actionType?: string) => void;
   handleSegmentChange: (e: { detail: { value: string } }) => void;
+}
+
+const loadTokenData = async (symbol: string) => {
+  // check if have localstorage data 
+  const localCoinsListString = localStorage.getItem("coingecko-coins-list");
+  let localCoinsList = localCoinsListString ? JSON.parse(localCoinsListString) : null;
+  if (!localCoinsList) {
+    localCoinsList = await fetch(`https://api.coingecko.com/api/v3/coins/list`)
+    .then((response) => response.json());
+    localStorage.setItem("coingecko-coins-list", JSON.stringify(localCoinsList));
+  }
+  if (!localCoinsList) {
+    return;
+  }
+  // find coin id by symbol
+  const coin = localCoinsList.find((coin: {symbol: string}) => coin.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase());
+  if (coin) {
+    // fetch coin data by id
+    return fetch(`https://api.coingecko.com/api/v3/coins/${coin.id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("coin data: ", data.description.en);
+        const { 
+          description: {en: description},
+          market_data: {
+            fully_diluted_valuation: {usd: fullyDilutedValuationUSD},
+            market_cap: {usd: marketCapUSD},
+            max_supply: maxSupply,
+            total_supply: totalSupply,
+            circulating_supply: circulatingSupply
+          }
+        } = data;
+        return {
+          description,
+          fullyDilutedValuationUSD,
+          marketCapUSD,
+          maxSupply,
+          totalSupply,
+          circulatingSupply
+        }
+      });
+  } else {
+    return
+  }
 }
 
 export function ReserveDetail(props: IReserveDetailProps) {
@@ -177,6 +221,14 @@ export function ReserveDetail(props: IReserveDetailProps) {
   const [isCrossChain, setIsCrossChain] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOptionsOpen, setIsModalOptionsOpen] = useState(false);
+  const [tokenDetails, setTokenDetails] = useState<{
+    description: any;
+    fullyDilutedValuationUSD: any;
+    marketCapUSD: any;
+    maxSupply: any;
+    totalSupply: any;
+    circulatingSupply: any;
+  }>(undefined as any);
 
   // find pool in `poolGroups[*].pool` by `poolId`
   const poolGroup = poolGroups.find(({ pools }) =>
@@ -429,6 +481,14 @@ export function ReserveDetail(props: IReserveDetailProps) {
       </IonButton>
     );
 
+  // useEffect(() => {
+  //   if (!pool.symbol) {return}
+  //   loadTokenData(pool.symbol).then((details) => {
+  //     if (!details) return;
+  //     setTokenDetails(() => details);
+  //   });
+  // }, [pool.symbol]);
+  
   return (
     <>
       <IonContent fullscreen={true} className="ion-padding">
@@ -561,6 +621,65 @@ export function ReserveDetail(props: IReserveDetailProps) {
                       <ConnectButton></ConnectButton>
                     )}
                   </IonCol>
+                  {tokenDetails && (
+                    <IonCol size="12" className="ion-padding-top ion-margin-top itemListDetails">
+                      <IonLabel className="ion-padding-start ion-padding-vertical">
+                        <b>Token details</b>
+                      </IonLabel>
+                      <div>
+                        <IonItem lines="none">
+                          <IonLabel>Total market capitalisation</IonLabel>
+                          <IonText slot="end">
+                            {getReadableAmount(
+                              valueToBigNumber(
+                                tokenDetails.marketCapUSD
+                              ).toNumber()
+                            )}
+                          </IonText>
+                        </IonItem>
+                        <IonItem lines="none">
+                          <IonLabel>Fully Diluted Valuation USD</IonLabel>
+                          <IonText slot="end">
+                            {getReadableAmount(
+                              valueToBigNumber(
+                                tokenDetails.fullyDilutedValuationUSD
+                              ).toNumber()
+                            )}
+                          </IonText>
+                        </IonItem>
+                        <IonItem lines="none">
+                          <IonLabel>Total current token supply</IonLabel>
+                          <IonText slot="end">
+                            {getReadableAmount(
+                              valueToBigNumber(
+                                tokenDetails.totalSupply
+                              ).toNumber()
+                            )}
+                          </IonText>
+                        </IonItem>
+                        <IonItem lines="none">
+                          <IonLabel>Maximum token supply</IonLabel>
+                          <IonText slot="end">
+                            {getReadableAmount(
+                              valueToBigNumber(
+                                tokenDetails.maxSupply
+                              ).toNumber()
+                            )}
+                          </IonText>
+                        </IonItem>
+                        <IonItem lines="none">
+                          <IonLabel>Current token circulating supply</IonLabel>
+                          <IonText slot="end">
+                            {getReadableAmount(
+                              valueToBigNumber(
+                                tokenDetails.circulatingSupply
+                              ).toNumber()
+                            )}
+                          </IonText>
+                        </IonItem>
+                      </div>
+                    </IonCol>
+                  )}
                 </IonRow>
               </IonGrid>
             </IonCol>
