@@ -12,6 +12,8 @@ export enum NETWORK {
   cosmos = 118,
   polkadot = 111,
   solana = 1399811149,
+  base = 8453,
+  scroll = 534352,
 }
 
 export interface IChain {
@@ -112,6 +114,36 @@ export const CHAIN_AVAILABLES: IChain[] = [
     rpcUrl: [
       {primary: false, url:'https://mainnet.optimism.io'}, 
       {primary: true, url: "https://rpc.ankr.com/optimism"}
+    ]
+    .find(
+      (rpc) => rpc.primary
+    )?.url||'',
+    type: 'evm',
+  },
+  {
+    id: NETWORK.base,
+    value: 'base',
+    name: 'Base',
+    nativeSymbol: 'ETH',
+    logo: '/assets/icons/base.svg',
+    rpcUrl: [
+      {primary: false, url: 'https://endpoints.omniatech.io/v1/base/mainnet/public'}, 
+      {primary: true, url: "https://base.llamarpc.com"}
+    ]
+    .find(
+      (rpc) => rpc.primary
+    )?.url||'',
+    type: 'evm',
+  },
+  {
+    id: NETWORK.scroll,
+    value: 'scroll',
+    name: 'Scroll',
+    nativeSymbol: 'ETH',
+    logo: '/assets/icons/scroll.svg',
+    rpcUrl: [
+      {primary: false, url: 'https://scroll-mainnet.public.blastapi.io'}, 
+      {primary: true, url: "https://1rpc.io/scroll"}
     ]
     .find(
       (rpc) => rpc.primary

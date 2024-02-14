@@ -22,6 +22,59 @@ import { SymbolIcon } from "./SymbolIcon";
 import Store from "@/store";
 import { getWeb3State, getPoolGroupsState } from "@/store/selectors";
 
+const LogoProviderImage = (props: { provider: string }) => {
+  const { provider } = props;
+  let url = "./assets/icons/aave.svg";
+  switch (true) {
+    case provider.includes("aave"):
+      break;
+    case provider.includes("solend"):
+      url = "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/SLNDpmoWTVADgEdndyvWzroNL7zSi1dF9PC3xHGtPwp/logo.png";
+      break;
+  }
+  return (
+    <IonImg
+      style={{
+        width: "18px",
+        heigth: "18px",
+        display: "inline-block",
+        margin: "auto",
+        borderRadius: '50%',
+        overflow: 'hidden',
+        boxShadow: '0 0 8px 2px var(--ion-border-color)'
+      }}
+      src={url} />
+  );
+};
+
+const ActionBtn = (props: {provider: string}) => {
+  const { provider } = props;
+  if (provider === 'aave-v3') {
+    return (
+      <IonFabButton
+        slot="end"
+        color="gradient"
+        size="small"
+        className="ion-margin-horizontal"
+      >
+        <IonIcon size="small" icon={searchOutline} />
+      </IonFabButton>
+    )
+  }
+  return (
+    <IonButton 
+      disabled={true}
+      className="ion-margin-horizontal"
+      slot="end"
+      size="small"
+      color="gradient">
+      <small>
+        soon
+      </small>
+    </IonButton>
+  );
+}
+
 interface IPoolItemProps {
   poolId: string;
   chainId: number;
@@ -35,63 +88,17 @@ export function PoolItem(props: IPoolItemProps) {
   const modal = useRef<HTMLIonModalElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   // find pool in `poolGroups[*].pool` by `poolId`
-  const pool = poolGroups
-      .find((pg) => pg.pools.find((p) => p.id === poolId))
-      ?.pools.find((p) => p.id === poolId);
-  if (!pool) throw new Error(`[ERROR] Pool not found: ${poolId}`);
+  const pool = useMemo(() => {
+    const foundPoolGroup = poolGroups.find((pg) => pg.pools.find((p) => p.id === poolId));
+    if (!foundPoolGroup) throw new Error(`[ERROR] Pool group not found: ${poolId}`);
+    const foundPool = foundPoolGroup.pools.find((p) => p.id === poolId);
+    if (!foundPool) throw new Error(`[ERROR] Pool not found: ${poolId}`);
+    return foundPool;
+  }, [poolGroups, poolId]);
 
   const walletBalance = pool.walletBalance > 0 ? pool.walletBalance.toFixed(6) : "0";
   const { borrowBalance, supplyBalance } = pool;
-  const LogoProviderImage = (props: { provider: string }) => {
-    const { provider } = props;
-    let url = "./assets/icons/aave.svg";
-    switch (true) {
-      case provider.includes("aave"):
-        break;
-      case provider.includes("solend"):
-        url = "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/SLNDpmoWTVADgEdndyvWzroNL7zSi1dF9PC3xHGtPwp/logo.png";
-        break;
-    }
-    return (
-      <IonImg
-        style={{
-          width: "18px",
-          heigth: "18px",
-          position: "absolute",
-          right: "0",
-          borderRadius: '50%',
-          overflow: 'hidden'
-        }}
-        src={url} />
-    );
-  };
-  const ActionBtn = (props: {provider: string}) => {
-    const { provider } = props;
-    if (provider === 'aave-v3') {
-      return (
-        <IonFabButton
-          slot="end"
-          color="gradient"
-          size="small"
-          className="ion-margin-horizontal"
-        >
-          <IonIcon size="small" icon={searchOutline} />
-        </IonFabButton>
-      )
-    }
-    return (
-      <IonButton 
-        disabled={true}
-        className="ion-margin-horizontal"
-        slot="end"
-        size="small"
-        color="gradient">
-        <small>
-          soon
-        </small>
-      </IonButton>
-    );
-  }
+  
   return (
     <>
       <IonItem

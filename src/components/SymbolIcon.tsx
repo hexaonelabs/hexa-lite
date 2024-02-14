@@ -11,6 +11,7 @@ export function SymbolIcon(props: {symbol: string; chainId?: number; iconSize?: 
         transform: "translateX(-0.2rem)",
         position: "absolute",
         bottom: "0rem",
+        borderRadius: "100%"
       }}
       src={CHAIN_AVAILABLES.find((c) => c.id === chainId)?.logo}
     ></IonIcon>

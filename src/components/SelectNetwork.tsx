@@ -63,6 +63,7 @@ export const SelectNetwork: React.FC<SelectNetworkProps> = ({
           >
             {chains
               // .filter(chain => isMagicWallet ? true : chain.type === "evm")
+              .sort((a, b) => (a.name > b.name ? 1 : -1))
               .map((chain, index) => (
                 <IonItem
                   key={index}

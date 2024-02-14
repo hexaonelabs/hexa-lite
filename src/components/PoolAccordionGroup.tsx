@@ -51,7 +51,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                   minWidth: "64px",
                 }}
               >
-                <IonImg src={poolGroup.logo}></IonImg>
+                <img src={poolGroup.logo} title={poolGroup.symbol} />
               </IonAvatar>
               <IonLabel
                 class="ion-padding-start ion-text-nowrap"
@@ -84,6 +84,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
                   style={{
                     fontSize: "0.8rem",
                     transform: i !== 0 ? "translateX(-0.1rem)" : "none",
+                    borderRadius: "100%",
                   }}
                   src={CHAIN_AVAILABLES.find((c) => c.id === id)?.logo}
                 ></IonIcon>

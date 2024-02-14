@@ -109,5 +109,8 @@ export const getAssetIconUrl = ({ symbol }: { symbol: string }) => {
   if (symbol === "PYUSD") {
     logoUrl = `./assets/icons/pyusd.png`;
   }
+  if (symbol === "USDbC") {
+    logoUrl = `./assets/icons/usdbc.svg`;
+  }
   return logoUrl;
 };

@@ -149,6 +149,7 @@ export function MarketList(props: {
               <IonSelectOption value="*">All</IonSelectOption>
               {CHAIN_AVAILABLES
               .filter(chain => chain.type === 'evm' || chain.type === 'solana')
+              .sort((a, b) => a.name.localeCompare(b.name))
               .map((chain, index) => (
                 <IonSelectOption key={`option_chainId_${index}`} value={chain.id.toString()}>
                   {chain.name}
