@@ -160,13 +160,27 @@ ion-alert.modalAlert {
   //   display: none;
   // }
 
-  &.infoAPY {
+  &.modalInfo, &.infoAPY {
     --min-width: 200px!important;
 
     ion-item {
       --padding-start: none;
       --inner-padding-end: none;
       --background: none;
+    }
+  }
+  &.modalInfo {
+    ion-grid {
+      max-height: 95vh;
+      overflow-y: scroll;
+      overflow-x: hidden;
+
+      > ion-row:first-of-type {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: var(--ion-background-color);
+      }
     }
   }
 }
