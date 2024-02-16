@@ -112,5 +112,8 @@ export const getAssetIconUrl = ({ symbol }: { symbol: string }) => {
   if (symbol === "USDbC") {
     logoUrl = `./assets/icons/usdbc.svg`;
   }
+  if (symbol === "sfrxETH") {
+    logoUrl = `./assets/icons/sfrxeth.png`;
+  }
   return logoUrl;
 };

@@ -2,6 +2,7 @@ import { IonCol, IonGrid, IonRow, IonText } from "@ionic/react";
 import { ETHLiquidStakingstrategyCard } from "../components/ETHLiquidStakingstrategy";
 import { MATICLiquidStakingstrategyCard } from "../components/MATICLiquidStakingstrategy";
 import { ATOMLiquidStakingstrategyCard } from "@/components/ATOMLiquidStakingstrategy";
+import { ETHsfrxLiquidStakingstrategyCard } from "@/components/ETHsfrxLiquidStakingstrategy";
 
 export function EarnContainer() {
   return (
@@ -48,6 +49,10 @@ export function EarnContainer() {
               <IonCol size="auto" className="ion-padding">
                 <ETHLiquidStakingstrategyCard />
               </IonCol>
+
+              {/* <IonCol size="auto" className="ion-padding">
+                <ETHsfrxLiquidStakingstrategyCard />
+              </IonCol> */}
 
               {/* ETH Optimized Strategy */}
               {/* <IonCol size="auto" className="ion-padding-bottom">
