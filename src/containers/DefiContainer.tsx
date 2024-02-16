@@ -23,10 +23,9 @@ import { useEffect, useState } from "react";
 import { MarketList } from "../components/MarketsList";
 import { currencyFormat } from "../utils/currency-format";
 import { valueToBigNumber } from "@aave/math-utils";
-import { AavePool } from "@/pool/Aave.pool";
 import { getReadableValue } from "@/utils/getReadableValue";
 import Store from "@/store";
-import { getPoolGroupsState, getProtocolSummaryState, getTotalTVLState, getUserSummaryAndIncentivesGroupState, getWeb3State } from "@/store/selectors";
+import { getPoolGroupsState, getProtocolSummaryState, getUserSummaryAndIncentivesGroupState, getWeb3State } from "@/store/selectors";
 import { initializePools, initializeUserSummary } from "@/store/effects/pools.effect";
 import { patchPoolsState } from "@/store/actions";
 
@@ -42,7 +41,6 @@ export const DefiContainer = ({
 }) => {
   const { walletAddress } = Store.useState(getWeb3State);
   const userSummaryAndIncentivesGroup = Store.useState(getUserSummaryAndIncentivesGroupState);
-  const totalTVL = Store.useState(getTotalTVLState);
   const poolGroups = Store.useState(getPoolGroupsState);
   const protocolSummary = Store.useState(getProtocolSummaryState);
   const [filterBy, setFilterBy] = useState<{ [key: string]: string } | null>(
@@ -74,6 +72,9 @@ export const DefiContainer = ({
   const percentBorrowingCapacity = 100 - getPercent(totalBorrowsUsd, totalBorrowableUsd);
   // const progressBarFormatedValue = percentBorrowingCapacity / 100;
   const totalAbailableToBorrow = totalBorrowableUsd - totalBorrowsUsd;
+  const totalTVL = poolGroups
+    .flatMap(g => g.pools)
+    .reduce((prev, current) => prev + Number(current.totalLiquidityUSD||0), 0);
 
   console.log("[INFO] {{DefiContainer}} poolGroups > ", {
     poolGroups,
@@ -85,7 +86,7 @@ export const DefiContainer = ({
   });
 
   useEffect(() => {
-    if (poolGroups.length > 0 && totalTVL) {
+    if (poolGroups.length > 0 && totalTVL > 0) {
       return;
     }
     initializePools();
@@ -143,6 +144,9 @@ export const DefiContainer = ({
                   lineHeight: "1.8rem",
                 }}
               >
+                {
+                  
+                }
                 {(totalTVL || 0) > 0 ? (
                   '$' + getReadableValue(totalTVL || 0)
                 ) : (
@@ -499,6 +503,7 @@ export const DefiContainer = ({
               Available Markets
             </h3>
             <MarketList
+              totalTVL={totalTVL}
               handleSegmentChange={handleSegmentChange}
               filterBy={filterBy ? undefined : undefined}
             />

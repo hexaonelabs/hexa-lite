@@ -1,6 +1,7 @@
 import {
   IonButton,
   IonCard,
+  IonCardContent,
   IonCol,
   IonContent,
   IonGrid,
@@ -217,202 +218,203 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
   return (
     <>
       <IonCard className={props.asImage ? "asImage" : "strategyCard"} >
-        <IonGrid>
-          <IonRow class="ion-text-center ion-padding">
-            <IonCol size="12" class="ion-padding">
-              <IonImg
-                style={{
-                  padding: "0 2rem",
-                  maxWidth: 200,
-                  maxHeight: 200,
-                  margin: "1rem auto 0",
-                }}
-                src={strategy.icon}
-              />
-            </IonCol>
-            <IonCol size="12" class="ion-padding-top">
-              <h1 className="ion-no-margin">
-                <IonText className="ion-color-gradient-text">
-                  {strategy.name}
-                </IonText>
-                <br />
-                <IonText color="dark">
-                  <small>{strategy.type}</small>
-                </IonText>
-              </h1>
-            </IonCol>
-          </IonRow>
-
-          <IonRow class="ion-padding">
-            <IonCol class="ion-padding">
-              <IonItem
-                style={{
-                  "--background": "transparent",
-                  "--inner-padding-end": "none",
-                  "--padding-start": "none",
-                }}
-              >
-                <IonLabel>
-                  Assets
-                </IonLabel>
-                <div slot="end" style={{ display: "flex" }}>
-                  {strategy.assets.map((symbol, index) => (
-                    <IonImg
-                      key={index}
-                      style={{
-                        width: 28,
-                        height: 28,
-                        transform: index === 0 ? "translateX(5px)" : "none",
-                      }}
-                      src={getAssetIconUrl({ symbol })}
-                      alt={symbol}
-                    />
-                  ))}
-                </div>
-              </IonItem>
-              <IonItem
-                style={{
-                  "--background": "transparent",
-                  "--inner-padding-end": "none",
-                  "--padding-start": "none",
-                }}
-              >
-                <IonLabel>Network</IonLabel>
-                <div slot="end" style={{ display: "flex" }}>
-                  {strategy.chainsId
-                    .map((id) => CHAIN_AVAILABLES.find((c) => c.id === id))
-                    .map((c, index) => {
-                      if (!c || !c.nativeSymbol) return null;
-                      return (
-                        <IonImg
-                          key={index}
-                          style={{
-                            width: 18,
-                            height: 18,
-                            transform:
-                              index === 0 && strategy.chainsId.length > 1
-                                ? "translateX(5px)"
-                                : "none",
-                          }}
-                          src={getAssetIconUrl({ symbol: c.nativeSymbol })}
-                          alt={c.nativeSymbol}
-                        />
-                      );
-                    })}
-                </div>
-              </IonItem>
-              <IonItem
-                style={{
-                  "--background": "transparent",
-                  "--inner-padding-end": "none",
-                  "--padding-start": "none",
-                }}
-              >
-                <IonLabel>
-                  APY
-                  <ApyDetail>
-                    <>
-                      <IonItem>
-                        <IonLabel color="medium">
-                          <h2>
-                            Base APY <small>(stETH)</small>
-                          </h2>
-                        </IonLabel>
-                        <IonText slot="end">{strategy.apys[0]}%</IonText>
-                      </IonItem>
-                      <IonItem lines="none">
-                        <IonLabel>
-                          <h2>
-                            <b>Total variable APY</b>
-                          </h2>
-                        </IonLabel>
-                        <IonText slot="end">
-                          <b>{strategy.apys[0]}%</b>
-                        </IonText>
-                      </IonItem>
-                    </>
-                  </ApyDetail>
-                </IonLabel>
-                <div slot="end" style={{ display: "flex" }}>
-                  {strategy.apys.map((apy, index) => (
-                    <IonText className="ion-color-gradient-text" key={index}>
-                      <strong>{apy}%</strong>
-                    </IonText>
-                  ))}
-                </div>
-              </IonItem>
-              <IonItem
-                style={{
-                  "--background": "transparent",
-                  "--inner-padding-end": "none",
-                  "--padding-start": "none",
-                }}
-              >
-                <IonLabel>Protocols</IonLabel>
-                <div slot="end" style={{ display: "flex" }}>
-                  {strategy.providers
-                    .map((p) => {
-                      // return capitalized string
-                      return p.charAt(0).toUpperCase() + p.slice(1);
-                    })
-                    .join(" + ")}
-                </div>
-              </IonItem>
-            </IonCol>
-          </IonRow>
-
-          <IonRow>
-            <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
-              <HowItWork>
-                <div className="ion-padding-horizontal">
-                  <IonText>
-                    <h4>Staking ETH with Lido</h4>
-                    <p className="ion-no-margin ion-padding-bottom">
-                      <small>
-                        By swapping your ETH for wstETH, you will increase your ETH holdings
-                        by {baseAPRstETH.toFixed(2)}% APY using ETH staking with{" "}
-                        <a
-                          href="https://lido.fi/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Lido finance
-                        </a>.
-                      </small>
-                    </p>
-                    <p className="ion-no-margin ion-padding-bottom">
-                      <small>
-                        The wstETH price increases daily with exchange rate reflecting staking rewards.
-                      </small>
-                    </p>
-                    <p className="ion-no-margin ion-padding-bottom">
-                      <small>
-                        You can also use your wstETH to earn more yield on lendings market or swap back to ETH at any time without locking period.
-                      </small>
-                    </p>
+        <IonCardContent>
+          <IonGrid class="ion-no-padding">
+            <IonRow class="ion-text-center ion-no-padding ion-align-items-center">
+              <IonCol size="12" class="ion-padding">
+                <IonImg
+                  style={{
+                    padding: "0 0rem",
+                    maxWidth: 114,
+                    maxHeight: 114,
+                    margin: "0 auto",
+                  }}
+                  src={strategy.icon}
+                />
+              </IonCol>
+              <IonCol size="12" class="ion-padding">
+                <h1 className="ion-no-margin">
+                  <IonText className="ion-color-gradient-text">
+                    {strategy.name}
                   </IonText>
-                </div>
-              </HowItWork>
+                  <IonText color="dark">
+                    <small>{strategy.type}</small>
+                  </IonText>
+                </h1>
+              </IonCol>
+            </IonRow>
 
-              <IonButton
-                onClick={async () => {
-                  const chainId = currentNetwork;
-                  await displayLoader();
-                  if (chainId !== NETWORK.optimism) {
-                    await switchNetwork(NETWORK.optimism);
-                  }
-                  await modal.current?.present();
-                  await hideLoader();
-                }}
-                expand="block"
-                color="gradient"
-              >
-                Start Earning
-              </IonButton>
-            </IonCol>
-          </IonRow>
+            <IonRow class="ion-no-padding">
+              <IonCol class="ion-padding">
+                <IonItem
+                  style={{
+                    "--background": "transparent",
+                    "--inner-padding-end": "none",
+                    "--padding-start": "none",
+                  }}
+                >
+                  <IonLabel>
+                    Assets
+                  </IonLabel>
+                  <div slot="end" style={{ display: "flex" }}>
+                    {strategy.assets.map((symbol, index) => (
+                      <IonImg
+                        key={index}
+                        style={{
+                          width: 28,
+                          height: 28,
+                          transform: index === 0 ? "translateX(5px)" : "none",
+                        }}
+                        src={getAssetIconUrl({ symbol })}
+                        alt={symbol}
+                      />
+                    ))}
+                  </div>
+                </IonItem>
+                <IonItem
+                  style={{
+                    "--background": "transparent",
+                    "--inner-padding-end": "none",
+                    "--padding-start": "none",
+                  }}
+                >
+                  <IonLabel>Network</IonLabel>
+                  <div slot="end" style={{ display: "flex" }}>
+                    {strategy.chainsId
+                      .map((id) => CHAIN_AVAILABLES.find((c) => c.id === id))
+                      .map((c, index) => {
+                        if (!c || !c.nativeSymbol) return null;
+                        return (
+                          <IonImg
+                            key={index}
+                            style={{
+                              width: 18,
+                              height: 18,
+                              transform:
+                                index === 0 && strategy.chainsId.length > 1
+                                  ? "translateX(5px)"
+                                  : "none",
+                            }}
+                            src={getAssetIconUrl({ symbol: c.nativeSymbol })}
+                            alt={c.nativeSymbol}
+                          />
+                        );
+                      })}
+                  </div>
+                </IonItem>
+                <IonItem
+                  style={{
+                    "--background": "transparent",
+                    "--inner-padding-end": "none",
+                    "--padding-start": "none",
+                  }}
+                >
+                  <IonLabel>
+                    APY
+                    <ApyDetail>
+                      <>
+                        <IonItem>
+                          <IonLabel color="medium">
+                            <h2>
+                              Base APY <small>(stETH)</small>
+                            </h2>
+                          </IonLabel>
+                          <IonText slot="end">{strategy.apys[0]}%</IonText>
+                        </IonItem>
+                        <IonItem lines="none">
+                          <IonLabel>
+                            <h2>
+                              <b>Total variable APY</b>
+                            </h2>
+                          </IonLabel>
+                          <IonText slot="end">
+                            <b>{strategy.apys[0]}%</b>
+                          </IonText>
+                        </IonItem>
+                      </>
+                    </ApyDetail>
+                  </IonLabel>
+                  <div slot="end" style={{ display: "flex" }}>
+                    {strategy.apys.map((apy, index) => (
+                      <IonText className="ion-color-gradient-text" key={index}>
+                        <strong>{apy}%</strong>
+                      </IonText>
+                    ))}
+                  </div>
+                </IonItem>
+                <IonItem
+                  style={{
+                    "--background": "transparent",
+                    "--inner-padding-end": "none",
+                    "--padding-start": "none",
+                  }}
+                >
+                  <IonLabel>Protocols</IonLabel>
+                  <div slot="end" style={{ display: "flex" }}>
+                    {strategy.providers
+                      .map((p) => {
+                        // return capitalized string
+                        return p.charAt(0).toUpperCase() + p.slice(1);
+                      })
+                      .join(" + ")}
+                  </div>
+                </IonItem>
+              </IonCol>
+            </IonRow>
 
-        </IonGrid>
+            <IonRow class="ion-no-padding">
+              <IonCol size="12" class="ion-padding-horizontal ion-padding-bottom">
+                <HowItWork>
+                  <div className="ion-padding-horizontal">
+                    <IonText>
+                      <h4>Staking ETH with Lido</h4>
+                      <p className="ion-no-margin ion-padding-bottom">
+                        <small>
+                          By swapping your ETH for wstETH, you will increase your ETH holdings
+                          by {baseAPRstETH.toFixed(2)}% APY using ETH staking with{" "}
+                          <a
+                            href="https://lido.fi/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Lido finance
+                          </a>.
+                        </small>
+                      </p>
+                      <p className="ion-no-margin ion-padding-bottom">
+                        <small>
+                          The wstETH price increases daily with exchange rate reflecting staking rewards.
+                        </small>
+                      </p>
+                      <p className="ion-no-margin ion-padding-bottom">
+                        <small>
+                          You can also use your wstETH to earn more yield on lendings market or swap back to ETH at any time without locking period.
+                        </small>
+                      </p>
+                    </IonText>
+                  </div>
+                </HowItWork>
+
+                <IonButton
+                  onClick={async () => {
+                    const chainId = currentNetwork;
+                    await displayLoader();
+                    if (chainId !== NETWORK.optimism) {
+                      await switchNetwork(NETWORK.optimism);
+                    }
+                    await modal.current?.present();
+                    await hideLoader();
+                  }}
+                  expand="block"
+                  color="gradient"
+                >
+                  Start Earning
+                </IonButton>
+              </IonCol>
+            </IonRow>
+
+          </IonGrid>
+        </IonCardContent>
       </IonCard>
 
       <IonModal
@@ -425,8 +427,9 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
         <IonContent>
           <IonGrid>
             <IonRow>
-              <IonCol size="12" className="ion-text-end">
+              <IonCol size="12" sizeMd="12" class="ion-padding">
                 <IonButton
+                  className="ion-float-end"
                   fill="clear"
                   color="dark"
                   onClick={async () => {
@@ -435,11 +438,20 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean }) {
                 >
                   <IonIcon icon={closeSharp} />
                 </IonButton>
+                <IonImg
+                  style={{
+                    padding: "0 0rem",
+                    maxWidth: 128,
+                    maxHeight: 128,
+                    margin: "2rem auto 0",
+                  }}
+                  src={strategy.icon}
+                />
               </IonCol>
               <IonCol
                 size="12"
-                offsetMd="3"
-                sizeMd="6"
+                offsetMd="2"
+                sizeMd="8"
                 class="ion-padding-start ion-padding-end ion-padding-bottom ion-text-center"
               >
                 <h1 className="ion-no-margin" style={{

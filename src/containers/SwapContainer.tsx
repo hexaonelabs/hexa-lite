@@ -232,8 +232,7 @@ export function SwapContainer() {
               }}
             >
               <span style={{ maxWidth: "650px", display: "inline-block" }}>
-                Crosschain swap assets instantly at the best rates and lowest
-                fees using AMM and DEX liquidity.
+                Seamlessly crosschain trade assets at optimal rates and minimal fees through our innovative AMM and DEX liquidity integration.
               </span>
             </p>
           </IonText>

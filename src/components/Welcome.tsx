@@ -147,8 +147,8 @@ export function Welcome({
                   <div className="ion-padding">
                     <IonImg
                       style={{
-                        minWidth: "100%",
-                        margin: "0 0.2rem",
+                        minWidth: "280px",
+                        margin: "0",
                         borderRadius: "32px",
                         overflow: "hidden",
                         maxWidth: "fit-content",
@@ -255,11 +255,11 @@ export function Welcome({
               <IonCol
                 size="12"
                 size-md="4"
-                className="ion-text-center ion-padding"
+                className="ion-text-center ion-padding-vertical"
               >
                 <RevealComp x={50} duration="200ms" threshold={0.75}>
                   <div
-                    className="ion-padding"
+                    className="ion-no-padding"
                     style={{
                       margin: "auto",
                       display: "inline-block",
