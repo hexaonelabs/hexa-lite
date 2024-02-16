@@ -503,6 +503,7 @@ export const DefiContainer = ({
               Available Markets
             </h3>
             <MarketList
+              totalTVL={totalTVL}
               handleSegmentChange={handleSegmentChange}
               filterBy={filterBy ? undefined : undefined}
             />

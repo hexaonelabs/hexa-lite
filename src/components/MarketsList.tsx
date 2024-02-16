@@ -21,13 +21,13 @@ import { getPoolWalletBalance } from "@/utils/getPoolWalletBalance";
 import { LoadingPoolGroupsSkeleton } from "./LoadingPoolGroupsSkeleton";
 
 export function MarketList(props: {
+  totalTVL: number;
   filterBy?: {
     [key: string]: string;
   };
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
-  const { handleSegmentChange, filterBy: filterFromParent } = props;
-  const totalTVL  = Store.useState(getTotalTVLState);
+  const { handleSegmentChange, filterBy: filterFromParent, totalTVL } = props;
   const poolGroups = Store.useState(getPoolGroupsState);
   const { assets } = Store.useState(getWeb3State);
   const [maxItemCount, setMaxItemCount] = useState(10);
