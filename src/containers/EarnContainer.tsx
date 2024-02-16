@@ -45,7 +45,7 @@ export function EarnContainer() {
               style={{ height: "100%" }}
             >
               {/* ETH Staking Strategy */}
-              <IonCol size="auto" className="ion-padding-bottom">
+              <IonCol size="auto" className="ion-padding">
                 <ETHLiquidStakingstrategyCard />
               </IonCol>
 
@@ -55,7 +55,7 @@ export function EarnContainer() {
                   <EthOptimizedStrategyCard />
                 </EthOptimizedStrategyProvider>
               </IonCol> */}
-              <IonCol size="auto" className="ion-padding-bottom">
+              <IonCol size="auto" className="ion-padding">
                 <MATICLiquidStakingstrategyCard />
               </IonCol>
               {/* <IonCol size="auto" className="ion-padding-bottom">

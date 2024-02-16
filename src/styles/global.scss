@@ -387,22 +387,22 @@ ion-card {
     margin: 0 1rem 0 0;
 }
 
-.strategyCard {
-  height: 100%;
-  width: 100%;
-  max-width: 315px;
-  justify-content: space-between;
-  display: flex;
-  flex-direction: column;
+.strategyCard, .asImage {
+  ion-card-content {
+    > ion-grid {
+      min-width: 230px;
+    }
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.5rem;
+    margin: 0;
 
-  ion-grid {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: stretch;
-    align-content: center;
-    width: 100%;
+    small {
+      font-weight: 400;
+      display: block;
+    }
   }
 }
 
