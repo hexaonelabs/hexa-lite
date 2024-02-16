@@ -415,8 +415,9 @@ export function MATICLiquidStakingstrategyCard() {
         <IonContent>
           <IonGrid>
             <IonRow>
-              <IonCol size="12" className="ion-text-end">
+              <IonCol size="12" sizeMd="12" class="ion-padding">
                 <IonButton
+                  className="ion-float-end"
                   fill="clear"
                   color="dark"
                   onClick={async () => {
@@ -425,11 +426,20 @@ export function MATICLiquidStakingstrategyCard() {
                 >
                   <IonIcon icon={closeSharp} />
                 </IonButton>
+                <IonImg
+                  style={{
+                    padding: "0 0rem",
+                    maxWidth: 128,
+                    maxHeight: 128,
+                    margin: "2rem auto 0",
+                  }}
+                  src={strategy.icon}
+                />
               </IonCol>
               <IonCol
                 size="12"
-                offsetMd="3"
-                sizeMd="6"
+                offsetMd="2"
+                sizeMd="8"
                 class="ion-padding-start ion-padding-end ion-padding-bottom ion-text-center"
               >
                 <h1 className="ion-no-margin" style={{
