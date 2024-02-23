@@ -11,7 +11,7 @@ export interface IWeb3State {
   web3Provider: Web3ProviderType | null;
   isMagicWallet: boolean;
   assets: IAsset[];
-  connectWallet(ops?: {email: string;}): Promise<void>;
+  connectWallet(ops?: {email?: string; oAuth?: "google";}): Promise<void>;
   disconnectWallet(): Promise<void>;
   switchNetwork: (chainId: number) => Promise<void>;
   loadAssets: () => Promise<void>;
@@ -44,7 +44,7 @@ const defaultState: IStore = Object.freeze({
     web3Provider: null,
     isMagicWallet: false,
     assets: [],
-    connectWallet: async (ops?: {email: string;}) => {
+    connectWallet: async (ops?: {email?: string;oAuth?: "google";}) => {
       throw new Error("connectWallet function not implemented");
     },
     disconnectWallet: async () => {

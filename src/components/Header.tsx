@@ -26,6 +26,7 @@ import { PointsPopover } from "./PointsPopover";
 import { useRef } from "react";
 import { getWeb3State } from "@/store/selectors";
 import Store from "@/store";
+import { ButtonConnectWithModal } from "./ButtonConnectWithModal";
 
 const styleLogo = {
   // margin: '15px auto 20px',
@@ -216,7 +217,8 @@ export function Header({
                           Points
                         </IonText>
                       </IonButton>
-                      <ConnectButton />
+                      {/* <ConnectButton /> */}
+                      <ButtonConnectWithModal />
                     </div>
                   )}
                 </IonCol>

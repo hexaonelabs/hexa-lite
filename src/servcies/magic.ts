@@ -9,6 +9,7 @@ import { CHAIN_DEFAULT, CHAIN_AVAILABLES, NETWORK } from "../constants/chains";
 import { CosmosExtension } from "@magic-ext/cosmos";
 import { BitcoinExtension } from "@magic-ext/bitcoin";
 import { SolanaExtension } from '@magic-ext/solana';
+import { OAuthExtension } from '@magic-ext/oauth';
 
 export const RPC_NODE_OPTIONS = CHAIN_AVAILABLES.map(c => (
   {
@@ -46,6 +47,7 @@ export const getMagic = async (forceInit?: {
     // clear localstorage
     localStorage.removeItem("default-chainId");
     const APP_ONBOARD_APIKEY = process.env.NEXT_PUBLIC_APP_ONBOARD_APIKEY;
+    let ops;
     switch (RPC_NODE.chainId) {
       // case NETWORK.avalanche:
       //   magic = new Magic(`${process.env?.REACT_APP_ONBOARD_APIKEY}`, {
@@ -60,59 +62,71 @@ export const getMagic = async (forceInit?: {
       //   break
       case NETWORK.bitcoin:
         console.log("[INFO] {getMagic} - NETWORK.bitcoin: ", NETWORK.bitcoin);
-        _magic = new Magic(APP_ONBOARD_APIKEY, {
+        ops = {
           extensions: [
             new BitcoinExtension({
               rpcUrl:  RPC_NODE?.rpcUrl,
               network: 'mainnet' // testnet or mainnet
-            }) as any,
+            }),
           ],
-        }) as any;
+        };
         break;
       case NETWORK.cosmos:
-        _magic = new Magic(APP_ONBOARD_APIKEY, {
+       ops = {
           extensions: [
             new CosmosExtension({
               rpcUrl: RPC_NODE?.rpcUrl,
-            }) as any,
+            }),
           ],
-        }) as any;
+        };
         // this._magicExtention = magic.cosmos as CosmosExtension;
         break;
       case NETWORK.solana:
-        _magic = new Magic(APP_ONBOARD_APIKEY, {
+        ops = {
           extensions: [
             new SolanaExtension({
               rpcUrl: RPC_NODE?.rpcUrl,
             }) as any,
           ],
-        }) as any;
+        };
         break;
       default:
-        _magic = new Magic(APP_ONBOARD_APIKEY, {
+       ops = {
           network: RPC_NODE,
-        }) as any;
+        };
     }
+    // update magic instance with options and add OAuthExtension
+    _magic = new Magic(APP_ONBOARD_APIKEY, {
+      ...ops,
+      extensions: [
+        ...ops?.extensions|| [],
+        new OAuthExtension()
+      ]
+    });
     return _magic;
   }
   return _magic;
 };
 
-export const connect = async (ops?: { email: string; chainId?: number }) => {
+export const connect = async (ops?: { email?: string; chainId?: number, oAuth?: 'google' }) => {
   console.log(`[INFO] {connect} - ops: `, ops);
   try {
     const magic = await getMagic(ops?.chainId ? {chainId: ops?.chainId} : undefined);
     if (ops?.email) {
-      const { email } = ops;
-      await magic.auth.loginWithEmailOTP({ email, showUI: true });
+      // const { email } = ops;
+      // await magic.auth.loginWithEmailOTP({ email, showUI: true });
+      await magic.wallet.connectWithUI();
       const user = await magic.user.getInfo();
       return user.publicAddress;
-    } else {
-      console.log("[INFO] {connect} - magic with UI... ");
-      // Try to connect to the wallet using Magic's user interface
-      const address = await magic.wallet.connectWithUI();
-      console.log("[INFO] {connect} - address: ", address);
-      return address[0];
+    } 
+    if (ops?.oAuth) {
+      console.log("[INFO] {connect} - magic with oAuth... ");
+      await (magic as any)?.oauth?.loginWithRedirect({
+        provider: ops?.oAuth,
+        redirectURI: new URL('/', window.location.origin).href,
+      });
+      // connection will be finish on the redirect page after handle url params from oAuth provider
+      // using `getRedirectResult()` method
     }
   } catch (error: any) {
     throw error?.message|| 'Connect wallet fail';
@@ -125,3 +139,19 @@ export const disconnect = async () => {
   return await magic.user.logout();
 };
 
+export const connectWithOAuth = async (provider: 'google') => {
+  const magic = getMagic();
+  let publicAddress, infos;
+  try {
+    await (magic as any)?.oauth?.loginWithRedirect({
+      provider,
+      redirectURI: new URL('/', window.location.origin).href,
+    });
+  } catch (err) {
+    console.log('oauth error: ', { err });
+  }
+  return {
+    publicAddress,
+    infos,
+  };
+};

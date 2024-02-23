@@ -1,15 +1,8 @@
 import { ethers } from "ethers";
 import { NETWORK } from "../constants/chains";
-import { getTokensBalances } from "../servcies/ankr.service";
 import { MagicWalletUtils } from "./MagicWallet";
 import { getMagic } from "@/servcies/magic";
-
-const fetchUserAssets = async (walletAddress: string) => {
-  console.log(`[INFO] fetchUserAssets()`, walletAddress);
-  if (!walletAddress) return null;
-  const assets = await getTokensBalances([], walletAddress);
-  return assets;
-};
+import { fetchBalance, isEVMWindowProviderAvailable } from "@/servcies/evm.service";
 
 export class EVMWalletUtils extends MagicWalletUtils {
   public web3Provider: ethers.providers.Web3Provider | null = null;
@@ -21,36 +14,50 @@ export class EVMWalletUtils extends MagicWalletUtils {
   }
 
   async _initializeWeb3() {
-    const magic = await getMagic({ chainId: this.network });
-    const provider = await magic.wallet.getProvider();
-    const web3Provider = new ethers.providers.Web3Provider(provider, "any");
-    this.web3Provider = web3Provider;
-    // detect if is metamask and set correct network
-    if (
-      web3Provider?.connection?.url === "metamask" ||
-      web3Provider.provider.isMetaMask
-    ) {
+    if (this._withExternalWallet) {
+      if (!isEVMWindowProviderAvailable()) {
+        throw new Error(
+          "EVM window provider is not available. Install Rabby Wallet or Metamask and try again."
+        );
+      }
+      const provider = (window as any).ethereum;
       this.isMagicWallet = false;
-      await this._setMetamaskNetwork();
-    } else {
-      this.isMagicWallet = true;
-    }
-    // get account address and wallet type
-    try {
+      const web3Provider = new ethers.providers.Web3Provider(provider);
+      this.web3Provider = web3Provider;
+      // get current account
       const signer = web3Provider?.getSigner();
       this.walletAddress = (await signer?.getAddress()) || undefined;
-    } catch (error) {
-      console.error(
-        "[ERROR] User is not connected. Unable to get wallet address.",
-        error
-      );
-      // return;
+    } else {
+      const magic = await getMagic({ chainId: this.network });
+      const provider = await magic.wallet.getProvider();
+      const web3Provider = new ethers.providers.Web3Provider(provider, "any");
+      this.web3Provider = web3Provider;
+      // detect if is metamask and set correct network
+      if (
+        web3Provider?.connection?.url === "metamask" ||
+        web3Provider.provider.isMetaMask
+      ) {
+        this.isMagicWallet = false;
+        await this._setMetamaskNetwork();
+      } else {
+        this.isMagicWallet = true;
+      }
+      // get account address and wallet type
+      try {
+        const signer = web3Provider?.getSigner();
+        this.walletAddress = (await signer?.getAddress()) || undefined;
+      } catch (error) {
+        console.error(
+          "[ERROR] User is not connected. Unable to get wallet address.",
+          error
+        );
+      }
     }
   }
 
   async loadBalances() {
     if (!this.walletAddress) return;
-    const assets = await fetchUserAssets(this.walletAddress);
+    const assets = await fetchBalance(this.walletAddress);
     if (!assets) return;
     this.assets = assets;
   }
