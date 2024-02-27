@@ -11,6 +11,13 @@ export interface IWeb3State {
   web3Provider: Web3ProviderType | null;
   isMagicWallet: boolean;
   assets: IAsset[];
+  
+  /**
+   * Method to connect wallet
+   * @param ops Optional parameters to connect wallet. Using external wallet if not provided
+   * @param ops.email Email to connect wallet with Email
+   * @param ops.oAuth OAuth to connect wallet with Google
+   */
   connectWallet(ops?: {email?: string; oAuth?: "google";}): Promise<void>;
   disconnectWallet(): Promise<void>;
   switchNetwork: (chainId: number) => Promise<void>;

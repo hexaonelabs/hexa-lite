@@ -19,6 +19,7 @@ import { initializeWeb3 } from '@/store/effects/web3.effects';
 import { getMagic } from '@/servcies/magic';
 import Store from '@/store';
 import { getWeb3State } from '@/store/selectors';
+import { OAuthSuccess } from '@/containers/OAuthSuccess';
 
 
 setupIonicReact({ mode: 'ios' });
@@ -159,6 +160,7 @@ const AppShell = () => {
               </LoaderProvider>
           </>)} />
           <Route path="/leaderboard" render={() => <Leaderboard />} />
+          <Route path="/callback" render={() => <OAuthSuccess />} />
           <Route path="/" render={() => <Redirect to="/index" />} exact={true} />
           <Route component={NotFoundPage} />
         </IonRouterOutlet>

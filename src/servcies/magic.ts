@@ -113,6 +113,7 @@ export const connect = async (ops?: { email?: string; chainId?: number, oAuth?: 
   try {
     const magic = await getMagic(ops?.chainId ? {chainId: ops?.chainId} : undefined);
     if (ops?.email) {
+      console.log("[INFO] {connect} - magic with email... ");
       // const { email } = ops;
       // await magic.auth.loginWithEmailOTP({ email, showUI: true });
       await magic.wallet.connectWithUI();
@@ -123,7 +124,7 @@ export const connect = async (ops?: { email?: string; chainId?: number, oAuth?: 
       console.log("[INFO] {connect} - magic with oAuth... ");
       await (magic as any)?.oauth?.loginWithRedirect({
         provider: ops?.oAuth,
-        redirectURI: new URL('/', window.location.origin).href,
+        redirectURI: new URL('/callback', window.location.origin).href,
       });
       // connection will be finish on the redirect page after handle url params from oAuth provider
       // using `getRedirectResult()` method
@@ -139,19 +140,3 @@ export const disconnect = async () => {
   return await magic.user.logout();
 };
 
-export const connectWithOAuth = async (provider: 'google') => {
-  const magic = getMagic();
-  let publicAddress, infos;
-  try {
-    await (magic as any)?.oauth?.loginWithRedirect({
-      provider,
-      redirectURI: new URL('/', window.location.origin).href,
-    });
-  } catch (err) {
-    console.log('oauth error: ', { err });
-  }
-  return {
-    publicAddress,
-    infos,
-  };
-};

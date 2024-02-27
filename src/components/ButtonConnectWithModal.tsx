@@ -2,31 +2,23 @@ import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import {
   IonButton,
-  IonButtons,
   IonCol,
   IonContent,
   IonGrid,
-  IonHeader,
   IonIcon,
   IonImg,
-  IonModal,
-  IonPopover,
   IonRow,
   IonSkeletonText,
   IonText,
-  IonTitle,
-  IonToolbar,
   useIonPopover,
 } from "@ionic/react";
-import { mail, wallet } from "ionicons/icons";
-import { useState } from "react";
+import { mail, wallet, logoGoogle } from "ionicons/icons";
 
 export const ButtonConnectWithModal = (props: {
   style?: any;
   size?: "small" | "default" | "large";
   expand?: "full" | "block";
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
   const { connectWallet, web3Provider } = Store.useState(getWeb3State);
   const [present, dismiss] = useIonPopover(
     <IonContent className="ion-padding">
@@ -48,13 +40,31 @@ export const ButtonConnectWithModal = (props: {
         color="gradient"
         onClick={async () => {
           dismiss();
+          await connectWallet({ oAuth: "google" });
+        }}
+      >
+        <IonIcon slot="start" src={logoGoogle} />
+        with Google
+      </IonButton>
+      <IonButton
+        expand="block"
+        color="gradient"
+        onClick={async () => {
+          dismiss();
           await connectWallet({ email: "true" });
         }}
       >
         <IonIcon slot="start" src={mail} />
         with Email
       </IonButton>
-      <IonButton expand="block" color="gradient" onClick={() => {}}>
+      <IonButton
+        expand="block"
+        color="gradient"
+        onClick={async () => {
+          dismiss();
+          await connectWallet();
+        }}
+      >
         <IonIcon slot="start" src={wallet} />
         with Wallet
       </IonButton>

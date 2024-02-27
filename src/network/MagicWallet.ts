@@ -1,5 +1,5 @@
 import { CHAIN_DEFAULT, NETWORK } from "../constants/chains";
-import { connect, disconnect } from "../servcies/magic";
+import { connect as connectWithMagic, disconnect } from "../servcies/magic";
 import { IAsset } from "../interfaces/asset.interface";
 import { Web3ProviderType } from "@/interfaces/web3.interface";
 import { connectWithExternalWallet } from "@/servcies/evm.service";
@@ -86,14 +86,17 @@ export abstract class MagicWalletUtils {
     email?: string;
     oAuth?: "google";
   }) {
-    if (this._withExternalWallet) {
+    if (!ops) {
       await connectWithExternalWallet();
+      this._withExternalWallet = true;
     } else {
-      await connect(ops);
+      await connectWithMagic(ops);
     }
-    await this._initializeWeb3();
-    if (!this.walletAddress) {
-      throw new Error("Connect wallet fail");
+    if (ops?.email) {
+      await this._initializeWeb3();
+      if (!this.walletAddress) {
+        throw new Error("Connect wallet fail");
+      }
     }
     return this.walletAddress;
   }
