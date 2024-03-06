@@ -6,6 +6,7 @@ import {
   IonImg,
   IonRow,
   IonText,
+  useIonRouter,
 } from "@ionic/react";
 import {
   logoGithub,
@@ -24,6 +25,7 @@ export function Welcome({
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
   const { connectWallet } = Store.useState(getWeb3State);
+  const router = useIonRouter();
   return (
     <IonGrid class="ion-no-padding welcomeSection">
       <IonRow class="rowSection ion-justify-content-center ion-align-items-center ion-padding">
@@ -57,9 +59,10 @@ export function Welcome({
               size="large"
               color="gradient"
               style={{marginTop: '2rem'}}
-              onClick={(e) =>
-                handleSegmentChange({ detail: { value: "swap" } })
-              }
+              onClick={(e) => {
+                router.push("swap");
+                handleSegmentChange({ detail: { value: "swap" } });
+              }}
             >
               Launch App
             </IonButton>
@@ -127,6 +130,7 @@ export function Welcome({
                       (e.target as HTMLElement).innerHTML = "Connecting...";
                       try {
                         await connectWallet();
+                        router.push("fiat");
                         handleSegmentChange({ detail: { value: "fiat" } });
                       } catch (error) {
                         console.error("[ERROR] handleConnect:", error);
@@ -189,9 +193,10 @@ export function Welcome({
                   <IonButton
                     size="default"
                     color="gradient"
-                    onClick={(e) =>
+                    onClick={(e) =>{
+                      router.push("defi");
                       handleSegmentChange({ detail: { value: "defi" } })
-                    }
+                    }}
                   >
                     Start Deposit
                   </IonButton>
@@ -243,9 +248,10 @@ export function Welcome({
                     <IonButton
                       size="default"
                       color="gradient"
-                      onClick={(e) =>
+                      onClick={(e) =>{
+                        router.push("earn");
                         handleSegmentChange({ detail: { value: "earn" } })
-                      }
+                      }}
                     >
                       Start Earning
                     </IonButton>
@@ -664,9 +670,10 @@ export function Welcome({
               className="ion-margin-top"
               size="large"
               color="gradient"
-              onClick={(e) =>
+              onClick={(e) =>{
+                router.push("swap");
                 handleSegmentChange({ detail: { value: "swap" } })
-              }
+              }}
             >
               Launch App
             </IonButton>

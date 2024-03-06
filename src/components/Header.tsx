@@ -12,6 +12,7 @@ import {
   IonSegmentButton,
   IonText,
   IonToolbar,
+  useIonRouter,
 } from "@ionic/react";
 import {
   ellipsisVerticalSharp,
@@ -26,6 +27,7 @@ import { PointsPopover } from "./PointsPopover";
 import { useRef } from "react";
 import { getWeb3State } from "@/store/selectors";
 import Store from "@/store";
+import { Link } from "react-router-dom";
 
 const styleLogo = {
   // margin: '15px auto 20px',
@@ -49,11 +51,11 @@ const styleChip = {
 
 export function Header({
   currentSegment,
-  scrollToTop,
+  // scrollToTop,
   handleSegmentChange,
 }: {
   currentSegment: string;
-  scrollToTop: () => void;
+  // scrollToTop: () => void;
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }) {
   // define states
@@ -61,12 +63,13 @@ export function Header({
   const [points, setPoints] = useState<string | null>(null);
   const [isPointsPopoverOpen, setIsPointsPopoverOpen] = useState(false);
   const pointsPopoverRef = useRef<HTMLIonPopoverElement>(null);
+  const router = useIonRouter();
   const openPopover = (e: any) => {
     pointsPopoverRef.current!.event = e;
     setIsPointsPopoverOpen(true);
   };
   useEffect(() => {
-    scrollToTop();
+    // scrollToTop();
   }, [currentSegment]);
 
   // render component
@@ -76,24 +79,21 @@ export function Header({
         <IonGrid class="ion-no-padding">
           <IonRow class="ion-align-items-center ion-justify-content-between">
             {!currentSegment || currentSegment === "welcome" ? (
-              <></>
+              <>{currentSegment}</>
             ) : (
               <>
                 <IonCol size="auto" class="ion-padding ion-text-start">
-                  <div
-                    onClick={() =>
-                      handleSegmentChange({ detail: { value: "welcome" } })
-                    }
+                  <Link 
+                    to="/index" 
                     style={{
                       position: "relative",
                       display: "inline-block",
-                    }}
-                  >
+                    }}>
                     <IonImg
                       style={styleLogo}
                       src={"./assets/images/logo.svg"}
                     ></IonImg>
-                  </div>
+                  </Link>
                 </IonCol>
                 <IonCol
                   size="auto"
@@ -110,6 +110,8 @@ export function Header({
                     mode="ios"
                     value={currentSegment}
                     onIonChange={(e: any) => {
+                      console.log('>> router: ', router)
+                      router.push(`/${e.detail.value}`)
                       if (e.detail.value === 'fiat-segment') {
                         handleSegmentChange({detail: {value: 'fiat'}});
                         return;

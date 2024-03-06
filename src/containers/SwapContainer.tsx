@@ -26,7 +26,7 @@ import { PointsData, addAddressPoints } from "@/servcies/datas.service";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 
-export function SwapContainer() {
+export  default function SwapContainer() {
   const {
     web3Provider,
     currentNetwork,

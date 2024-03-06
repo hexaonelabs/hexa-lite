@@ -34,11 +34,11 @@ export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.arbitrum_one]: "0.0001",
 };
 
-export const DefiContainer = ({
+export default function DefiContainer({
   handleSegmentChange,
 }: {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
-}) => {
+}) {
   const { walletAddress } = Store.useState(getWeb3State);
   const userSummaryAndIncentivesGroup = Store.useState(getUserSummaryAndIncentivesGroupState);
   const poolGroups = Store.useState(getPoolGroupsState);

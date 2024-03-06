@@ -31,7 +31,7 @@ const LSTInfo = () => {
   );
 }
 
-export function EarnContainer() {
+export default function EarnContainer() {
   return (
     <IonGrid class="ion-no-padding" style={{ marginBottom: "8rem" }}>
       <IonRow class="ion-justify-content-center ion-padding">
