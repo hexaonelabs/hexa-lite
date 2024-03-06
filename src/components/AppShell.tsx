@@ -105,7 +105,7 @@ const AppShell = () => {
               </IonPage>
             </>} />
             <IonRoute path="/leaderboard" render={() => <Leaderboard />} />
-            <IonRoute path="/" render={() => <Redirect to="/index" />} exact={true} />
+            <IonRoute path="/" render={() => <Redirect to={isPlatform('pwa') ?  '/swap' : '/index'} />} exact={true} />
             <IonRoute render={() => <>
               <IonPage>
                 {!isNotFound && (
@@ -136,6 +136,7 @@ const AppShell = () => {
         <IonPage>
           <IonContent>
             {/* Here use mobile UI */}
+            <h1>hi</h1>
           </IonContent>
         </IonPage>
       )}
