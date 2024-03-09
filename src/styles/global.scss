@@ -694,3 +694,21 @@ div.MuiScopedCssBaseline-root {
 .opacity-100 {
   opacity: 1!important;
 }
+
+
+
+.plt-mobileweb, .plt-mobile {
+  ion-grid:has(.marketFilters) {
+    position: sticky;
+    top: -20px;
+    background: var(--ion-background-color);
+    z-index: 1;
+  }
+  div[id^=widget-relative-container] {
+    box-shadow: none;
+  }
+}
+
+.mobileConentModal {
+  --background: var(--ion-background-color);
+}

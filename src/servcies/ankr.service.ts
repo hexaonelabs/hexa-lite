@@ -67,7 +67,7 @@ export const getTokensBalances = async (chainIds: number[], address: string) => 
       params: {
         blockchain,
         walletAddress: address,
-        onlyWhitelisted: false,
+        onlyWhitelisted: true,
       },
       id: 1,
     }),

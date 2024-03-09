@@ -1,0 +1,12 @@
+.header {
+  /* background: transparent; */
+}
+
+.stickyWrapper {
+  position: relative;
+
+}
+.stickyElement {
+  position: sticky;
+  top: 0;
+}
