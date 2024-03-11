@@ -20,6 +20,7 @@ import {
   IonItemSliding,
   IonLabel,
   IonList,
+  IonModal,
   IonPage,
   IonRow,
   IonSearchbar,
@@ -32,7 +33,7 @@ import {
   useIonRouter,
 } from "@ionic/react";
 import { paperPlane, download, repeat, card } from "ionicons/icons";
-import { ComponentRef, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import styleRule from "./WalletComponent.module.css";
 import { IAsset } from "@/interfaces/asset.interface";
 import { MobileDepositModal } from "./MobileDepositModal";
@@ -81,7 +82,7 @@ export default function WalletComponent() {
       ...selectedTokenDetail,
     }
   );
-  const [presentEarn, dismissEarn] = useIonModal(MobileEarnModal, {});
+  const [isEarnModalOpen, setIsEarnModalOpen] = useState(false);
 
   const modalOpts: Omit<ModalOptions, "component" | "componentProps"> &
     HookOverlayOptions = {
@@ -208,11 +209,21 @@ export default function WalletComponent() {
                   <IonFab style={style.fab}>
                     <IonFabButton
                       color="gradient"
-                      onClick={() => presentEarn(modalOpts)}
+                      onClick={() => {
+                        setIsEarnModalOpen(() => true);
+                      }}
                     >
                       <IonIcon src="./assets/icons/bank.svg" />
                     </IonFabButton>
                   </IonFab>
+                  <IonModal
+                    isOpen={isEarnModalOpen}
+                    breakpoints={modalOpts.breakpoints}
+                    initialBreakpoint={modalOpts.initialBreakpoint}
+                    onDidDismiss={() => setIsEarnModalOpen(() => false)}
+                  >
+                    <MobileEarnModal />
+                  </IonModal>
                 </IonCol>
               </IonRow>
               {assetGroup.length > 0 && (

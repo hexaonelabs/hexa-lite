@@ -1,6 +1,4 @@
 import {
-  IonAvatar,
-  IonBadge,
   IonButton,
   IonCol,
   IonFabButton,
@@ -85,7 +83,6 @@ export function PoolItem(props: IPoolItemProps) {
   const { poolId, iconSize, chainId, handleSegmentChange } = props;
   const { walletAddress, loadAssets } = Store.useState(getWeb3State);
   const poolGroups  = Store.useState(getPoolGroupsState);
-  const modal = useRef<HTMLIonModalElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   // find pool in `poolGroups[*].pool` by `poolId`
   const pool = useMemo(() => {
@@ -232,7 +229,6 @@ export function PoolItem(props: IPoolItemProps) {
       </IonItem>
 
       <IonModal
-        ref={modal}
         isOpen={isModalOpen}
         className="modalPage"
         onDidDismiss={() => setIsModalOpen(() => false)}
@@ -240,7 +236,8 @@ export function PoolItem(props: IPoolItemProps) {
         <ReserveDetail
           pool={pool}
           dismiss={(actionType?: string) => {
-            modal.current?.dismiss();
+            setIsModalOpen(() => false);
+            // modal.current?.dismiss();
             // reload asset if user have trigger an action from ReserveDetails.
             // Ex: deposit, withdraw, borrow, repay
             if (actionType) {

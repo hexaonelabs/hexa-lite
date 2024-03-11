@@ -128,6 +128,7 @@ const loadTokenData = async (symbol: string) => {
 export function ReserveDetail(props: IReserveDetailProps) {
   const {
     pool: { id, chainId },
+    dismiss,
     handleSegmentChange,
   } = props;
   const {
@@ -146,7 +147,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
   >(undefined);
   const poolGroups = Store.useState(getPoolGroupsState);
   const userSummaryAndIncentivesGroup = Store.useState(getUserSummaryAndIncentivesGroupState);
-  const [present, dismiss] = useIonToast();
+  const [present, dismissToast] = useIonToast();
   const [presentAlert] = useIonAlert();
   const [presentSuccess, dismissSuccess] = useIonModal(
     () => (
@@ -217,7 +218,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
     </>
   );
   const { display: displayLoader, hide: hideLoader } = useLoader();
-  const modal = useRef<HTMLIonModalElement>(null);
+  // const modal = useRef<HTMLIonModalElement>(null);
   const [isCrossChain, setIsCrossChain] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOptionsOpen, setIsModalOptionsOpen] = useState(false);
@@ -491,12 +492,12 @@ export function ReserveDetail(props: IReserveDetailProps) {
   
   return (
     <>
-      <IonContent fullscreen={true} className="ion-padding">
-        <IonButtons className="ion-float-end">
+      <IonContent className="ion-padding">
+        <IonButtons>
           <IonButton
             color="primary"
             size="large"
-            onClick={() => props.dismiss(state?.actionType)}
+            onClick={() => dismiss(state?.actionType)}
           >
             <IonIcon icon={closeOutline}></IonIcon>
           </IonButton>
@@ -1021,7 +1022,6 @@ export function ReserveDetail(props: IReserveDetailProps) {
       </IonContent>
 
       <IonModal
-        ref={modal}
         className="modalAlert"
         onIonModalDidDismiss={() => {
           setIsModalOpen(false);
@@ -1077,7 +1077,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                       text: "x",
                       role: "cancel",
                       handler: () => {
-                        dismiss();
+                        dismissToast();
                       },
                     },
                   ],
