@@ -194,6 +194,11 @@ ion-alert.modalAlert {
   --border-radius: 0;
 }
 
+.modal-sheet {
+  --width: 100%;
+  --border-radius: 32px;
+}
+
 
 .ion-accordion-toggle-icon {
   color: var(--ion-color-primary);
@@ -707,8 +712,45 @@ div.MuiScopedCssBaseline-root {
   div[id^=widget-relative-container] {
     box-shadow: none;
   }
+
+  .modalPage ion-content {
+    --background: var(--ion-background-color);
+
+    .widgetWrapper {
+      border: none;
+      box-shadow: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      background: transparent;
+
+      > ion-col {
+        text-align: center;
+      }
+    }
+
+  }
+
+  div[id^="widget-relative-container"] {
+    border: none;
+  }
+
+  div.MuiScopedCssBaseline-root {
+    background: transparent!important;
+    -webkit-backdrop-filter: none!important;
+    backdrop-filter: none!important;
+
+    >div[id^="widget-scrollable-container"] {
+      -webkit-backdrop-filter: none!important;
+      backdrop-filter: none!important;
+    }
+  }
 }
 
-.mobileConentModal {
+.mobileConentModal{
   --background: var(--ion-background-color);
 }
+// .reader-scan-element {
+//   video {
+//     height: 100%;
+//   }
+// }

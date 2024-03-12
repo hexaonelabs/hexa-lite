@@ -41,18 +41,9 @@ import { HookOverlayOptions } from "@ionic/react/dist/types/hooks/HookOverlayOpt
 import { MobileTransferModal } from "./MobileTransferModal";
 import { getMagic } from "@/servcies/magic";
 import { MobileSwapModal } from "./MobileSwapModal";
-import { MobileEarnModal } from "./MobileEarnModal";
 import { MobileTokenDetailModal } from "./MobileTokenDetailModal";
 import { getAssetIconUrl } from "@/utils/getAssetIconUrl";
-
-const style = {
-  fullHeight: {
-    height: "100%",
-  },
-  fab: {
-    display: "contents",
-  },
-};
+import { MobileActionNavButtons } from "./ActionNavButtons";
 
 export default function WalletComponent() {
   const { walletAddress, isMagicWallet, assets } = Store.useState(getWeb3State);
@@ -67,22 +58,23 @@ export default function WalletComponent() {
     thumbnail: string;
     assets: IAsset[];
   } | null>(null);
-  const [presentTransfer, dismissTransfer] = useIonModal(MobileTransferModal, {
+
+  const [presentTransfer] = useIonModal(MobileTransferModal, {
     ...selectedTokenDetail,
   });
-  const [presentDeposit, dismissDeposit] = useIonModal(MobileDepositModal, {
+  const [presentDeposit] = useIonModal(MobileDepositModal, {
     ...selectedTokenDetail,
   });
-  const [presentSwap, dismissSwap] = useIonModal(MobileSwapModal, {
+  const [presentSwap] = useIonModal(MobileSwapModal, {
     ...selectedTokenDetail,
   });
   const [presentTokenDetail, dismissTokenDetail] = useIonModal(
     MobileTokenDetailModal,
-    {
-      ...selectedTokenDetail,
-    }
+    { data: selectedTokenDetail, dismiss: () => {
+      dismissTokenDetail();
+      setSelectedTokenDetail(null);
+    }}
   );
-  const [isEarnModalOpen, setIsEarnModalOpen] = useState(false);
 
   const modalOpts: Omit<ModalOptions, "component" | "componentProps"> &
     HookOverlayOptions = {
@@ -174,58 +166,9 @@ export default function WalletComponent() {
                   </div>
                 </IonCol>
               </IonRow>
-              <IonRow className="ion-justify-content-evenly ion-padding-horizontal">
-                <IonCol size="auto">
-                  <IonFab style={style.fab}>
-                    <IonFabButton
-                      color="gradient"
-                      onClick={() => presentTransfer(modalOpts)}
-                    >
-                      <IonIcon icon={paperPlane} />
-                    </IonFabButton>
-                  </IonFab>
-                </IonCol>
-                <IonCol size="auto">
-                  <IonFab style={style.fab}>
-                    <IonFabButton
-                      color="gradient"
-                      onClick={() => presentDeposit(modalOpts)}
-                    >
-                      <IonIcon icon={download} />
-                    </IonFabButton>
-                  </IonFab>
-                </IonCol>
-                <IonCol size="auto">
-                  <IonFab style={style.fab}>
-                    <IonFabButton
-                      color="gradient"
-                      onClick={() => presentSwap(modalOpts)}
-                    >
-                      <IonIcon icon={repeat} />
-                    </IonFabButton>
-                  </IonFab>
-                </IonCol>
-                <IonCol size="auto">
-                  <IonFab style={style.fab}>
-                    <IonFabButton
-                      color="gradient"
-                      onClick={() => {
-                        setIsEarnModalOpen(() => true);
-                      }}
-                    >
-                      <IonIcon src="./assets/icons/bank.svg" />
-                    </IonFabButton>
-                  </IonFab>
-                  <IonModal
-                    isOpen={isEarnModalOpen}
-                    breakpoints={modalOpts.breakpoints}
-                    initialBreakpoint={modalOpts.initialBreakpoint}
-                    onDidDismiss={() => setIsEarnModalOpen(() => false)}
-                  >
-                    <MobileEarnModal />
-                  </IonModal>
-                </IonCol>
-              </IonRow>
+
+              <MobileActionNavButtons selectedTokenDetail={selectedTokenDetail} />
+
               {assetGroup.length > 0 && (
                 <IonRow className="ion-padding-top ion-padding-horizontal">
                   <IonCol size="12">

@@ -97,7 +97,14 @@ export function MarketList(props: {
 
   return (
     <>
-      <IonGrid className="ion-no-padding ion-padding-vertical">
+      <IonGrid 
+          className="ion-no-padding ion-padding-vertical" 
+          style={{
+            position: 'sticky',
+            'top': '-1px',
+            'background':' var(--ion-background-color)',
+            zIndex: 1
+          }}>
         <IonRow class="ion-justify-content-between ion-align-items-center marketFilters"
               style={{
                 padding: 0,

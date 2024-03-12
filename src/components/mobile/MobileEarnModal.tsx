@@ -1,8 +1,12 @@
 import {
+  IonAvatar,
   IonCol,
   IonContent,
   IonGrid,
   IonHeader,
+  IonItem,
+  IonLabel,
+  IonList,
   IonRow,
   IonSegment,
   IonSegmentButton,
@@ -25,6 +29,8 @@ import {
 import { patchPoolsState } from "@/store/actions";
 import { CHAIN_AVAILABLES } from "@/constants/chains";
 import { getReadableValue } from "@/utils/getReadableValue";
+import { ETHLiquidStakingstrategyCard } from "../ETHLiquidStakingstrategy";
+import { MATICLiquidStakingstrategyCard } from "../MATICLiquidStakingstrategy";
 
 export const MobileEarnModal = () => {
   const [segment, setSegment] = useState("loan");
@@ -87,7 +93,10 @@ export const MobileEarnModal = () => {
         {segment === "loan" && (
           <IonGrid className="ion-no-padding">
             <IonRow className="ion-text-center">
-              <IonCol size="12" class="ion-text-center ion-margin-top ion-padding">
+              <IonCol
+                size="12"
+                class="ion-text-center ion-margin-top ion-padding"
+              >
                 <IonText>
                   <h1>Available Markets</h1>
                 </IonText>
@@ -158,6 +167,45 @@ export const MobileEarnModal = () => {
                   totalTVL={totalTVL}
                   handleSegmentChange={() => {}}
                 />
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        )}
+
+        {segment === "earn" && (
+          <IonGrid className="ion-no-padding">
+            <IonRow className="ion-text-center">
+              <IonCol
+                size="12"
+                class="ion-text-center ion-margin-top ion-padding"
+              >
+                <IonText>
+                  <h1>Earn interest</h1>
+                </IonText>
+                <IonText color="medium">
+                  <p
+                    style={{
+                      lineHeight: "1.2rem",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    <span
+                      style={{ maxWidth: "800px", display: "inline-block" }}
+                    >
+                      Unlock the full potential of your assets by earning
+                      intrest through Liquid Staking or Providing Liquidity to
+                      the markets
+                    </span>
+                  </p>
+                </IonText>
+              </IonCol>
+            </IonRow>
+            <IonRow>
+              <IonCol size="12" className="ion-margin-top ion-padding-top">
+                <IonList style={{'background': 'transparent'}}>
+                  <ETHLiquidStakingstrategyCard asItem={true} />
+                  <MATICLiquidStakingstrategyCard asItem={true} />
+                </IonList>
               </IonCol>
             </IonRow>
           </IonGrid>

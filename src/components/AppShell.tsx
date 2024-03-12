@@ -14,6 +14,13 @@ import {
   IonIcon,
   useIonAlert,
   IonImg,
+  IonSkeletonText,
+  IonFab,
+  IonFabButton,
+  IonList,
+  IonItem,
+  IonAvatar,
+  IonProgressBar,
 } from "@ionic/react";
 import { StatusBar, Style } from "@capacitor/status-bar";
 
@@ -56,10 +63,34 @@ window
 const SwapContainer = lazy(() => import("@/containers/SwapContainer"));
 const DefiContainer = lazy(() => import("@/containers/DefiContainer"));
 const EarnContainer = lazy(() => import("@/containers/EarnContainer"));
-const MobileWalletComponent = lazy(() => import("@/components/mobile/WalletComponent"));
-const MobileWelcomeComponent = lazy(() => import("@/components/mobile/WelcomeComponent"));
+const MobileWalletComponent = lazy(
+  () => import("@/components/mobile/WalletComponent")
+);
+const MobileWelcomeComponent = lazy(
+  () => import("@/components/mobile/WelcomeComponent")
+);
 
-const isMobilePWADevice = true //Boolean(isPlatform('pwa') && !isPlatform('desktop'));
+const DefaultProgressBar = () => {
+  return (<IonProgressBar
+    type="indeterminate"
+    color="primary"
+    style={{ position: "absolute", top: "0", width: "100%"}}
+  />)
+};
+const DefaultLoadingPage = () => {
+  return (
+    <IonPage>
+    <IonContent className="ion-no-padding">
+      <DefaultProgressBar />
+    </IonContent>
+  </IonPage>
+  )
+}
+
+const isMobilePWADevice =
+  Boolean(isPlatform("pwa") && !isPlatform("desktop")) ||
+  Boolean(isPlatform("mobileweb")) ||
+  Boolean(isPlatform("mobile"));
 
 const AppShell = () => {
   // get params from url `s=`
@@ -159,20 +190,20 @@ const AppShell = () => {
                       />
                     )}
                     <IonContent>
-                      <Suspense fallback={<div>Loading SwapContainer...</div>}>
+                      <Suspense fallback={<DefaultProgressBar />}>
                         {currentSegment === "swap" && <SwapContainer />}
                       </Suspense>
-                      <Suspense fallback={<div>Loading EarnContainer...</div>}>
+                      <Suspense fallback={<DefaultProgressBar />}>
                         {currentSegment === "earn" && <EarnContainer />}
                       </Suspense>
-                      <Suspense fallback={<div>Loading DefiContainer...</div>}>
+                      <Suspense fallback={<DefaultProgressBar />}>
                         {currentSegment === "defi" && (
                           <DefiContainer
                             handleSegmentChange={handleSegmentChange}
                           />
                         )}
                       </Suspense>
-                      <Suspense fallback={<div>Loading NotFoundPage...</div>}>
+                      <Suspense fallback={<DefaultProgressBar />}>
                         {currentSegment === isNotFound && <NotFoundPage />}
                       </Suspense>
                     </IonContent>
@@ -190,25 +221,109 @@ const AppShell = () => {
           <IonRouterOutlet id="main">
             <IonRoute
               path="/index"
-              render={() => !walletAddress ?
-                (
-                  <Suspense fallback={<div>Loading MobileWelcomeComponent...</div>}>
+              render={() =>
+                !walletAddress ? (
+                  <Suspense
+                    fallback={<DefaultLoadingPage />}
+                  >
                     <MobileWelcomeComponent />
                   </Suspense>
-                ) : 
-                (
-                  <Suspense fallback={<div>Loading MobileWalletComponent...</div>}>
+                ) : (
+                  <Suspense
+                    fallback={<>
+                      <IonPage>
+                        <IonContent>
+                          <IonGrid
+                            style={{ margin: "20vh auto 5vh", maxWidth: "450px" }}
+                          >
+                            <IonRow className="ion-align-items-center ion-text-center">
+                              <IonCol>
+                                <div>
+                                  <IonText>
+                                    <h1 style={{ fontSize: "2.618rem" }}>
+                                      <IonSkeletonText
+                                        animated={true}
+                                        style={{
+                                          width: "180px",
+                                          height: "30px",
+                                          margin: "auto",
+                                        }}
+                                      />
+                                    </h1>
+                                    <p
+                                      style={{
+                                        fontSize: "1.625rem",
+                                        margin: "0px 0px 1.5rem",
+                                      }}
+                                    >
+                                      <IonSkeletonText
+                                        animated={true}
+                                        style={{
+                                          width: "120px",
+                                          height: "20px",
+                                          margin: "auto",
+                                        }}
+                                      />
+                                    </p>
+                                  </IonText>
+                                </div>
+                              </IonCol>
+                            </IonRow>
+                          </IonGrid>
+                          <IonGrid
+                            className="ion-no-padding"
+                            style={{
+                              background: "var(--ion-background-color)",
+                              minHeight: "100%",
+                            }}
+                          >
+                            <IonRow className="ion-no-padding ion-padding-top ">
+                              <IonCol size="12">
+                                <IonList style={{'background': 'transparent'}}>
+                                  {[1,2,3,4,5].map((_: any, i: number) => (
+                                    <IonItem key={i} style={{'--background': 'transparent'}}>
+                                      <IonAvatar slot="start">
+                                        <IonSkeletonText
+                                          animated={true}
+                                          style={{ width: "42px", height: "42px" }}
+                                        />
+                                      </IonAvatar>
+                                      <IonText>
+                                        <h3>
+                                          <IonSkeletonText
+                                            animated={true}
+                                            style={{ width: "50px", height: "22px" }}
+                                          />
+                                        </h3>
+                                        <p className="ion-no-margin ion-margin-bottom">
+                                          <IonSkeletonText
+                                            animated={true}
+                                            style={{ width: "120px" }}
+                                          />
+                                        </p>
+                                      </IonText>
+                                      <IonText slot="end">
+                                        <IonSkeletonText
+                                          animated={true}
+                                          style={{ width: "40px" }}
+                                        />
+                                      </IonText>
+                                    </IonItem>
+                                  ))}
+                                </IonList>
+                              </IonCol>
+                            </IonRow>
+                          </IonGrid>
+                        </IonContent>
+                      </IonPage>
+                    </>}
+                  >
                     <MobileWalletComponent />
                   </Suspense>
                 )
               }
             />
-            <IonRoute
-              render={() => (
-                <Redirect to="/index" />
-              )}
-              exact={true}
-            />
+            <IonRoute render={() => <Redirect to="/index" />} exact={true} />
           </IonRouterOutlet>
         </IonReactRouter>
       )}

@@ -18,7 +18,7 @@ export function SymbolIcon(props: {symbol: string; chainId?: number; iconSize?: 
   ) : null;
   return (
     <div
-      style={{ minWidth: iconSize, position: "relative" }}
+      style={{ minWidth: iconSize, position: "relative", display: 'inline-flex' }}
     >
       <IonAvatar
         style={{

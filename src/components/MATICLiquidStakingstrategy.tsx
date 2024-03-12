@@ -1,4 +1,5 @@
 import {
+  IonAvatar,
   IonButton,
   IonCard,
   IonCardContent,
@@ -46,7 +47,7 @@ export interface IStrategyModalProps {
   ) => Promise<boolean> | undefined;
 }
 
-export function MATICLiquidStakingstrategyCard() { 
+export function MATICLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?: boolean }) { 
   const { web3Provider, switchNetwork, connectWallet, disconnectWallet, currentNetwork } = Store.useState(getWeb3State);
   const [baseAPRst, setBaseAPRst] = useState(-1);
   const [action, setAction] = useState<"stake" | "unstake">("stake");
@@ -203,6 +204,7 @@ export function MATICLiquidStakingstrategyCard() {
 
   return (
     <>
+    {!props?.asItem  && (
       <IonCard className="strategyCard">
         <IonCardContent>
           <IonGrid class="ion-no-padding">
@@ -220,10 +222,10 @@ export function MATICLiquidStakingstrategyCard() {
               </IonCol>
               <IonCol size="12" class="ion-padding">
                 <h1 className="ion-no-margin">
-                  <IonText className="ion-color-gradient-text">
+                  <IonText color="dark">
                     {strategy.name}
                   </IonText>
-                  <IonText color="dark">
+                  <IonText className="ion-color-gradient-text">
                     <small>{strategy.type}</small>
                   </IonText>
                 </h1>
@@ -404,6 +406,44 @@ export function MATICLiquidStakingstrategyCard() {
           </IonGrid>
         </IonCardContent>
       </IonCard>
+    )}
+
+      {props?.asItem && !props?.asImage && (
+        <IonItem 
+          style={{'--background': 'transparent'}}
+          onClick={async () => {
+            const chainId = currentNetwork;
+            await displayLoader();
+            if (chainId !== NETWORK.optimism) {
+              await switchNetwork(NETWORK.optimism);
+            }
+            await modal.current?.present();
+            await hideLoader();
+          }}>
+          <IonAvatar slot="start" style={{
+              width: '64px',
+              height: '64px'
+            
+            }} >
+            <img src={strategy.icon} alt={strategy.name} />
+          </IonAvatar>
+          <IonLabel>
+            <h2 style={{fontSize:' 1.2rem'}}>
+            {strategy.name}
+            </h2>
+            <IonText color="medium">
+              <p>
+                {strategy.type}
+              </p>
+            </IonText>
+          </IonLabel>
+          <IonText slot="end" color="primary">
+            <b className="ion-color-gradient-text">
+              {strategy.apys[0]}%
+            </b>
+          </IonText>
+        </IonItem>
+      )}
 
       <IonModal
         ref={modal}
@@ -447,14 +487,15 @@ export function MATICLiquidStakingstrategyCard() {
                   fontSize: '2.4rem',
                   lineHeight: '1.85rem'
                 }}>
-                  <IonText className="ion-color-gradient-text">
+                  <IonText>
                     {strategy.name}
                   </IonText>
                   <br />
                   <span style={{
                     fontSize: '1.4rem',
                     lineHeight: '1.15rem'
-                  }}>{strategy.type}</span>
+                  }} 
+                  className="ion-color-gradient-text">{strategy.type}</span>
                 </h1>
                 <IonText color="medium">
                   <p>

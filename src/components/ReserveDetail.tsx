@@ -20,6 +20,7 @@ import {
   IonProgressBar,
   IonRow,
   IonText,
+  IonTitle,
   IonToolbar,
   useIonAlert,
   useIonModal,
@@ -82,34 +83,43 @@ interface IReserveDetailProps {
 }
 
 const loadTokenData = async (symbol: string) => {
-  // check if have localstorage data 
+  // check if have localstorage data
   const localCoinsListString = localStorage.getItem("coingecko-coins-list");
-  let localCoinsList = localCoinsListString ? JSON.parse(localCoinsListString) : null;
+  let localCoinsList = localCoinsListString
+    ? JSON.parse(localCoinsListString)
+    : null;
   if (!localCoinsList) {
-    localCoinsList = await fetch(`https://api.coingecko.com/api/v3/coins/list`)
-    .then((response) => response.json());
-    localStorage.setItem("coingecko-coins-list", JSON.stringify(localCoinsList));
+    localCoinsList = await fetch(
+      `https://api.coingecko.com/api/v3/coins/list`
+    ).then((response) => response.json());
+    localStorage.setItem(
+      "coingecko-coins-list",
+      JSON.stringify(localCoinsList)
+    );
   }
   if (!localCoinsList) {
     return;
   }
   // find coin id by symbol
-  const coin = localCoinsList.find((coin: {symbol: string}) => coin.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase());
+  const coin = localCoinsList.find(
+    (coin: { symbol: string }) =>
+      coin.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase()
+  );
   if (coin) {
     // fetch coin data by id
     return fetch(`https://api.coingecko.com/api/v3/coins/${coin.id}`)
       .then((response) => response.json())
       .then((data) => {
         console.log("coin data: ", data.description.en);
-        const { 
-          description: {en: description},
+        const {
+          description: { en: description },
           market_data: {
-            fully_diluted_valuation: {usd: fullyDilutedValuationUSD},
-            market_cap: {usd: marketCapUSD},
+            fully_diluted_valuation: { usd: fullyDilutedValuationUSD },
+            market_cap: { usd: marketCapUSD },
             max_supply: maxSupply,
             total_supply: totalSupply,
-            circulating_supply: circulatingSupply
-          }
+            circulating_supply: circulatingSupply,
+          },
         } = data;
         return {
           description,
@@ -117,13 +127,13 @@ const loadTokenData = async (symbol: string) => {
           marketCapUSD,
           maxSupply,
           totalSupply,
-          circulatingSupply
-        }
+          circulatingSupply,
+        };
       });
   } else {
-    return
+    return;
   }
-}
+};
 
 export function ReserveDetail(props: IReserveDetailProps) {
   const {
@@ -146,29 +156,29 @@ export function ReserveDetail(props: IReserveDetailProps) {
     | undefined
   >(undefined);
   const poolGroups = Store.useState(getPoolGroupsState);
-  const userSummaryAndIncentivesGroup = Store.useState(getUserSummaryAndIncentivesGroupState);
+  const userSummaryAndIncentivesGroup = Store.useState(
+    getUserSummaryAndIncentivesGroupState
+  );
   const [present, dismissToast] = useIonToast();
   const [presentAlert] = useIonAlert();
-  const [presentSuccess, dismissSuccess] = useIonModal(
-    () => (
-      <ModalMessage dismiss={dismissSuccess}>
-        <IonText>
-          <IonIcon
-            color="success"
-            style={{
-              display: "block",
-              fontSize: "5rem",
-              margin: "1rem auto",
-            }}
-            src={checkmarkCircleOutline}
-          />
-          <h3 className="ion-margin-vertical">
-            {state?.actionType.toLocaleUpperCase()} with Success!
-          </h3>
-        </IonText>
-      </ModalMessage>
-    )
-  );
+  const [presentSuccess, dismissSuccess] = useIonModal(() => (
+    <ModalMessage dismiss={dismissSuccess}>
+      <IonText>
+        <IonIcon
+          color="success"
+          style={{
+            display: "block",
+            fontSize: "5rem",
+            margin: "1rem auto",
+          }}
+          src={checkmarkCircleOutline}
+        />
+        <h3 className="ion-margin-vertical">
+          {state?.actionType.toLocaleUpperCase()} with Success!
+        </h3>
+      </IonText>
+    </ModalMessage>
+  ));
   const [presentPomptCrossModal, dismissPromptCrossModal] = useIonModal(
     <>
       <IonGrid className="ion-no-padding">
@@ -489,29 +499,26 @@ export function ReserveDetail(props: IReserveDetailProps) {
   //     setTokenDetails(() => details);
   //   });
   // }, [pool.symbol]);
-  
+
   return (
     <>
+      <IonHeader className="ion-no-border" translucent={true}>
+        <IonToolbar style={{ "--background": "transparent" }}>
+          <IonTitle>
+            <h1>Market details</h1>
+          </IonTitle>
+          <IonButtons slot="end">
+            <IonButton
+              color="primary"
+              size="large"
+              onClick={() => dismiss(state?.actionType)}
+            >
+              <IonIcon icon={closeOutline}></IonIcon>
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
       <IonContent className="ion-padding">
-        <IonButtons>
-          <IonButton
-            color="primary"
-            size="large"
-            onClick={() => dismiss(state?.actionType)}
-          >
-            <IonIcon icon={closeOutline}></IonIcon>
-          </IonButton>
-        </IonButtons>
-        <div
-          className="ion-padding ion-text-center"
-          style={{
-            width: "100%",
-            maxWidth: "800px",
-            margin: "0rem auto 0",
-          }}
-        >
-          <h2>Market details</h2>
-        </div>
         <IonGrid
           style={{
             width: "100%",
@@ -529,44 +536,66 @@ export function ReserveDetail(props: IReserveDetailProps) {
               <IonGrid className="ion-no-padding ion-padding-vertical">
                 <IonRow className="ion-align-items-center  ion-padding">
                   <IonCol
-                    size-md="6"
-                    class="ion-text-start ion-padding"
+                    size-xs="12"
+                    size-sm="12"
+                    size-md="12"
+                    size-lg="6"
+                    class="ion-text-center ion-padding"
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      alignContent: "center",
+                      margin: "0 auto 1rem",
                     }}
                   >
-                    <SymbolIcon
-                      symbol={pool?.symbol}
-                      chainId={pool?.chainId}
-                      assetIconURL={pool?.logo}
-                      iconSize="124px"
-                    />
-                    <div className="ion-padding-start ion-hide-sm-down">
-                      <h2>
-                        <b>{pool?.symbol}</b>
-                        <IonText color="medium">
-                          <small style={{ display: "block" }}>
-                            {
-                              CHAIN_AVAILABLES.find(
-                                (c) => c.id === pool.chainId
-                              )?.name
-                            }{" "}
-                            network
-                          </small>
-                        </IonText>
-                      </h2>
-                      {pool.usageAsCollateralEnabled === false && (
-                        <IonIcon
-                          icon={warningOutline}
-                          color="warning"
-                          style={{ marginLeft: "0.5rem" }}
-                        ></IonIcon>
-                      )}
-                    </div>
+                    <IonGrid>
+                      <IonRow>
+                        <IonCol 
+                          size-xs="12"
+                          size-sm="12"
+                          size-md="12"
+                          size-lg="auto">
+                          <SymbolIcon
+                            symbol={pool?.symbol}
+                            chainId={pool?.chainId}
+                            assetIconURL={pool?.logo}
+                            iconSize="124px"
+                          />
+                        </IonCol>
+                        <IonCol
+                          size-xs="12"
+                          size-sm="12"
+                          size-md="12"
+                          size-lg="auto"
+                          className="ion-padding-horizontal">
+                          <h2>
+                            <b>{pool?.symbol}</b>
+                            <IonText color="medium">
+                              <small style={{ display: "block" }}>
+                                {
+                                  CHAIN_AVAILABLES.find(
+                                    (c) => c.id === pool.chainId
+                                  )?.name
+                                }{" "}
+                                network
+                              </small>
+                            </IonText>
+                          </h2>
+                          {pool.usageAsCollateralEnabled === false && (
+                            <IonIcon
+                              icon={warningOutline}
+                              color="warning"
+                              style={{ marginLeft: "0.5rem" }}
+                            ></IonIcon>
+                          )}
+                        </IonCol>
+                      </IonRow>
+                    </IonGrid>
                   </IonCol>
-                  <IonCol size-md="6" className="ion-text-end">
+                  <IonCol
+                    size-xs="12"
+                    size-sm="12"
+                    size-md="12"
+                    size-lg="6"
+                    className="ion-text-center"
+                  >
                     {walletAddress ? (
                       <>
                         <IonButton
@@ -623,7 +652,10 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     )}
                   </IonCol>
                   {tokenDetails && (
-                    <IonCol size="12" className="ion-padding-top ion-margin-top itemListDetails">
+                    <IonCol
+                      size="12"
+                      className="ion-padding-top ion-margin-top itemListDetails"
+                    >
                       <IonLabel className="ion-padding-start ion-padding-vertical">
                         <b>Token details</b>
                       </IonLabel>
