@@ -123,11 +123,12 @@ const ScanModal = (props: { isOpen: boolean, onDismiss: (address?: string) => vo
         );
       }}
       onDidDismiss={()=> props.onDismiss()}>
-      <IonContent className="ion-no-padding">
+      <IonContent className="ion-no-padding" style={{'--background': '#000'}}>
+
         <IonFab vertical="top" horizontal="end">
-          <IonFabButton onClick={() => props.onDismiss()}>
+          <IonButton fill="clear" color="dark" shape="round" onClick={() => props.onDismiss()}>
             <IonIcon icon={close} />
-          </IonFabButton>
+          </IonButton>
         </IonFab>
         <div ref={elementRef} id="reader-scan-element" style={{ height: '100%', width: '100%'}} ></div>
       </IonContent>

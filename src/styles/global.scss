@@ -200,9 +200,13 @@ ion-alert.modalAlert {
 }
 
 
+ion-accordion.accordion-expanding > [slot=header] .ion-accordion-toggle-icon, 
+ion-accordion.accordion-expanded > [slot=header] .ion-accordion-toggle-icon {
+  transform: rotate(180deg) scale(0.6);
+}
 .ion-accordion-toggle-icon {
   color: var(--ion-color-primary);
-  transform: scale(0.8);
+  transform: scale(0.6);
 }
 
 ion-accordion {
@@ -749,8 +753,9 @@ div.MuiScopedCssBaseline-root {
 .mobileConentModal{
   --background: var(--ion-background-color);
 }
-// .reader-scan-element {
-//   video {
-//     height: 100%;
-//   }
-// }
+#reader-scan-element {
+  video {
+    height: 100%;
+    width: auto!important;
+  }
+}

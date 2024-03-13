@@ -49,14 +49,15 @@ const ActionBtn = (props: {provider: string}) => {
   const { provider } = props;
   if (provider === 'aave-v3') {
     return (
-      <IonFabButton
+      <IonButton
         slot="end"
-        color="gradient"
+        fill="clear"
         size="small"
+        shape="round"
         className="ion-margin-horizontal"
       >
-        <IonIcon size="small" icon={searchOutline} />
-      </IonFabButton>
+        <IonIcon size="small" color="gradient" className="ion-color-gradient-text" icon={searchOutline} />
+      </IonButton>
     )
   }
   return (

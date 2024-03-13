@@ -134,10 +134,7 @@ class WalletMobileContainer extends WalletBaseComponent<
                           <IonSearchbar
                             debounce={500}
                             onIonInput={(event) => {
-                              console.log(event);
-                              this.setState({
-                                filterBy: event.detail.value || null,
-                              });
+                              this.handleSearchChange(event);
                             }}
                           ></IonSearchbar>
                         </div>
@@ -412,8 +409,8 @@ const withStore = (
         isSwapModalOpen={isSwapModalOpen}
         setIsSwapModalOpen={(value) => setIsSwapModalOpen(value)}
         modalOpts={{
-          initialBreakpoint: 0.98,
-          breakpoints: [0, 0.98],
+          initialBreakpoint: 1,
+          breakpoints: [0, 1],
         }}
       />
     );
