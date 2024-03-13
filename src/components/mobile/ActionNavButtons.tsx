@@ -1,12 +1,14 @@
-import { IonCol, IonFab, IonFabButton, IonIcon, IonModal, IonRow, ModalOptions, useIonModal } from "@ionic/react";
-import { MobileTransferModal } from "./MobileTransferModal";
-import { IAsset } from "@/interfaces/asset.interface";
-import { MobileDepositModal } from "./MobileDepositModal";
-import { MobileSwapModal } from "./MobileSwapModal";
-import { MobileTokenDetailModal } from "./MobileTokenDetailModal";
+import {
+  IonCol,
+  IonFab,
+  IonFabButton,
+  IonIcon,
+  IonModal,
+  IonRow,
+  ModalOptions,
+  useIonModal,
+} from "@ionic/react";
 import { HookOverlayOptions } from "@ionic/react/dist/types/hooks/HookOverlayOptions";
-import { useState } from "react";
-import { MobileEarnModal } from "./MobileEarnModal";
 import { paperPlane, download, repeat, card } from "ionicons/icons";
 
 const style = {
@@ -20,31 +22,14 @@ const style = {
 
 export const MobileActionNavButtons = (props: {
   hideEarnBtn?: boolean;
-  selectedTokenDetail: {
-    name: string;
-    symbol: string;
-    priceUsd: number;
-    balance: number;
-    balanceUsd: number;
-    thumbnail: string;
-    assets: IAsset[];
-  }| null;
-
+  setState: (state: any) => void;
+  setIsSwapModalOpen: () => void;
 }) => {
-  const { selectedTokenDetail, hideEarnBtn = false } = props;
-
-  const [presentDeposit, dismissDeposit] = useIonModal(MobileDepositModal, {
-    ...selectedTokenDetail,
-  });
-  const [presentSwap, dismissSwap] = useIonModal(MobileSwapModal, {
-    ...selectedTokenDetail,
-  });
-  const [presentTokenDetail, dismissTokenDetail] = useIonModal(
-    MobileTokenDetailModal,
-    { ...selectedTokenDetail }
-  );
-  const [isEarnModalOpen, setIsEarnModalOpen] = useState(false);
-  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const {
+    hideEarnBtn = false,
+    setState,
+    setIsSwapModalOpen,
+  } = props;
 
   const modalOpts: Omit<ModalOptions, "component" | "componentProps"> &
     HookOverlayOptions = {
@@ -54,67 +39,54 @@ export const MobileActionNavButtons = (props: {
 
   return (
     <IonRow className="ion-justify-content-evenly ion-padding-horizontal">
-    <IonCol size="auto">
-      <IonFab style={style.fab}>
-        <IonFabButton
-          color="gradient"
-          onClick={() => setIsTransferModalOpen(true)}
-        >
-          <IonIcon icon={paperPlane} />
-        </IonFabButton>
-      </IonFab>
-      <IonModal
-        isOpen={isTransferModalOpen}
-        breakpoints={modalOpts.breakpoints}
-        initialBreakpoint={modalOpts.initialBreakpoint}
-        onDidDismiss={() => setIsTransferModalOpen(() => false)}
-        >
-          <MobileTransferModal />
-        </IonModal>
-    </IonCol>
-    <IonCol size="auto">
-      <IonFab style={style.fab}>
-        <IonFabButton
-          color="gradient"
-          onClick={() => presentDeposit(modalOpts)}
-        >
-          <IonIcon icon={download} />
-        </IonFabButton>
-      </IonFab>
-    </IonCol>
-    <IonCol size="auto">
-      <IonFab style={style.fab}>
-        <IonFabButton
-          color="gradient"
-          onClick={() => presentSwap(modalOpts)}
-        >
-          <IonIcon icon={repeat} />
-        </IonFabButton>
-      </IonFab>
-    </IonCol>
-    { hideEarnBtn !== true && (
+
       <IonCol size="auto">
         <IonFab style={style.fab}>
           <IonFabButton
             color="gradient"
-            onClick={() => {
-              setIsEarnModalOpen(() => true);
-            }}
+            onClick={() => setState({ isTransferModalOpen: true })}
           >
-            <IonIcon src="./assets/icons/bank.svg" />
+            <IonIcon icon={paperPlane} />
           </IonFabButton>
         </IonFab>
-        <IonModal
-          isOpen={isEarnModalOpen}
-          breakpoints={modalOpts.breakpoints}
-          initialBreakpoint={modalOpts.initialBreakpoint}
-          onDidDismiss={() => setIsEarnModalOpen(() => false)}
-        >
-          <MobileEarnModal />
-        </IonModal>
       </IonCol>
 
-    )}
-  </IonRow>
+      <IonCol size="auto">
+        <IonFab style={style.fab}>
+          <IonFabButton
+            color="gradient"
+            onClick={() => setState({ isDepositModalOpen: true })}
+          >
+            <IonIcon icon={download} />
+          </IonFabButton>
+        </IonFab>
+      </IonCol>
+
+      <IonCol size="auto">
+        <IonFab style={style.fab}>
+          <IonFabButton
+            color="gradient"
+            onClick={() => setIsSwapModalOpen()}
+          >
+            <IonIcon icon={repeat} />
+          </IonFabButton>
+        </IonFab>
+      </IonCol>
+
+      {hideEarnBtn !== true && (
+        <IonCol size="auto">
+          <IonFab style={style.fab}>
+            <IonFabButton
+              color="gradient"
+              onClick={() => {
+                setState({ isEarnModalOpen: true });
+              }}
+            >
+              <IonIcon src="./assets/icons/bank.svg" />
+            </IonFabButton>
+          </IonFab>
+        </IonCol>
+      )}
+    </IonRow>
   );
-}
+};

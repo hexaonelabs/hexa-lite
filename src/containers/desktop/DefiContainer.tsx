@@ -17,11 +17,11 @@ import {
 import { chevronDownOutline } from "ionicons/icons";
 import { ChainId } from "@aave/contract-helpers";
 
-import { getPercent } from "../utils/utils";
-import { CHAIN_AVAILABLES } from "../constants/chains";
+import { getPercent } from "../../utils/utils";
+import { CHAIN_AVAILABLES } from "../../constants/chains";
 import { useEffect, useState } from "react";
-import { MarketList } from "../components/MarketsList";
-import { currencyFormat } from "../utils/currency-format";
+import { MarketList } from "../../components/MarketsList";
+import { currencyFormat } from "../../utils/currency-format";
 import { valueToBigNumber } from "@aave/math-utils";
 import { getReadableValue } from "@/utils/getReadableValue";
 import Store from "@/store";
@@ -46,6 +46,8 @@ export default function DefiContainer({
   const [filterBy, setFilterBy] = useState<{ [key: string]: string } | null>(
     null
   );
+
+  console.log("userSummaryAndIncentivesGroup>> ", userSummaryAndIncentivesGroup)
 
   const totalBorrowsUsd = protocolSummary.reduce((prev, current)=> {
     return prev + current.totalBorrowsUSD;

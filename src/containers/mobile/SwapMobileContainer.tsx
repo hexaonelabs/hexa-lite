@@ -20,19 +20,21 @@ import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import { CHAIN_DEFAULT } from "@/constants/chains";
 import { ethers } from "ethers";
-import { LiFiWidgetDynamic } from "../LiFiWidgetDynamic";
+import { LiFiWidgetDynamic } from "../../components/LiFiWidgetDynamic";
 import { useLoader } from "@/context/LoaderContext";
 import { LIFI_CONFIG } from "../../servcies/lifi.service";
 import { IAsset } from "@/interfaces/asset.interface";
 
-export const MobileSwapModal = (props?: {
-  name: string;
-  symbol: string;
-  priceUsd: number;
-  balance: number;
-  balanceUsd: number;
-  thumbnail: string;
-  assets: IAsset[];
+export const SwapMobileContainer = (props: {
+  token?: {
+    name: string;
+    symbol: string;
+    priceUsd: number;
+    balance: number;
+    balanceUsd: number;
+    thumbnail: string;
+    assets: IAsset[];
+  }
 }) => {
   const {
     web3Provider,
@@ -163,12 +165,12 @@ export const MobileSwapModal = (props?: {
       signer,
     },
     // set source chain to Polygon
-    fromChain: props?.assets?.[0]?.chain?.id || CHAIN_DEFAULT.id,
+    fromChain: props?.token?.assets?.[0]?.chain?.id || CHAIN_DEFAULT.id,
     // set destination chain to Optimism
     toChain: currentNetwork || CHAIN_DEFAULT.id,
     // set source token to ETH (Ethereum)
     fromToken:
-      props?.assets?.[0]?.contractAddress ||
+      props?.token?.assets?.[0]?.contractAddress ||
       "0x0000000000000000000000000000000000000000",
   };
 

@@ -1,6 +1,6 @@
 import { IonCol, IonGrid, IonRow, IonText } from "@ionic/react";
-import { ETHLiquidStakingstrategyCard } from "../components/ETHLiquidStakingstrategy";
-import { MATICLiquidStakingstrategyCard } from "../components/MATICLiquidStakingstrategy";
+import { ETHLiquidStakingstrategyCard } from "../../components/ETHLiquidStakingstrategy";
+import { MATICLiquidStakingstrategyCard } from "../../components/MATICLiquidStakingstrategy";
 import { ATOMLiquidStakingstrategyCard } from "@/components/ATOMLiquidStakingstrategy";
 import { ETHsfrxLiquidStakingstrategyCard } from "@/components/ETHsfrxLiquidStakingstrategy";
 import { MoreInfo } from "@/components/MoreInfo";

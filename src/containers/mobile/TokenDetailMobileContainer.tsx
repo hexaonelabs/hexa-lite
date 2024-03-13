@@ -1,7 +1,7 @@
 import { IAsset } from "@/interfaces/asset.interface";
 import { getAssetIconUrl } from "@/utils/getAssetIconUrl";
 import { IonAvatar, IonCol, IonContent, IonGrid, IonItem, IonLabel, IonList, IonListHeader, IonNote, IonRow, IonText } from "@ionic/react"
-import { MobileActionNavButtons } from "./ActionNavButtons";
+import { MobileActionNavButtons } from "../../components/mobile/ActionNavButtons";
 import { useEffect } from "react";
 import { ethers } from "ethers";
 import Store from "@/store";
@@ -13,9 +13,11 @@ const getTxsFromAddress = async (address: string) => {
   let history = await provider.getHistory(address);
   console.log(history);
 }
-export const MobileTokenDetailModal = (props: { 
+export const TokenDetailMobileContainer = (props: { 
   data: {name: string; symbol: string; priceUsd: number; balance: number; balanceUsd: number; thumbnail: string; assets: IAsset[]};
   dismiss: () => void;
+  setState: (state: any) => void;
+  setIsSwapModalOpen: (state: boolean) => void;
  })=> {
   const { data, dismiss } = props;
   const { walletAddress } = Store.useState(getWeb3State);
@@ -63,7 +65,12 @@ export const MobileTokenDetailModal = (props: {
             </IonText>
           </IonCol>
         </IonRow>
-        <MobileActionNavButtons selectedTokenDetail={data} hideEarnBtn={true} />
+
+        <MobileActionNavButtons 
+          setState={(state: any) => props.setState(state)}
+          setIsSwapModalOpen={() => props.setIsSwapModalOpen(true)}
+          hideEarnBtn={true} />
+
         <IonRow className="ion-margin-top">
           <IonCol size="12">
               <IonList style={{
@@ -74,12 +81,17 @@ export const MobileTokenDetailModal = (props: {
                     <h2>Networks</h2>
                   </IonLabel>
                 </IonListHeader>
-                {data.assets.map((token, index) => 
+                {data.assets
+                  .sort((a, b) => a.chain && b.chain 
+                    ? a.chain.id - b.chain.id
+                    : a.balance + b.balance
+                  )
+                  .map((token, index) => 
                 <IonItem key={index} style={{
                   '--background': 'transparent',
                   '--padding-start': '0',
                 }}>
-                  <IonAvatar slot="start">
+                  <IonAvatar slot="start" style={{ width: '24px', height: '24px'}}>
                     <img
                       src={CHAIN_AVAILABLES.find((c) => c.id === token.chain?.id)?.logo}
                       alt={token.symbol}
@@ -92,7 +104,7 @@ export const MobileTokenDetailModal = (props: {
                     />
                   </IonAvatar>
                   <IonLabel>
-                    <h2>{token.chain?.name}</h2>
+                    <p>{token.chain?.name}</p>
                   </IonLabel>
                   <IonNote slot="end" color="gradient" className="ion-text-end">
                     <p>

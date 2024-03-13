@@ -15,7 +15,7 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { useEffect, useMemo, useState } from "react";
-import { MarketList } from "../MarketsList";
+import { MarketList } from "../../components/MarketsList";
 import {
   initializePools,
   initializeUserSummary,
@@ -29,10 +29,10 @@ import {
 import { patchPoolsState } from "@/store/actions";
 import { CHAIN_AVAILABLES } from "@/constants/chains";
 import { getReadableValue } from "@/utils/getReadableValue";
-import { ETHLiquidStakingstrategyCard } from "../ETHLiquidStakingstrategy";
-import { MATICLiquidStakingstrategyCard } from "../MATICLiquidStakingstrategy";
+import { ETHLiquidStakingstrategyCard } from "../../components/ETHLiquidStakingstrategy";
+import { MATICLiquidStakingstrategyCard } from "../../components/MATICLiquidStakingstrategy";
 
-export const MobileEarnModal = () => {
+export const EarnMobileContainer = () => {
   const [segment, setSegment] = useState("loan");
   const { walletAddress } = Store.useState(getWeb3State);
   const userSummaryAndIncentivesGroup = Store.useState(

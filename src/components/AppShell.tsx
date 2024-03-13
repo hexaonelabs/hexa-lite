@@ -28,14 +28,10 @@ import { IonReactRouter } from "@ionic/react-router";
 import { Redirect, Route, useHistory } from "react-router-dom";
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Welcome } from "./Welcome";
-// import { SwapContainer } from '@/containers/SwapContainer';
-// import { FiatContainer } from "@/containers/FiatContainer";
-// import { DefiContainer } from '@/containers/DefiContainer';
-// import { EarnContainer } from '@/containers/EarnContainer';
 import { Header } from "./Header";
 import MenuSlide from "./MenuSlide";
 import { LoaderProvider } from "@/context/LoaderContext";
-import { Leaderboard } from "@/containers/LeaderboardContainer";
+import { Leaderboard } from "@/containers/desktop/LeaderboardContainer";
 import { NotFoundPage } from "@/containers/NotFoundPage";
 import PwaInstall from "./PwaInstall";
 import { initializeWeb3 } from "@/store/effects/web3.effects";
@@ -60,14 +56,15 @@ window
     } catch {}
   });
 
-const SwapContainer = lazy(() => import("@/containers/SwapContainer"));
-const DefiContainer = lazy(() => import("@/containers/DefiContainer"));
-const EarnContainer = lazy(() => import("@/containers/EarnContainer"));
-const MobileWalletComponent = lazy(
-  () => import("@/components/mobile/WalletComponent")
+const WalletDesktopContainer = lazy(() => import("@/containers/desktop/WalletDesktopContainer"));
+const SwapContainer = lazy(() => import("@/containers/desktop/SwapContainer"));
+const DefiContainer = lazy(() => import("@/containers/desktop/DefiContainer"));
+const EarnContainer = lazy(() => import("@/containers/desktop/EarnContainer"));
+const WalletMobileContainer = lazy(
+  () => import("@/containers/mobile/WalletMobileContainer")
 );
-const MobileWelcomeComponent = lazy(
-  () => import("@/components/mobile/WelcomeComponent")
+const WelcomeMobileContainer = lazy(
+  () => import("@/containers/mobile/WelcomeMobileContainer")
 );
 
 const DefaultProgressBar = () => {
@@ -100,7 +97,7 @@ const AppShell = () => {
   const [presentFiatWarning, dismissFiatWarning] = useIonAlert();
 
   const isNotFound =
-    segment && ["swap", "fiat", "defi", "earn"].indexOf(segment) === -1;
+    segment && ["wallet", "swap", "fiat", "defi", "earn"].indexOf(segment) === -1;
   // use state to handle segment change
   const [currentSegment, setSegment] = useState(segment);
   const handleSegmentChange = async (e: any) => {
@@ -191,7 +188,10 @@ const AppShell = () => {
                     )}
                     <IonContent>
                       <Suspense fallback={<DefaultProgressBar />}>
-                        {currentSegment === "swap" && <SwapContainer />}
+                        {currentSegment === "wallet" && (<WalletDesktopContainer />)}
+                      </Suspense>
+                      <Suspense fallback={<DefaultProgressBar />}>
+                        {currentSegment === "swap" && (<SwapContainer />)}
                       </Suspense>
                       <Suspense fallback={<DefaultProgressBar />}>
                         {currentSegment === "earn" && <EarnContainer />}
@@ -226,7 +226,7 @@ const AppShell = () => {
                   <Suspense
                     fallback={<DefaultLoadingPage />}
                   >
-                    <MobileWelcomeComponent />
+                    <WelcomeMobileContainer />
                   </Suspense>
                 ) : (
                   <Suspense
@@ -318,7 +318,7 @@ const AppShell = () => {
                       </IonPage>
                     </>}
                   >
-                    <MobileWalletComponent />
+                    <WalletMobileContainer />
                   </Suspense>
                 )
               }

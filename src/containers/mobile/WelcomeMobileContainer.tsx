@@ -1,8 +1,11 @@
 import { IonCol, IonContent, IonGrid, IonImg, IonRow, IonText, useIonRouter } from "@ionic/react";
 import { IonPage,  } from '@ionic/react';
-import ConnectButton from "../ConnectButton";
+import ConnectButton from "../../components/ConnectButton";
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
 
-export default function MobileWelcomeComponent() {
+export default function WelcomeMobileContainer() {
+  const { walletAddress } = Store.useState(getWeb3State);
   const router = useIonRouter();
   return (
     <IonPage>
@@ -28,7 +31,9 @@ export default function MobileWelcomeComponent() {
                 Build your wealth with cryptoassets
               </p>
             </IonText>
-            <ConnectButton />
+            {!walletAddress && (
+                <ConnectButton />
+            )}
           </IonCol>
         </IonRow>
       </IonGrid>

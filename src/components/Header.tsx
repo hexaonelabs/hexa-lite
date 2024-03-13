@@ -110,7 +110,6 @@ export function Header({
                     mode="ios"
                     value={currentSegment}
                     onIonChange={(e: any) => {
-                      console.log('>> router: ', router)
                       router.push(`/${e.detail.value}`)
                       if (e.detail.value === 'fiat-segment') {
                         handleSegmentChange({detail: {value: 'fiat'}});
@@ -119,12 +118,13 @@ export function Header({
                       handleSegmentChange(e);
                     }}
                   >
+                    <IonSegmentButton value="wallet">Wallet</IonSegmentButton>
                     <IonSegmentButton value="swap">Exchange</IonSegmentButton>
                     <IonSegmentButton value="earn">
-                      Earn Interest
+                      Earn interest
                     </IonSegmentButton>
                     <IonSegmentButton value="defi">
-                      Lending & Borrow
+                      Lend & borrow
                     </IonSegmentButton>
                     <IonSegmentButton value="fiat-segment">
                       Buy

@@ -249,6 +249,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
     throw new Error("No poolGroup found");
   }
 
+  console.log('>>>>x x', userSummaryAndIncentivesGroup)
   const userSummary = userSummaryAndIncentivesGroup?.find((group) =>
     group.userReservesData.find(({ reserve }) => reserve.id === id)
   );

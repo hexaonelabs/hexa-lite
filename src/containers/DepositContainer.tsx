@@ -17,7 +17,7 @@ import {
 import { useEffect, useState } from "react";
 import { scan } from 'ionicons/icons';
 
-export const MobileDepositModal = () => {
+export const DepositContainer = () => {
   const {
     web3Provider,
     currentNetwork,
@@ -76,6 +76,8 @@ export const MobileDepositModal = () => {
                   borderRadius: "32px",
                   overflow: "hidden",
                   transform: "scale(1.1)",
+                  maxWidth: '250px',
+                  margin: 'auto',
                 }}
                 dangerouslySetInnerHTML={{ __html: qrCodeSVG?.outerHTML || "" }}
               />

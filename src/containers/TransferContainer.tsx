@@ -8,6 +8,7 @@ import {
   IonFab,
   IonFabButton,
   IonGrid,
+  IonHeader,
   IonIcon,
   IonInput,
   IonItem,
@@ -18,9 +19,10 @@ import {
   IonPopover,
   IonRow,
   IonText,
+  IonToolbar,
 } from "@ionic/react";
 import { chevronDown, close, scan } from "ionicons/icons";
-import { SymbolIcon } from "../SymbolIcon";
+import { SymbolIcon } from "../components/SymbolIcon";
 import { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "@/constants/chains";
 import { getReadableAmount } from "@/utils/getReadableAmount";
@@ -232,9 +234,9 @@ const InputAssetWithDropDown = (props: {
                   <IonItem
                     button
                     detail={false}
-                    key={"item-" + index}
+                    key={index}
                     onClick={() => {
-                      setPopoverOpen(() => true);
+                      setPopoverOpen(false);
                       setSelectedAsset(asset);
                       setInputFromAmount(() => 0);
                       setErrorMessage(() => undefined);
@@ -323,7 +325,7 @@ const InputAssetWithDropDown = (props: {
   );
 };
 
-export const MobileTransferModal = () => {
+export const TransferContainer = () => {
   const { walletAddress, isMagicWallet, assets } = Store.useState(getWeb3State);
   const [inputFromAmount, setInputFromAmount] = useState<number>(0);
   const [inputToAddress, setInputToAddress] = useState<string|undefined>(undefined);
@@ -332,74 +334,85 @@ export const MobileTransferModal = () => {
   const isValid = inputFromAmount > 0 && inputToAddress && inputToAddress.length > 0;
 
   return (
-    <IonContent className="mobileConentModal">
-      <IonGrid>
-        <IonRow className="ion-text-center">
-          <IonCol size="12" className="ion-margin-top">
-            <IonText>
-              <h1>Send token</h1>
-            </IonText>
-          </IonCol>
-          <IonCol size="12">
-            <InputAssetWithDropDown
-              assets={assets}
-              inputFromAmount={inputFromAmount}
-              setInputFromAmount={setInputFromAmount}
-            />
-          </IonCol>
-          <IonCol size="12">
-            <IonItem
-              lines="none"
-              style={{
-                "--background": "#0f1629",
-                "--padding-start": "1.5rem",
-                "--padding-bottom": "0.5rem",
-                "--padding-top": "0.25rem",
-                borderRadius: "24px",
-                alignItems: "center",
-                fontSize: "1.3rem",
-                marginBottom: "0.5rem",
-              }}
-            >
-              <IonLabel position="stacked" color="medium">
-                Destination address
-              </IonLabel>
-              <IonInput 
-                type="text" 
-                clearInput={true} 
-                placeholder="0x..." 
-                value={inputToAddress}
-                onIonInput={($event)=> {
-                  console.log($event)
-                  setInputToAddress(() => ($event.detail.value|| undefined));
-                }} />
-              <IonButton
-                fill="clear"
-                slot="end"
-                onClick={async () => {
-                  setIsScanModalOpen(()=> true);
+    <>
+      <IonHeader className="ion-no-border" translucent={true}>
+        <IonToolbar style={{'--background': 'transparent'}}>
+          <IonGrid>
+            <IonRow className="ion-text-center">
+              <IonCol size="12">
+                <IonText>
+                  <h1>Send token</h1>
+                </IonText>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent className="mobileConentModal">
+        <IonGrid>
+          <IonRow className="ion-text-center">
+            <IonCol size="12" className="ion-margin-top">
+              <InputAssetWithDropDown
+                assets={assets}
+                inputFromAmount={inputFromAmount}
+                setInputFromAmount={setInputFromAmount}
+              />
+            </IonCol>
+            <IonCol size="12">
+              <IonItem
+                lines="none"
+                style={{
+                  "--background": "#0f1629",
+                  "--padding-start": "1.5rem",
+                  "--padding-bottom": "0.5rem",
+                  "--padding-top": "0.25rem",
+                  borderRadius: "24px",
+                  alignItems: "center",
+                  fontSize: "1.3rem",
+                  marginBottom: "0.5rem",
                 }}
               >
-                <IonIcon icon-only={true} icon={scan} />
-              </IonButton>
-            </IonItem>
-            <ScanModal 
-              isOpen={isScanModalOpen} 
-              onDismiss={(data?: string) => {
-                if (data) {
-                  setInputToAddress(() => data);
-                }
-                setIsScanModalOpen(() => false);
-              }} />
-          </IonCol>
-          <IonCol size="12">
-            <IonButton 
-              expand="block"
-              disabled={!isValid}
-              >Send</IonButton>
-          </IonCol>
-        </IonRow>
-      </IonGrid>
-    </IonContent>
+                <IonLabel position="stacked" color="medium">
+                  Destination address
+                </IonLabel>
+                <IonInput 
+                  type="text" 
+                  clearInput={true} 
+                  placeholder="0x..." 
+                  value={inputToAddress}
+                  onIonInput={($event)=> {
+                    console.log($event)
+                    setInputToAddress(() => ($event.detail.value|| undefined));
+                  }} />
+                <IonButton
+                  fill="clear"
+                  slot="end"
+                  onClick={async () => {
+                    setIsScanModalOpen(()=> true);
+                  }}
+                >
+                  <IonIcon icon-only={true} icon={scan} />
+                </IonButton>
+              </IonItem>
+              <ScanModal 
+                isOpen={isScanModalOpen} 
+                onDismiss={(data?: string) => {
+                  if (data) {
+                    setInputToAddress(() => data);
+                  }
+                  setIsScanModalOpen(() => false);
+                }} />
+            </IonCol>
+            <IonCol size="12">
+              <IonButton 
+                expand="block"
+                disabled={!isValid}
+                >Send</IonButton>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+      </IonContent>
+    </>
+    
   );
 };

@@ -1,11 +1,13 @@
 import {
   IonAvatar,
   IonButton,
+  IonButtons,
   IonCard,
   IonCardContent,
   IonCol,
   IonContent,
   IonGrid,
+  IonHeader,
   IonIcon,
   IonImg,
   IonItem,
@@ -15,6 +17,8 @@ import {
   IonSegment,
   IonSegmentButton,
   IonText,
+  IonTitle,
+  IonToolbar,
   useIonToast,
 } from "@ionic/react";
 import { ethers } from "ethers";
@@ -176,7 +180,8 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?
     },
     hiddenUI: [
       ...LIFI_CONFIG?.hiddenUI as any,
-      HiddenUI.ToAddress
+      HiddenUI.ToAddress,
+      HiddenUI.History,
     ],
     disabledUI: action === 'stake'
       ? [ "toToken"]
@@ -435,8 +440,9 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?
           }}>
           <IonAvatar slot="start" style={{
               width: '64px',
-              height: '64px'
-            
+              height: '64px',
+              marginTop: '1rem',
+              marginBottom: '1rem'
             }} >
             <img src={strategy.icon} alt={strategy.name} />
           </IonAvatar>
@@ -444,8 +450,8 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?
             <h2 style={{fontSize:' 1.2rem'}}>
             {strategy.name}
             </h2>
-            <IonText color="medium">
-              <p>
+            <IonText>
+              <p className="ion-color-gradient-text">
                 {strategy.type}
               </p>
             </IonText>
@@ -462,51 +468,75 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?
         ref={modal}
         className="modalPage"
       >
+        <IonHeader className="ion-no-border" translucent={true}>
+          <IonToolbar 
+            style={{
+              "--background": "transparent",
+              minHeight: "85px",
+              display: "flex",
+            }}>
+            <IonTitle>
+              {strategy.name}<br/>
+              <small>{strategy.type}</small>
+            </IonTitle>
+            <IonButtons slot="end">
+              <IonButton
+                fill="clear"
+                color="primary"
+                onClick={async () => {
+                  modal.current?.dismiss();
+                }}
+              >
+                <IonIcon icon={closeSharp} />
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
         <IonContent>
+          <IonHeader collapse="condense">
+            <IonToolbar style={{ "--background": "transparent" }}>
+              <IonGrid>
+                <IonRow>
+                  <IonCol size="12" sizeMd="12" class="ion-padding">
+                    <IonImg
+                      style={{
+                        padding: "0 0rem",
+                        maxWidth: 128,
+                        maxHeight: 128,
+                        margin: "0.5rem auto 0",
+                      }}
+                      src={strategy.icon}
+                    />
+                  </IonCol>
+                  <IonCol size="12" sizeMd="12" class="ion-padding ion-text-center">
+                    <h1 className="ion-no-margin" style={{
+                      fontSize: '2.4rem',
+                      lineHeight: '1.85rem'
+                    }}>
+                      <IonText>
+                        {strategy.name}
+                      </IonText>
+                      <br />
+                      <span style={{
+                        marginBottom: '1.5rem',
+                        fontSize: '1.4rem',
+                        lineHeight: '1.15rem'
+                      }} 
+                      className="ion-color-gradient-text">{strategy.type}</span>
+                    </h1>
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
+            </IonToolbar>
+          </IonHeader>
           <IonGrid>
             <IonRow>
-              <IonCol size="12" sizeMd="12" class="ion-padding">
-                <IonButton
-                  className="ion-float-end"
-                  fill="clear"
-                  color="dark"
-                  onClick={async () => {
-                    modal.current?.dismiss();
-                  }}
-                >
-                  <IonIcon icon={closeSharp} />
-                </IonButton>
-                <IonImg
-                  style={{
-                    padding: "0 0rem",
-                    maxWidth: 128,
-                    maxHeight: 128,
-                    margin: "2rem auto 0",
-                  }}
-                  src={strategy.icon}
-                />
-              </IonCol>
               <IonCol
                 size="12"
                 offsetMd="2"
                 sizeMd="8"
                 class="ion-padding-start ion-padding-end ion-padding-bottom ion-text-center"
               >
-                <h1 className="ion-no-margin" style={{
-                  fontSize: '2.4rem',
-                  lineHeight: '1.85rem'
-                }}>
-                  <IonText>
-                    {strategy.name}
-                  </IonText>
-                  <br />
-                  <span style={{
-                    marginBottom: '1.5rem',
-                    fontSize: '1.4rem',
-                    lineHeight: '1.15rem'
-                  }} 
-                  className="ion-color-gradient-text">{strategy.type}</span>
-                </h1>
                 <IonText color="medium">
                   <p>
                     By exchange ETH to wstETH you will incrase your ETH holdings balance by {baseAPRstETH.toFixed(2)}% APY from staking liquidity on Lido finance.

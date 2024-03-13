@@ -1,0 +1,170 @@
+import { IonModal, ModalOptions } from "@ionic/react";
+import React from "react";
+import { IAsset } from "@/interfaces/asset.interface";
+import { DepositContainer } from "@/containers/DepositContainer";
+import { HookOverlayOptions } from "@ionic/react/dist/types/hooks/HookOverlayOptions";
+import { TransferContainer } from "../../containers/TransferContainer";
+
+export interface WalletComponentProps {
+  modalOpts: Omit<ModalOptions, "component" | "componentProps"> &
+    HookOverlayOptions;
+  walletAddress?: string;
+  assets: IAsset[];
+}
+
+export interface WalletComponentState {
+  filterBy: string | null;
+  assetGroup: any[];
+  totalBalance: number;
+  selectedTokenDetail: {
+    name: string;
+    symbol: string;
+    priceUsd: number;
+    balance: number;
+    balanceUsd: number;
+    thumbnail: string;
+    assets: IAsset[];
+  } | null;
+  isEarnModalOpen: boolean;
+  isTransferModalOpen: boolean;
+  isDepositModalOpen: boolean;
+}
+
+interface demo {
+  demo: string;
+}
+
+export default class WalletBaseComponent<T> extends React.Component<
+  T & WalletComponentProps,
+  WalletComponentState
+> {
+  constructor(props: T & WalletComponentProps) {
+    super(props);
+    this.state = {
+      filterBy: null,
+      selectedTokenDetail: null,
+      assetGroup: [],
+      totalBalance: 0,
+      isEarnModalOpen: false,
+      isTransferModalOpen: false,
+      isDepositModalOpen: false,
+    };
+  }
+
+  componentDidMount() {
+    this.calculateBalance();
+    this.groupAssets();
+  }
+
+  componentDidUpdate(
+    prevProps: Readonly<WalletComponentProps>,
+    prevState: Readonly<WalletComponentState>,
+    snapshot?: any
+  ): void {
+    if (prevProps.assets !== this.props.assets) {
+      this.calculateBalance();
+      this.groupAssets();
+    }
+  }
+
+  calculateBalance() {
+    if (!this.props.assets) {
+      this.setState({ totalBalance: 0 });
+      return;
+    }
+    const totalBalance = this.props.assets.reduce((acc, asset) => {
+      return acc + asset.balanceUsd;
+    }, 0);
+    this.setState({ totalBalance });
+  }
+
+  groupAssets() {
+    const assetGroup = this.props.assets
+      .toSorted((a, b) => b.balanceUsd - a.balanceUsd)
+      .reduce((acc, asset) => {
+        // check existing asset symbol
+        const symbol = (asset.name.toLowerCase().includes('aave') && asset.name.toLowerCase() !== 'aave token')
+        ? asset.name.split(' ').pop()||asset.symbol
+        : asset.symbol;
+        const name = (asset.name.toLowerCase().includes('aave') && asset.name.toLowerCase() !== 'aave token')
+        ? asset.name.split(' ').pop()||asset.name
+        : asset.name;
+
+
+        const index = acc.findIndex((a) => a.symbol === symbol);
+        if (index !== -1) {
+          const balanceUsd = (asset.balanceUsd <= 0 && asset.balance > 0 )
+            ? acc[index].priceUsd * asset.balance
+            : asset.balanceUsd;
+          acc[index].balance += asset.balance;
+          acc[index].balanceUsd += balanceUsd;
+          acc[index].assets.push(asset);
+        } else {
+          acc.push({
+            name: name,
+            symbol: symbol,
+            priceUsd: asset.priceUsd,
+            thumbnail: asset.thumbnail,
+            balance: asset.balance,
+            balanceUsd: asset.balanceUsd,
+            assets: [asset],
+          });
+        }
+        return acc;
+      }, [] as { name: string; symbol: string; priceUsd: number; balance: number; balanceUsd: number; thumbnail: string; assets: IAsset[] }[])
+    this.setState({ assetGroup });
+  }
+
+  handleSearchChange(e: CustomEvent) {
+    this.setState({ filterBy: e.detail.value });
+  }
+
+  handleTokenDetailClick(token: any = null) {
+    console.log(token);
+    this.setState((prev) =>({ 
+      ...prev, 
+      selectedTokenDetail: token
+    }));
+  }
+
+  handleEarnClick() {
+    this.setState({ isEarnModalOpen: !this.state.isEarnModalOpen });
+  }
+
+  handleTransferClick(state: boolean) {
+    console.log('handleTransferClick', state)
+    this.setState({isTransferModalOpen: state});
+  }
+
+  handleDepositClick(state?: boolean) {
+    this.setState({
+      isDepositModalOpen:
+        state !== undefined ? state : !this.state.isDepositModalOpen,
+    });
+  }
+
+  render(): React.ReactNode {
+    return (
+      <>
+        <IonModal
+          isOpen={Boolean(this.state.isTransferModalOpen)}
+          breakpoints={this.props.modalOpts.breakpoints}
+          initialBreakpoint={this.props.modalOpts.initialBreakpoint}
+          onDidDismiss={() => this.handleTransferClick(false)}
+        >
+          <TransferContainer />
+        </IonModal>
+
+        <IonModal
+          isOpen={this.state.isDepositModalOpen}
+          breakpoints={this.props.modalOpts.breakpoints}
+          initialBreakpoint={this.props.modalOpts.initialBreakpoint}
+          onDidDismiss={() => this.handleDepositClick(false)}
+        >
+          <DepositContainer />
+        </IonModal>
+        
+      </>
+    );
+  }
+}

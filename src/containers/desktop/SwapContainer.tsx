@@ -14,11 +14,11 @@ import {
 } from "@lifi/widget";
 import type { Route } from "@lifi/sdk";
 import { useEffect } from "react";
-import { useLoader } from "../context/LoaderContext";
-import { CHAIN_AVAILABLES, CHAIN_DEFAULT, NETWORK } from "../constants/chains";
+import { useLoader } from "../../context/LoaderContext";
+import { CHAIN_AVAILABLES, CHAIN_DEFAULT, NETWORK } from "../../constants/chains";
 import { ethers } from "ethers";
-import { LiFiWidgetDynamic } from "../components/LiFiWidgetDynamic";
-import { LIFI_CONFIG } from "../servcies/lifi.service";
+import { LiFiWidgetDynamic } from "../../components/LiFiWidgetDynamic";
+import { LIFI_CONFIG } from "../../servcies/lifi.service";
 // import { SquidWidgetDynamic } from "@/components/SquidWidgetDynamic";
 import { SquidWidget } from "@0xsquid/widget";
 import { SQUID_CONFIG } from "@/servcies/squid.service";
