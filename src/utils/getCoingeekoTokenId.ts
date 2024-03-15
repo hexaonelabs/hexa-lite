@@ -10,6 +10,10 @@ export const getCoingeekoTokenId = async (symbol: string) => {
       data = await fetchResponse.json();
       localStorage.setItem('hexa-lite-coingeeko/coinList', JSON.stringify(data));
     }
-    const coin: {id?: string} = data.find((c: any) => c.symbol.toLowerCase() === symbol.toLowerCase());
+    const coin: {id?: string} = data.find(
+      (c: any) => 
+        c.symbol.toLowerCase() === symbol.toLowerCase()
+        && !c.name.toLowerCase().includes('bridged')
+    );
     return coin?.id;
 }

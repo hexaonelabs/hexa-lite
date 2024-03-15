@@ -630,6 +630,27 @@ ion-accordion:not(.faq) {
   }
 }
 
+ion-accordion.networkList {
+  &:not(.accordion-collapsed):not(.accordion-collapsing) {
+    background: transparent!important;
+  }
+  &:hover,
+  &.accordion-collapsed:hover {
+    background: transparent!important;
+  }
+
+  *[slot=header] {
+    cursor: pointer;
+  }
+
+  *[slot=content] ion-item {
+    --background: transparent!important;
+  }
+  // &.accordion-expanded ion-item[slot='header'] {
+  //   --color: red;
+  // }
+}
+
 .verticalLineBefore::before {
   content: '';
   position: absolute;

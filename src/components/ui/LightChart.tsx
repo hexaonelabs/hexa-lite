@@ -23,7 +23,7 @@ export default function LightChart(props: { data: DataItem[] }) {
 
       // create a new chart
       const chart = createChart(chartContainerRef.current, {
-        width: 400, 
+        width: window.innerWidth||400, 
         height: 250,
         layout: {
           background: {

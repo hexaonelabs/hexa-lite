@@ -1,6 +1,8 @@
 import { IAsset } from "@/interfaces/asset.interface";
 import { getAssetIconUrl } from "@/utils/getAssetIconUrl";
 import {
+  IonAccordion,
+  IonAccordionGroup,
   IonAvatar,
   IonBadge,
   IonButton,
@@ -17,6 +19,8 @@ import {
   IonListHeader,
   IonNote,
   IonRow,
+  IonSelect,
+  IonSelectOption,
   IonText,
   IonTitle,
   IonToolbar,
@@ -27,7 +31,7 @@ import { ethers } from "ethers";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import { CHAIN_AVAILABLES } from "@/constants/chains";
-import { airplane, download, paperPlane } from "ionicons/icons";
+import { airplane, chevronDown, download, paperPlane } from "ionicons/icons";
 import { DataItem } from "@/components/ui/LightChart";
 import { getTokenHistoryPrice } from "@/utils/getTokenHistoryPrice";
 import { TokenInfo, getTokenInfo } from "@/utils/getTokenInfo";
@@ -101,19 +105,16 @@ export const TokenDetailMobileContainer = (props: {
           </IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent 
+      <IonContent
         className="mobileConentModal ion-no-padding"
         fullscreen={true}
         style={{ "--padding-top": "0px" }}
-        >
+      >
         <IonHeader collapse="condense">
           <IonToolbar style={{ "--background": "transparent" }}>
             <IonGrid class="ion-no-padding">
               <IonRow className="ion-text-center ion-margin-bottom">
-                <IonCol
-                  size="12"
-                  className="ion-no-vertical"
-                >
+                <IonCol size="12" className="ion-no-vertical">
                   <IonAvatar
                     style={{
                       margin: "2rem auto 0",
@@ -143,8 +144,102 @@ export const TokenDetailMobileContainer = (props: {
                   <IonText color="medium">
                     <p className="ion-no-margin" style={{ fontSize: "1.2rem" }}>
                       $ {data.balanceUsd.toFixed(2)}
+                      { tokenInfo?.market_data?.price_change_percentage_24h_in_currency?.usd && (
+                        <IonText
+                          color={
+                            tokenInfo.market_data
+                              .price_change_percentage_24h_in_currency.usd < 0
+                              ? "danger"
+                              : "success"
+                          }
+                          className="ion-padding-start"
+                        >
+                          <small>
+                          ({tokenInfo.market_data.price_change_percentage_24h_in_currency.usd.toFixed(
+                            2
+                          )}
+                          % <span style={{fontSize: '80%'}}>/24h</span>)
+                          </small>
+                        </IonText>
+                      )}
                     </p>
                   </IonText>
+                  <IonGrid className="ion-no-padding">
+                    <IonRow className="ion-no-padding">
+                      <IonCol size="12" className="ion-padding-top">
+                        <IonAccordionGroup>
+                          <IonAccordion className="networkList">
+                            <div slot="header" className="ion-text-center">
+                              <IonIcon icon={chevronDown} color="primary" />
+                            </div>
+                            <IonList
+                              slot="content"
+                              style={{
+                                background: "transparent",
+                              }}
+                            >
+                              <IonListHeader className="ion-no-padding ion-text-start">
+                                <IonLabel>
+                                  <h3>Networks details</h3>
+                                </IonLabel>
+                              </IonListHeader>
+                              {data.assets
+                                .sort((a, b) =>
+                                  a.chain && b.chain
+                                    ? a.chain.id - b.chain.id
+                                    : a.balance + b.balance
+                                )
+                                .map((token, index) => (
+                                  <IonItem
+                                    key={index}
+                                    style={{
+                                      "--background": "transparent",
+                                      "--padding-start": "0",
+                                    }}
+                                  >
+                                    <IonAvatar
+                                      slot="start"
+                                      style={{ width: "24px", height: "24px" }}
+                                    >
+                                      <img
+                                        src={
+                                          CHAIN_AVAILABLES.find(
+                                            (c) => c.id === token.chain?.id
+                                          )?.logo
+                                        }
+                                        alt={token.symbol}
+                                        style={{ transform: "scale(1.01)" }}
+                                        onError={(event) => {
+                                          (
+                                            event.target as any
+                                          ).src = `https://images.placeholders.dev/?width=42&height=42&text=${token.symbol}&bgColor=%23000000&textColor=%23182449`;
+                                        }}
+                                      />
+                                    </IonAvatar>
+                                    <IonLabel>
+                                      <p>{token.chain?.name}</p>
+                                    </IonLabel>
+                                    <IonNote
+                                      slot="end"
+                                      color="gradient"
+                                      className="ion-text-end ion-padding-vertical"
+                                    >
+                                      {token.balance.toFixed(6)} {token.symbol}
+                                      <br />
+                                      <IonText color="medium">
+                                        <small>
+                                          $ {token.balanceUsd.toFixed(2)}
+                                        </small>
+                                      </IonText>
+                                    </IonNote>
+                                  </IonItem>
+                                ))}
+                            </IonList>
+                          </IonAccordion>
+                        </IonAccordionGroup>
+                      </IonCol>
+                    </IonRow>
+                  </IonGrid>
                 </IonCol>
               </IonRow>
             </IonGrid>
@@ -152,81 +247,22 @@ export const TokenDetailMobileContainer = (props: {
         </IonHeader>
 
         <IonGrid style={{ paddingBottom: "200px" }}>
-          <IonRow className="ion-margin-top">
+          <IonRow className="ion-margin-vertical">
             <IonCol size="12" className="ion-text-center">
               <Suspense fallback={<>.....</>}>
                 <LightChart data={dataChartHistory} />
-                <IonBadge color="primary" >
-                    <span style={{ fontSize: "0.8rem", display: "block", padding: '0.2rem' }}>
-                      1{' '}{data.symbol} = $ {data.priceUsd.toFixed(2)}
-                    </span>
+                <IonBadge color="primary">
+                  <span
+                    style={{
+                      fontSize: "0.8rem",
+                      display: "block",
+                      padding: "0.2rem",
+                    }}
+                  >
+                    1 {data.symbol} = $ {(tokenInfo?.market_data?.current_price?.usd||data.priceUsd).toFixed(2)}
+                  </span>
                 </IonBadge>
               </Suspense>
-            </IonCol>
-          </IonRow>
-
-          <IonRow className="ion-margin-top">
-            <IonCol size="12">
-              <IonList
-                style={{
-                  background: "transparent",
-                }}
-              >
-                <IonListHeader className="ion-no-padding">
-                  <IonLabel>
-                    <h2>Networks</h2>
-                  </IonLabel>
-                </IonListHeader>
-                {data.assets
-                  .sort((a, b) =>
-                    a.chain && b.chain
-                      ? a.chain.id - b.chain.id
-                      : a.balance + b.balance
-                  )
-                  .map((token, index) => (
-                    <IonItem
-                      key={index}
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonAvatar
-                        slot="start"
-                        style={{ width: "24px", height: "24px" }}
-                      >
-                        <img
-                          src={
-                            CHAIN_AVAILABLES.find(
-                              (c) => c.id === token.chain?.id
-                            )?.logo
-                          }
-                          alt={token.symbol}
-                          style={{ transform: "scale(1.01)" }}
-                          onError={(event) => {
-                            (
-                              event.target as any
-                            ).src = `https://images.placeholders.dev/?width=42&height=42&text=${token.symbol}&bgColor=%23000000&textColor=%23182449`;
-                          }}
-                        />
-                      </IonAvatar>
-                      <IonLabel>
-                        <p>{token.chain?.name}</p>
-                      </IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="gradient"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        {token.balance.toFixed(6)} {token.symbol}
-                        <br />
-                        <IonText color="medium">
-                          <small>$ {token.balanceUsd.toFixed(2)}</small>
-                        </IonText>
-                      </IonNote>
-                    </IonItem>
-                  ))}
-              </IonList>
             </IonCol>
           </IonRow>
 
@@ -240,20 +276,22 @@ export const TokenDetailMobileContainer = (props: {
                 >
                   <IonListHeader className="ion-no-padding">
                     <IonLabel>
-                      <h2>Market details</h2>
+                      <h3>Market details</h3>
                     </IonLabel>
                   </IonListHeader>
-                  <IonItem
+                  {/* <IonItem
                     style={{
                       "--background": "transparent",
                       "--padding-start": "0",
                     }}
                   >
                     <IonLabel color="medium">Categories</IonLabel>
-                    {tokenInfo.categories.map((categorie) => (
-                      <IonChip>{categorie}</IonChip>
-                    ))}
-                  </IonItem>
+                    <IonSelect value={tokenInfo.categories[0]}>
+                      {tokenInfo.categories.map((categorie, i) => (
+                        <IonSelectOption style={{opacity: 1}} disabled key={i}>{categorie}</IonSelectOption>
+                      ))}
+                    </IonSelect>
+                  </IonItem> */}
                   {tokenInfo.market_data.market_cap.usd && (
                     <IonItem
                       style={{
@@ -271,14 +309,16 @@ export const TokenDetailMobileContainer = (props: {
                       </IonNote>
                     </IonItem>
                   )}
-                  { tokenInfo.market_data.fully_diluted_valuation.usd && (
+                  {tokenInfo.market_data.fully_diluted_valuation.usd && (
                     <IonItem
                       style={{
                         "--background": "transparent",
                         "--padding-start": "0",
                       }}
                     >
-                      <IonLabel color="medium">Fully Diluted Valuation</IonLabel>
+                      <IonLabel color="medium">
+                        Fully Diluted Valuation
+                      </IonLabel>
                       <IonNote
                         slot="end"
                         color="dark"
@@ -291,7 +331,7 @@ export const TokenDetailMobileContainer = (props: {
                       </IonNote>
                     </IonItem>
                   )}
-                  { tokenInfo.market_data.circulating_supply && (
+                  {tokenInfo.market_data.circulating_supply && (
                     <IonItem
                       style={{
                         "--background": "transparent",
@@ -308,7 +348,7 @@ export const TokenDetailMobileContainer = (props: {
                       </IonNote>
                     </IonItem>
                   )}
-                  { tokenInfo.market_data.total_supply && (
+                  {tokenInfo.market_data.total_supply && (
                     <IonItem
                       style={{
                         "--background": "transparent",
@@ -325,7 +365,7 @@ export const TokenDetailMobileContainer = (props: {
                       </IonNote>
                     </IonItem>
                   )}
-                  { tokenInfo.market_data.max_supply && (
+                  {tokenInfo.market_data.max_supply && (
                     <IonItem
                       style={{
                         "--background": "transparent",
@@ -344,10 +384,10 @@ export const TokenDetailMobileContainer = (props: {
                   )}
                   <IonListHeader className="ion-no-padding">
                     <IonLabel>
-                      <h2>Historical Price</h2>
+                      <h3>Historical Price</h3>
                     </IonLabel>
                   </IonListHeader>
-                  { tokenInfo.market_data.current_price.usd && (
+                  {tokenInfo.market_data.current_price.usd && (
                     <IonItem
                       style={{
                         "--background": "transparent",
@@ -375,11 +415,13 @@ export const TokenDetailMobileContainer = (props: {
                           )}
                           %
                         </IonText>
-                        <br />
+                        <IonText color="medium">
+                          <span style={{fontSize: '60%', display: 'block'}}>(24h change)</span>
+                        </IonText>
                       </IonNote>
                     </IonItem>
                   )}
-                  { tokenInfo.market_data.ath.usd && (
+                  {tokenInfo.market_data.ath.usd && (
                     <IonItem
                       style={{
                         "--background": "transparent",
@@ -417,7 +459,7 @@ export const TokenDetailMobileContainer = (props: {
                       </IonNote>
                     </IonItem>
                   )}
-                  { tokenInfo.market_data.atl.usd&& (
+                  {tokenInfo.market_data.atl.usd && (
                     <IonItem
                       style={{
                         "--background": "transparent",
@@ -459,8 +501,10 @@ export const TokenDetailMobileContainer = (props: {
                 <IonText color="medium">
                   <p className="ion-text-center">
                     <small>
-                      Datas are coming from Coingeeko API
+                      Market datas from Coingeeko API
+                    <br/>Last update: {new Date(tokenInfo?.market_data?.last_updated||new Date ().toLocaleDateString()).toLocaleString()}
                     </small>
+
                   </p>
                 </IonText>
               </IonCol>
