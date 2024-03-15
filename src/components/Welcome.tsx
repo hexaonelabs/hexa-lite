@@ -61,7 +61,7 @@ export function Welcome({
               style={{marginTop: '2rem'}}
               onClick={(e) => {
                 router.push("swap");
-                handleSegmentChange({ detail: { value: "swap" } });
+                handleSegmentChange({ detail: { value: "wallet" } });
               }}
             >
               Launch App
@@ -672,7 +672,7 @@ export function Welcome({
               color="gradient"
               onClick={(e) =>{
                 router.push("swap");
-                handleSegmentChange({ detail: { value: "swap" } })
+                handleSegmentChange({ detail: { value: "wallet" } })
               }}
             >
               Launch App

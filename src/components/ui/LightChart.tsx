@@ -8,7 +8,7 @@ export interface DataItem {
   value: number;
 }
 
-export default function LightChart(props: { data: DataItem[] }) {
+export default function LightChart(props: { data: DataItem[], minHeight?: number }) {
   const chartContainerRef = useRef(null);
   const chartRef = useRef<IChartApi|null>(null);
   
@@ -24,7 +24,7 @@ export default function LightChart(props: { data: DataItem[] }) {
       // create a new chart
       const chart = createChart(chartContainerRef.current, {
         width: window.innerWidth||400, 
-        height: 250,
+        height: props?.minHeight || 250,
         layout: {
           background: {
               type: ColorType.Solid,

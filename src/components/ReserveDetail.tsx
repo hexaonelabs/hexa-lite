@@ -58,7 +58,6 @@ import {
 import { useLoader } from "../context/LoaderContext";
 import { getAssetIconUrl } from "../utils/getAssetIconUrl";
 import { SymbolIcon } from "./SymbolIcon";
-import { currencyFormat } from "../utils/currency-format";
 import { ApyDetail } from "./ApyDetail";
 import { AavePool, IAavePool } from "@/pool/Aave.pool";
 import { MarketPool } from "@/pool/Market.pool";
@@ -75,6 +74,7 @@ import {
 } from "@/utils/getPoolWalletBalance";
 import { initializeUserSummary } from "@/store/effects/pools.effect";
 import { ModalMessage } from "./ModalMessage";
+import { currencyFormat } from "@/utils/currencyFormat";
 
 interface IReserveDetailProps {
   pool: MarketPool;
@@ -818,14 +818,14 @@ export function ReserveDetail(props: IReserveDetailProps) {
                                   ) > 0 && (
                                     <>
                                       <IonText color="dark">
-                                        {currencyFormat(
+                                        {currencyFormat.format(
                                           Number(
                                             protocolSummary?.totalBorrowsUSD ||
                                               0
                                           )
                                         )}{" "}
                                         of{" "}
-                                        {currencyFormat(
+                                        {currencyFormat.format(
                                           Number(
                                             protocolSummary?.totalCollateralUSD ||
                                               0

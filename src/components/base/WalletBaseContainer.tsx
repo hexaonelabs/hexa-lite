@@ -5,6 +5,16 @@ import { DepositContainer } from "@/containers/DepositContainer";
 import { HookOverlayOptions } from "@ionic/react/dist/types/hooks/HookOverlayOptions";
 import { TransferContainer } from "../../containers/TransferContainer";
 
+export type SelectedTokenDetail = {
+  name: string;
+  symbol: string;
+  priceUsd: number;
+  balance: number;
+  balanceUsd: number;
+  thumbnail: string;
+  assets: IAsset[];
+};
+
 export interface WalletComponentProps {
   modalOpts: Omit<ModalOptions, "component" | "componentProps"> &
     HookOverlayOptions;
@@ -16,22 +26,10 @@ export interface WalletComponentState {
   filterBy: string | null;
   assetGroup: any[];
   totalBalance: number;
-  selectedTokenDetail: {
-    name: string;
-    symbol: string;
-    priceUsd: number;
-    balance: number;
-    balanceUsd: number;
-    thumbnail: string;
-    assets: IAsset[];
-  } | null;
+  selectedTokenDetail: SelectedTokenDetail | null;
   isEarnModalOpen: boolean;
   isTransferModalOpen: boolean;
   isDepositModalOpen: boolean;
-}
-
-interface demo {
-  demo: string;
 }
 
 export default class WalletBaseComponent<T> extends React.Component<
