@@ -101,7 +101,7 @@ class WalletMobileContainer extends WalletBaseComponent<
           >
             <IonHeader collapse="condense">
               <IonToolbar style={{ "--background": "transparent" }}>
-                <IonGrid style={{ margin: "2vh auto 0", maxWidth: "450px" }}>
+                <IonGrid style={{ margin: "2vh auto 1rem", maxWidth: "450px" }}>
                   <IonRow className="ion-align-items-center ion-text-center">
                     <IonCol>
                       <div>
@@ -128,7 +128,7 @@ class WalletMobileContainer extends WalletBaseComponent<
                   />
 
                   {this.state.assetGroup.length > 0 && (
-                    <IonRow className="ion-padding">
+                    <IonRow className="ion-padding-top">
                       <IonCol size="12">
                         <div>
                           <IonSearchbar
@@ -156,18 +156,6 @@ class WalletMobileContainer extends WalletBaseComponent<
                 <IonRow className="ion-padding-vertical">
                   <IonCol size="12">
                     <IonCard
-                      onClick={async () => {
-                        if (
-                          this.props.walletAddress &&
-                          this.props.walletAddress !== "" &&
-                          this.props.isMagicWallet
-                        ) {
-                          const magic = await getMagic();
-                          magic.wallet.showOnRamp();
-                        } else {
-                          this.props.setIsAlertOpen(false);
-                        }
-                      }}
                     >
                       <IonAlert
                         isOpen={this.props.isAlertOpen}
