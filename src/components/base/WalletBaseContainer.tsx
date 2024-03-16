@@ -78,7 +78,7 @@ export default class WalletBaseComponent<T> extends React.Component<
 
   groupAssets() {
     const assetGroup = this.props.assets
-      .toSorted((a, b) => b.balanceUsd - a.balanceUsd)
+      .sort((a, b) => b.balanceUsd - a.balanceUsd)
       .reduce((acc, asset) => {
         // check existing asset symbol
         const symbol = (asset.name.toLowerCase().includes('aave') && asset.name.toLowerCase() !== 'aave token')
