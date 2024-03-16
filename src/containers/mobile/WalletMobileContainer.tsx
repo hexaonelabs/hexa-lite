@@ -41,8 +41,6 @@ import { TokenDetailMobileContainer } from "@/containers/mobile/TokenDetailMobil
 import { EarnMobileContainer } from "@/containers/mobile/EarnMobileContainer";
 import { MenuSettings } from "@/components/ui/MenuSetting";
 import { currencyFormat } from "@/utils/currencyFormat";
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { TokenInfo } from "@/utils/getTokenInfo";
 
 type SelectedTokenDetail =
   | {
@@ -76,23 +74,14 @@ class WalletMobileContainer extends WalletBaseComponent<
   }
 
   async setIsSwapModalOpen(state?: SelectedTokenDetail | boolean | undefined) {
-    if (state !== false) {
-      await Haptics.impact({ style: ImpactStyle.Light });
-    }
     this.props.setIsSwapModalOpen(state);
   }
 
   async setIsSettingOpen(state:  boolean ) {
-    if (state !== false) {
-      await Haptics.impact({ style: ImpactStyle.Light });
-    }
     this.props.setIsSettingOpen(state);
   }
 
   async handleDepositClick(state?: boolean | undefined) {
-    if (state !== false) {
-      await Haptics.impact({ style: ImpactStyle.Light });
-    }
     await super.handleDepositClick(state);
   }
 
@@ -101,12 +90,10 @@ class WalletMobileContainer extends WalletBaseComponent<
   }
 
   async handleEarnClick(): Promise<void> {
-    await Haptics.impact({ style: ImpactStyle.Light });
     super.handleEarnClick();
   }
 
   async handleTransferClick(state: boolean): Promise<void> {
-    await Haptics.impact({ style: ImpactStyle.Light });
     await super.handleTransferClick(state);
   }
 
