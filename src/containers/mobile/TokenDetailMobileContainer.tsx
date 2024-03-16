@@ -35,6 +35,8 @@ import { airplane, chevronDown, download, paperPlane } from "ionicons/icons";
 import { DataItem } from "@/components/ui/LightChart";
 import { getTokenHistoryPrice } from "@/utils/getTokenHistoryPrice";
 import { TokenInfo, getTokenInfo } from "@/utils/getTokenInfo";
+import { TokenDetailMarketDetail } from "@/components/ui/TokenDetailMarketData";
+import { TokenDetailDescription } from "@/components/ui/TokenDetailDescription";
 
 const LightChart = lazy(() => import("@/components/ui/LightChart"));
 
@@ -268,247 +270,25 @@ export const TokenDetailMobileContainer = (props: {
 
           <IonRow>
             {tokenInfo && (
-              <IonCol size="12">
-                <IonList
-                  style={{
-                    background: "transparent",
-                  }}
-                >
-                  <IonListHeader className="ion-no-padding">
-                    <IonLabel>
-                      <h3>Market details</h3>
-                    </IonLabel>
-                  </IonListHeader>
-                  {/* <IonItem
-                    style={{
-                      "--background": "transparent",
-                      "--padding-start": "0",
-                    }}
-                  >
-                    <IonLabel color="medium">Categories</IonLabel>
-                    <IonSelect value={tokenInfo.categories[0]}>
-                      {tokenInfo.categories.map((categorie, i) => (
-                        <IonSelectOption style={{opacity: 1}} disabled key={i}>{categorie}</IonSelectOption>
-                      ))}
-                    </IonSelect>
-                  </IonItem> */}
-                  {tokenInfo.market_data.market_cap.usd && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">Market Cap.</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        ${tokenInfo.market_data.market_cap.usd.toFixed(0)}
-                      </IonNote>
-                    </IonItem>
-                  )}
-                  {tokenInfo.market_data.fully_diluted_valuation.usd && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">
-                        Fully Diluted Valuation
-                      </IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        $
-                        {tokenInfo.market_data.fully_diluted_valuation.usd.toFixed(
-                          0
-                        )}
-                      </IonNote>
-                    </IonItem>
-                  )}
-                  {tokenInfo.market_data.circulating_supply && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">Circulating supply</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        {tokenInfo.market_data.circulating_supply.toFixed(0)}
-                      </IonNote>
-                    </IonItem>
-                  )}
-                  {tokenInfo.market_data.total_supply && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">Total supply</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        {tokenInfo.market_data.total_supply.toFixed(0)}
-                      </IonNote>
-                    </IonItem>
-                  )}
-                  {tokenInfo.market_data.max_supply && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">Max supply</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        {tokenInfo.market_data.max_supply.toFixed(0)}
-                      </IonNote>
-                    </IonItem>
-                  )}
-                  <IonListHeader className="ion-no-padding">
-                    <IonLabel>
-                      <h3>Historical Price</h3>
-                    </IonLabel>
-                  </IonListHeader>
-                  {tokenInfo.market_data.current_price.usd && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">Current price</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        ${tokenInfo.market_data.current_price.usd}
-                        <IonText
-                          color={
-                            tokenInfo.market_data
-                              .price_change_percentage_24h_in_currency.usd < 0
-                              ? "danger"
-                              : "success"
-                          }
-                          className="ion-padding-start"
-                        >
-                          {tokenInfo.market_data.price_change_percentage_24h_in_currency.usd.toFixed(
-                            2
-                          )}
-                          %
-                        </IonText>
-                        <IonText color="medium">
-                          <span style={{fontSize: '60%', display: 'block'}}>(24h change)</span>
-                        </IonText>
-                      </IonNote>
-                    </IonItem>
-                  )}
-                  {tokenInfo.market_data.ath.usd && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">All time height</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        ${tokenInfo.market_data.ath.usd}
-                        <IonText
-                          color={
-                            tokenInfo.market_data.ath_change_percentage.usd < 0
-                              ? "danger"
-                              : "success"
-                          }
-                          className="ion-padding-start"
-                        >
-                          {tokenInfo.market_data.ath_change_percentage.usd.toFixed(
-                            2
-                          )}
-                          %
-                        </IonText>
-                        <br />
-                        <IonText color="medium">
-                          <small>
-                            {new Date(
-                              tokenInfo.market_data.ath_date.usd
-                            ).toLocaleDateString()}
-                          </small>
-                        </IonText>
-                      </IonNote>
-                    </IonItem>
-                  )}
-                  {tokenInfo.market_data.atl.usd && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">All time low</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        ${tokenInfo.market_data.atl.usd}
-                        <IonText
-                          color={
-                            tokenInfo.market_data.atl_change_percentage.usd < 0
-                              ? "danger"
-                              : "success"
-                          }
-                          className="ion-padding-start"
-                        >
-                          {tokenInfo.market_data.atl_change_percentage.usd.toFixed(
-                            2
-                          )}
-                          %
-                        </IonText>
-                        <br />
-                        <IonText color="medium">
-                          <small>
-                            {new Date(
-                              tokenInfo.market_data.atl_date.usd
-                            ).toLocaleDateString()}
-                          </small>
-                        </IonText>
-                      </IonNote>
-                    </IonItem>
-                  )}
-                </IonList>
-                <IonText color="medium">
-                  <p className="ion-text-center">
-                    <small>
-                      Market datas from Coingeeko API
-                    <br/>Last update: {new Date(tokenInfo?.market_data?.last_updated||new Date ().toLocaleDateString()).toLocaleString()}
-                    </small>
-
-                  </p>
-                </IonText>
-              </IonCol>
+              <>
+                <IonCol size="12" className="ion-padding">
+                  <TokenDetailMarketDetail tokenInfo={tokenInfo} />
+                </IonCol>
+                <IonCol size="12" className="ion-padding">
+                  <TokenDetailDescription tokenInfo={tokenInfo} />
+                </IonCol>
+              </>
             )}
+            <IonCol size="12">
+              <IonText color="medium">
+                <p className="ion-text-center">
+                  <small>
+                    Market datas from Coingeeko API
+                  <br/>Last update: {new Date(tokenInfo?.market_data?.last_updated||new Date ().toLocaleDateString()).toLocaleString()}
+                  </small>
+                </p>
+              </IonText>
+            </IonCol>
           </IonRow>
         </IonGrid>
       </IonContent>

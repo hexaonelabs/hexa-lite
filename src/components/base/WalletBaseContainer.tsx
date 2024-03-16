@@ -113,11 +113,11 @@ export default class WalletBaseComponent<T> extends React.Component<
     this.setState({ assetGroup });
   }
 
-  handleSearchChange(e: CustomEvent) {
+  async handleSearchChange(e: CustomEvent) {
     this.setState({ filterBy: e.detail.value });
   }
 
-  handleTokenDetailClick(token: any = null) {
+  async handleTokenDetailClick(token: any = null) {
     console.log(token);
     this.setState((prev) =>({ 
       ...prev, 
@@ -125,16 +125,16 @@ export default class WalletBaseComponent<T> extends React.Component<
     }));
   }
 
-  handleEarnClick() {
+  async handleEarnClick() {
     this.setState({ isEarnModalOpen: !this.state.isEarnModalOpen });
   }
 
-  handleTransferClick(state: boolean) {
+  async handleTransferClick(state: boolean) {
     console.log('handleTransferClick', state)
     this.setState({isTransferModalOpen: state});
   }
 
-  handleDepositClick(state?: boolean) {
+  async handleDepositClick(state?: boolean) {
     this.setState({
       isDepositModalOpen:
         state !== undefined ? state : !this.state.isDepositModalOpen,

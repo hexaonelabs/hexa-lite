@@ -38,6 +38,8 @@ import { getTokenHistoryPrice } from "@/utils/getTokenHistoryPrice";
 import { TokenInfo, getTokenInfo } from "@/utils/getTokenInfo";
 import { numberFormat } from "@/utils/numberFormat";
 import { currencyFormat } from "@/utils/currencyFormat";
+import { TokenDetailDescription } from "@/components/ui/TokenDetailDescription";
+import { TokenDetailMarketDetail } from "@/components/ui/TokenDetailMarketData";
 
 const LightChart = lazy(() => import("@/components/ui/LightChart"));
 
@@ -297,239 +299,10 @@ export const TokenDetailDesktopContainer = (props: {
           {tokenInfo && (
             <IonRow className="ion-padding ion-align-items-start">
               <IonCol size-xs="12" size-sm="12" size-md="5" className="ion-padding-horizontal">
-                <IonList
-                  style={{
-                    background: "transparent",
-                  }}
-                >
-                  <IonListHeader className="ion-no-padding">
-                    <IonLabel>
-                      <h3>Market details</h3>
-                    </IonLabel>
-                  </IonListHeader>
-                  {Boolean(tokenInfo.market_data.market_cap.usd) && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">Market Cap.</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        {currencyFormat.format(tokenInfo.market_data.market_cap.usd)}
-                      </IonNote>
-                    </IonItem>
-                  )}
-                  {Boolean(tokenInfo.market_data.fully_diluted_valuation.usd) && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">
-                        Fully Diluted Valuation
-                      </IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        {currencyFormat.format(tokenInfo.market_data.fully_diluted_valuation.usd)}
-                      </IonNote>
-                    </IonItem>
-                  )}
-                  {Boolean(tokenInfo.market_data.circulating_supply) && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">Circulating supply</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        {numberFormat.format(tokenInfo.market_data.circulating_supply)}
-                      </IonNote>
-                    </IonItem>
-                  )}
-                  {Boolean(tokenInfo.market_data.total_supply) && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">Total supply</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        {numberFormat.format(tokenInfo.market_data.total_supply)}
-                      </IonNote>
-                    </IonItem>
-                  )}
-                  {Boolean(tokenInfo.market_data.max_supply) && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">Max supply</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        {numberFormat.format(tokenInfo.market_data.max_supply)}
-                      </IonNote>
-                    </IonItem>
-                  )}
-                </IonList>
-                <IonList style={{
-                    background: "transparent",
-                  }}>
-                  <IonListHeader className="ion-no-padding">
-                    <IonLabel>
-                      <h3>Historical Price</h3>
-                    </IonLabel>
-                  </IonListHeader>
-                  {Boolean(tokenInfo.market_data.current_price.usd) && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">Current price</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        {currencyFormat.format(tokenInfo.market_data.current_price.usd)}
-                        <IonText
-                          color={
-                            tokenInfo.market_data
-                              .price_change_percentage_24h_in_currency.usd < 0
-                              ? "danger"
-                              : "success"
-                          }
-                          className="ion-padding-start"
-                        >
-                          {numberFormat.format(tokenInfo.market_data.price_change_percentage_24h_in_currency.usd)}
-                          %
-                        </IonText>
-                        <IonText color="medium">
-                          <span style={{fontSize: '60%', display: 'block'}}>(24h change)</span>
-                        </IonText>
-                      </IonNote>
-                    </IonItem>
-                  )}
-                  {Boolean(tokenInfo.market_data.ath.usd) && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">All time height</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        {currencyFormat.format(tokenInfo.market_data.ath.usd)}
-                        <IonText
-                          color={
-                            tokenInfo.market_data.ath_change_percentage.usd < 0
-                              ? "danger"
-                              : "success"
-                          }
-                          className="ion-padding-start"
-                        >
-                          {numberFormat.format(tokenInfo.market_data.ath_change_percentage.usd)}%
-                        </IonText>
-                        <br />
-                        <IonText color="medium">
-                          <small>
-                            {new Date(
-                              tokenInfo.market_data.ath_date.usd
-                            ).toLocaleDateString()}
-                          </small>
-                        </IonText>
-                      </IonNote>
-                    </IonItem>
-                  )}
-                  {Boolean(tokenInfo.market_data.atl.usd) && (
-                    <IonItem
-                      style={{
-                        "--background": "transparent",
-                        "--padding-start": "0",
-                      }}
-                    >
-                      <IonLabel color="medium">All time low</IonLabel>
-                      <IonNote
-                        slot="end"
-                        color="dark"
-                        className="ion-text-end ion-padding-vertical"
-                      >
-                        {currencyFormat.format(tokenInfo.market_data.atl.usd)}
-                        <IonText
-                          color={
-                            tokenInfo.market_data.atl_change_percentage.usd < 0
-                              ? "danger"
-                              : "success"
-                          }
-                          className="ion-padding-start"
-                        >
-                          {numberFormat.format(tokenInfo.market_data.atl_change_percentage.usd)}%
-                        </IonText>
-                        <br />
-                        <IonText color="medium">
-                          <small>
-                            {new Date(
-                              tokenInfo.market_data.atl_date.usd
-                            ).toLocaleDateString()}
-                          </small>
-                        </IonText>
-                      </IonNote>
-                    </IonItem>
-                  )}
-                </IonList>
+                <TokenDetailMarketDetail tokenInfo={tokenInfo} />
               </IonCol>
               <IonCol size-xs="12" size-sm="12" size-md="7" className="ion-padding-horizontal">
-                <IonListHeader className="ion-no-padding">
-                  <IonLabel>
-                    <h3>Description</h3>
-                  </IonLabel>
-                </IonListHeader>
-                <IonText>
-                  <p>
-                    {tokenInfo.description.en}
-                  </p>
-                </IonText>
-                <div className="ion-padding-vertical">
-                  <IonListHeader className="ion-no-padding">
-                    <IonLabel>
-                      <h3>Categories</h3>
-                    </IonLabel>
-                  </IonListHeader>
-                  <div className="ion-margin-vertical">
-                    {tokenInfo.categories.map((categorie, i) => (
-                      <IonChip>{categorie}</IonChip>
-                    ))}
-                  </div>
-                </div>
+                <TokenDetailDescription tokenInfo={tokenInfo} />
               </IonCol>
             </IonRow>
           )}
@@ -541,7 +314,6 @@ export const TokenDetailDesktopContainer = (props: {
                     Market datas from Coingeeko API
                   <br/>Last update: {new Date(tokenInfo?.market_data?.last_updated||new Date ().toLocaleDateString()).toLocaleString()}
                   </small>
-
                 </p>
               </IonText>
             </IonCol>

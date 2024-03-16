@@ -30,13 +30,19 @@ import {
   IonItemOption,
   IonAlert,
   IonModal,
+  IonButton,
+  IonMenuToggle,
 } from "@ionic/react";
-import { card, download, paperPlane, repeat } from "ionicons/icons";
+import { card, download, paperPlane, repeat, settings, settingsOutline } from "ionicons/icons";
 import { useState } from "react";
 import { IAsset } from "@/interfaces/asset.interface";
 import { SwapMobileContainer } from "@/containers/mobile/SwapMobileContainer";
 import { TokenDetailMobileContainer } from "@/containers/mobile/TokenDetailMobileContainer";
 import { EarnMobileContainer } from "@/containers/mobile/EarnMobileContainer";
+import { MenuSettings } from "@/components/ui/MenuSetting";
+import { currencyFormat } from "@/utils/currencyFormat";
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { TokenInfo } from "@/utils/getTokenInfo";
 
 type SelectedTokenDetail =
   | {
@@ -58,6 +64,8 @@ interface WalletMobileComProps {
   ) => void;
   isAlertOpen: boolean;
   setIsAlertOpen: (value: boolean) => void;
+  isSettingOpen: boolean;
+  setIsSettingOpen: (value: boolean) => void;
 }
 
 class WalletMobileContainer extends WalletBaseComponent<
@@ -65,6 +73,41 @@ class WalletMobileContainer extends WalletBaseComponent<
 > {
   constructor(props: WalletComponentProps & WalletMobileComProps) {
     super(props);
+  }
+
+  async setIsSwapModalOpen(state?: SelectedTokenDetail | boolean | undefined) {
+    if (state !== false) {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    }
+    this.props.setIsSwapModalOpen(state);
+  }
+
+  async setIsSettingOpen(state:  boolean ) {
+    if (state !== false) {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    }
+    this.props.setIsSettingOpen(state);
+  }
+
+  async handleDepositClick(state?: boolean | undefined) {
+    if (state !== false) {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    }
+    await super.handleDepositClick(state);
+  }
+
+  async handleTokenDetailClick(token?: any): Promise<void> {
+    super.handleTokenDetailClick(token);
+  }
+
+  async handleEarnClick(): Promise<void> {
+    await Haptics.impact({ style: ImpactStyle.Light });
+    super.handleEarnClick();
+  }
+
+  async handleTransferClick(state: boolean): Promise<void> {
+    await Haptics.impact({ style: ImpactStyle.Light });
+    await super.handleTransferClick(state);
   }
 
   render() {
@@ -88,9 +131,18 @@ class WalletMobileContainer extends WalletBaseComponent<
                     fontWeight: "normal",
                   }}
                 >
-                  $ {this.state.totalBalance.toFixed(2)}
+                  {currencyFormat.format(this.state.totalBalance)}
                 </small>
               </IonTitle>
+
+                <IonButton 
+                  slot="end"
+                  fill="clear"
+                  size="small"
+                  onClick={()=> this.setIsSettingOpen(true)}>
+                    <IonIcon icon={settingsOutline} color="primary" />
+                </IonButton>
+
             </IonToolbar>
           </IonHeader>
 
@@ -113,7 +165,7 @@ class WalletMobileContainer extends WalletBaseComponent<
                               margin: "0px 0px 1.5rem",
                             }}
                           >
-                            $ {getReadableValue(this.state.totalBalance)}
+                            {currencyFormat.format(this.state.totalBalance)}
                           </p>
                         </IonText>
                       </div>
@@ -123,7 +175,7 @@ class WalletMobileContainer extends WalletBaseComponent<
                   <MobileActionNavButtons
                     setState={(state: any) => this.setState(state)}
                     setIsSwapModalOpen={() =>
-                      this.props.setIsSwapModalOpen(true)
+                      this.setIsSwapModalOpen(true)
                     }
                   />
 
@@ -155,14 +207,7 @@ class WalletMobileContainer extends WalletBaseComponent<
               {this.state.totalBalance <= 0 && (
                 <IonRow className="ion-padding-vertical">
                   <IonCol size="12">
-                    <IonCard
-                    >
-                      <IonAlert
-                        isOpen={this.props.isAlertOpen}
-                        onIonAlertDidDismiss={() =>
-                          this.props.setIsAlertOpen(false)
-                        }
-                      ></IonAlert>
+                    <IonCard>
                       <IonCardContent>
                         <IonGrid>
                           <IonRow className="ion-align-items-center">
@@ -275,7 +320,7 @@ class WalletMobileContainer extends WalletBaseComponent<
                               </IonLabel>
                               <IonText slot="end" className="ion-text-end">
                                 <p>
-                                  $ {asset.balanceUsd.toFixed(2)}
+                                  {currencyFormat.format(asset.balanceUsd)}
                                   <br />
                                   <IonText color="medium">
                                     <small>{asset.balance.toFixed(6)}</small>
@@ -307,7 +352,7 @@ class WalletMobileContainer extends WalletBaseComponent<
                               <IonItemOption
                                 color="primary"
                                 onClick={() => {
-                                  this.props.setIsSwapModalOpen(asset);
+                                  this.setIsSwapModalOpen(asset);
                                 }}
                               >
                                 <IonIcon
@@ -341,7 +386,7 @@ class WalletMobileContainer extends WalletBaseComponent<
           breakpoints={this.props.modalOpts.breakpoints}
           initialBreakpoint={this.props.modalOpts.initialBreakpoint}
           onDidDismiss={() => {
-            this.props.setIsSwapModalOpen(undefined);
+            this.setIsSwapModalOpen(undefined);
           }}
         >
           <SwapMobileContainer
@@ -362,11 +407,20 @@ class WalletMobileContainer extends WalletBaseComponent<
           {this.state.selectedTokenDetail && (
             <TokenDetailMobileContainer
               setState={(state: any) => this.setState(state)}
-              setIsSwapModalOpen={() => this.props.setIsSwapModalOpen(true)}
+              setIsSwapModalOpen={() => this.setIsSwapModalOpen(true)}
               data={this.state.selectedTokenDetail}
               dismiss={() => this.handleTokenDetailClick(null)}
             />
           )}
+        </IonModal>
+
+        <IonModal
+          isOpen={this.props.isSettingOpen}
+          breakpoints={this.props.modalOpts.breakpoints}
+          initialBreakpoint={this.props.modalOpts.initialBreakpoint}
+          onDidDismiss={() => this.setIsSettingOpen(false)}
+        >
+          <MenuSettings />
         </IonModal>
 
         {super.render()}
@@ -382,6 +436,7 @@ const withStore = (
   return function WalletMobileContainerWithStore() {
     const { walletAddress, assets, isMagicWallet } =
       Store.useState(getWeb3State);
+    const [isSettingOpen, setIsSettingOpen] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [isSwapModalOpen, setIsSwapModalOpen] = useState<
       SelectedTokenDetail | boolean | undefined
@@ -396,6 +451,8 @@ const withStore = (
         setIsAlertOpen={setIsAlertOpen}
         isSwapModalOpen={isSwapModalOpen}
         setIsSwapModalOpen={(value) => setIsSwapModalOpen(value)}
+        isSettingOpen={isSettingOpen}
+        setIsSettingOpen={setIsSettingOpen}
         modalOpts={{
           initialBreakpoint: 1,
           breakpoints: [0, 1],
