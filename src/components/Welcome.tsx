@@ -60,7 +60,7 @@ export function Welcome({
               color="gradient"
               style={{marginTop: '2rem'}}
               onClick={(e) => {
-                router.push("swap");
+                router.push("wallet");
                 handleSegmentChange({ detail: { value: "wallet" } });
               }}
             >
@@ -671,7 +671,7 @@ export function Welcome({
               size="large"
               color="gradient"
               onClick={(e) =>{
-                router.push("swap");
+                router.push("wallet");
                 handleSegmentChange({ detail: { value: "wallet" } })
               }}
             >

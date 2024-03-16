@@ -3,10 +3,18 @@ import { IonPage,  } from '@ionic/react';
 import ConnectButton from "../../components/ConnectButton";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
+import { useEffect } from "react";
 
 export default function WelcomeMobileContainer() {
   const { walletAddress } = Store.useState(getWeb3State);
   const router = useIonRouter();
+
+  useEffect(()=> {
+    if (walletAddress) {
+      router.push('wallet')
+    }
+  }, [walletAddress]);
+
   return (
     <IonPage>
     <IonContent>
