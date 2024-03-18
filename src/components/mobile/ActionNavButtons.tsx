@@ -1,3 +1,5 @@
+import Store from "@/store";
+import { getWeb3State } from "@/store/selectors";
 import {
   IonCol,
   IonFab,
@@ -31,11 +33,10 @@ export const MobileActionNavButtons = (props: {
     setIsSwapModalOpen,
   } = props;
 
-  const modalOpts: Omit<ModalOptions, "component" | "componentProps"> &
-    HookOverlayOptions = {
-    initialBreakpoint: 0.98,
-    breakpoints: [0, 0.98],
-  };
+  const {assets} = Store.useState(getWeb3State);
+  const balance = assets.reduce((prev, curr) => {
+    return prev + curr.balance
+  }, 0);
 
   return (
     <IonRow className="ion-justify-content-evenly ion-padding-horizontal">
@@ -44,6 +45,7 @@ export const MobileActionNavButtons = (props: {
         <IonFab style={style.fab}>
           <IonFabButton
             color="gradient"
+            disabled={balance <= 0}
             onClick={() => setState({ isTransferModalOpen: true })}
           >
             <IonIcon icon={paperPlane} />
@@ -66,6 +68,7 @@ export const MobileActionNavButtons = (props: {
         <IonFab style={style.fab}>
           <IonFabButton
             color="gradient"
+            disabled={balance <= 0}
             onClick={() => setIsSwapModalOpen()}
           >
             <IonIcon icon={repeat} />
@@ -78,6 +81,7 @@ export const MobileActionNavButtons = (props: {
           <IonFab style={style.fab}>
             <IonFabButton
               color="gradient"
+              disabled={balance <= 0}
               onClick={() => {
                 setState({ isEarnModalOpen: true });
               }}
