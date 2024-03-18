@@ -334,6 +334,9 @@ export const TransferContainer = () => {
 
   const isValid = inputFromAmount > 0 && inputToAddress && inputToAddress.length > 0;
 
+  const handleSend = async () => {
+    console.log(inputFromAmount, inputToAddress)
+  }
   return (
     <>
       <IonHeader className="ion-no-border" translucent={true}>
@@ -357,6 +360,7 @@ export const TransferContainer = () => {
                 assets={assets}
                 inputFromAmount={inputFromAmount}
                 setInputFromAmount={setInputFromAmount}
+                
               />
             </IonCol>
             <IonCol size="12">
@@ -408,6 +412,11 @@ export const TransferContainer = () => {
               <IonButton 
                 expand="block"
                 disabled={!isValid}
+                onClick={async ($event)=> {
+                  $event.currentTarget.disabled = true;
+                  await handleSend().catch((err: any) => err);
+                  $event.currentTarget.disabled = false;
+                }}
                 >Send</IonButton>
             </IonCol>
           </IonRow>

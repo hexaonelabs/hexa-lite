@@ -55,6 +55,24 @@ export class EVMWalletUtils extends MagicWalletUtils {
     this.assets = assets;
   }
 
+  async sendToken(destination: string, decimalAmount: number, contactAddress: string) {
+    if(!this.web3Provider) {
+      throw new Error("Web3Provider is not initialized");
+    }
+    try {
+      const signer = this.web3Provider.getSigner();
+      const amount = ethers.utils.parseEther(decimalAmount.toString()); // Convert 1 ether to wei
+      const contract = new ethers.Contract(contactAddress, ["function transfer(address, uint256)"], signer);
+      const tx = await contract.transfer(destination, amount);
+      // Wait for transaction to be mined
+      const receipt = await tx.wait();
+      return receipt;
+    } catch (err: any) {
+      console.error(err);
+      throw new Error("Error during sending token");
+    }
+  }
+
   private async _setMetamaskNetwork() {
     if (!this.web3Provider) {
       throw new Error("Web3Provider is not initialized");

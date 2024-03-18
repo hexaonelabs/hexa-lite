@@ -40,6 +40,7 @@ import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import { IonRoute } from "@ionic/react";
 import { isPlatform } from "@ionic/core";
+import { AboutContainer } from "@/containers/desktop/AboutContainer";
 
 setupIonicReact({ mode: "ios" });
 
@@ -169,6 +170,7 @@ const AppShell = () => {
               )}
             />
             <IonRoute path="/leaderboard" render={() => <Leaderboard />} />
+            <IonRoute path="/about" render={() => <AboutContainer/>} />
             <IonRoute
               path="/"
               render={() => (
