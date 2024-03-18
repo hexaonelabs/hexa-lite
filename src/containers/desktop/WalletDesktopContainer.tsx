@@ -277,6 +277,16 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                         />
                       );
                     })}
+
+                    {(this.state.assetGroup.filter((asset) =>
+                      this.state.filterBy
+                        ? asset.symbol
+                            .toLowerCase()
+                            .includes(this.state.filterBy.toLowerCase())
+                        : true
+                    ).length === 0) && (
+                      <p className="ion-padding ion-text-center">Assets not found in your wallet</p>
+                    )}
                 </IonCol>
               </IonRow>
             </>
