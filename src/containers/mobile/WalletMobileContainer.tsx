@@ -281,9 +281,13 @@ class WalletMobileContainer extends WalletBaseComponent<
                                 }}
                               >
                                 <img
-                                  src={getAssetIconUrl({
-                                    symbol: asset.symbol,
-                                  })}
+                                  src={asset.symbol === 'ETH'
+                                  ? getAssetIconUrl({
+                                      symbol: asset.symbol,
+                                    })
+                                  : asset.thumbnail||getAssetIconUrl({
+                                      symbol: asset.symbol,
+                                    })}
                                   alt={asset.symbol}
                                   style={{ transform: "scale(1.01)" }}
                                   onError={(event) => {

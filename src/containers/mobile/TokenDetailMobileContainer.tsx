@@ -126,7 +126,11 @@ export const TokenDetailMobileContainer = (props: {
                     }}
                   >
                     <img
-                      src={getAssetIconUrl({
+                      src={data.symbol === 'ETH' 
+                      ? getAssetIconUrl({
+                          symbol: data.symbol,
+                        })
+                      : data.thumbnail||getAssetIconUrl({
                         symbol: data.symbol,
                       })}
                       alt={data.symbol}
