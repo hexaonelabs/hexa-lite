@@ -131,9 +131,11 @@ export const TokenDetailDesktopContainer = (props: {
                     }}
                   >
                     <img
-                      src={getAssetIconUrl({
-                        symbol: data.symbol,
-                      })}
+                      src={data.symbol === 'ETH'
+                      ? getAssetIconUrl({symbol: 'ETH'})
+                      : data.thumbnail || getAssetIconUrl({
+                          symbol: data.symbol,
+                        })}
                       alt={data.symbol}
                       style={{ transform: "scale(1.01)" }}
                       onError={(event) => {

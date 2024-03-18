@@ -43,7 +43,9 @@ export function WalletAssetEntity(props: {
             }}
           >
             <img
-              src={getAssetIconUrl({
+              src={asset.symbol === 'ETH'
+              ? getAssetIconUrl({symbol: 'ETH'})
+              : asset.thumbnail || getAssetIconUrl({
                 symbol:
                   asset.name.toLowerCase().includes("aave") &&
                   asset.name.toLowerCase() !== "aave token"

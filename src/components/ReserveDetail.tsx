@@ -504,9 +504,22 @@ export function ReserveDetail(props: IReserveDetailProps) {
   return (
     <>
       <IonHeader className="ion-no-border" translucent={true}>
-        <IonToolbar style={{ "--background": "transparent" }}>
+        <IonToolbar style={{ "--background": "transparent", minHeight: "85px", display: "flex"}}>
           <IonTitle>
-            <h1>Market details</h1>
+            Pool {pool?.symbol}
+            <small
+              style={{
+                display: "block",
+                fontSize: "0.8rem",
+                fontWeight: "normal",
+              }}
+            >
+              {
+                CHAIN_AVAILABLES.find(
+                  (c) => c.id === pool.chainId
+                )?.name
+              }{" "} Network
+            </small>
           </IonTitle>
           <IonButtons slot="end">
             <IonButton
@@ -519,7 +532,14 @@ export function ReserveDetail(props: IReserveDetailProps) {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
+      <IonContent
+          fullscreen={true} 
+          className="ion-padding">
+        <IonHeader collapse="condense">
+          <IonToolbar style={{ "--background": "transparent" }} className="ion-text-center ion-padding-bottom">
+              <h1>Market Details</h1>
+          </IonToolbar>
+        </IonHeader>
         <IonGrid
           style={{
             width: "100%",
