@@ -109,7 +109,9 @@ class WalletMobileContainer extends WalletBaseComponent<
                 display: "flex",
               }}
             >
-              <IonTitle style={{ fontSize: "1.3rem", padding: "0" }}>
+              <IonTitle 
+                color="dark"
+                style={{ fontSize: "1.3rem", padding: "0" }}>
                 Wallet
                 <small
                   style={{

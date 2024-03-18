@@ -7,6 +7,8 @@ html, body, ion-content {
   line-height: normal;
   background: '#182449';
   background: var(--background-gradient);
+}
+ion-content {
   --background: var(--background-gradient);
 }
 
