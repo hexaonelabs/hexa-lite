@@ -85,9 +85,9 @@ const DefaultLoadingPage = () => {
 }
 
 const isMobilePWADevice =
-  Boolean(isPlatform("pwa") && !isPlatform("desktop")) ||
-  Boolean(isPlatform("mobileweb")) ||
-  Boolean(isPlatform("mobile"));
+  localStorage.getItem('hexa-lite_is-pwa') ||
+  Boolean(isPlatform("pwa")) && !Boolean(isPlatform("mobileweb")) ||
+  Boolean(isPlatform("mobile")) && !Boolean(isPlatform("mobileweb"));
 
 const AppShell = () => {
   // get params from url `s=`
