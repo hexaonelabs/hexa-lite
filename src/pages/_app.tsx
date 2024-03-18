@@ -58,11 +58,9 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta property="og:url" content="https://hexa-lite.io/" />
         <meta property="og:image" content="https://hexa-lite.io/assets/app-logo/192.png" />
         <meta property="og:description" content="Buy digitals assets with fiats, exchange at best rate, lend and borrow money on DeFi protocols without any intermediate smart contract or third-party to enforce security and increase earn interest." />
-          
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-
+        
+        <meta name="viewport" 
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover"></meta>
 
         {/* <!-- link to all app icon for PWA --> */}
         <link
