@@ -86,7 +86,7 @@ const DefaultLoadingPage = () => {
 
 const isMobilePWADevice =
   localStorage.getItem('hexa-lite_is-pwa') ||
-  Boolean(isPlatform("pwa")) && !Boolean(isPlatform("mobileweb")) ||
+  Boolean(isPlatform("pwa")) ||
   Boolean(isPlatform("mobile")) && !Boolean(isPlatform("mobileweb"));
 
 const AppShell = () => {
