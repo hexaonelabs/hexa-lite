@@ -15,6 +15,11 @@ export interface IWeb3State {
   disconnectWallet(): Promise<void>;
   switchNetwork: (chainId: number) => Promise<void>;
   loadAssets: (force?: boolean) => Promise<void>;
+  transfer: (ops: {
+    inputFromAmount: number;
+    inputToAddress: string;
+    inputFromAsset: string;
+  }) => Promise<void>;
 }
 
 export interface IPoolsState {
@@ -55,6 +60,13 @@ const defaultState: IStore = Object.freeze({
     },
     loadAssets: async () => {
       throw new Error("loadAssets function not implemented");
+    },
+    transfer: async (ops: {
+      inputFromAmount: number;
+      inputToAddress: string;
+      inputFromAsset: string;
+    }) => {
+      throw new Error("transfer function not implemented");
     },
   }
 });

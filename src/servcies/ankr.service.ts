@@ -40,14 +40,17 @@ const formatingTokensBalances = (assets: IAnkrTokenReponse[], address: string, c
 const getCachedData = async (key: string, force?: boolean) => {
   const data = localStorage.getItem(key);
   if (!data) {
+    console.log('No data in cache.')
     return null;
   }
   // check expiration cache using timestamp 10 minutes
   const parsedData = JSON.parse(data);
-  if (Date.now() - parsedData.timestamp > 1000 * 10 && !force) {
+  if (Date.now() - parsedData.timestamp > 10 * 60 * 1000 && !force) {
+    console.log('Expire cache 10 minute')
     return null;
   }
-  if (Date.now() - parsedData.timestamp > 1000 * 0.5 && force) {
+  if (Date.now() - parsedData.timestamp > 1 * 60 * 1000 && force) {
+    console.log('Expire cache 1 minute')
     return null;
   }
   console.log('[INFO] {ankrFactory} data from cache: ', parsedData.data);
@@ -68,11 +71,10 @@ const setCachedData = async (key: string, data: any) => {
  */
 export const getTokensBalances = async (chainIds: number[], address: string, force?: boolean) => {
   const KEY = `hexa-ankr-service-${address}`;
-  if (!force) {
-    const cachedData = await getCachedData(KEY);
-    if (cachedData) {
-      return cachedData;
-    }
+  const cachedData = await getCachedData(KEY, force);
+  console.log('cachedData:', cachedData);
+  if (cachedData) {
+    return cachedData;
   }
   const APP_ANKR_APIKEY = process.env.NEXT_PUBLIC_APP_ANKR_APIKEY;
   const chainsList =

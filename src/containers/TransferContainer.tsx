@@ -142,13 +142,16 @@ const InputAssetWithDropDown = (props: {
   assets: IAsset[];
   inputFromAmount: number;
   setInputFromAmount: Dispatch<SetStateAction<number>>;
+  setInputFromAsset: Dispatch<SetStateAction<IAsset|undefined>>;
 }) => {
-  const { assets, setInputFromAmount, inputFromAmount } = props;
+  const { assets, setInputFromAmount, inputFromAmount, setInputFromAsset } = props;
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [selectedAsset, setSelectedAsset] = useState(assets[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const popover = useRef<HTMLIonPopoverElement>(null);
+
+  setInputFromAsset(selectedAsset);
 
   const maxBalance = useMemo(() => {
     // round to the lower tenth
@@ -213,6 +216,7 @@ const InputAssetWithDropDown = (props: {
         >
           <IonIcon src={chevronDown} style={{ marginRight: "0.25rem" }} />
           <SymbolIcon
+            assetIconURL={selectedAsset.thumbnail}
             symbol={selectedAsset?.symbol || ""}
             chainId={selectedAsset?.chain?.id || CHAIN_DEFAULT.id}
             iconSize="34px"
@@ -241,6 +245,7 @@ const InputAssetWithDropDown = (props: {
                     onClick={() => {
                       setPopoverOpen(false);
                       setSelectedAsset(asset);
+                      setInputFromAsset(asset)
                       setInputFromAmount(() => 0);
                       setErrorMessage(() => undefined);
                       // setQuote(() => undefined);
@@ -249,6 +254,7 @@ const InputAssetWithDropDown = (props: {
                   >
                     <div slot="start" style={{ margin: "0 0.25rem 0 0" }}>
                       <SymbolIcon
+                        assetIconURL={asset.thumbnail}
                         symbol={asset.symbol}
                         chainId={asset.chain?.id}
                         iconSize="28px"
@@ -330,18 +336,30 @@ const InputAssetWithDropDown = (props: {
 
 export const TransferContainer = (props: {dismiss: () => Promise<void>;}) => {
 
-  const { walletAddress, isMagicWallet, assets, loadAssets } = Store.useState(getWeb3State);
+  const { walletAddress, isMagicWallet, assets, loadAssets, transfer, switchNetwork, currentNetwork } = Store.useState(getWeb3State);
   const [inputFromAmount, setInputFromAmount] = useState<number>(0);
   const [inputToAddress, setInputToAddress] = useState<string|undefined>(undefined);
+  const [inputFromAsset, setInputFromAsset] = useState<IAsset|undefined>(undefined);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const isValid = inputFromAmount > 0 && inputToAddress && inputToAddress.length > 0;
+  const isValid = inputFromAmount > 0 
+    && inputToAddress 
+    && inputToAddress.length > 0
+    && inputFromAsset?.contractAddress;
 
   const handleSend = async () => {
-    console.log(inputFromAmount, inputToAddress);
-    // Todo...
-    // finalize with reload asset list
-    await loadAssets(true);
+    console.log('handleSend: ', {inputFromAmount, inputToAddress, inputFromAsset});
+    if (inputFromAmount && inputToAddress && inputFromAsset?.contractAddress){
+      if (inputFromAsset?.chain?.id && inputFromAsset?.chain?.id !== currentNetwork) {
+        await switchNetwork(inputFromAsset?.chain?.id)
+      }
+      await transfer(
+        {inputFromAmount, inputToAddress, inputFromAsset: inputFromAsset.contractAddress}
+      )
+      // finalize with reload asset list
+      await loadAssets(true);
+    }
   }
   return (
     <>
@@ -365,31 +383,43 @@ export const TransferContainer = (props: {dismiss: () => Promise<void>;}) => {
       <IonContent className="mobileConentModal">
         <IonGrid className="ion-margin-top ion-padding">
           <IonRow className="ion-text-center">
-            <IonCol size="12" className="ion-margin-top">
+            <IonCol size="12" className="ion-margin-bottom">
+              <IonText color="medium">
+                <p className="ion-no-margin">
+                  <small>
+                    Currently only support native token transfer
+                  </small>
+                </p>
+              </IonText>
+            </IonCol>
+            <IonCol size="12" className="ion-margin-top ion-text-start">
+              <IonLabel color="medium" style={{ marginBottom: '0.5rem', display: 'block'}}>
+                <h4 className="ion-no-margin">Token</h4>
+              </IonLabel>
               <InputAssetWithDropDown
-                assets={assets}
+                assets={assets.filter(a => a.type === 'NATIVE')}
                 inputFromAmount={inputFromAmount}
                 setInputFromAmount={setInputFromAmount}
-
+                setInputFromAsset={setInputFromAsset}
               />
             </IonCol>
-            <IonCol size="12">
+            <IonCol size="12" className="ion-text-start ion-margin-top">
+              <IonLabel color="medium"  style={{ marginBottom: '0.5rem', display: 'block'}}>
+                <h4 className="ion-no-margin">
+                  Destination address
+                </h4>
+              </IonLabel>
               <IonItem
                 lines="none"
                 style={{
                   "--background": "#0f1629",
-                  "--padding-start": "1.5rem",
                   "--padding-bottom": "0.5rem",
                   "--padding-top": "0.25rem",
                   borderRadius: "24px",
                   alignItems: "center",
-                  fontSize: "1.3rem",
                   marginBottom: "0.5rem",
                 }}
               >
-                <IonLabel position="stacked" color="medium">
-                  Destination address
-                </IonLabel>
                 <IonInput 
                   type="text" 
                   clearInput={true} 
@@ -421,11 +451,11 @@ export const TransferContainer = (props: {dismiss: () => Promise<void>;}) => {
             <IonCol size="12">
               <IonButton 
                 expand="block"
-                disabled={!isValid}
+                disabled={!isValid|| isLoading}
                 onClick={async ($event)=> {
-                  $event.currentTarget.disabled = true;
+                  setIsLoading(true);
                   await handleSend().catch((err: any) => err);
-                  $event.currentTarget.disabled = false;
+                  setIsLoading(false);
                 }}
                 >Send</IonButton>
             </IonCol>

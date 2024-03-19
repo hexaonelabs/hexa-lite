@@ -60,12 +60,43 @@ export class EVMWalletUtils extends MagicWalletUtils {
       throw new Error("Web3Provider is not initialized");
     }
     try {
+      console.log({
+        destination, decimalAmount, contactAddress
+      })
       const signer = this.web3Provider.getSigner();
-      const amount = ethers.utils.parseEther(decimalAmount.toString()); // Convert 1 ether to wei
+      const from = await signer.getAddress();
+      const amount = ethers.utils.parseUnits(decimalAmount.toString(), 18); // Convert 1 ether to wei
       const contract = new ethers.Contract(contactAddress, ["function transfer(address, uint256)"], signer);
-      const tx = await contract.transfer(destination, amount);
-      // Wait for transaction to be mined
+
+      const data = contract.interface.encodeFunctionData("transfer", [destination, amount] );
+
+      const tx = await signer.sendTransaction({
+        to: destination,
+        value: amount,
+        // data
+      });
       const receipt = await tx.wait();
+      // // Load token contract
+      // const tokenContract = new ethers.Contract(contactAddress, ['function transfer(address, uint256)'], signer);
+  
+      // // Send tokens to recipient
+      // const transaction = await tokenContract.transfer(destination, amount);
+      // const receipt = await transaction.wait();
+      // console.log(receipt);
+
+
+
+      //Define the data parameter
+      // const data = contract.interface.encodeFunctionData("transfer", [destination, amount] )
+      // const tx = await signer.sendTransaction({
+      //   to: contactAddress,
+      //   from,
+      //   value: ethers.utils.parseUnits("0.000", "ether"),
+      //   data: data  
+      // });
+      // // const tx = await contract.transfer(destination, amount);
+      // // Wait for transaction to be mined
+      // const receipt = await tx.wait();
       return receipt;
     } catch (err: any) {
       console.error(err);
@@ -92,5 +123,15 @@ export class EVMWalletUtils extends MagicWalletUtils {
         `Error during network setting. Please switch to ${this.network} network and try again.`
       );
     }
+  }
+
+  async estimateGas() {
+    // const limit = await provider.estimateGas({
+    //   from: signer.address,
+    //   to: tokenContract,
+    //   value: ethers.utils.parseUnits("0.000", "ether"),
+    //   data: data
+     
+    // });
   }
 }

@@ -44,6 +44,18 @@ export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
         assets: magicUtils.assets,
       });
     },
+    transfer: async (ops: {
+      inputFromAmount: number;
+      inputToAddress: string;
+      inputFromAsset: string;
+    }) => {
+      const result = await magicUtils.sendToken(
+        ops.inputToAddress, 
+        ops.inputFromAmount, 
+        ops.inputFromAsset
+      );
+      console.log('[INFO] {{Web3Effect}} transfer result: ', result);
+    }
   };
   console.log('[INFO] {{Web3Effect}} state: ', state);
   setWeb3State(state);
