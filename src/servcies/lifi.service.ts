@@ -802,7 +802,7 @@ export const swapWithLiFi = async (
 export const LIFI_CONFIG = Object.freeze<WidgetConfig>({
   // integrator: "cra-example",
   integrator: process.env.NEXT_PUBLIC_APP_IS_PROD ? "hexa-lite" : "",
-  fee: 0.05,
+  fee: 0.01,
   variant: "expandable",
   insurance: true,
   containerStyle: {

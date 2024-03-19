@@ -105,7 +105,7 @@ export  default function SwapContainer() {
       // load environment config
       const widgetConfig: WidgetConfig = {
         ...LIFI_CONFIG,
-        fee: 0, // set fee to 0 for main swap feature
+        // fee: 0, // set fee to 0 for main swap feature
         walletManagement: {
           connect: async () => {
             try {
