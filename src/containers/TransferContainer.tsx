@@ -65,7 +65,7 @@ const scanQrCode = async (
 
     // get prefered back camera if available or load the first one
     const cameraId =
-      cameras.find((c) => c.label.includes("back"))?.id || cameras[0].id;
+      cameras.find((c) => c.label.toLowerCase().includes("rear"))?.id || cameras[0].id;
     console.log(">>", cameraId, cameras);
     // start scanner
     const config = {
