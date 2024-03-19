@@ -31,8 +31,12 @@ export function WalletAssetEntity(props: {
     >
       <IonRow className="ion-align-items-center ion-justify-content-between ion-padding-vertical">
         <IonCol
-          size="auto"
-          className="ion-align-self-start ion-padding-start"
+          size-xs="5"
+          size-sm="5"
+          size-md="auto"
+          size-lg="auto"
+          size-xl="auto"
+          className="ion-align-self-start ion-padding-start ion-text-wrap"
           style={{ display: "flex" }}
         >
           <IonAvatar
@@ -40,6 +44,7 @@ export function WalletAssetEntity(props: {
               overflow: "hidden",
               width: "56px",
               height: "56px",
+              minWidth: "56px", minHeight: "56px"
             }}
           >
             <img
@@ -74,17 +79,17 @@ export function WalletAssetEntity(props: {
         >
           <IonGrid className="ion-no-padding">
             <IonRow className="ion-no-padding ion-text-end">
-              <IonCol size="4" className="ion-padding ion-hide-md-down">
+              <IonCol size-md="4" className="ion-padding ion-hide-md-down">
                 <IonText color="dark">
                   <p className="ion-no-margin">{currencyFormat.format(asset.priceUsd)}</p>
                 </IonText>
               </IonCol>
-              <IonCol size="4" className="ion-padding ion-hide-md-down">
+              <IonCol size-md="4" className="ion-padding ion-hide-md-down">
                 <IonText color="dark">
                   <p className="ion-no-margin">{numberFormat.format(asset.balance)}</p>
                 </IonText>
               </IonCol>
-              <IonCol size="4" className="ion-padding">
+              <IonCol size-xs="12" size-sm="12" size-md="4" className="ion-padding">
                 <IonText color="dark">
                   <p className="ion-no-margin">
                     <b>{currencyFormat.format(asset.balanceUsd)}</b>

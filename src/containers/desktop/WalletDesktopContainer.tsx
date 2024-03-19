@@ -248,7 +248,9 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                         <IonGrid className="ion-no-padding">
                           <IonRow className="ion-text-end">
                             <IonCol
-                              size="4"
+                              size-md="4"
+                              size-lg="4"
+                              size-xl="4"
                               className="ion-hide-md-down ion-padding-horizontal"
                             >
                               <IonText color="medium">
@@ -256,15 +258,21 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                               </IonText>
                             </IonCol>
                             <IonCol
-                              size="4"
-                              className="ion-hide-md-dow ion-padding-horizontal"
+                              size-md="4"
+                              size-lg="4"
+                              size-xl="4"
+                              className="ion-hide-md-down ion-padding-horizontal"
                             >
                               <IonText color="medium">
                                 <small>Balance</small>
                               </IonText>
                             </IonCol>
                             <IonCol
-                              size="4"
+                              size-xs="12"
+                              size-sm="12"
+                              size-md="4"
+                              size-lg="4"
+                              size-xl="4"
                               className="ion-padding-horizontal"
                             >
                               <IonText color="medium">
