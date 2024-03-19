@@ -6,6 +6,7 @@ import {
   IonAvatar,
   IonBadge,
   IonButton,
+  IonButtons,
   IonChip,
   IonCol,
   IonContent,
@@ -31,7 +32,7 @@ import { ethers } from "ethers";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import { CHAIN_AVAILABLES } from "@/constants/chains";
-import { airplane, chevronDown, download, paperPlane } from "ionicons/icons";
+import { airplane, chevronDown, close, download, paperPlane } from "ionicons/icons";
 import { DataItem } from "@/components/ui/LightChart";
 import { getTokenHistoryPrice } from "@/utils/getTokenHistoryPrice";
 import { TokenInfo, getTokenInfo } from "@/utils/getTokenInfo";
@@ -105,6 +106,16 @@ export const TokenDetailMobileContainer = (props: {
               $ {data.balanceUsd.toFixed(2)}
             </small>
           </IonTitle>
+          <IonButtons slot="end">
+            <IonButton 
+              fill="clear" 
+              size="small"
+              onClick={() => {
+                props.dismiss();
+              }}>
+              <IonIcon icon={close} size="small" />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent

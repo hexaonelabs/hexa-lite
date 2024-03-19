@@ -1,9 +1,12 @@
 import {
   IonAvatar,
+  IonButton,
+  IonButtons,
   IonCol,
   IonContent,
   IonGrid,
   IonHeader,
+  IonIcon,
   IonItem,
   IonLabel,
   IonList,
@@ -31,8 +34,11 @@ import { CHAIN_AVAILABLES } from "@/constants/chains";
 import { getReadableValue } from "@/utils/getReadableValue";
 import { ETHLiquidStakingstrategyCard } from "../../components/ETHLiquidStakingstrategy";
 import { MATICLiquidStakingstrategyCard } from "../../components/MATICLiquidStakingstrategy";
+import { close } from "ionicons/icons";
 
-export const EarnMobileContainer = () => {
+export const EarnMobileContainer = (props: {
+  dismiss: ()=> Promise<void>;
+}) => {
   const [segment, setSegment] = useState("loan");
   const { walletAddress } = Store.useState(getWeb3State);
   const userSummaryAndIncentivesGroup = Store.useState(
@@ -87,6 +93,16 @@ export const EarnMobileContainer = () => {
               <IonText>Earn</IonText>
             </IonSegmentButton>
           </IonSegment>
+          <IonButtons style={{position: 'absolute', right: '0'}}>
+            <IonButton 
+              fill="clear" 
+              size="small"
+              onClick={() => {
+                props.dismiss();
+              }}>
+              <IonIcon icon={close} size="small" />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-no-padding mobileConentModal">

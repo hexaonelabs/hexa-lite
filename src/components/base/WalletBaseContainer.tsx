@@ -20,11 +20,12 @@ export interface WalletComponentProps {
     HookOverlayOptions;
   walletAddress?: string;
   assets: IAsset[];
+  loadAssets: (force?: boolean) => Promise<void>;
 }
 
 export interface WalletComponentState {
   filterBy: string | null;
-  assetGroup: any[];
+  assetGroup: SelectedTokenDetail[];
   totalBalance: number;
   selectedTokenDetail: SelectedTokenDetail | null;
   isEarnModalOpen: boolean;
@@ -141,6 +142,10 @@ export default class WalletBaseComponent<T> extends React.Component<
     });
   }
 
+  async handleRefresh(){
+    this.props.loadAssets(true);
+  }
+
   render(): React.ReactNode {
     return (
       <>
@@ -150,7 +155,7 @@ export default class WalletBaseComponent<T> extends React.Component<
           initialBreakpoint={this.props.modalOpts.initialBreakpoint}
           onDidDismiss={() => this.handleTransferClick(false)}
         >
-          <TransferContainer />
+          <TransferContainer dismiss={() => this.handleTransferClick(false)} />
         </IonModal>
 
         <IonModal
@@ -159,7 +164,8 @@ export default class WalletBaseComponent<T> extends React.Component<
           initialBreakpoint={this.props.modalOpts.initialBreakpoint}
           onDidDismiss={() => this.handleDepositClick(false)}
         >
-          <DepositContainer />
+          <DepositContainer dismiss={() => this.handleDepositClick(false)}  
+          />
         </IonModal>
         
       </>

@@ -4,6 +4,7 @@ import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import {
   IonButton,
+  IonButtons,
   IonCol,
   IonContent,
   IonFooter,
@@ -12,16 +13,19 @@ import {
   IonIcon,
   IonRow,
   IonText,
+  IonTitle,
   IonToolbar,
   useIonModal,
 } from "@ionic/react";
 import { useEffect, useState } from "react";
-import { copyOutline, scan } from 'ionicons/icons';
+import { close, copyOutline, scan } from 'ionicons/icons';
 import { SuccessCopyAddress } from "@/components/SuccessCopyAddress";
 import { useLoader } from "@/context/LoaderContext";
 import { SelectNetwork } from "@/components/SelectNetwork";
 
-export const DepositContainer = () => {
+export const DepositContainer = (props: {
+  dismiss: ()=> Promise<void>;
+}) => {
   const {
     currentNetwork,
     walletAddress,
@@ -109,15 +113,19 @@ export const DepositContainer = () => {
     <>
       <IonHeader className="ion-no-border" translucent={true}>
         <IonToolbar style={{'--background': 'transparent'}}>
-          <IonGrid>
-            <IonRow className="ion-text-center">
-              <IonCol size="12">
-                <IonText>
-                  <h1>Deposit</h1>
-                </IonText>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
+          <IonTitle>
+            <h1>Deposit</h1>
+          </IonTitle>
+          <IonButtons slot="end">
+            <IonButton 
+              fill="clear" 
+              size="small"
+              onClick={() => {
+                props.dismiss();
+              }}>
+              <IonIcon icon={close} size="small" />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent className="mobileConentModal">

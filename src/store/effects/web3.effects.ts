@@ -35,8 +35,8 @@ export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
     switchNetwork: async (chainId: number) => {
       await initializeWeb3(chainId);
     },
-    loadAssets: async () => {
-      await magicUtils.loadBalances().catch((err) => {
+    loadAssets: async (force?: boolean) => {
+      await magicUtils.loadBalances(force).catch((err) => {
         console.error('[ERROR] {{Web3Effect}} load balance error: ', err?.message ? err.message : err);
       });
       setWeb3State({

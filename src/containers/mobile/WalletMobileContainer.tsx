@@ -1,5 +1,6 @@
 import Store from "@/store";
 import WalletBaseComponent, {
+  SelectedTokenDetail,
   WalletComponentProps,
 } from "../../components/base/WalletBaseContainer";
 import { getWeb3State } from "@/store/selectors";
@@ -32,6 +33,9 @@ import {
   IonModal,
   IonButton,
   IonMenuToggle,
+  IonRefresher,
+  IonRefresherContent,
+  RefresherEventDetail,
 } from "@ionic/react";
 import { card, download, paperPlane, repeat, settings, settingsOutline } from "ionicons/icons";
 import { useState } from "react";
@@ -41,18 +45,6 @@ import { TokenDetailMobileContainer } from "@/containers/mobile/TokenDetailMobil
 import { EarnMobileContainer } from "@/containers/mobile/EarnMobileContainer";
 import { MenuSettings } from "@/components/ui/MenuSetting";
 import { currencyFormat } from "@/utils/currencyFormat";
-
-type SelectedTokenDetail =
-  | {
-      name: string;
-      symbol: string;
-      priceUsd: number;
-      balance: number;
-      balanceUsd: number;
-      thumbnail: string;
-      assets: IAsset[];
-    }
-  | undefined;
 
 interface WalletMobileComProps {
   isMagicWallet: boolean;
@@ -105,7 +97,7 @@ class WalletMobileContainer extends WalletBaseComponent<
             <IonToolbar
               style={{
                 "--background": "transparent",
-                minHeight: "85px",
+                minHeight: "95px",
                 display: "flex",
               }}
             >
@@ -139,7 +131,20 @@ class WalletMobileContainer extends WalletBaseComponent<
             fullscreen={true}
             className="ion-no-padding"
             style={{ "--padding-top": "0px" }}
-          >
+          >            
+            <IonRefresher 
+              slot="fixed" 
+              style={{zIndex: '1'}}
+              onIonRefresh={async ($event: CustomEvent<RefresherEventDetail>)=> {
+              await super.handleRefresh();
+              setTimeout(() => {
+                // Any calls to load data go here
+                $event.detail.complete();
+              }, 2000);
+            }}>
+              <IonRefresherContent color="dark"></IonRefresherContent>
+            </IonRefresher>
+
             <IonHeader collapse="condense">
               <IonToolbar style={{ "--background": "transparent" }}>
                 <IonGrid style={{ margin: "2vh auto 1rem", maxWidth: "450px" }}>
@@ -185,6 +190,7 @@ class WalletMobileContainer extends WalletBaseComponent<
                 </IonGrid>
               </IonToolbar>
             </IonHeader>
+
 
             <IonGrid
               className="ion-no-padding"
@@ -361,6 +367,7 @@ class WalletMobileContainer extends WalletBaseComponent<
                   </IonCol>
                 </IonRow>
               )}
+              
             </IonGrid>
           </IonContent>
         </IonPage>
@@ -371,7 +378,7 @@ class WalletMobileContainer extends WalletBaseComponent<
           initialBreakpoint={this.props.modalOpts.initialBreakpoint}
           onDidDismiss={() => this.setState({ isEarnModalOpen: false })}
         >
-          <EarnMobileContainer />
+          <EarnMobileContainer dismiss={async ()=> this.setState({ isEarnModalOpen: false })} />
         </IonModal>
 
         <IonModal
@@ -383,6 +390,7 @@ class WalletMobileContainer extends WalletBaseComponent<
           }}
         >
           <SwapMobileContainer
+            dismiss={() => this.props.setIsSwapModalOpen(false)}
             token={
               typeof this.props.isSwapModalOpen !== "boolean"
                 ? this.props.isSwapModalOpen
@@ -413,7 +421,7 @@ class WalletMobileContainer extends WalletBaseComponent<
           initialBreakpoint={this.props.modalOpts.initialBreakpoint}
           onDidDismiss={() => this.setIsSettingOpen(false)}
         >
-          <MenuSettings />
+          <MenuSettings dismiss={()=> this.setIsSettingOpen(false)} />
         </IonModal>
 
         {super.render()}
@@ -427,7 +435,7 @@ const withStore = (
 ) => {
   // use named function to prevent re-rendering failure
   return function WalletMobileContainerWithStore() {
-    const { walletAddress, assets, isMagicWallet } =
+    const { walletAddress, assets, isMagicWallet, loadAssets } =
       Store.useState(getWeb3State);
     const [isSettingOpen, setIsSettingOpen] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -450,6 +458,7 @@ const withStore = (
           initialBreakpoint: 1,
           breakpoints: [0, 1],
         }}
+        loadAssets={(force?: boolean)=> loadAssets(force)}
       />
     );
   };

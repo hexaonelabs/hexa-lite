@@ -4,10 +4,10 @@ import { getTokensBalances } from "../servcies/ankr.service";
 import { MagicWalletUtils } from "./MagicWallet";
 import { getMagic } from "@/servcies/magic";
 
-const fetchUserAssets = async (walletAddress: string) => {
+const fetchUserAssets = async (walletAddress: string, force?: boolean) => {
   console.log(`[INFO] fetchUserAssets()`, walletAddress);
   if (!walletAddress) return null;
-  const assets = await getTokensBalances([], walletAddress);
+  const assets = await getTokensBalances([], walletAddress, force);
   return assets;
 };
 
@@ -48,9 +48,9 @@ export class EVMWalletUtils extends MagicWalletUtils {
     }
   }
 
-  async loadBalances() {
+  async loadBalances(force?: boolean) {
     if (!this.walletAddress) return;
-    const assets = await fetchUserAssets(this.walletAddress);
+    const assets = await fetchUserAssets(this.walletAddress, force);
     if (!assets) return;
     this.assets = assets;
   }

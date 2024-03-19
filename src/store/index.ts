@@ -14,7 +14,7 @@ export interface IWeb3State {
   connectWallet(ops?: {email: string;}): Promise<void>;
   disconnectWallet(): Promise<void>;
   switchNetwork: (chainId: number) => Promise<void>;
-  loadAssets: () => Promise<void>;
+  loadAssets: (force?: boolean) => Promise<void>;
 }
 
 export interface IPoolsState {

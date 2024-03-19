@@ -3,6 +3,7 @@ import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import {
   IonButton,
+  IonButtons,
   IonCol,
   IonContent,
   IonFab,
@@ -19,6 +20,7 @@ import {
   IonPopover,
   IonRow,
   IonText,
+  IonTitle,
   IonToolbar,
 } from "@ionic/react";
 import { chevronDown, close, scan } from "ionicons/icons";
@@ -326,8 +328,9 @@ const InputAssetWithDropDown = (props: {
   );
 };
 
-export const TransferContainer = () => {
-  const { walletAddress, isMagicWallet, assets } = Store.useState(getWeb3State);
+export const TransferContainer = (props: {dismiss: () => Promise<void>;}) => {
+
+  const { walletAddress, isMagicWallet, assets, loadAssets } = Store.useState(getWeb3State);
   const [inputFromAmount, setInputFromAmount] = useState<number>(0);
   const [inputToAddress, setInputToAddress] = useState<string|undefined>(undefined);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
@@ -335,32 +338,39 @@ export const TransferContainer = () => {
   const isValid = inputFromAmount > 0 && inputToAddress && inputToAddress.length > 0;
 
   const handleSend = async () => {
-    console.log(inputFromAmount, inputToAddress)
+    console.log(inputFromAmount, inputToAddress);
+    // Todo...
+    // finalize with reload asset list
+    await loadAssets(true);
   }
   return (
     <>
       <IonHeader className="ion-no-border" translucent={true}>
         <IonToolbar style={{'--background': 'transparent'}}>
-          <IonGrid>
-            <IonRow className="ion-text-center">
-              <IonCol size="12">
-                <IonText>
-                  <h1>Send token</h1>
-                </IonText>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
+          <IonTitle>
+            <h1>Send token</h1>
+          </IonTitle>
+          <IonButtons slot="end">
+            <IonButton 
+              fill="clear" 
+              size="small"
+              onClick={() => {
+                props.dismiss();
+              }}>
+              <IonIcon icon={close} size="small" />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent className="mobileConentModal">
-        <IonGrid>
+        <IonGrid className="ion-margin-top ion-padding">
           <IonRow className="ion-text-center">
             <IonCol size="12" className="ion-margin-top">
               <InputAssetWithDropDown
                 assets={assets}
                 inputFromAmount={inputFromAmount}
                 setInputFromAmount={setInputFromAmount}
-                
+
               />
             </IonCol>
             <IonCol size="12">

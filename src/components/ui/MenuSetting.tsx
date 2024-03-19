@@ -14,18 +14,20 @@ import {
   IonModal,
   IonFooter,
   IonNote,
+  IonButtons,
 } from "@ionic/react";
-import { open, openOutline, radioButtonOn, ribbonOutline } from "ionicons/icons";
+import { close, open, openOutline, radioButtonOn, ribbonOutline } from "ionicons/icons";
 import { getAddressPoints } from "@/servcies/datas.service";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import ConnectButton from "../ConnectButton";
 import DisconnectButton from "../DisconnectButton";
 
-interface MenuSettingsProps {}
+interface MenuSettingsProps {
+  dismiss: ()=> void
+}
 
-export const MenuSettings: React.FC<MenuSettingsProps> = ({}) => {
-  const menuRef = useRef<HTMLIonMenuElement>(null);
+export const MenuSettings: React.FC<MenuSettingsProps> = ({dismiss}) => {
   const { walletAddress } = Store.useState(getWeb3State);
   const [points, setPoints] = useState<string | null>(null);
 
@@ -34,15 +36,25 @@ export const MenuSettings: React.FC<MenuSettingsProps> = ({}) => {
       <IonHeader translucent={true} class="ion-no-border">
         <IonToolbar style={{ "--background": "transparent" }}>
           <IonTitle>Settings</IonTitle>
+          <IonButtons slot="end">
+            <IonButton 
+              fill="clear" 
+              size="small"
+              onClick={() => {
+                dismiss();
+              }}>
+              <IonIcon icon={close} size="small" />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
+      <IonContent className="mobileConentModal ion-padding">
         <IonItem
           lines="none"
           button={false}
           style={{ "--background": "transparent" }}
           onClick={() => {
-            menuRef.current?.close();
+            dismiss();
           }}
         >
           <IonLabel class="ion-text-wrap">

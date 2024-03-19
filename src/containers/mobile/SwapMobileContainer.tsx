@@ -1,9 +1,14 @@
 import {
+  IonButton,
+  IonButtons,
   IonCol,
   IonContent,
   IonGrid,
+  IonHeader,
+  IonIcon,
   IonRow,
   IonText,
+  IonToolbar,
   useIonToast,
 } from "@ionic/react";
 import {
@@ -24,6 +29,7 @@ import { LiFiWidgetDynamic } from "../../components/LiFiWidgetDynamic";
 import { useLoader } from "@/context/LoaderContext";
 import { LIFI_CONFIG } from "../../servcies/lifi.service";
 import { IAsset } from "@/interfaces/asset.interface";
+import { close } from "ionicons/icons";
 
 export const SwapMobileContainer = (props: {
   token?: {
@@ -34,7 +40,8 @@ export const SwapMobileContainer = (props: {
     balanceUsd: number;
     thumbnail: string;
     assets: IAsset[];
-  }
+  },
+  dismiss: ()=> void;
 }) => {
   const {
     web3Provider,
@@ -43,6 +50,7 @@ export const SwapMobileContainer = (props: {
     connectWallet,
     disconnectWallet,
     switchNetwork,
+    loadAssets,
   } = Store.useState(getWeb3State);
   const widgetEvents = useWidgetEvents();
   const { display: displayLoader, hide: hideLoader } = useLoader();
@@ -64,6 +72,7 @@ export const SwapMobileContainer = (props: {
         return;
       }
       await addAddressPoints(walletAddress, data);
+      await loadAssets(true);
     };
     const onRouteExecutionFailed = (update: RouteExecutionUpdate) => {
       console.log("[INFO] onRouteExecutionFailed fired.", update);
@@ -175,14 +184,30 @@ export const SwapMobileContainer = (props: {
   };
 
   return (
-    <IonContent className="mobileConentModal ion-no-padding">
-      <IonGrid className="ion-no-padding ion-margin-top">
-        <IonRow className="ion-no-padding ion-margin-top">
-          <IonCol size="12" className="ion-no-padding">
-            <LiFiWidgetDynamic config={widgetConfig} integrator="hexa-lite" />
-          </IonCol>
-        </IonRow>
-      </IonGrid>
-    </IonContent>
+    <>
+      <IonHeader translucent={true} class="ion-no-border">
+        <IonToolbar style={{ "--background": "transparent" }}>
+          <IonButtons slot="end">
+            <IonButton 
+              fill="clear" 
+              size="small"
+              onClick={() => {
+                props.dismiss();
+              }}>
+              <IonIcon icon={close} size="small" />
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent className="mobileConentModal ion-no-padding">
+        <IonGrid className="ion-no-padding ion-margin-top">
+          <IonRow className="ion-no-padding ion-margin-top">
+            <IonCol size="12" className="ion-no-padding">
+              <LiFiWidgetDynamic config={widgetConfig} integrator="hexa-lite" />
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+      </IonContent>
+    </>
   );
 };

@@ -316,10 +316,14 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
 const withStore = (Component: React.ComponentClass<WalletComponentProps>) => {
   // use named function to prevent re-rendering failure
   return function WalletDesktopContainerWithStore() {
-    const { walletAddress, assets } = Store.useState(getWeb3State);
+    const { walletAddress, assets, loadAssets } = Store.useState(getWeb3State);
 
     return (
-      <Component walletAddress={walletAddress} assets={assets} modalOpts={{}} />
+      <Component 
+        walletAddress={walletAddress} 
+        assets={assets} 
+        modalOpts={{}}
+        loadAssets={(force?: boolean)=> loadAssets(force)} />
     );
   };
 };
