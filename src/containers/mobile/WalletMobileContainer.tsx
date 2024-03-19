@@ -202,21 +202,28 @@ class WalletMobileContainer extends WalletBaseComponent<
               {this.state.totalBalance <= 0 && (
                 <IonRow className="ion-padding-vertical">
                   <IonCol size="12">
-                    <IonCard>
+                    <IonCard onClick={()=> super.handleBuyWithFiat(true)}>
                       <IonCardContent>
                         <IonGrid>
                           <IonRow className="ion-align-items-center">
                             <IonCol size="auto" className="ion-padding-end">
-                              <IonIcon icon={card} color="dark" />
+                              <IonIcon size="large" icon={card} color="dark" />
                             </IonCol>
                             <IonCol>
                               <IonText color="dark">
-                                <h2>Buy crypto</h2>
+                                <h2>
+                                  <b>
+                                    Buy crypto
+                                  </b>
+                                </h2>
                                 <p>
                                   You have to get ETH to use your wallet. Buy
                                   with credit card or with Apple Pay
                                 </p>
                               </IonText>
+                              <IonButton size="small" className="ion-margin-top">
+                                Buy crypto
+                              </IonButton>
                             </IonCol>
                           </IonRow>
                         </IonGrid>
@@ -231,16 +238,22 @@ class WalletMobileContainer extends WalletBaseComponent<
                         <IonGrid>
                           <IonRow className="ion-align-items-center">
                             <IonCol size="auto" className="ion-padding-end">
-                              <IonIcon icon={download} color="dark" />
+                              <IonIcon size="large" icon={download} color="dark" />
                             </IonCol>
                             <IonCol>
                               <IonText color="dark">
-                                <h2>Deposit assets</h2>
+                                <h2>
+                                  <b>
+                                    Deposit assets
+                                  </b>
+                                </h2>
                                 <p>
-                                  You have to get ETH to use your wallet. Buy
-                                  with credit card or with Apple Pay
+                                  Transefer tokens from another wallet or from a crypto exchange
                                 </p>
                               </IonText>
+                              <IonButton size="small" className="ion-margin-top">
+                                Deposit assets
+                              </IonButton>
                             </IonCol>
                           </IonRow>
                         </IonGrid>
@@ -368,6 +381,19 @@ class WalletMobileContainer extends WalletBaseComponent<
                 </IonRow>
               )}
               
+              <IonRow>
+                <IonCol size="12" className="ion-text-center ion-padding">
+                  <IonText color="medium">
+                    <p style={{ fontSize: "0.8rem" }}>
+                      You are using a non-custodial wallet that give you complete
+                      control over your cryptocurrency funds and private keys.
+                      Unlike custodial wallets, you manage your own security,
+                      enhancing privacy and independence in the decentralized
+                      cryptocurrency space.
+                    </p>
+                  </IonText>
+                </IonCol>
+              </IonRow>
             </IonGrid>
           </IonContent>
         </IonPage>

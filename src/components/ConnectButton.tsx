@@ -64,7 +64,10 @@ const ConnectButton = (props: {
           await handleConnect();
           $event.currentTarget.disabled = false;
         } catch (err: any) {
-          $event.currentTarget.disabled = false;
+          console.log('[ERROR] {ConnectButton} handleConnect(): ', err);
+          if ($event.currentTarget) {
+            $event.currentTarget.disabled = false;
+          }
         }
       }}
     >

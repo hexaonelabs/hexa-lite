@@ -21,6 +21,11 @@ import {
   IonItem,
   IonAvatar,
   IonProgressBar,
+  IonModal,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
 } from "@ionic/react";
 import { StatusBar, Style } from "@capacitor/status-bar";
 
@@ -41,6 +46,8 @@ import { getWeb3State } from "@/store/selectors";
 import { IonRoute } from "@ionic/react";
 import { isPlatform } from "@ionic/core";
 import { AboutContainer } from "@/containers/desktop/AboutContainer";
+import { close } from "ionicons/icons";
+import { BuyWithFiat } from "@/containers/BuyWithFiat";
 
 setupIonicReact({ mode: "ios" });
 
@@ -96,6 +103,7 @@ const AppShell = () => {
   let segment = pathname.split("/")[1] || "swap"; // urlParams.get("s") || "swap";
   const { walletAddress, isMagicWallet } = Store.useState(getWeb3State);
   const [presentFiatWarning, dismissFiatWarning] = useIonAlert();
+  const [isBuyWithFiatModalOpen, setIsBuyWithFiatModalOpen] = useState(false);
 
   const isNotFound =
     segment && ["wallet", "swap", "fiat", "defi", "earn"].indexOf(segment) === -1;
@@ -103,14 +111,13 @@ const AppShell = () => {
   const [currentSegment, setSegment] = useState(segment);
   const handleSegmentChange = async (e: any) => {
     if (e.detail.value === "fiat") {
-      if (walletAddress && walletAddress !== "" && isMagicWallet) {
-        const magic = await getMagic();
-        magic.wallet.showOnRamp();
+      if (walletAddress && walletAddress !== "") {
+        setIsBuyWithFiatModalOpen(true);
       } else {
         await presentFiatWarning({
           header: "Information",
           message:
-            "Connect with e-mail or social login to enable buy crypto with fiat.",
+            "Connect to enable buy crypto with fiat.",
           buttons: ["OK"],
           cssClass: "modalAlert",
         });
@@ -190,7 +197,9 @@ const AppShell = () => {
                     )}
                     <IonContent>
                       <Suspense fallback={<DefaultProgressBar />}>
-                        {currentSegment === "wallet" && (<WalletDesktopContainer />)}
+                        {currentSegment === "wallet" && (
+                          <WalletDesktopContainer />
+                        )}
                       </Suspense>
                       <Suspense fallback={<DefaultProgressBar />}>
                         {currentSegment === "swap" && (<SwapContainer />)}
@@ -330,6 +339,12 @@ const AppShell = () => {
         </IonReactRouter>
       )}
       <PwaInstall />
+      <IonModal
+          isOpen={isBuyWithFiatModalOpen}
+          onDidDismiss={() => setIsBuyWithFiatModalOpen(false)}
+        >
+          <BuyWithFiat dismiss={()=> setIsBuyWithFiatModalOpen(false)} />
+        </IonModal>
     </IonApp>
   );
 };

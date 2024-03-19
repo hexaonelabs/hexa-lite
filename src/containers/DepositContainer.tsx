@@ -25,6 +25,7 @@ import { SelectNetwork } from "@/components/SelectNetwork";
 
 export const DepositContainer = (props: {
   dismiss: ()=> Promise<void>;
+  handleBuyWithFiat: (state: boolean)=> Promise<void>;
 }) => {
   const {
     currentNetwork,
@@ -54,10 +55,11 @@ export const DepositContainer = (props: {
   ));
   const { display: displayLoader, hide: hidLoader } = useLoader();
 
-  const handleActions = async (type: string, payload: string) => {
+  const handleActions = async (type: string, payload?: string) => {
     await displayLoader();
     switch (true) {
       case type === "copy": {
+        if (!payload) return;
         navigator?.clipboard?.writeText(payload);
         // display toast confirmation
         presentSuccessCopyAddress({
@@ -87,6 +89,9 @@ export const DepositContainer = (props: {
         dismissSelectNetwork(null, "cancel");
         await handleActions("copy", `${walletAddress}`);
         break;
+      }
+      case type === 'buy': {
+        props.handleBuyWithFiat(true);
       }
       default:
         break;
@@ -196,6 +201,19 @@ export const DepositContainer = (props: {
           </IonRow> */}
         </IonGrid>
       </IonContent>
+      <IonFooter>
+        <IonToolbar style={{'--background': 'transparent'}}>
+          <IonButton 
+            fill="outline" 
+            color="gradient" 
+            expand="block"
+            onClick={()=> {
+              handleActions('buy');
+            }}>
+            Buy Crypto
+          </IonButton>
+        </IonToolbar>
+      </IonFooter>
     </>
   );
 };

@@ -39,7 +39,7 @@ import { close } from "ionicons/icons";
 export const EarnMobileContainer = (props: {
   dismiss: ()=> Promise<void>;
 }) => {
-  const [segment, setSegment] = useState("loan");
+  const [segment, setSegment] = useState("earn");
   const { walletAddress } = Store.useState(getWeb3State);
   const userSummaryAndIncentivesGroup = Store.useState(
     getUserSummaryAndIncentivesGroupState
@@ -81,16 +81,16 @@ export const EarnMobileContainer = (props: {
         >
           <IonSegment value={segment}>
             <IonSegmentButton
-              value="loan"
-              onClick={() => setSegment(() => "loan")}
-            >
-              <IonText>Loan market</IonText>
-            </IonSegmentButton>
-            <IonSegmentButton
               value="earn"
               onClick={() => setSegment(() => "earn")}
             >
               <IonText>Earn</IonText>
+            </IonSegmentButton>
+            <IonSegmentButton
+              value="loan"
+              onClick={() => setSegment(() => "loan")}
+            >
+              <IonText>Loan market</IonText>
             </IonSegmentButton>
           </IonSegment>
           <IonButtons style={{position: 'absolute', right: '0'}}>

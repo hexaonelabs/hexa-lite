@@ -122,7 +122,9 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                 <IonCard
                   style={{ cursor: "pointer" }}
                   className="ion-no-margin"
-                  onClick={() => {}}
+                  onClick={() => {
+                    super.handleBuyWithFiat(true);
+                  }}
                 >
                   <IonCardContent>
                     <IonGrid>
@@ -132,12 +134,19 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                         </IonCol>
                         <IonCol class="ion-text-start ion-padding">
                           <IonText color="dark">
-                            <h2>Buy crypto</h2>
+                            <h2>
+                              <b>
+                                Buy crypto
+                              </b>
+                            </h2>
                             <p>
                               You have to get ETH to use your wallet. Buy with
                               credit card or with Apple Pay
                             </p>
                           </IonText>
+                          <IonButton size="small" className="ion-margin-top">
+                            Buy crypto
+                          </IonButton>
                         </IonCol>
                       </IonRow>
                     </IonGrid>
@@ -155,7 +164,9 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                 <IonCard
                   style={{ cursor: "pointer" }}
                   className="ion-no-margin"
-                  onClick={() => {}}
+                  onClick={() => {
+                    super.handleDepositClick()
+                  }}
                 >
                   <IonCardContent>
                     <IonGrid>
@@ -165,12 +176,19 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                         </IonCol>
                         <IonCol class="ion-text-start ion-padding">
                           <IonText color="dark">
-                            <h2>Deposit assets</h2>
+                            <h2>
+                              <b>
+                                Deposit assets
+                              </b>
+                            </h2>
                             <p>
                               Transfer tokens from another wallet or from a
                               crypto exchange
                             </p>
                           </IonText>
+                          <IonButton size="small" className="ion-margin-top">
+                            Deposit assets
+                          </IonButton>
                         </IonCol>
                       </IonRow>
                     </IonGrid>
@@ -315,7 +333,9 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
 
 const withStore = (Component: React.ComponentClass<WalletComponentProps>) => {
   // use named function to prevent re-rendering failure
-  return function WalletDesktopContainerWithStore() {
+  return function WalletDesktopContainerWithStore(props: {
+    // handleDepositClick: (state: boolean) => void;
+  }) {
     const { walletAddress, assets, loadAssets } = Store.useState(getWeb3State);
 
     return (

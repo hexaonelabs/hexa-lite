@@ -1,9 +1,21 @@
-import { IonModal, ModalOptions } from "@ionic/react";
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonModal,
+  IonTitle,
+  IonToolbar,
+  ModalOptions,
+} from "@ionic/react";
 import React from "react";
 import { IAsset } from "@/interfaces/asset.interface";
 import { DepositContainer } from "@/containers/DepositContainer";
 import { HookOverlayOptions } from "@ionic/react/dist/types/hooks/HookOverlayOptions";
 import { TransferContainer } from "../../containers/TransferContainer";
+import { close } from "ionicons/icons";
+import { BuyWithFiat } from "@/containers/BuyWithFiat";
 
 export type SelectedTokenDetail = {
   name: string;
@@ -31,6 +43,7 @@ export interface WalletComponentState {
   isEarnModalOpen: boolean;
   isTransferModalOpen: boolean;
   isDepositModalOpen: boolean;
+  isBuyWithFiatModalOpen: boolean;
 }
 
 export default class WalletBaseComponent<T> extends React.Component<
@@ -47,6 +60,7 @@ export default class WalletBaseComponent<T> extends React.Component<
       isEarnModalOpen: false,
       isTransferModalOpen: false,
       isDepositModalOpen: false,
+      isBuyWithFiatModalOpen: false,
     };
   }
 
@@ -82,19 +96,23 @@ export default class WalletBaseComponent<T> extends React.Component<
       ?.sort((a, b) => b.balanceUsd - a.balanceUsd)
       ?.reduce((acc, asset) => {
         // check existing asset symbol
-        const symbol = (asset.name.toLowerCase().includes('aave') && asset.name.toLowerCase() !== 'aave token')
-        ? asset.name.split(' ').pop()||asset.symbol
-        : asset.symbol;
-        const name = (asset.name.toLowerCase().includes('aave') && asset.name.toLowerCase() !== 'aave token')
-        ? asset.name.split(' ').pop()||asset.name
-        : asset.name;
-
+        const symbol =
+          asset.name.toLowerCase().includes("aave") &&
+          asset.name.toLowerCase() !== "aave token"
+            ? asset.name.split(" ").pop() || asset.symbol
+            : asset.symbol;
+        const name =
+          asset.name.toLowerCase().includes("aave") &&
+          asset.name.toLowerCase() !== "aave token"
+            ? asset.name.split(" ").pop() || asset.name
+            : asset.name;
 
         const index = acc.findIndex((a) => a.symbol === symbol);
         if (index !== -1) {
-          const balanceUsd = (asset.balanceUsd <= 0 && asset.balance > 0 )
-            ? acc[index].priceUsd * asset.balance
-            : asset.balanceUsd;
+          const balanceUsd =
+            asset.balanceUsd <= 0 && asset.balance > 0
+              ? acc[index].priceUsd * asset.balance
+              : asset.balanceUsd;
           acc[index].balance += asset.balance;
           acc[index].balanceUsd += balanceUsd;
           acc[index].assets.push(asset);
@@ -110,7 +128,7 @@ export default class WalletBaseComponent<T> extends React.Component<
           });
         }
         return acc;
-      }, [] as { name: string; symbol: string; priceUsd: number; balance: number; balanceUsd: number; thumbnail: string; assets: IAsset[] }[])
+      }, [] as { name: string; symbol: string; priceUsd: number; balance: number; balanceUsd: number; thumbnail: string; assets: IAsset[] }[]);
     this.setState({ assetGroup });
   }
 
@@ -120,9 +138,9 @@ export default class WalletBaseComponent<T> extends React.Component<
 
   async handleTokenDetailClick(token: any = null) {
     console.log(token);
-    this.setState((prev) =>({ 
-      ...prev, 
-      selectedTokenDetail: token
+    this.setState((prev) => ({
+      ...prev,
+      selectedTokenDetail: token,
     }));
   }
 
@@ -131,8 +149,8 @@ export default class WalletBaseComponent<T> extends React.Component<
   }
 
   async handleTransferClick(state: boolean) {
-    console.log('handleTransferClick', state)
-    this.setState({isTransferModalOpen: state});
+    console.log("handleTransferClick", state);
+    this.setState({ isTransferModalOpen: state });
   }
 
   async handleDepositClick(state?: boolean) {
@@ -142,8 +160,17 @@ export default class WalletBaseComponent<T> extends React.Component<
     });
   }
 
-  async handleRefresh(){
+  async handleRefresh() {
     this.props.loadAssets(true);
+  }
+
+  async handleBuyWithFiat(state: boolean) {
+    console.log(">>>>>", state);
+
+    this.setState((prev) => ({
+      ...prev,
+      isBuyWithFiatModalOpen: state,
+    }));
   }
 
   render(): React.ReactNode {
@@ -164,10 +191,20 @@ export default class WalletBaseComponent<T> extends React.Component<
           initialBreakpoint={this.props.modalOpts.initialBreakpoint}
           onDidDismiss={() => this.handleDepositClick(false)}
         >
-          <DepositContainer dismiss={() => this.handleDepositClick(false)}  
+          <DepositContainer
+            handleBuyWithFiat={(state: boolean) =>
+              this.handleBuyWithFiat(state)
+            }
+            dismiss={() => this.handleDepositClick(false)}
           />
         </IonModal>
-        
+
+        <IonModal
+          isOpen={this.state.isBuyWithFiatModalOpen}
+          onDidDismiss={() => this.handleBuyWithFiat(false)}
+        >
+          <BuyWithFiat dismiss={()=> this.handleBuyWithFiat(false)} />
+        </IonModal>
       </>
     );
   }

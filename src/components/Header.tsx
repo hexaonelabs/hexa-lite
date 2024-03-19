@@ -110,11 +110,11 @@ export function Header({
                     mode="ios"
                     value={currentSegment}
                     onIonChange={(e: any) => {
-                      router.push(`/${e.detail.value}`)
                       if (e.detail.value === 'fiat-segment') {
                         handleSegmentChange({detail: {value: 'fiat'}});
                         return;
                       };
+                      router.push(`/${e.detail.value}`)
                       handleSegmentChange(e);
                     }}
                   >
