@@ -32,6 +32,7 @@ import { useRef } from "react";
 import { getWeb3State } from "@/store/selectors";
 import Store from "@/store";
 import { Link } from "react-router-dom";
+import { InstallPWASteps } from "./ui/InstallPWASteps";
 
 const styleLogo = {
   // margin: '15px auto 20px',
@@ -89,18 +90,20 @@ export function Header({
               ) : (
                 <>
                   <IonCol size="auto" class="ion-padding ion-text-start">
-                    <Link
-                      to="/index"
+                    <div
                       style={{
                         position: "relative",
                         display: "inline-block",
+                      }}
+                      onClick={()=> {
+                        router.push('/index', 'back');
                       }}
                     >
                       <IonImg
                         style={styleLogo}
                         src={"./assets/images/logo.svg"}
                       ></IonImg>
-                    </Link>
+                    </div>
                   </IonCol>
                   <IonCol
                     size="auto"
@@ -268,46 +271,7 @@ export function Header({
         onDidDismiss={()=> setIsInstallModalOpen(false)}
         className="modalAlert"
       >
-        <IonGrid className="ion-padding">
-          <IonRow>
-            <IonCol size="12">
-              <p>
-                <b>
-                  Install to enable all features!
-                </b><br/>
-                <IonText color="medium">
-                <small>Earn strategies, loans market, send, deposit and buy crypto with fiat.</small>
-                </IonText>
-              </p>
-              <ul>
-                {isPlatform('ios') && (
-                  <>
-                    <li>Tap the Share button at the bottom of the browser</li>
-                    <li>Scroll down and select "Add to Home Screen."</li>
-                    <li>Tap "Add" in the top right corner</li>
-                  </>
-                )}
-                {!isPlatform('ios') && (
-                  <>
-                    <li>- Tap the menu button (three dots) in your browserr</li>
-                    <li>- Select "Add to Home Screen" or "Install App."</li>
-                  </>
-                )}
-              </ul>
-              <p>
-                Enjoy instant access to our app with a single tap!
-              </p>
-            </IonCol>
-            <IonCol size="12">
-              <IonButton 
-                className="ion-margin-top" 
-                fill="outline" 
-                expand="block" 
-                color="primary"
-                onClick={()=> setIsInstallModalOpen(false)}>ok</IonButton>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
+        <InstallPWASteps setIsInstallModalOpen={setIsInstallModalOpen} />
       </IonModal>
     </>
   );

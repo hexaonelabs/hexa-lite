@@ -5,17 +5,18 @@ import {
   IonHeader,
   IonIcon,
   IonModal,
+  IonPage,
+  IonProgressBar,
   IonTitle,
   IonToolbar,
   ModalOptions,
 } from "@ionic/react";
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { IAsset } from "@/interfaces/asset.interface";
 import { DepositContainer } from "@/containers/DepositContainer";
 import { HookOverlayOptions } from "@ionic/react/dist/types/hooks/HookOverlayOptions";
 import { TransferContainer } from "../../containers/TransferContainer";
-import { close } from "ionicons/icons";
-import { BuyWithFiat } from "@/containers/BuyWithFiat";
+const BuyWithFiatContainer = lazy(() => import("@/containers/BuyWithFiat"));
 
 export type SelectedTokenDetail = {
   name: string;
@@ -203,7 +204,23 @@ export default class WalletBaseComponent<T> extends React.Component<
           isOpen={this.state.isBuyWithFiatModalOpen}
           onDidDismiss={() => this.handleBuyWithFiat(false)}
         >
-          <BuyWithFiat dismiss={()=> this.handleBuyWithFiat(false)} />
+          <Suspense
+            fallback={
+              <IonPage>
+                <IonContent className="ion-no-padding">
+                  <IonProgressBar
+                    type="indeterminate"
+                    color="primary"
+                    style={{ position: "absolute", top: "0", width: "100%" }}
+                  />
+                </IonContent>
+              </IonPage>
+            }
+          >
+            <BuyWithFiatContainer
+              dismiss={() => this.handleBuyWithFiat(false)}
+            />
+          </Suspense>
         </IonModal>
       </>
     );

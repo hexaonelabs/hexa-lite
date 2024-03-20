@@ -34,20 +34,15 @@ import { Redirect, Route, useHistory } from "react-router-dom";
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Welcome } from "./Welcome";
 import { Header } from "./Header";
-import MenuSlide from "./MenuSlide";
-import { LoaderProvider } from "@/context/LoaderContext";
 import { Leaderboard } from "@/containers/desktop/LeaderboardContainer";
 import { NotFoundPage } from "@/containers/NotFoundPage";
 import PwaInstall from "./PwaInstall";
 import { initializeWeb3 } from "@/store/effects/web3.effects";
-import { getMagic } from "@/servcies/magic";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import { IonRoute } from "@ionic/react";
 import { isPlatform } from "@ionic/core";
-import { AboutContainer } from "@/containers/desktop/AboutContainer";
 import { close } from "ionicons/icons";
-import { BuyWithFiat } from "@/containers/BuyWithFiat";
 
 setupIonicReact({ mode: "ios" });
 
@@ -68,6 +63,9 @@ const WalletDesktopContainer = lazy(() => import("@/containers/desktop/WalletDes
 const SwapContainer = lazy(() => import("@/containers/desktop/SwapContainer"));
 const DefiContainer = lazy(() => import("@/containers/desktop/DefiContainer"));
 const EarnContainer = lazy(() => import("@/containers/desktop/EarnContainer"));
+const AvailablePlatformsContainer = lazy(() => import("@/containers/desktop/AvailablePlatformsContainer"));
+const AboutContainer = lazy(() => import("@/containers/desktop/AboutContainer"));
+const BuyWithFiatContainer = lazy(() => import("@/containers/BuyWithFiat"));
 const WalletMobileContainer = lazy(
   () => import("@/containers/mobile/WalletMobileContainer")
 );
@@ -95,6 +93,7 @@ const DefaultLoadingPage = () => {
 const isMobilePWADevice =
   localStorage.getItem('hexa-lite_is-pwa') ||
   Boolean(isPlatform("pwa")) ||
+  Boolean(isPlatform("electron")) ||
   Boolean(isPlatform("mobile")) && !Boolean(isPlatform("mobileweb"));
 
 const AppShell = () => {
@@ -125,7 +124,6 @@ const AppShell = () => {
       return;
     }
     setSegment(e.detail.value);
-    // router.push(`/${e.detail.value}`);
   };
   const contentRef = useRef<HTMLIonContentElement | null>(null);
   const scrollToTop = () => {
@@ -177,7 +175,12 @@ const AppShell = () => {
               )}
             />
             <IonRoute path="/leaderboard" render={() => <Leaderboard />} />
-            <IonRoute path="/about" render={() => <AboutContainer/>} />
+            <IonRoute path="/about" render={() => <Suspense fallback={<DefaultProgressBar />}>
+              <AboutContainer/>
+            </Suspense>} />
+            <IonRoute path="/available-platforms" render={() => <Suspense fallback={<DefaultProgressBar />}>
+              <AvailablePlatformsContainer />
+            </Suspense>} />
             <IonRoute
               path="/"
               render={() => (
@@ -343,7 +346,9 @@ const AppShell = () => {
           isOpen={isBuyWithFiatModalOpen}
           onDidDismiss={() => setIsBuyWithFiatModalOpen(false)}
         >
-          <BuyWithFiat dismiss={()=> setIsBuyWithFiatModalOpen(false)} />
+          <Suspense fallback={<DefaultProgressBar />}>
+            <BuyWithFiatContainer dismiss={()=> setIsBuyWithFiatModalOpen(false)} />
+          </Suspense>
         </IonModal>
     </IonApp>
   );

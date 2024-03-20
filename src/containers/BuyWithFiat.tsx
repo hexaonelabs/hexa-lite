@@ -1,9 +1,9 @@
 import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar } from "@ionic/react";
 import { close } from "ionicons/icons";
 
-export const BuyWithFiat = (props: {
+export default function BuyWithFiat(props: {
   dismiss: ()=> void
-}) => {
+}) {
 
   return (
     <>

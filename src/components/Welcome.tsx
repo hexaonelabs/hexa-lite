@@ -38,10 +38,11 @@ export function Welcome({
           </RevealComp> */}
           <RevealComp x={0} duration="200ms" threshold={0.9}>
             <div className="logoTextContainer">
-              <IonImg
+              <img
                 className="homeLogo"
                 src={"./assets/images/logo.svg"}
-              ></IonImg>
+                alt="Hexa Lite logo"
+              />
               <IonText>
                 <h1 className="homeTitle ion-text-nowrap">Hexa Lite</h1>
                 <p className="slogan">Build your wealth with <IonText className="ion-color-gradient-text">crypto assets</IonText></p>
@@ -60,7 +61,7 @@ export function Welcome({
             <IonButton
               color="gradient"
               onClick={(e) => {
-                router.push("wallet");
+                router.push("wallet", 'forward');
                 handleSegmentChange({ detail: { value: "wallet" } });
               }}
             >
@@ -71,22 +72,23 @@ export function Welcome({
               fill="clear"
               size="small"
               onClick={(e) => {
-                router.push("available-platforms");
+                router.push("available-platforms", 'forward');
               }}
             >
               <small>
-                Available on iOS, Android or Desktop
+                Available on iOS, Android and Desktop
               </small>
             </IonButton>
           </RevealComp>
         </IonCol>
         <IonCol size="12" size-lg="5" className="ion-align-self-end">
           <RevealComp x={50} duration="200ms" threshold={0.35}>
-            <IonImg style={{
+            <img style={{
               minWidth: '65vw',
               marginBottom: '-1rem',
               filter: 'drop-shadow(0px 0px 60px rgba(var(--ion-color-primary-rgb),0.2))'
-            }} src="./assets/images/preview-app.png" />
+            }} src="./assets/images/preview-app.png"
+            alt="app preview" />
           </RevealComp>
         </IonCol>
       </IonRow>
@@ -125,7 +127,7 @@ export function Welcome({
               class="withPadding ion-justify-content-center ion-align-items-center"
               >
               <IonCol size="12" size-md="6">
-                <RevealComp y={20} duration="200ms" threshold={0.9}>
+                <RevealComp y={20} duration="200ms" threshold={0.2}>
                   <IonText className="withMaxWidth">
                     <h3
                       style={{
@@ -151,7 +153,7 @@ export function Welcome({
                       (e.target as HTMLElement).innerHTML = "Connecting...";
                       try {
                         await connectWallet();
-                        router.push("fiat");
+                        router.push("wallet", 'forward');
                         handleSegmentChange({ detail: { value: "fiat" } });
                       } catch (error) {
                         console.error("[ERROR] handleConnect:", error);
@@ -168,9 +170,9 @@ export function Welcome({
                 size-md="4"
                 className="ion-text-center ion-padding"
               >
-                <RevealComp x={50} duration="200ms" threshold={0.75}>
+                <RevealComp x={50} duration="200ms" threshold={0.2}>
                   <div className="ion-padding">
-                    <IonImg
+                    <img
                       style={{
                         minWidth: "280px",
                         margin: "0",
@@ -182,6 +184,7 @@ export function Welcome({
                           "0 0px 100px -30px var(--ion-color-tertiary)",
                       }}
                       src="./assets/images/onboarding.png"
+                      alt="login card"
                     />
                   </div>
                 </RevealComp>
@@ -192,7 +195,7 @@ export function Welcome({
               style={{ padding: "20vh 0" }}
             >
               <IonCol size="12" size-md="6">
-                <RevealComp y={20} duration="200ms" threshold={0.9}>
+                <RevealComp y={20} duration="200ms" threshold={0.2}>
                   <IonText className="withMaxWidth">
                     <h3
                       style={{
@@ -215,7 +218,7 @@ export function Welcome({
                     size="default"
                     color="gradient"
                     onClick={(e) =>{
-                      router.push("defi");
+                      router.push("defi", 'forward');
                       handleSegmentChange({ detail: { value: "defi" } })
                     }}
                   >
@@ -228,7 +231,7 @@ export function Welcome({
                 size-md="4"
                 className="ion-text-center ion-padding"
               >
-                <RevealComp x={50} duration="200ms" threshold={0.75}>
+                <RevealComp x={50} duration="200ms" threshold={0.2}>
                   <div className="ion-padding">
                     <IonImg
                       style={{
@@ -249,7 +252,7 @@ export function Welcome({
               style={{ padding: "20vh 0" }}
             >
               <IonCol size="12" size-md="6">
-                <RevealComp y={20} duration="200ms" threshold={0.9}>
+                <RevealComp y={20} duration="200ms" threshold={0.2}>
                   <IonText className="withMaxWidth">
                     <h3
                       style={{
@@ -270,7 +273,7 @@ export function Welcome({
                       size="default"
                       color="gradient"
                       onClick={(e) =>{
-                        router.push("earn");
+                        router.push("earn", 'forward');
                         handleSegmentChange({ detail: { value: "earn" } })
                       }}
                     >
@@ -284,7 +287,7 @@ export function Welcome({
                 size-md="4"
                 className="ion-text-center ion-padding-vertical"
               >
-                <RevealComp x={50} duration="200ms" threshold={0.75}>
+                <RevealComp x={50} duration="200ms" threshold={0.2}>
                   <div
                     className="ion-no-padding"
                     style={{
@@ -302,7 +305,7 @@ export function Welcome({
               style={{ padding: "20vh 0" }}
             >
               <IonCol size="12" size-md="6">
-                <RevealComp y={20} duration="225ms" threshold={0.9}>
+                <RevealComp y={20} duration="225ms" threshold={0.2}>
                   <IonText>
                     <h3
                       style={{
@@ -327,7 +330,7 @@ export function Welcome({
                 size-md="4"
                 className="ion-text-center ion-padding"
               >
-                <RevealComp x={50} duration="200ms" threshold={0.75}>
+                <RevealComp x={50} duration="200ms" threshold={0.2}>
                   <svg
                     width="256px"
                     height="417px"
@@ -388,7 +391,7 @@ export function Welcome({
               style={{ padding: "5rem 0" }}
             >
               <IonCol size="12" size-md="6">
-                <RevealComp y={20} duration="225ms" threshold={0.9}>
+                <RevealComp y={20} duration="225ms" threshold={0.2}>
                   <IonText>
                     <h3
                       style={{
@@ -407,6 +410,15 @@ export function Welcome({
                       third-party services,
                     </p>
                   </IonText>
+                  <IonButton
+                    size="default"
+                    color="gradient"
+                    onClick={(e) =>{
+                      router.push("about", 'forward');
+                    }}
+                  >
+                    About the team
+                  </IonButton>
                 </RevealComp>
               </IonCol>
               <IonCol
@@ -414,7 +426,7 @@ export function Welcome({
                 size-md="4"
                 className="ion-text-center ion-padding"
               >
-                <RevealComp x={50} duration="200ms" threshold={0.75}>
+                <RevealComp x={50} duration="200ms" threshold={0.2}>
                   <IonIcon
                     style={{
                       color: "#fff",
@@ -460,7 +472,7 @@ export function Welcome({
         style={{ background: "rgba(0,0,0, 0.5)" }}
       >
         <IonCol size="12" className="ion-padding-vertical ion-margin-top">
-          <RevealComp y={20} duration="225ms" threshold={0.9}>
+          <RevealComp y={20} duration="225ms" threshold={0.2}>
             <IonGrid className="ion-margin-bottom ion-padding-vertical">
               <IonRow>
                 <IonCol
@@ -670,7 +682,7 @@ export function Welcome({
       {/* Last call Action */}
       <IonRow class="rowSection ion-justify-content-center ion-align-items-center ion-padding">
         <IonCol size="12" class="ion-text-center ">
-          <RevealComp y={20} duration="225ms" threshold={0.9}>
+          <RevealComp y={20} duration="225ms" threshold={0.2}>
             <p>
               <IonText className="ion-color-gradient-text">
                 Earn interest with your assets
@@ -692,7 +704,7 @@ export function Welcome({
               size="large"
               color="gradient"
               onClick={(e) =>{
-                router.push("wallet");
+                router.push("wallet", 'forward');
                 handleSegmentChange({ detail: { value: "wallet" } })
               }}
             >

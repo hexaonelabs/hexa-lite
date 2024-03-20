@@ -337,7 +337,9 @@ ion-card {
       text-align: center;
       
       .homeLogo {
-        margin-top: 5rem;
+        min-width: 148px;
+        min-height: 148px;
+        margin-top: 6rem;
         margin-bottom: 1rem;
         margin-right: 0rem;
       }
@@ -710,6 +712,15 @@ ion-accordion.networkList {
   // &.accordion-expanded ion-item[slot='header'] {
   //   --color: red;
   // }
+}
+
+ul.baseList {
+  list-style: decimal; 
+  padding: 0 0 0 1rem;
+
+  li {
+    margin: 0.85rem 0;
+  }
 }
 
 .verticalLineBefore::before {
