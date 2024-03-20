@@ -58,27 +58,29 @@ export function Welcome({
             </IonText> */}
           </RevealComp>
           <RevealComp y={-10} duration="225ms" threshold={0.9}>
-            <IonButton
-              color="gradient"
-              onClick={(e) => {
-                router.push("wallet", 'forward');
-                handleSegmentChange({ detail: { value: "wallet" } });
-              }}
-            >
-              Launch App
-            </IonButton>
-            <IonButton
-              color="medium"
-              fill="clear"
-              size="small"
-              onClick={(e) => {
-                router.push("available-platforms", 'forward');
-              }}
-            >
-              <small>
-                Available on iOS, Android and Desktop
-              </small>
-            </IonButton>
+            <div style={{display: 'flex', alignItems: 'center'}}>
+              <IonButton
+                color="gradient"
+                onClick={(e) => {
+                  router.push("wallet", 'forward');
+                  handleSegmentChange({ detail: { value: "wallet" } });
+                }}
+              >
+                Launch App
+              </IonButton>
+              <IonButton
+                color="medium"
+                fill="clear"
+                size="small"
+                onClick={(e) => {
+                  router.push("available-platforms", 'forward');
+                }}
+              >
+                <small>
+                  Available on iOS, Android and Desktop
+                </small>
+              </IonButton>
+            </div>
           </RevealComp>
         </IonCol>
         <IonCol size="12" size-lg="5" className="ion-align-self-end">
