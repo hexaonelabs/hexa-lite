@@ -58,7 +58,7 @@ export function Welcome({
             </IonText> */}
           </RevealComp>
           <RevealComp y={-10} duration="225ms" threshold={0.9}>
-            <div style={{display: 'flex', alignItems: 'center'}}>
+            <div className="homeActionBtns">
               <IonButton
                 color="gradient"
                 onClick={(e) => {

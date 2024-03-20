@@ -317,6 +317,12 @@ ion-card {
     }
   }
 
+  .homeActionBtns {
+    display: flex; 
+    align-items: center;
+    flex-direction: row;
+  }
+
   > ion-row > ion-col {
     ion-button {
       margin-top: 2rem ;
@@ -348,6 +354,14 @@ ion-card {
     ion-image.homeLogo {
       margin: auto
     }
+
+
+    .homeActionBtns {
+      display: flex; 
+      align-items: center;
+      flex-direction: column;
+    }
+
   }
 
   h1.homeTitle {
