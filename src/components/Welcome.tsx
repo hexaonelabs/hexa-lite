@@ -28,37 +28,37 @@ export function Welcome({
   const router = useIonRouter();
   return (
     <IonGrid class="ion-no-padding welcomeSection">
-      <IonRow class="rowSection ion-justify-content-center ion-align-items-center ion-padding">
-        <IonCol size="12" size-md="7" class="ion-text-center">
+      <IonRow 
+        class="rowSection ion-justify-content-center ion-align-items-center ion-no-padding" 
+        style={{
+          overflow: 'hidden',
+          borderBottom: 'solid 1px rgba(var(--ion-color-primary-rgb), 0.5)'}}>
+        <IonCol size="12" size-md="6" size-lg="5" class="ion-text-start ion-padding">
+          {/* <RevealComp x={0} duration="200ms" threshold={0.9}>
+          </RevealComp> */}
           <RevealComp x={0} duration="200ms" threshold={0.9}>
-            <IonImg
-              style={{
-                width: "200px",
-                height: "200px",
-                margin: "auto",
-              }}
-              src={"./assets/images/logo.svg"}
-            ></IonImg>
-          </RevealComp>
-          <RevealComp x={0} duration="200ms" threshold={0.9}>
-            <IonText>
-              <h1 className="homeTitle">Hexa Lite</h1>
-              <p className="slogan">Build your wealth with cryptoassets</p>
-            </IonText>
-            <IonText color="medium" className="ion-hide-lg-down">
+            <div className="logoTextContainer">
+              <IonImg
+                className="homeLogo"
+                src={"./assets/images/logo.svg"}
+              ></IonImg>
+              <IonText>
+                <h1 className="homeTitle ion-text-nowrap">Hexa Lite</h1>
+                <p className="slogan">Build your wealth with <IonText className="ion-color-gradient-text">crypto assets</IonText></p>
+              </IonText>
+            </div>
+            {/* <IonText color="medium" className="ion-hide-lg-down">
               <p className="ion-no-padding">
                 Buy digitals assets with fiats, exchange at best rate, lend and
                 borrow money on DeFi protocols without any intermediate smart
                 contract or third-party to enforce security and increase earn
                 interest.
               </p>
-            </IonText>
+            </IonText> */}
           </RevealComp>
           <RevealComp y={-10} duration="225ms" threshold={0.9}>
             <IonButton
-              size="large"
               color="gradient"
-              style={{marginTop: '2rem'}}
               onClick={(e) => {
                 router.push("wallet");
                 handleSegmentChange({ detail: { value: "wallet" } });
@@ -66,7 +66,27 @@ export function Welcome({
             >
               Launch App
             </IonButton>
-
+            <IonButton
+              color="medium"
+              fill="clear"
+              size="small"
+              onClick={(e) => {
+                router.push("available-platforms");
+              }}
+            >
+              <small>
+                Available on iOS, Android or Desktop
+              </small>
+            </IonButton>
+          </RevealComp>
+        </IonCol>
+        <IonCol size="12" size-lg="5" className="ion-align-self-end">
+          <RevealComp x={50} duration="200ms" threshold={0.35}>
+            <IonImg style={{
+              minWidth: '65vw',
+              marginBottom: '-1rem',
+              filter: 'drop-shadow(0px 0px 60px rgba(var(--ion-color-primary-rgb),0.2))'
+            }} src="./assets/images/preview-app.png" />
           </RevealComp>
         </IonCol>
       </IonRow>
@@ -75,6 +95,7 @@ export function Welcome({
         class="rowSection withPadding ion-justify-content-center ion-align-items-center  ion-padding"
         style={{
           background: "#182449",
+          boxShadow: '0px -60px 60px 0px rgba(var(--ion-color-primary-rgb), 0.15)'
         }}
       >
         <IonCol size="12" class="ion-text-center ">
@@ -113,7 +134,7 @@ export function Welcome({
                         lineHeight: "2rem",
                       }}
                     >
-                      Frictionless onBoarding
+                      Create or connect an account<br/> under a minute
                     </h3>
                     <p>
                       Hexa Lite ensures a secure and reliable user experience,

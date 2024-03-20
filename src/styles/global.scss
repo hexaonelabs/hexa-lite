@@ -303,17 +303,64 @@ ion-card {
 }
 
 .welcomeSection {
+
+  .logoTextContainer {
+    text-align: left;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+
+    .homeLogo {
+      min-width: 116px;
+      min-height: 116px;
+      margin-right: 1rem;
+    }
+  }
+
+  > ion-row > ion-col {
+    ion-button {
+      margin-top: 2rem ;
+    }
+  }
+
+  @media screen and (max-width: 991px) {
+
+    > ion-row > ion-col {
+      ion-button {
+        display: table;
+        margin: 2rem auto;
+      }
+    }
+
+    .logoTextContainer {
+      flex-direction: column;
+      text-align: center;
+      
+      .homeLogo {
+        margin-top: 5rem;
+        margin-bottom: 1rem;
+        margin-right: 0rem;
+      }
+    }
+
+    ion-image.homeLogo {
+      margin: auto
+    }
+  }
+
   h1.homeTitle {
     display: block;
     font-weight: bold;
-    margin-top: 2rem;
+    margin-top: 0rem;
     letter-spacing: -0.1rem;
     font-size: 4.8rem;
     line-height: 4.2rem;
+    text-align: left;
 
-    @media screen and (max-width: 428px) {
+    @media screen and (max-width: 991px) {
       font-size: 3.8rem;
       line-height: 3.4rem;
+      text-align: center;
     }
   }
 
@@ -336,11 +383,11 @@ ion-card {
     line-height: 1.4rem;
 
     &.slogan {
-      font-size: 2rem;
+      font-size: 1.4rem;
       margin: 0rem;
       line-height: 1.8rem;
 
-      @media screen and (max-width: 428px) {
+      @media screen and (max-width: 991px) {
         font-size: 1.6rem;
         line-height: 1.6rem;
       }
@@ -349,7 +396,7 @@ ion-card {
   }
 
   .rowSection {
-    min-height: 100vh;
+    min-height: 90vh;
 
   }
   .withPadding {
