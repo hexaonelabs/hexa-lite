@@ -29,7 +29,7 @@ export default function BuyWithFiat(props: {
             <iframe
               allow="usb; ethereum; clipboard-write; payment; microphone; camera"
               loading="lazy"
-              src="https://widget.mtpelerin.com/?_ctkn=954139b2-ef3e-4914-82ea-33192d3f43d3&type=web&tabs=buy&mode=dark&dnet=optimism_mainnet&bdc=ETH&net=optimism_mainnet&nets=optimism_mainnet&primary=%230090FF"
+              src="https://widget.mtpelerin.com/?_ctkn=57112584-7191-4d1b-8d90-28c7c800f3ea&type=web&tabs=buy&mode=dark&dnet=optimism_mainnet&bdc=ETH&net=optimism_mainnet&nets=optimism_mainnet&primary=%230090FF"
               title="Mt Pelerin exchange widget"
               style={{width: '100%', height: '100%'}}
             ></iframe>

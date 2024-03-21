@@ -108,7 +108,7 @@ export default function AboutContainer() {
           >
             <IonCol
               size="12"
-              class="ion-text-center ion-margin-top ion-padding-top"
+              class="ion-text-center ion-margin-vertical ion-padding"
             >
               {/* <img 
                   src="./assets/images/undraw_code_typing.svg" 
@@ -125,7 +125,7 @@ export default function AboutContainer() {
               </IonText>
               <IonText color="medium">
                 <p>
-                  Hexa Lite is build by the main team of{" "}
+                  Hexa Lite project is starting by the main team of{" "}
                   <IonText color="primary">
                     <a
                       style={{ textDecoration: "none" }}
@@ -133,7 +133,7 @@ export default function AboutContainer() {
                       href="https://hexaonelabs.com"
                       target="_blank"
                     >
-                      HexaOne Labs
+                      Hexa One Labs
                     </a>
                   </IonText>
                   , a Swiss-based organization focused on innovation in the
@@ -147,7 +147,7 @@ export default function AboutContainer() {
         </IonGrid>
         <IonGrid className="ion-no-padding">
           <IonRow
-            className="ion-padding-top ion-padding-horizontal ion-align-items-center ion-justify-content-center"
+            className="ion-padding-top ion-align-items-center ion-justify-content-center"
             style={{
               minHeight: "80vh",
               background: "#182449",
@@ -157,7 +157,7 @@ export default function AboutContainer() {
           >
             <IonCol
               size="12"
-              class="ion-text-center ion-margin-top ion-padding-top"
+              class="ion-text-center ion-margin-top ion-padding-top ion-padding-horizontal"
             >
               <IonText color="dark">
                 <h1>Meet the main team</h1>
@@ -171,7 +171,7 @@ export default function AboutContainer() {
                 sizeMd="6"
                 sizeLg="4"
                 sizeXl="4"
-                class="ion-margin-top ion-padding-top ion-text-center"
+                class="ion-margin-top ion-padding-top ion-text-center ion-padding-horizontal"
               >
                 <IonAvatar
                   style={{
@@ -206,7 +206,7 @@ export default function AboutContainer() {
             ))}
             <IonCol
               size="12"
-              className="ion-text-center ion-margin-bottom ion-padding-bottom"
+              className="ion-text-center ion-padding-horizontal ion-margin-bottom ion-padding-bottom"
             >
               <IonButton
                 color="gradient"
@@ -233,7 +233,7 @@ export default function AboutContainer() {
             >
               <IonGrid style={{ background: "rgba(0, 0, 0, 0.5)" }}>
                 <IonRow
-                  className="ion-text-start ion-align-items-center"
+                  className="ion-text-start ion-align-items-center ion-padding-horizontal "
                   style={{ margin: "auto", maxWidth: "1024px" }}
                 >
                   <IonCol className="ion-padding">

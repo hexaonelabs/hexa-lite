@@ -382,9 +382,9 @@ class WalletMobileContainer extends WalletBaseComponent<
               )}
               
               <IonRow>
-                <IonCol size="12" className="ion-text-center ion-padding">
+                <IonCol size="12" className="ion-text-center ion-margin-top ion-padding">
                   <IonText color="medium">
-                    <p style={{ fontSize: "0.8rem" }}>
+                    <p style={{ fontSize: "0.6rem" }}>
                       You are using a non-custodial wallet that give you complete
                       control over your cryptocurrency funds and private keys.
                       Unlike custodial wallets, you manage your own security,

@@ -141,10 +141,8 @@ export function Welcome({
                       Create or connect an account<br/> under a minute
                     </h3>
                     <p>
-                      Hexa Lite ensures a secure and reliable user experience,
-                      enabling everyone to own their own assets. Users can enjoy the advantages of blockchain
-                      technology and DeFi services without the need to manage
-                      private keys or seed phrases.
+                      Hexa Lite ensures a secure and reliable user experience, <IonText className="ion-color-gradient-text">enabling everyone to own their own assets</IonText>. 
+                      Users can enjoy the advantages of blockchain technology and DeFi services without the need to manage private keys or seed phrases.
                     </p>
                   </IonText>
                   <IonButton
@@ -209,7 +207,7 @@ export function Welcome({
                       Deposit liquidity & earn interest
                     </h3>
                     <p>
-                      Safely deposit your liquidity into DeFi protocols across
+                      Safely deposit your liquidity <IonText className="ion-color-gradient-text">without any restrictions or censorship</IonText> into DeFi protocols across
                       more than 40 markets and{" "}
                       {CHAIN_AVAILABLES.filter((c) => c.type === "evm").length}{" "}
                       EVM-Compatible blockchains. Earn substantial interest
@@ -268,8 +266,7 @@ export function Welcome({
                     <p>
                       Unlock the potential of your assets by earn interest
                       through Liquid Staking. <br />
-                      Stake with DeFi protocols without any lockup periods or
-                      restrictions.
+                      Stake with DeFi protocols <IonText className="ion-color-gradient-text">without any lockup periods or restrictions</IonText>.
                     </p>
                     <IonButton
                       size="default"
