@@ -353,7 +353,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
     // update userSummary & wallet assets after action
     if (walletAddress) {
       await initializeUserSummary(walletAddress);
-      await loadAssets();
+      await loadAssets(true);
     }
   };
 

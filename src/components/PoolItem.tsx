@@ -242,7 +242,7 @@ export function PoolItem(props: IPoolItemProps) {
             // reload asset if user have trigger an action from ReserveDetails.
             // Ex: deposit, withdraw, borrow, repay
             if (actionType) {
-              loadAssets();
+              loadAssets(true);
             }
           }}
           handleSegmentChange={handleSegmentChange}
