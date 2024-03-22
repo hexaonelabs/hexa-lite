@@ -123,17 +123,17 @@ const loadAaveUserSummary = async (walletAddress: string) => {
         market,
         currentTimestamp,
         user: walletAddress,
+      }).catch(err => {
+        console.error("[ERROR] {{loadAaveUserSummary}} getUserSummaryAndIncentives: ", {err, market});
+        return [];
       })
     )
   )
-    .then((r) => r as IUserSummary[])
-    .catch((error) => {
-      console.error(
-        "[ERROR] {{loadAaveUserSummary}} fetchUserSummaryAndIncentives: ",
-        error
-      );
-      return null;
-    });
+  .then((r) => r as IUserSummary[])
+  .catch(err => {
+    console.error("[ERROR] {{loadAaveUserSummary}} Promise.all() getUserSummaryAndIncentives: ", {err});
+    return [];
+  });
   console.log(`[INFO] {{loadAaveUserSummary}} done: `, {
     userSummaryAndIncentivesGroup,
   });
