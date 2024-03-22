@@ -96,9 +96,8 @@ export function Welcome({
       </IonRow>
 
       <IonRow
-        class="rowSection withPadding ion-justify-content-center ion-align-items-center  ion-padding"
+        class="rowSection shaderContener withPadding ion-justify-content-center ion-align-items-center  ion-padding"
         style={{
-          background: "#182449",
           boxShadow: '0px -60px 60px 0px rgba(var(--ion-color-primary-rgb), 0.15)'
         }}
       >

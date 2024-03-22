@@ -5,7 +5,7 @@ $font-family: var(--font-outfit);//'Outfit', sans-serif;
 html, body, ion-content {
   font-size: 20px;
   line-height: normal;
-  background: '#182449';
+  background: #182449;
   background: var(--background-gradient);
 }
 ion-content {
@@ -425,6 +425,9 @@ ion-card {
   .rowSection {
     min-height: 90vh;
 
+  }
+  .shaderContener {
+    background: var(--background-shader);
   }
   .withPadding {
     padding-top: 5rem;
