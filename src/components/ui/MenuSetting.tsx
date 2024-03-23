@@ -22,6 +22,7 @@ import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import ConnectButton from "../ConnectButton";
 import DisconnectButton from "../DisconnectButton";
+import { ToggleLightmode } from "./ToogleLightmode";
 
 interface MenuSettingsProps {
   dismiss: ()=> void
@@ -70,7 +71,24 @@ export const MenuSettings: React.FC<MenuSettingsProps> = ({dismiss}) => {
             <IonNote slot="end" color="success" className="ion-text-end">
               Connected
             </IonNote>
-        </IonItem>   
+        </IonItem>  
+        <IonItem 
+          lines="none"
+          button={false}
+          style={{ "--background": "transparent" }}
+        >
+          <IonLabel>
+            <IonText>
+              <h2>Dark mode</h2>
+            </IonText>
+            <IonText color="medium">
+              <p>
+                <small>Enable or disable dark mode</small>
+              </p>
+            </IonText>
+          </IonLabel>
+          <ToggleLightmode />  
+        </IonItem> 
         <IonItem
           lines="none"
           button={false}

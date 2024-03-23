@@ -20,6 +20,7 @@ import DisconnectButton from "./DisconnectButton";
 import { SelectNetwork } from "./SelectNetwork";
 import ShowUIButton from "./ShowUIButton";
 import { SuccessCopyAddress } from "./SuccessCopyAddress";
+import { ToggleLightmode } from "./ui/ToogleLightmode";
 
 export const AuthBadge: React.FC<any> = () => {
   const {
@@ -137,6 +138,16 @@ export const AuthBadge: React.FC<any> = () => {
           style={{ cursor: "pointer" }}
         />
       </IonItem>
+      <IonItem 
+          lines="none"
+          button={false}
+          style={{ "--background": "transparent" }}
+        >
+          <IonLabel>
+            Dark mode
+          </IonLabel>
+          <ToggleLightmode />  
+        </IonItem> 
       <div className="ion-text-center ion-padding">
         <ShowUIButton />
         <DisconnectButton />

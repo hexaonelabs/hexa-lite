@@ -135,6 +135,23 @@ const AppShell = () => {
     initializeWeb3();
   }, []);
 
+  // useEffect(() => {
+  //   const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+  //   if (!prefersDarkScheme.matches) {
+  //     document.querySelector('body')?.classList.toggle('dark');
+  //   }
+  // }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const isLightmode = localStorage.getItem('hexa-lite_is-lightmode');
+      isLightmode
+        ? document.querySelector('body')?.classList.remove('dark')
+        : undefined;
+    }
+    return ()=> {};
+  }, []);
+
   return (
     <IonApp>
       {!isMobilePWADevice && (

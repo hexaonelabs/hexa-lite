@@ -18,6 +18,7 @@ import { FooterComponent } from "./FooterComponent";
 import { FAQ } from "./FAQ";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
+import { AppLogo } from "./ui/AppLogo";
 
 export function Welcome({
   handleSegmentChange,
@@ -38,11 +39,14 @@ export function Welcome({
           </RevealComp> */}
           <RevealComp x={0} duration="200ms" threshold={0.9}>
             <div className="logoTextContainer">
-              <img
+              {/* <img
                 className="homeLogo"
                 src={"./assets/images/logo.svg"}
                 alt="Hexa Lite logo"
-              />
+              /> */}
+              <AppLogo width={'148px'} height={'148px'} style={{
+                marginRight: '1rem'
+              }}/>
               <IonText>
                 <h1 className="homeTitle ion-text-nowrap">Hexa Lite</h1>
                 <p className="slogan">Build your wealth with <IonText className="ion-color-gradient-text">crypto assets</IonText></p>
@@ -88,7 +92,7 @@ export function Welcome({
             <img style={{
               minWidth: '65vw',
               marginBottom: '-1rem',
-              filter: 'drop-shadow(0px 0px 60px rgba(var(--ion-color-primary-rgb),0.2))'
+              filter: 'drop-shadow(0px 0px 60px rgba(var(--ion-color-primary-rgb),0.2)) brightness(0.9) contrast(1.1)'
             }} src="./assets/images/preview-app.png"
             alt="app preview" />
           </RevealComp>
@@ -172,6 +176,7 @@ export function Welcome({
                 <RevealComp x={50} duration="200ms" threshold={0.2}>
                   <div className="ion-padding">
                     <img
+                      className="shadowedElement"
                       style={{
                         minWidth: "280px",
                         margin: "0",
@@ -179,8 +184,7 @@ export function Welcome({
                         overflow: "hidden",
                         maxWidth: "fit-content",
                         border: "solid 2px var(--ion-color-primary)",
-                        boxShadow:
-                          "0 0px 100px -30px var(--ion-color-tertiary)",
+       
                       }}
                       src="./assets/images/onboarding.png"
                       alt="login card"
@@ -236,9 +240,8 @@ export function Welcome({
                       style={{
                         margin: "0 auto",
                         maxWidth: "fit-content",
-                        filter:
-                          "drop-shadow(0px 0px 60px rgba(var(--ion-color-tertiary-rgb),0.5))",
                       }}
+                      className="dropShadowedElement"
                       src="./assets/images/coins-b.png"
                     />
                   </div>
@@ -333,13 +336,8 @@ export function Welcome({
                     width="256px"
                     height="417px"
                     viewBox="0 0 256 417"
-                    version="1.1"
-                    xmlns="http://www.w3.org/2000/svg"
                     preserveAspectRatio="xMidYMid"
-                    style={{
-                      filter:
-                        "drop-shadow(0px 0px 60px rgba(var(--ion-color-tertiary-rgb),0.5))",
-                    }}
+                    className="dropShadowedElement"
                   >
                     <g>
                       <polygon
@@ -427,13 +425,12 @@ export function Welcome({
                 <RevealComp x={50} duration="200ms" threshold={0.2}>
                   <IonIcon
                     style={{
-                      color: "#fff",
                       width: "256px",
                       height: "256px",
                       cursor: "pointer",
-                      filter:
-                        "drop-shadow(0px 0px 60px rgba(var(--ion-color-tertiary-rgb),0.5))",
                     }}
+                    color="dark"
+                    className="dropShadowedElement"
                     icon={logoGithub}
                     onClick={() => {
                       window.open(
@@ -467,7 +464,11 @@ export function Welcome({
       {/* Partners Section */}
       <IonRow
         class="ion-padding ion-text-center"
-        style={{ background: "rgba(0,0,0, 0.5)" }}
+        style={{ 
+          background: "rgba(var(--item-background-shader-rgb), 0.55)",
+          borderTop: "solid 1px rgba(var(--ion-color-primary-rgb), 0.2)",
+          borderBottom: "solid 1px rgba(var(--ion-color-primary-rgb), 0.2)"
+         }}
       >
         <IonCol size="12" className="ion-padding-vertical ion-margin-top">
           <RevealComp y={20} duration="225ms" threshold={0.2}>

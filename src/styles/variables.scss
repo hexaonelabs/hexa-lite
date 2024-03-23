@@ -80,6 +80,10 @@
 	--ion-color-dark: #180d68;
 	--ion-color-dark-rgb: 24, 13, 104;
 
+	--item-background: transparent;
+	--item-background-shader: #e2e9ff;
+	--item-background-shader-rgb: 224, 232, 255;
+
 	/* OnBoarding */
 	--account-center-position-top: -3px;
 	--account-center-border: rgba(var(--ion-color-primary-rgb), 0.15);
@@ -189,6 +193,10 @@ body.dark {
 
   --background-gradient: linear-gradient(125deg,#182449, rgba(61, 158, 255, 0.2));
 	--background-shader: #182449;
+
+	--item-background: transparent;
+	--item-background-shader: #0f1629;
+	--item-background-shader-rgb: 15, 22, 41;
 
 }
 

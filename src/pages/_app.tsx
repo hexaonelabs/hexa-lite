@@ -21,6 +21,7 @@ import '../styles/global.scss';
 
 import { AppProps } from 'next/app';
 import { outfit } from '@/styles/fonts';
+import ErrorBoundary from '@/containers/ErrorBoundary';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -124,7 +125,9 @@ function MyApp({ Component, pageProps }: AppProps) {
           --font-outfit: ${outfit.style.fontFamily};
         }
       `}</style>
-      <Component {...pageProps} />
+      <ErrorBoundary>
+        <Component {...pageProps} />
+      </ErrorBoundary>
     </>
   );
 }

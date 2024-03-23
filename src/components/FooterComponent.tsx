@@ -4,12 +4,15 @@ import { logoGithub } from "ionicons/icons";
 export const FooterComponent: React.FC = () => {
   return (
     <IonRow
-      class="ion-align-items-center ion-justify-content-between"
-      style={{ background: "rgba(0,0,0, 0.2)" }}
+      class="FooterComponent ion-align-items-center ion-justify-content-between"
+      style={{ 
+        background: "rgba(var(--item-background-shader-rgb), 1)",
+        borderTop: "solid 1px rgba(var(--ion-color-primary-rgb), 0.2)",
+       }}
     >
       <IonCol size="auto" class="ion-padding-horizontal">
-        <IonText color="medium">
-          <p style={{ fontSize: "12px", lineHeight: '0.9rem' }}>
+        <IonText color="dark">
+          <p style={{ fontSize: "12px", lineHeight: '0.9rem', opacity: '0.8' }}>
             Open source software by{" "}
             <a
               href="https://hexaonelabs.com/"
@@ -40,10 +43,10 @@ export const FooterComponent: React.FC = () => {
         >
           <IonIcon
             style={{
-              color: "#fff",
               marginRight: "0.25rem",
               fontSize: " 0.8rem",
             }}
+            color="dark"
             src={"./assets/icons/medium-icon.svg"}
           ></IonIcon>
         </a>
@@ -55,10 +58,10 @@ export const FooterComponent: React.FC = () => {
         >
           <IonIcon
             style={{
-              color: "#fff",
               marginRight: "0.25rem",
               fontSize: " 0.8rem",
             }}
+            color="dark"
             src={"./assets/images/x-logo.svg"}
           ></IonIcon>
         </a>
@@ -69,9 +72,7 @@ export const FooterComponent: React.FC = () => {
           rel="noreferrer noopener"
         >
           <IonIcon
-            style={{
-              color: "#fff",
-            }}
+            color="dark"
             icon={logoGithub}
           ></IonIcon>
         </a>

@@ -215,15 +215,9 @@ const InputAssetWithDropDown = (props: {
 
   return (
     <>
-      <IonGrid className="ion-no-padding">
+      <IonGrid className="ion-no-padding InputAssetWithDropDown">
         <IonRow         
-          className="ion-align-items-center"
-          style={{
-            background: "#0f1629",
-            padding: "0.65rem 0.5rem",
-            borderRadius: "24px",
-            marginBottom: "0.5rem",
-          }}>
+          className="ion-align-items-center">
           <IonCol size="auto">
             <div
               style={{
@@ -480,15 +474,9 @@ export const TransferContainer = (props: { dismiss: () => Promise<void> }) => {
               >
                 <h4 className="ion-no-margin">Destination address</h4>
               </IonLabel>
-              <IonGrid className="ion-no-padding">
+              <IonGrid className="ion-no-padding itemInputContainter">
                 <IonRow
                   className="ion-align-items-center"
-                  style={{
-                    background: "#0f1629",
-                    padding: "0.65rem 0 0.65rem 0.5rem",
-                    borderRadius: "24px",
-                    marginBottom: "0.5rem",
-                  }}
                 >
                   <IonCol>
                     <IonInput

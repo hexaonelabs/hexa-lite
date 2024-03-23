@@ -5,7 +5,6 @@ import {
   IonGrid,
   IonHeader,
   IonIcon,
-  IonImg,
   IonMenuToggle,
   IonModal,
   IonPopover,
@@ -13,7 +12,6 @@ import {
   IonSegment,
   IonSegmentButton,
   IonText,
-  IonTitle,
   IonToolbar,
   isPlatform,
   useIonRouter,
@@ -31,28 +29,8 @@ import { PointsPopover } from "./PointsPopover";
 import { useRef } from "react";
 import { getWeb3State } from "@/store/selectors";
 import Store from "@/store";
-import { Link } from "react-router-dom";
 import { InstallPWASteps } from "./ui/InstallPWASteps";
-
-const styleLogo = {
-  // margin: '15px auto 20px',
-  padding: " 0px",
-  width: "42px",
-  maxWidth: "42px",
-  height: "42px",
-  cursor: "pointer",
-};
-
-const styleChip = {
-  position: "absolute",
-  bottom: "0rem",
-  right: "-15px",
-  transform: "scale(0.6)",
-  padding: " 0rem 0.5rem",
-  margin: 0,
-  "--color": "var(--ion-color-primary)",
-  "--background": "var(--ion-color-warning)",
-};
+import { AppLogo } from "./ui/AppLogo";
 
 export function Header({
   currentSegment,
@@ -99,10 +77,7 @@ export function Header({
                         router.push('/index', 'back');
                       }}
                     >
-                      <IonImg
-                        style={styleLogo}
-                        src={"./assets/images/logo.svg"}
-                      ></IonImg>
+                      <AppLogo />
                     </div>
                   </IonCol>
                   <IonCol

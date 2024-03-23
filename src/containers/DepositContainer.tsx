@@ -156,6 +156,7 @@ export const DepositContainer = (props: {
               <div
                 className="ion-margin"
                 style={{
+                  border: 'solid 2px var(--ion-color-primary)',
                   borderRadius: "32px",
                   overflow: "hidden",
                   transform: "scale(1.1)",
@@ -205,7 +206,7 @@ export const DepositContainer = (props: {
         <IonToolbar style={{'--background': 'transparent'}}>
           <IonButton 
             fill="outline" 
-            color="gradient" 
+            color="primary" 
             expand="block"
             onClick={()=> {
               handleActions('buy');

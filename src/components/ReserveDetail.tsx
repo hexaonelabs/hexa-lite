@@ -251,7 +251,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
 
   console.log('>>>>x x', userSummaryAndIncentivesGroup)
   const userSummary = userSummaryAndIncentivesGroup?.find((group) =>
-    group.userReservesData.find(({ reserve }) => reserve.id === id)
+    group?.userReservesData?.find(({ reserve }) => reserve.id === id)
   );
   const pool = poolGroup.pools.find((r) => r.id === id);
 

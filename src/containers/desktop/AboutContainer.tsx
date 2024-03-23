@@ -159,8 +159,8 @@ export default function AboutContainer() {
               size="12"
               class="ion-text-center ion-margin-top ion-padding-top ion-padding-horizontal"
             >
-              <IonText color="dark">
-                <h1>Meet the main team</h1>
+              <IonText>
+                <h1 style={{color:'#f4f5f8'}}>Meet the main team</h1>
               </IonText>
             </IonCol>
             {teams.map((t, index) => (
@@ -184,14 +184,14 @@ export default function AboutContainer() {
                   <img src={t.avatar} alt={t.name} />
                 </IonAvatar>
                 <IonText>
-                  <h3>
+                  <h3 style={{color:'#f4f5f8'}}>
                     {t.name}
                     <br />
                     <small>{t.subStatus}</small>
                   </h3>
                 </IonText>
                 <IonText>
-                  <p className="ion-no-margin">{t.post}</p>
+                  <p className="ion-no-margin" style={{color:'#f4f5f8'}}>{t.post}</p>
                 </IonText>
                 {t.links.map((l, i) => (
                   <IonButton
@@ -199,7 +199,7 @@ export default function AboutContainer() {
                     fill="clear"
                     onClick={() => window.open(l.url, "_blank")}
                   >
-                    <IonIcon color="dark" icon={l.icon} />
+                    <IonIcon style={{color:'#f4f5f8'}} icon={l.icon} />
                   </IonButton>
                 ))}
               </IonCol>
@@ -237,8 +237,8 @@ export default function AboutContainer() {
                   style={{ margin: "auto", maxWidth: "1024px" }}
                 >
                   <IonCol className="ion-padding">
-                    <IonText color="dark">
-                      <h1>Be a part of Gouvernance</h1>
+                    <IonText>
+                      <h1 style={{color:'#f4f5f8'}}>Be a part of Gouvernance</h1>
                     </IonText>
                     <IonText color="primary">
                       <p>
@@ -248,7 +248,7 @@ export default function AboutContainer() {
                     </IonText>
                   </IonCol>
                   <IonCol size="auto" className="ion-padding">
-                    <ul style={{ listStyle: "decimal", padding: "3rem 1rem" }}>
+                    <ul style={{color:'#f4f5f8', listStyle: "decimal", padding: "3rem 1rem" }}>
                       <li>
                         Visit the{" "}
                         <IonText color="primary">
