@@ -4,6 +4,7 @@ import { getAssetIconUrl } from "@/utils/getAssetIconUrl";
 import { numberFormat } from "@/utils/numberFormat";
 import {
   IonAvatar,
+  IonChip,
   IonCol,
   IonGrid,
   IonLabel,
@@ -11,6 +12,7 @@ import {
   IonText,
 } from "@ionic/react";
 import { SelectedTokenDetail } from "../base/WalletBaseContainer";
+import { isStableAsset } from "@/utils/isStableAsset";
 
 export function WalletAssetEntity(props: {
   asset: SelectedTokenDetail;
@@ -72,6 +74,9 @@ export function WalletAssetEntity(props: {
               <p>{asset.name}</p>
             </IonText>
           </IonLabel>
+          {isStableAsset(asset.symbol) ? (<IonChip style={{marginLeft: '1rem', marginTop: '0.5rem', maxHeight: '32px'}} color="success">
+                                      <small>stable</small>
+                                    </IonChip>) : ''}
         </IonCol>
         <IonCol
           size="6"

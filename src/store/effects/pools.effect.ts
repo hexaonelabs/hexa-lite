@@ -2,7 +2,7 @@ import { IUserSummary } from "@/interfaces/reserve.interface";
 import { AavePool } from "@/pool/Aave.pool";
 import { IMarketConfig, SolendPool } from "@/pool/solend.pool";
 import { patchMarketPoolsState, patchPoolsState, setPoolsState } from "../actions";
-import { CHAIN_AVAILABLES, NETWORK } from "@/constants/chains";
+import { CHAIN_AVAILABLES as ALL_CHAINS, NETWORK } from "@/constants/chains";
 import {
   MARKETTYPE,
   getMarkets,
@@ -13,6 +13,9 @@ import dayjs from "dayjs";
 import { getAssetIconUrl } from "@/utils/getAssetIconUrl";
 import { MarketPool } from "@/pool/Market.pool";
 import { PublicKey, Connection as SolanaClient } from "@solana/web3.js";
+
+// temporary disable Avalanche from the lending available networks
+const CHAIN_AVAILABLES = ALL_CHAINS.filter((chain) => chain.id !== NETWORK.avalanche);
 
 const loadAavePools = async () => {
   console.log("[INFO] {{loadAavePools}} init context... ");

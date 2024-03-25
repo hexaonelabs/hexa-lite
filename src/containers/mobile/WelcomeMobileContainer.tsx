@@ -4,6 +4,7 @@ import ConnectButton from "../../components/ConnectButton";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import { useEffect } from "react";
+import { AppLogo } from "@/components/ui/AppLogo";
 
 export default function WelcomeMobileContainer() {
   const { walletAddress } = Store.useState(getWeb3State);
@@ -24,15 +25,9 @@ export default function WelcomeMobileContainer() {
           className="ion-text-center ion-justify-content-center ion-align-items-center"
         >
           <IonCol>
-            <IonImg
-              style={{
-                width: "200px",
-                height: "200px",
-                margin: "auto",
-              }}
-              src={"./assets/images/logo.svg"}
-            ></IonImg>
-
+              <AppLogo width={'200px'} height={'200px'} style={{
+                margin: 'auto'
+              }}/>
             <IonText>
               <h1 className="homeTitle">Hexa Lite</h1>
               <p className="slogan">

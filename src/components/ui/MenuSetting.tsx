@@ -15,6 +15,8 @@ import {
   IonFooter,
   IonNote,
   IonButtons,
+  useIonRouter,
+  IonPopover,
 } from "@ionic/react";
 import { close, open, openOutline, radioButtonOn, ribbonOutline } from "ionicons/icons";
 import { getAddressPoints } from "@/servcies/datas.service";
@@ -23,6 +25,7 @@ import { getWeb3State } from "@/store/selectors";
 import ConnectButton from "../ConnectButton";
 import DisconnectButton from "../DisconnectButton";
 import { ToggleLightmode } from "./ToogleLightmode";
+import { PointsPopover } from "../PointsPopover";
 
 interface MenuSettingsProps {
   dismiss: ()=> void
@@ -31,6 +34,14 @@ interface MenuSettingsProps {
 export const MenuSettings: React.FC<MenuSettingsProps> = ({dismiss}) => {
   const { walletAddress } = Store.useState(getWeb3State);
   const [points, setPoints] = useState<string | null>(null);
+  const [isPointsPopoverOpen, setIsPointsPopoverOpen] = useState(false);
+  const pointsPopoverRef = useRef<HTMLIonPopoverElement>(null);
+  const router = useIonRouter();
+
+  const openPopover = (e: any) => {
+    pointsPopoverRef.current!.event = e;
+    setIsPointsPopoverOpen(true);
+  };
 
   return (
     <>
@@ -71,7 +82,69 @@ export const MenuSettings: React.FC<MenuSettingsProps> = ({dismiss}) => {
             <IonNote slot="end" color="success" className="ion-text-end">
               Connected
             </IonNote>
-        </IonItem>  
+        </IonItem>
+        <IonItem 
+          lines="none"
+          button={false}
+          style={{ "--background": "transparent" }}
+        >
+          <IonLabel>
+            <IonText>
+              <h2>Points</h2>
+            </IonText>
+            <IonText color="medium">
+              <p>
+                <small>Rank to the leaderboard</small>
+              </p>
+            </IonText>
+          </IonLabel>
+          <IonButton
+            fill="clear"
+            color="gradient"
+            style={{ cursor: "pointer" }}
+            size={"small"}
+            onClick={(e) => openPopover(e)}
+          >
+            <IonIcon
+              color="gradient"
+              size="small"
+              style={{ marginRight: "0.25rem" }}
+              src={ribbonOutline}
+            ></IonIcon>
+            <IonText className="ion-color-gradient-text">
+              Points
+            </IonText>
+          </IonButton>
+        </IonItem>   
+        <IonPopover
+          ref={pointsPopoverRef}
+          className="points-popover"
+          isOpen={isPointsPopoverOpen}
+          onDidDismiss={() => {
+            setPoints(() => null);
+            setIsPointsPopoverOpen(false);
+          }}
+          onWillPresent={async () => {
+            if (!walletAddress) {
+              throw new Error('Wallet not connected')
+            }
+            const response = await getAddressPoints(
+              walletAddress
+            ).catch((error) => {});
+            console.log("response", response);
+            if (response?.data?.totalPoints) {
+              setPoints(() => response.data.totalPoints);
+            } else {
+              setPoints(() => "0");
+            }
+          }}
+        >
+          <PointsPopover
+            points={points}
+            closePopover={() => setIsPointsPopoverOpen(false)}
+          />
+        </IonPopover>
+
         <IonItem 
           lines="none"
           button={false}

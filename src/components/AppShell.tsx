@@ -34,7 +34,6 @@ import { Redirect, Route, useHistory } from "react-router-dom";
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Welcome } from "./Welcome";
 import { Header } from "./Header";
-import { Leaderboard } from "@/containers/desktop/LeaderboardContainer";
 import { NotFoundPage } from "@/containers/NotFoundPage";
 import PwaInstall from "./PwaInstall";
 import { initializeWeb3 } from "@/store/effects/web3.effects";
@@ -59,6 +58,7 @@ window
     } catch {}
   });
 
+const LeaderboardContainer = lazy(() => import("@/containers/desktop/LeaderboardContainer"));
 const WalletDesktopContainer = lazy(() => import("@/containers/desktop/WalletDesktopContainer"));
 const SwapContainer = lazy(() => import("@/containers/desktop/SwapContainer"));
 const DefiContainer = lazy(() => import("@/containers/desktop/DefiContainer"));
@@ -191,7 +191,9 @@ const AppShell = () => {
                 </>
               )}
             />
-            <IonRoute path="/leaderboard" render={() => <Leaderboard />} />
+            <IonRoute path="/leaderboard" render={() => <Suspense fallback={<DefaultProgressBar />} >
+              <LeaderboardContainer />
+            </Suspense>} />
             <IonRoute path="/about" render={() => <Suspense fallback={<DefaultProgressBar />}>
               <AboutContainer/>
             </Suspense>} />
@@ -250,6 +252,9 @@ const AppShell = () => {
       {isMobilePWADevice && (
         <IonReactRouter>
           <IonRouterOutlet id="main">
+            <IonRoute path="/leaderboard" render={() => <Suspense fallback={<DefaultProgressBar />} >
+              <LeaderboardContainer />
+            </Suspense>} />
             <IonRoute
               path="/index"
               render={() =>

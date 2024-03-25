@@ -36,6 +36,7 @@ import {
   IonRefresher,
   IonRefresherContent,
   RefresherEventDetail,
+  IonChip,
 } from "@ionic/react";
 import { card, download, paperPlane, repeat, settings, settingsOutline } from "ionicons/icons";
 import { useState } from "react";
@@ -45,6 +46,7 @@ import { TokenDetailMobileContainer } from "@/containers/mobile/TokenDetailMobil
 import { EarnMobileContainer } from "@/containers/mobile/EarnMobileContainer";
 import { MenuSettings } from "@/components/ui/MenuSetting";
 import { currencyFormat } from "@/utils/currencyFormat";
+import { isStableAsset } from "@/utils/isStableAsset";
 
 interface WalletMobileComProps {
   isMagicWallet: boolean;
@@ -330,6 +332,9 @@ class WalletMobileContainer extends WalletBaseComponent<
                                   </p>
                                 </IonText>
                               </IonLabel>
+                              {isStableAsset(asset.symbol) ? (<IonChip style={{marginRight: '1rem'}} color="success">
+                                      <small>stable</small>
+                                    </IonChip>) : ''}
                               <IonText slot="end" className="ion-text-end">
                                 <p>
                                   {currencyFormat.format(asset.balanceUsd)}

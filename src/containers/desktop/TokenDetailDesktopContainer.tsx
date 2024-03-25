@@ -17,6 +17,7 @@ import {
   IonLabel,
   IonList,
   IonListHeader,
+  IonModal,
   IonNote,
   IonRow,
   IonSelect,
@@ -32,7 +33,7 @@ import { ethers } from "ethers";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import { CHAIN_AVAILABLES } from "@/constants/chains";
-import { airplane, chevronDown, close, download, paperPlane, repeat } from "ionicons/icons";
+import { airplane, chevronDown, close, closeSharp, download, paperPlane, repeat } from "ionicons/icons";
 import { DataItem } from "@/components/ui/LightChart";
 import { getTokenHistoryPrice } from "@/utils/getTokenHistoryPrice";
 import { TokenInfo, getTokenInfo } from "@/utils/getTokenInfo";
@@ -40,6 +41,7 @@ import { numberFormat } from "@/utils/numberFormat";
 import { currencyFormat } from "@/utils/currencyFormat";
 import { TokenDetailDescription } from "@/components/ui/TokenDetailDescription";
 import { TokenDetailMarketDetail } from "@/components/ui/TokenDetailMarketData";
+import { isStableAsset } from "@/utils/isStableAsset";
 
 const LightChart = lazy(() => import("@/components/ui/LightChart"));
 
@@ -66,6 +68,7 @@ export const TokenDetailDesktopContainer = (props: {
   const { walletAddress } = Store.useState(getWeb3State);
   const [dataChartHistory, setDataChartHistory] = useState<DataItem[]>([]);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | undefined>(undefined);
+  const [isInfoOpen, setInfoOpen] = useState(false);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -173,6 +176,16 @@ export const TokenDetailDesktopContainer = (props: {
                       )}
                     </p>
                   </IonText>
+                  {isStableAsset(data.symbol) ? (
+                    <IonChip 
+                      style={{marginTop: '0.5rem'}} 
+                      color="success"
+                      onClick={()=> {
+                        setInfoOpen(()=> true);
+                      }} >
+                      <small>stable</small>
+                    </IonChip>
+                    ) : ''}
                   <IonGrid className="ion-no-padding">
                     <IonRow className="ion-padding">
                       <IonCol size="12">
@@ -322,6 +335,61 @@ export const TokenDetailDesktopContainer = (props: {
           </IonRow>
         </IonGrid>
       </IonContent>
+
+      <IonModal
+        className="modalAlert autoSize modalInfo"
+        isOpen={isInfoOpen}
+        onWillDismiss={() => setInfoOpen(false)}
+      >
+        <IonGrid className="ion-no-padding ion-padding-horizontal ion-padding-bottom">
+          <IonRow className="ion-padding-top">
+            <IonCol size="10">
+              <IonText>
+                <h3>
+                  <b>Informations</b>
+                </h3>
+              </IonText>
+            </IonCol>
+            <IonCol size="2" class="ion-text-end">
+              <IonButton
+                size="small"
+                fill="clear"
+                onClick={() => setInfoOpen(false) }
+              >
+                <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
+              </IonButton>
+            </IonCol>
+          </IonRow>
+          <IonRow class="ion-align-items-top ion-margin-bottom">
+            <IonCol size="12">
+              <h2>
+                What is a stablecoin?
+              </h2>
+              <IonItem>
+                <IonText>
+                  <p>
+                    Stablecoins are a type of cryptocurrency whose value is pegged to another asset, such as a fiat currency or gold, to maintain a stable price.
+                  </p>
+                </IonText>
+              </IonItem>
+              <IonItem>
+                <IonText>
+                  <p>
+                    They strive to provide an alternative to the high volatility of popular cryptocurrencies, making them potentially more suitable for common transactions.
+                  </p>
+                </IonText>
+              </IonItem>
+              <IonItem>
+                <IonText>
+                  <p>
+                    Stablecoins can be utilized in various blockchain-based financial services and can even be used to pay for goods and services.
+                  </p>
+                </IonText>
+              </IonItem>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+      </IonModal>
     </>
   );
 };
