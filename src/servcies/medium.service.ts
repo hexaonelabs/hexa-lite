@@ -32,10 +32,19 @@ export const getPublications = async (): Promise<{
       url: 'https://medium.com/@hexaonelabs/hexa-lite-your-gateway-to-seamless-authentication-c7f7feff5281',
       title: 'Hexa Lite: Your Gateway to Seamless Authentication',
       imgUrl: 'https://miro.medium.com/v2/resize:fit:350/format:webp/1*P89ZVTGsO0VWWw6jtZdEwA.png',
-      dateTime: Date.parse('03/26/2024'),
+      dateTime: Date.parse('03/25/2024'),
       short: 'Experience the next level of simplicity and security with Hexa Lite’s one-click login process. Say goodbye to cumbersome account creation steps and hello to effortless access to our platform. With just a few clicks, you can sign up or log in using your email address or preferred social authentication method.'
     },
+    {
+      url: 'https://medium.com/@hexaonelabs/introducing-our-new-mobile-and-desktop-application-interface-try-it-now-7e0df3c1fdcd',
+      title: 'Introducing Our New Mobile and Desktop Application Interface: Try It Now!',
+      imgUrl: 'https://miro.medium.com/v2/resize:fit:350/format:webp/1*hTGoxycGxTQO6Iw94Y4iUw.png',
+      dateTime: Date.parse('03/26/2024'),
+      short: 'We are excited to announce the launch of our new mobile and desktop application interface! Our team has been working tirelessly to create a seamless and intuitive user experience that will make your journey with Hexa Lite even more enjoyable.'
+    }
   ];
 
-  return publications.sort((a, b) => b.dateTime - a.dateTime);
+  return publications
+    .sort((a, b) => b.dateTime - a.dateTime)
+    .slice(0, 3);
 }
