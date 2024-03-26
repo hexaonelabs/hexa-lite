@@ -20,8 +20,9 @@ export const PublicationsList = () => {
     <IonSpinner />
   ) : (
     <>
-      {publications.map((p) => (
+      {publications.map((p, i) => (
         <IonCol 
+          key={i}
           size="12"
           size-md="6" 
           size-lg="3" 

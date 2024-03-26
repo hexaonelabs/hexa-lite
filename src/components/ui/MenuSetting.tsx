@@ -169,6 +169,27 @@ export const MenuSettings: React.FC<MenuSettingsProps> = ({dismiss}) => {
         >
           <IonLabel class="ion-text-wrap">
             <IonText>
+              <h2>Feedback</h2>
+            </IonText>
+            <IonText color="medium">
+              <p>
+                <small>Send your feedback</small>
+              </p>
+            </IonText>
+          </IonLabel>
+          <IonButton slot="end" fill="clear" onClick={()=> {
+            window.open('https://forms.gle/Dx25eG66TMxyFfh8A', '_blank')
+          }}>
+            <IonIcon icon={openOutline} />
+          </IonButton>
+        </IonItem> 
+        <IonItem
+          lines="none"
+          button={false}
+          style={{ "--background": "transparent" }}
+        >
+          <IonLabel class="ion-text-wrap">
+            <IonText>
               <h2>Gouvernance</h2>
             </IonText>
             <IonText color="medium">
