@@ -230,8 +230,8 @@ export function MATICLiquidStakingstrategyCard(props: { asImage?: boolean, asIte
                   <IonText color="dark">
                     {strategy.name}
                   </IonText>
-                  <IonText className="ion-color-gradient-text">
-                    <small>{strategy.type}</small>
+                  <IonText>
+                    <small className="ion-color-gradient-text">{strategy.type}</small>
                   </IonText>
                 </h1>
               </IonCol>
@@ -483,7 +483,7 @@ export function MATICLiquidStakingstrategyCard(props: { asImage?: boolean, asIte
             </IonButtons>
           </IonToolbar>
         </IonHeader>
-        <IonContent>
+        <IonContent fullscreen={true} >
           <IonHeader collapse="condense">
             <IonToolbar style={{ "--background": "transparent" }}>
               <IonGrid>

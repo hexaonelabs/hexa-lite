@@ -244,8 +244,8 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?
                     <IonText color="dark">
                       {strategy.name}
                     </IonText>
-                    <IonText className="ion-color-gradient-text">
-                      <small>{strategy.type}</small>
+                    <IonText>
+                      <small className="ion-color-gradient-text">{strategy.type}</small>
                     </IonText>
                   </h1>
                 </IonCol>

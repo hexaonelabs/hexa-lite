@@ -661,9 +661,9 @@ export function Welcome({
                     <IonText>MAGIC</IonText>
                   </a>
                 </IonCol>
-                {/* <IonCol class="ion-text-center">
+                <IonCol class="ion-text-center">
                   <a
-                    href="https://onramper.com/"
+                    href="https://www.mtpelerin.com"
                     target="_blank"
                     rel="noreferrer noopener"
                   >
@@ -673,11 +673,11 @@ export function Welcome({
                         height: "65px",
                         margin: "0.5rem auto",
                       }}
-                      src="./assets/images/onramp-logo-emblem.svg"
+                      src="./assets/images/mtpelerin.png"
                     ></IonImg>
-                    <IonText>ONRAMP</IonText>
+                    <IonText>MT.PELERIN</IonText>
                   </a>
-                </IonCol> */}
+                </IonCol>
               </IonRow>
             </IonGrid>
           </RevealComp>
