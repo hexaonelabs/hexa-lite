@@ -46,5 +46,5 @@ export const getPublications = async (): Promise<{
 
   return publications
     .sort((a, b) => b.dateTime - a.dateTime)
-    .slice(0, 3);
+    .slice(0, 4);
 }
