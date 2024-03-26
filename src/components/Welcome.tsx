@@ -161,13 +161,12 @@ export function Welcome({
                       <br /> under a minute
                     </h3>
                     <p>
-                      Hexa Lite ensures a secure and reliable user experience,{" "}
+                      Get started seamlessly! Connect or create an account in less than a minute.{" "}
+                      Whether through social login, email, or your existing wallet, our platform ensures a{" "}
                       <IonText className="ion-color-gradient-text">
-                        enabling everyone to own their own assets
+                        smooth onboarding experience
                       </IonText>
-                      . Users can enjoy the advantages of blockchain technology
-                      and DeFi services without the need to manage private keys
-                      or seed phrases.
+                      . Take control of your financial path with ease.
                     </p>
                   </IonText>
                   <IonButton
@@ -290,13 +289,10 @@ export function Welcome({
                       Earn interest with liquid Staking
                     </h3>
                     <p>
-                      Unlock the potential of your assets by earn interest
-                      through Liquid Staking. <br />
-                      Stake with DeFi protocols{" "}
-                      <IonText className="ion-color-gradient-text">
-                        without any lockup periods or restrictions
-                      </IonText>
-                      .
+                      Unlock higher earnings without locking your assets!{" "}
+                      Liquid Staking offers attractive interest rates on your crypto,{" "}
+                      <IonText className="ion-color-gradient-text">keeping your funds accessible at all times</IonText>.{" "}
+                      It's the perfect balance of liquidity and profitability. Now it's time to maximize your returns.
                     </p>
                     <IonButton
                       size="default"
