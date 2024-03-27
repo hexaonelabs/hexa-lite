@@ -4,6 +4,7 @@ import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import {
   IonAvatar,
+  IonButton,
   IonIcon,
   IonItem,
   IonLabel,
@@ -15,11 +16,13 @@ import {
 import {
   checkmarkCircle,
   copyOutline,
+  openOutline,
 } from "ionicons/icons";
 import DisconnectButton from "./DisconnectButton";
 import { SelectNetwork } from "./SelectNetwork";
 import ShowUIButton from "./ShowUIButton";
 import { SuccessCopyAddress } from "./SuccessCopyAddress";
+import { ToggleLightmode } from "./ui/ToogleLightmode";
 
 export const AuthBadge: React.FC<any> = () => {
   const {
@@ -137,6 +140,37 @@ export const AuthBadge: React.FC<any> = () => {
           style={{ cursor: "pointer" }}
         />
       </IonItem>
+      <IonItem 
+          lines="none"
+          button={false}
+          style={{ "--background": "transparent" }}
+      >
+        <IonLabel>
+          Dark mode
+        </IonLabel>
+        <ToggleLightmode />  
+      </IonItem> 
+      <IonItem
+        lines="none"
+        button={false}
+        style={{ "--background": "transparent" }}
+      >
+        <IonLabel class="ion-text-wrap">
+          <IonText>
+            <h2>Feedback</h2>
+          </IonText>
+          <IonText color="medium">
+            <p>
+              <small>Send your feedback</small>
+            </p>
+          </IonText>
+        </IonLabel>
+        <IonButton slot="end" fill="clear" onClick={()=> {
+          window.open('https://forms.gle/Dx25eG66TMxyFfh8A', '_blank')
+        }}>
+          <IonIcon icon={openOutline} />
+        </IonButton>
+      </IonItem> 
       <div className="ion-text-center ion-padding">
         <ShowUIButton />
         <DisconnectButton />

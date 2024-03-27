@@ -131,4 +131,8 @@ export class CosmosWalletUtils extends MagicWalletUtils {
   async loadBalances() {
     throw new Error("loadBalances() - Method not implemented.");
   }
+
+  async sendToken(destination: string, decimalAmount: number, contactAddress: string) {
+    throw new Error("sendToken() - Method not implemented.");
+  }
 }

@@ -61,7 +61,7 @@ export const FAQ: React.FC = () => {
     },
     {
       q: "What are the fees for swapping?",
-      a: "Hexa Lite does not charge any fees for swapping. However, the protocols that we integrate with may charge a fee for swapping and on-chain gas fees are applicable according to each network. That's why you have to get some ETH to pay for gas fees on Ethereum network and majors EVM network.",
+      a: "Hexa Lite charge 1% fees for swapping. However, the protocols that we integrate with may charge a fee for swapping and on-chain gas fees are applicable according to each network. That's why you have to get some ETH to pay for gas fees on Ethereum network and majors EVM network.",
     },
     {
       q: "How pay on-chain transaction fees?",

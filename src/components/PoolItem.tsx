@@ -1,6 +1,4 @@
 import {
-  IonAvatar,
-  IonBadge,
   IonButton,
   IonCol,
   IonFabButton,
@@ -51,14 +49,15 @@ const ActionBtn = (props: {provider: string}) => {
   const { provider } = props;
   if (provider === 'aave-v3') {
     return (
-      <IonFabButton
+      <IonButton
         slot="end"
-        color="gradient"
+        fill="clear"
         size="small"
+        shape="round"
         className="ion-margin-horizontal"
       >
-        <IonIcon size="small" icon={searchOutline} />
-      </IonFabButton>
+        <IonIcon size="small" color="gradient" className="ion-color-gradient-text" icon={searchOutline} />
+      </IonButton>
     )
   }
   return (
@@ -85,7 +84,6 @@ export function PoolItem(props: IPoolItemProps) {
   const { poolId, iconSize, chainId, handleSegmentChange } = props;
   const { walletAddress, loadAssets } = Store.useState(getWeb3State);
   const poolGroups  = Store.useState(getPoolGroupsState);
-  const modal = useRef<HTMLIonModalElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   // find pool in `poolGroups[*].pool` by `poolId`
   const pool = useMemo(() => {
@@ -232,7 +230,6 @@ export function PoolItem(props: IPoolItemProps) {
       </IonItem>
 
       <IonModal
-        ref={modal}
         isOpen={isModalOpen}
         className="modalPage"
         onDidDismiss={() => setIsModalOpen(() => false)}
@@ -240,11 +237,12 @@ export function PoolItem(props: IPoolItemProps) {
         <ReserveDetail
           pool={pool}
           dismiss={(actionType?: string) => {
-            modal.current?.dismiss();
+            setIsModalOpen(() => false);
+            // modal.current?.dismiss();
             // reload asset if user have trigger an action from ReserveDetails.
             // Ex: deposit, withdraw, borrow, repay
             if (actionType) {
-              loadAssets();
+              loadAssets(true);
             }
           }}
           handleSegmentChange={handleSegmentChange}

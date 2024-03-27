@@ -29,7 +29,7 @@ export interface IChain {
 
 const CHAINS_DISABLED = [
   NETWORK.cosmos,
-  NETWORK.avalanche,
+  // NETWORK.avalanche,
   NETWORK.polkadot,
 ]
 
@@ -165,20 +165,21 @@ export const CHAIN_AVAILABLES: IChain[] = [
     )?.url||'',
     type: 'cosmos',
   },
-  // {
-  //   id: NETWORK.avalanche,
-  //   value: 'avalanche',
-  //   name: 'Avalanche',
-  //   nativeSymbol: 'AVAX',
-  //   logo: '/assets/cryptocurrency-icons/avax.svg',
-  //   rpcUrl: [
-  //     {primary: false, url:'https://avalanche-c-chain.publicnode.com'}, 
-  //     {primary: true, url: "https://rpc.ankr.com/avalanche"}
-  //   ]
-  //   .find(
-  //     (rpc) => rpc.primary
-  //   )?.url||'',
-  // },
+  {
+    id: NETWORK.avalanche,
+    value: 'avalanche',
+    name: 'Avalanche',
+    nativeSymbol: 'AVAX',
+    logo: '/assets/cryptocurrency-icons/avax.svg',
+    rpcUrl: [
+      {primary: false, url:'https://avalanche-c-chain.publicnode.com'}, 
+      {primary: true, url: "https://rpc.ankr.com/avalanche"}
+    ]
+    .find(
+      (rpc) => rpc.primary
+    )?.url||'',
+    type: 'evm',
+  },
   // testnets
   // {
   //   id: 5,

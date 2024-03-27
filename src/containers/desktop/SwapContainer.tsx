@@ -14,11 +14,11 @@ import {
 } from "@lifi/widget";
 import type { Route } from "@lifi/sdk";
 import { useEffect } from "react";
-import { useLoader } from "../context/LoaderContext";
-import { CHAIN_AVAILABLES, CHAIN_DEFAULT, NETWORK } from "../constants/chains";
+import { useLoader } from "../../context/LoaderContext";
+import { CHAIN_AVAILABLES, CHAIN_DEFAULT, NETWORK } from "../../constants/chains";
 import { ethers } from "ethers";
-import { LiFiWidgetDynamic } from "../components/LiFiWidgetDynamic";
-import { LIFI_CONFIG } from "../servcies/lifi.service";
+import { LiFiWidgetDynamic } from "../../components/LiFiWidgetDynamic";
+import { LIFI_CONFIG } from "../../servcies/lifi.service";
 // import { SquidWidgetDynamic } from "@/components/SquidWidgetDynamic";
 import { SquidWidget } from "@0xsquid/widget";
 import { SQUID_CONFIG } from "@/servcies/squid.service";
@@ -26,7 +26,7 @@ import { PointsData, addAddressPoints } from "@/servcies/datas.service";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 
-export function SwapContainer() {
+export  default function SwapContainer() {
   const {
     web3Provider,
     currentNetwork,
@@ -105,7 +105,7 @@ export function SwapContainer() {
       // load environment config
       const widgetConfig: WidgetConfig = {
         ...LIFI_CONFIG,
-        fee: 0, // set fee to 0 for main swap feature
+        // fee: 0, // set fee to 0 for main swap feature
         walletManagement: {
           connect: async () => {
             try {

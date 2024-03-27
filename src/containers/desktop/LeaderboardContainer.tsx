@@ -19,8 +19,9 @@ import {
 import { FooterComponent } from "@/components/FooterComponent";
 import { getReadableValue } from "@/utils/getReadableValue";
 import { getLeaderboardDatas } from "@/servcies/datas.service";
+import { AppLogo } from "@/components/ui/AppLogo";
 
-export const Leaderboard: React.FC = () => {
+export default function Leaderboard() {
   const [datas, setDatas] = React.useState<{address: string; totalPoints: string;}[]|null>(null);
   useEffect(() => {
     getLeaderboardDatas()
@@ -56,14 +57,7 @@ export const Leaderboard: React.FC = () => {
                 class="ion-text-center ion-margin-top ion-padding-top"
               >
                 <a href="/" >
-                  <IonImg
-                    style={{
-                      width: "124px",
-                      height: "124px",
-                      margin: "auto",
-                    }}
-                    src={"./assets/images/logo.svg"}
-                  ></IonImg>
+                  <AppLogo height="124px" width="124px" />
                 </a>
                   <div className="ion-padding-vertical ">
                     <IonText>
