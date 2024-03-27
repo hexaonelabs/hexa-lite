@@ -22,6 +22,8 @@ import '../styles/global.scss';
 import { AppProps } from 'next/app';
 import { outfit } from '@/styles/fonts';
 import ErrorBoundary from '@/containers/ErrorBoundary';
+import Script from 'next/script';
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -128,6 +130,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <ErrorBoundary>
         <Component {...pageProps} />
       </ErrorBoundary>
+      <GoogleAnalytics gaId="G-70XCWQ9YE2" />
     </>
   );
 }
