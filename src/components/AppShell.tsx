@@ -96,6 +96,18 @@ const isMobilePWADevice =
   Boolean(isPlatform("electron")) ||
   Boolean(isPlatform("mobile")) && !Boolean(isPlatform("mobileweb"));
 
+const setPreferScheme = () => {
+  const prefersLightScheme = window.matchMedia("(prefers-color-scheme: light)");
+  if (prefersLightScheme.matches) {
+    document.querySelector('body')?.classList.remove('dark');
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem('hexa-lite_is-lightmode', 'true');
+    }
+  } else {
+    localStorage.setItem('hexa-lite_is-lightmode', 'false');
+  }
+}
+
 const AppShell = () => {
   // get params from url `s=`
   const { pathname = "/swap" } = window.location;
@@ -135,19 +147,14 @@ const AppShell = () => {
     initializeWeb3();
   }, []);
 
-  // useEffect(() => {
-  //   const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
-  //   if (!prefersDarkScheme.matches) {
-  //     document.querySelector('body')?.classList.toggle('dark');
-  //   }
-  // }, []);
-
   useEffect(() => {
     if (typeof window !== 'undefined' && window.localStorage) {
       const isLightmode = localStorage.getItem('hexa-lite_is-lightmode');
-      isLightmode
+      isLightmode && isLightmode === 'true'
         ? document.querySelector('body')?.classList.remove('dark')
-        : undefined;
+        : setPreferScheme();
+    } else {
+      setPreferScheme();
     }
     return ()=> {};
   }, []);

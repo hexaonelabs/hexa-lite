@@ -9,29 +9,16 @@ export const ToggleLightmode = () => {
   function handleToggle() {
     if (typeof window !== 'undefined' && window.localStorage) {
       const hasData = localStorage.getItem('hexa-lite_is-lightmode');
-      if (hasData) {
-        localStorage.removeItem('hexa-lite_is-lightmode');
+      if (hasData && hasData === 'true') {
+        localStorage.setItem('hexa-lite_is-lightmode', 'false');
       } else {
         localStorage.setItem('hexa-lite_is-lightmode', 'true');
       }
-      setIsLightmode(!hasData ? true : false);
+      setIsLightmode(!Boolean(hasData) ? true : false);
       document.querySelector('body')?.classList.toggle('dark')
     }
   }
   
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const isLightmode = localStorage.getItem('hexa-lite_is-lightmode');
-      isLightmode 
-        ? setIsLightmode(true) 
-        : setIsLightmode(false);
-      isLightmode
-        ? document.querySelector('body')?.classList.remove('dark')
-        : undefined;
-    }
-    return ()=> {};
-  }, []);
-
   return (<>
     <IonToggle 
       checked={!isLightmode} 
