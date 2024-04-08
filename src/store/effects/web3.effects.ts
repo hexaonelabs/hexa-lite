@@ -1,6 +1,6 @@
 import { CHAIN_DEFAULT } from "@/constants/chains";
 import { MagicWalletUtils } from "@/network/MagicWallet";
-import { setWeb3State } from "../actions";
+import { setErrorState, setWeb3State } from "../actions";
 
 export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
   console.log(`[INFO] {{Web3Effect}} initializeWeb3() - `, chainId);
@@ -14,6 +14,7 @@ export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
   if (magicUtils?.walletAddress) {
     console.log('[INFO] {{Web3Effect}} load balance...');
     await magicUtils.loadBalances().catch((err) => {
+      setErrorState(new Error(`Load wallet balances failed. Try again later.`));
       console.error('[ERROR] {{Web3Effect}} load balance error: ', err?.message ? err.message : err);
     });
   }

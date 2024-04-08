@@ -26,6 +26,7 @@ import {
   IonToolbar,
   IonTitle,
   IonButtons,
+  useIonToast,
 } from "@ionic/react";
 import { StatusBar, Style } from "@capacitor/status-bar";
 
@@ -38,7 +39,7 @@ import { NotFoundPage } from "@/containers/NotFoundPage";
 import PwaInstall from "./PwaInstall";
 import { initializeWeb3 } from "@/store/effects/web3.effects";
 import Store from "@/store";
-import { getWeb3State } from "@/store/selectors";
+import { getErrorState, getWeb3State } from "@/store/selectors";
 import { IonRoute } from "@ionic/react";
 import { isPlatform } from "@ionic/core";
 import { close } from "ionicons/icons";
@@ -113,8 +114,29 @@ const AppShell = () => {
   const { pathname = "/swap" } = window.location;
   let segment = pathname.split("/")[1] || "swap"; // urlParams.get("s") || "swap";
   const { walletAddress, isMagicWallet } = Store.useState(getWeb3State);
+  const error = Store.useState(getErrorState);
   const [presentFiatWarning, dismissFiatWarning] = useIonAlert();
   const [isBuyWithFiatModalOpen, setIsBuyWithFiatModalOpen] = useState(false);
+  const [presentToast, dismissToast] = useIonToast();
+
+  if(error) {
+    presentToast({
+      message: `[ERROR] ${
+        error?.message || error
+      }`,
+      color: "danger",
+      duration: 1000 * 30,
+      buttons: [
+        {
+          text: "x",
+          role: "cancel",
+          handler: () => {
+            dismissToast();
+          },
+        },
+      ],
+    })
+  }
 
   const isNotFound =
     segment && ["wallet", "swap", "fiat", "defi", "earn"].indexOf(segment) === -1;
