@@ -29,10 +29,17 @@ export interface IPoolsState {
   refresh: (type?: "init" | "userSummary") => Promise<void>;
 };
 
+export type IAppSettings = {
+  ui: {
+    hideCurrencieAmount: boolean;
+  };
+}
+
 export interface IStore  {
   pools: IPoolsState,
   web3:IWeb3State,
   error?: Error,
+  appSettings: IAppSettings;
 }
 
 const defaultState: IStore = Object.freeze({
@@ -68,6 +75,11 @@ const defaultState: IStore = Object.freeze({
       inputFromAsset: string;
     }) => {
       throw new Error("transfer function not implemented");
+    },
+  },
+  appSettings: {
+    ui: {
+      hideCurrencieAmount: false,
     },
   }
 });

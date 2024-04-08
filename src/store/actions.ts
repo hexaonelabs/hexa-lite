@@ -1,5 +1,5 @@
 import { MarketPool } from '@/pool/Market.pool';
-import Store, { IPoolsState, IWeb3State } from '.';
+import Store, { IAppSettings, IPoolsState, IWeb3State } from '.';
 
 export const setWeb3State = (web3State: IWeb3State) => {
   Store.update(s => {
@@ -36,3 +36,12 @@ export const setErrorState = (error?: Error) => {
     s.error = error;
   });
 };
+
+export const patchAppSettings = (appSettings: Partial<IAppSettings>) => {
+  Store.update(s => {
+    s.appSettings = {
+      ...s.appSettings,
+      ...appSettings
+    };
+  });
+}

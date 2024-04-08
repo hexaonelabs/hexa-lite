@@ -13,6 +13,7 @@ import {
 } from "@ionic/react";
 import { SelectedTokenDetail } from "../base/WalletBaseContainer";
 import { isStableAsset } from "@/utils/isStableAsset";
+import { Currency } from "./Currency";
 
 export function WalletAssetEntity(props: {
   asset: SelectedTokenDetail;
@@ -97,7 +98,9 @@ export function WalletAssetEntity(props: {
               <IonCol size-xs="12" size-sm="12" size-md="4" className="ion-padding">
                 <IonText color="dark">
                   <p className="ion-no-margin">
-                    <b>{currencyFormat.format(asset.balanceUsd)}</b>
+                    <b>
+                      <Currency value={asset.balanceUsd} />
+                    </b>
                   </p>
                 </IonText>
               </IonCol>

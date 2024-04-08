@@ -1,4 +1,4 @@
-import { card, download, paperPlane } from "ionicons/icons";
+import { card, download, eyeOffOutline, eyeOutline, paperPlane } from "ionicons/icons";
 import WalletBaseComponent, {
   WalletComponentProps,
 } from "../../components/base/WalletBaseContainer";
@@ -17,10 +17,13 @@ import {
 } from "@ionic/react";
 import ConnectButton from "@/components/ConnectButton";
 import Store from "@/store";
-import { getWeb3State } from "@/store/selectors";
+import { getAppSettings, getWeb3State } from "@/store/selectors";
 import { TokenDetailDesktopContainer } from "./TokenDetailDesktopContainer";
 import { currencyFormat } from "@/utils/currencyFormat";
 import { WalletAssetEntity } from "@/components/ui/WalletAssetEntity";
+import { Currency } from "@/components/ui/Currency";
+import { patchAppSettings } from "@/store/actions";
+import { ToggleHideCurrencyAmount } from "@/components/ui/ToggleHideCurrencyAmount";
 
 class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
   constructor(props: WalletComponentProps) {
@@ -28,6 +31,7 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
   }
 
   render() {
+
     return (
       <>
         {super.render()}
@@ -45,11 +49,14 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
           >
             <IonCol size="6" class="ion-text-start">
               <IonText>
-                <h1 style={{ marginTop: 0, fontSize: "2.2rem" }}>Wallet</h1>
+                <h1 style={{ marginTop: 0, fontSize: "2.2rem", display: 'flex', alignItems: 'center' }}>
+                  Wallet
+                  <ToggleHideCurrencyAmount />
+                </h1>
               </IonText>
               <IonText>
                 <p className="ion-no-margin" style={{ fontSize: "1.6rem" }}>
-                  {currencyFormat.format(this.state.totalBalance)}
+                  <Currency value={this.state.totalBalance} />
                 </p>
               </IonText>
             </IonCol>

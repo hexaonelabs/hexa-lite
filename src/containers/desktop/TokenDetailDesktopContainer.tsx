@@ -42,6 +42,7 @@ import { currencyFormat } from "@/utils/currencyFormat";
 import { TokenDetailDescription } from "@/components/ui/TokenDetailDescription";
 import { TokenDetailMarketDetail } from "@/components/ui/TokenDetailMarketData";
 import { isStableAsset } from "@/utils/isStableAsset";
+import { Currency } from "@/components/ui/Currency";
 
 const LightChart = lazy(() => import("@/components/ui/LightChart"));
 
@@ -107,7 +108,7 @@ export const TokenDetailDesktopContainer = (props: {
                 fontWeight: "normal",
               }}
             >
-              $ {data.balanceUsd.toFixed(2)}
+              <Currency value={data.balanceUsd} />
             </small>
           </IonTitle>
           <IonButton slot="end" onClick={dismiss} fill="clear">
@@ -155,7 +156,7 @@ export const TokenDetailDesktopContainer = (props: {
                   </IonText>
                   <IonText color="medium">
                     <p className="ion-no-margin" style={{ fontSize: "1.3rem" }}>
-                      $ {data.balanceUsd.toFixed(2)}
+                      <Currency value={data.balanceUsd} />
                       { tokenInfo?.market_data?.price_change_percentage_24h_in_currency?.usd && (
                         <IonText
                           color={
@@ -270,7 +271,7 @@ export const TokenDetailDesktopContainer = (props: {
                                       <br />
                                       <IonText color="medium">
                                         <small>
-                                          {currencyFormat.format(token.balanceUsd)}
+                                          <Currency value={token.balanceUsd} />
                                         </small>
                                       </IonText>
                                     </IonNote>

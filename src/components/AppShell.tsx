@@ -44,6 +44,7 @@ import { IonRoute } from "@ionic/react";
 import { isPlatform } from "@ionic/core";
 import { close } from "ionicons/icons";
 import { setErrorState } from "@/store/actions";
+import { initializeAppSettings } from "@/store/effects/app-settings.effect";
 
 setupIonicReact({ mode: "ios" });
 
@@ -92,11 +93,11 @@ const DefaultLoadingPage = () => {
   )
 }
 
-const isMobilePWADevice =
-  localStorage.getItem('hexa-lite_is-pwa') ||
-  Boolean(isPlatform("pwa")) ||
-  Boolean(isPlatform("electron")) ||
-  Boolean(isPlatform("mobile")) && !Boolean(isPlatform("mobileweb"));
+const isMobilePWADevice = true
+  // localStorage.getItem('hexa-lite_is-pwa') ||
+  // Boolean(isPlatform("pwa")) ||
+  // Boolean(isPlatform("electron")) ||
+  // Boolean(isPlatform("mobile")) && !Boolean(isPlatform("mobileweb"));
 
 const setPreferScheme = () => {
   const prefersLightScheme = window.matchMedia("(prefers-color-scheme: light)");
@@ -169,6 +170,7 @@ const AppShell = () => {
 
   useEffect(() => {
     initializeWeb3();
+    initializeAppSettings()
   }, []);
 
   useEffect(() => {

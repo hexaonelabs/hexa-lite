@@ -47,6 +47,8 @@ import { EarnMobileContainer } from "@/containers/mobile/EarnMobileContainer";
 import { MenuSettings } from "@/components/ui/MenuSetting";
 import { currencyFormat } from "@/utils/currencyFormat";
 import { isStableAsset } from "@/utils/isStableAsset";
+import { Currency } from "@/components/ui/Currency";
+import { ToggleHideCurrencyAmount } from "@/components/ui/ToggleHideCurrencyAmount";
 
 interface WalletMobileComProps {
   isMagicWallet: boolean;
@@ -114,7 +116,7 @@ class WalletMobileContainer extends WalletBaseComponent<
                     fontWeight: "normal",
                   }}
                 >
-                  {currencyFormat.format(this.state.totalBalance)}
+                  <Currency value={this.state.totalBalance} />
                 </small>
               </IonTitle>
 
@@ -154,14 +156,22 @@ class WalletMobileContainer extends WalletBaseComponent<
                     <IonCol>
                       <div>
                         <IonText>
-                          <h1 style={{ fontSize: "2.618rem" }}>Wallet</h1>
+                          <h1 style={{ 
+                            fontSize: "2.618rem", 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transform: 'translateX(24px)' }}>
+                            Wallet
+                            <ToggleHideCurrencyAmount />
+                          </h1>
                           <p
                             style={{
                               fontSize: "1.625rem",
                               margin: "0px 0px 1.5rem",
                             }}
                           >
-                            {currencyFormat.format(this.state.totalBalance)}
+                            <Currency value={this.state.totalBalance} />
                           </p>
                         </IonText>
                       </div>
@@ -337,7 +347,7 @@ class WalletMobileContainer extends WalletBaseComponent<
                                     </IonChip>) : ''}
                               <IonText slot="end" className="ion-text-end">
                                 <p>
-                                  {currencyFormat.format(asset.balanceUsd)}
+                                  <Currency value={asset.balanceUsd} />
                                   <br />
                                   <IonText color="medium">
                                     <small>{asset.balance.toFixed(6)}</small>
