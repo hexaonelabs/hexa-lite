@@ -31,4 +31,8 @@ export const patchMarketPoolsState = (marketsPools: MarketPool[]) => {
   });
 };
 
-
+export const setErrorState = (error?: Error) => {
+  Store.update(s => {
+    s.error = error;
+  });
+};

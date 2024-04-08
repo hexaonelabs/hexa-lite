@@ -31,7 +31,8 @@ export interface IPoolsState {
 
 export interface IStore  {
   pools: IPoolsState,
-  web3:IWeb3State
+  web3:IWeb3State,
+  error?: Error,
 }
 
 const defaultState: IStore = Object.freeze({

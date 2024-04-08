@@ -185,3 +185,6 @@ export const getProtocolSummaryState = createSelector(
     return summary;
   }
 );
+
+
+export const getErrorState = createSelector(getState, (state) => state.error);
