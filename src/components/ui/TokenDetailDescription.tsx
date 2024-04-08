@@ -12,7 +12,7 @@ export function TokenDetailDescription(props: { tokenInfo: TokenInfo }) {
         </IonLabel>
       </IonListHeader>
       <IonText>
-        <p>{tokenInfo.description.en}</p>
+        <p className="fontWeight300">{tokenInfo.description.en}</p>
       </IonText>
       <div className="ion-padding-vertical">
         <IonListHeader className="ion-no-padding">
