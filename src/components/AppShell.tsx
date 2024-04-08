@@ -93,11 +93,11 @@ const DefaultLoadingPage = () => {
   )
 }
 
-const isMobilePWADevice = true
-  // localStorage.getItem('hexa-lite_is-pwa') ||
-  // Boolean(isPlatform("pwa")) ||
-  // Boolean(isPlatform("electron")) ||
-  // Boolean(isPlatform("mobile")) && !Boolean(isPlatform("mobileweb"));
+const isMobilePWADevice = 
+  localStorage.getItem('hexa-lite_is-pwa') ||
+  Boolean(isPlatform("pwa")) ||
+  Boolean(isPlatform("electron")) ||
+  Boolean(isPlatform("mobile")) && !Boolean(isPlatform("mobileweb"));
 
 const setPreferScheme = () => {
   const prefersLightScheme = window.matchMedia("(prefers-color-scheme: light)");
