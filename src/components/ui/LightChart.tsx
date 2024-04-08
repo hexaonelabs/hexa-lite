@@ -37,23 +37,28 @@ export default function LightChart(props: { data: DataItem[], minHeight?: number
             visible: false,
           },
           horzLines: {
-            color: 'rgba(42, 46, 57, 0.5)',
+            // color: 'rgba(42, 46, 57, 0.05)',
+            visible: false
           },
         },
         rightPriceScale: {
           borderVisible: false,
-          visible: false,
+          visible: true,
         },
         timeScale: {
           borderVisible: false,
+          fixLeftEdge: true,
+          rightBarStaysOnScroll: true,
+          fixRightEdge: true,
         },
         crosshair: {
           horzLine: {
             // visible: false,
             style: 4,
-            
           },
         },
+        autoSize: true,
+        
       });
       // const lineSeries = chart.addLineSeries();
       // lineSeries.setData(props.data);
@@ -64,7 +69,7 @@ export default function LightChart(props: { data: DataItem[], minHeight?: number
         lineColor: 'rgba(0,144,255, 1)',
         lineWidth: 3,
       });
-      series.setData(props.data);
+      series.setData(props.data); 
 
       const now = new Date();
       chart.timeScale().setVisibleRange({
