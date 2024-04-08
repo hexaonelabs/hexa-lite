@@ -69,10 +69,7 @@ export function Header({
                 <>
                   <IonCol size="auto" class="ion-padding ion-text-start">
                     <div
-                      style={{
-                        position: "relative",
-                        display: "inline-block",
-                      }}
+                      className="flex"
                       onClick={()=> {
                         router.push('/index', 'back');
                       }}
@@ -122,7 +119,7 @@ export function Header({
                   >
                     {walletAddress ? (
                       <>
-                        <div style={{ display: "flex" }}>
+                        <div className="flex">
                           <IonButton
                             fill="clear"
                             color="gradient"
@@ -185,7 +182,7 @@ export function Header({
                         </div>
                       </>
                     ) : (
-                      <div style={{ display: "flex" }}>
+                      <div className="flex">
                         <IonButton
                           fill="clear"
                           color="gradient"

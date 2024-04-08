@@ -3,6 +3,23 @@
     "development"
   ],
   "hints": {
-    "apple-touch-icons": "off"
+    "apple-touch-icons": "off",
+    "compat-api/css": [
+      "default",
+      {
+        "ignore": [
+          "backdrop-filter",
+          "scrollbar-width"
+        ]
+      }
+    ],
+    "compat-api/html": [
+      "default",
+      {
+        "ignore": [
+          "iframe[loading]"
+        ]
+      }
+    ]
   }
 }

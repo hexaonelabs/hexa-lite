@@ -37,19 +37,11 @@ export default function BuyWithFiat(props: {
         className="ion-no-padding mobileConentModal"
       >
         <iframe
+          id="onramp__frame"
           allow="usb; ethereum; clipboard-write; payment; microphone; camera"
           loading="lazy"
           src={`https://widget.mtpelerin.com/?_ctkn=57112584-7191-4d1b-8d90-28c7c800f3ea&type=web&tabs=buy${props.isLightmode ? '' : '&mode=dark'}&dnet=optimism_mainnet&bdc=ETH&net=optimism_mainnet&nets=optimism_mainnet&primary=%230090FF`}
           title="Mt Pelerin exchange widget"
-          style={{
-            width: "100%",
-            height: "100%",
-            margin: "0",
-            padding: "0",
-            border: "none",
-            position: "relative",
-            bottom: "-1rem",
-          }}
         ></iframe>
       </IonContent>
     </>

@@ -864,6 +864,19 @@ div.MuiScopedCssBaseline-root {
   }
 }
 
+#onramp__frame {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  position: relative;
+  bottom: 1rem;
+}
+
+.flex {
+  display: flex;
+}
 .transition {
   transition: all 85ms ease-in-out;
 }
@@ -956,9 +969,7 @@ div.MuiScopedCssBaseline-root {
     margin-bottom: 0.5rem;
   }
 }
-.FooterComponent {
 
-}
 
 .PublicationItem {
   cursor: pointer;
