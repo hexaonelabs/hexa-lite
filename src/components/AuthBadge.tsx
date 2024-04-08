@@ -20,7 +20,6 @@ import {
 } from "ionicons/icons";
 import DisconnectButton from "./DisconnectButton";
 import { SelectNetwork } from "./SelectNetwork";
-import ShowUIButton from "./ShowUIButton";
 import { SuccessCopyAddress } from "./SuccessCopyAddress";
 import { ToggleLightmode } from "./ui/ToogleLightmode";
 
@@ -172,7 +171,6 @@ export const AuthBadge: React.FC<any> = () => {
         </IonButton>
       </IonItem> 
       <div className="ion-text-center ion-padding">
-        <ShowUIButton />
         <DisconnectButton />
       </div>
     </>
