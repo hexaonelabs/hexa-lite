@@ -376,7 +376,9 @@ const AppShell = () => {
           onDidDismiss={() => setIsBuyWithFiatModalOpen(false)}
         >
           <Suspense fallback={<DefaultProgressBar />}>
-            <BuyWithFiatContainer dismiss={()=> setIsBuyWithFiatModalOpen(false)} />
+            <BuyWithFiatContainer 
+              dismiss={()=> setIsBuyWithFiatModalOpen(false)}
+              isLightmode={localStorage.getItem('hexa-lite_is-lightmode') === 'true' ? true : undefined} />
           </Suspense>
         </IonModal>
     </IonApp>

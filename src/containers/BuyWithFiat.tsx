@@ -16,7 +16,7 @@ export default function BuyWithFiat(props: {
   const url = `https://widget.mtpelerin.com/?_ctkn=57112584-7191-4d1b-8d90-28c7c800f3ea&type=web&tabs=buy${
     props.isLightmode ? "" : "&mode=dark"
   }&dnet=optimism_mainnet&bdc=ETH&net=optimism_mainnet&nets=optimism_mainnet&primary=%230090FF`;
-  
+  console.log(props?.isLightmode)
   return (
     <>
       <IonHeader className="ion-no-border" translucent={true}>

@@ -219,6 +219,7 @@ export default class WalletBaseComponent<T> extends React.Component<
           >
             <BuyWithFiatContainer
               dismiss={() => this.handleBuyWithFiat(false)}
+              isLightmode={localStorage.getItem('hexa-lite_is-lightmode') === 'true' ? true : undefined}
             />
           </Suspense>
         </IonModal>
