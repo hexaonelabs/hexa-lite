@@ -43,6 +43,7 @@ import { getErrorState, getWeb3State } from "@/store/selectors";
 import { IonRoute } from "@ionic/react";
 import { isPlatform } from "@ionic/core";
 import { close } from "ionicons/icons";
+import { setErrorState } from "@/store/actions";
 
 setupIonicReact({ mode: "ios" });
 
@@ -135,6 +136,7 @@ const AppShell = () => {
           },
         },
       ],
+      onDidDismiss: () => setErrorState(undefined),
     })
   }
 
