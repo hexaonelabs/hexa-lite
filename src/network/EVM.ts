@@ -3,12 +3,34 @@ import { NETWORK } from "../constants/chains";
 import { getTokensBalances } from "../servcies/ankr.service";
 import { MagicWalletUtils } from "./MagicWallet";
 import { getMagic } from "@/servcies/magic";
+import { getTokensPrice } from "@/servcies/lifi.service";
 
+/**
+ * Function tha takes wallet address and fetches all assets for that wallet
+ * using Ankr API. It also fetches token price from LiFi API if Ankr response contains
+ * token with balance > 0 && balanceUsd === 0 && priceUsd === 0
+ * This ensures that all tokens have price in USD and the total balance is calculated correctly
+ * for each token that user has in the wallet.
+ */
 const fetchUserAssets = async (walletAddress: string, force?: boolean) => {
   console.log(`[INFO] fetchUserAssets()`, walletAddress);
   if (!walletAddress) return null;
   const assets = await getTokensBalances([], walletAddress, force);
-  return assets;
+  // remove elements with 0 balance and add to new arrany using extracting
+  const assetWithBalanceUsd = [], 
+        assetsWithoutBalanceUsd = [];
+  for (let i = 0; i < assets.length; i++) {
+    const asset = assets[i];
+    (asset.balanceUsd === 0 && asset.balance > 0)
+      ?  assetsWithoutBalanceUsd.push(asset)
+      : assetWithBalanceUsd.push(asset);
+  }
+  // get token price for tokens without balanceUsd
+  const tokenWithbalanceUsd = await getTokensPrice(assetsWithoutBalanceUsd);
+  return [
+    ...assetWithBalanceUsd, 
+    ...tokenWithbalanceUsd
+  ];
 };
 
 export class EVMWalletUtils extends MagicWalletUtils {
