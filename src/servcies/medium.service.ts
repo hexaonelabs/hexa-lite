@@ -41,6 +41,13 @@ export const getPublications = async (): Promise<{
       imgUrl: 'https://miro.medium.com/v2/resize:fit:350/format:webp/1*hTGoxycGxTQO6Iw94Y4iUw.png',
       dateTime: Date.parse('03/26/2024'),
       short: 'We are excited to announce the launch of our new mobile and desktop application interface! Our team has been working tirelessly to create a seamless and intuitive user experience that will make your journey with Hexa Lite even more enjoyable.'
+    },
+    {
+      url: 'https://medium.com/@hexaonelabs/hexa-lite-tech-roadmap-transforming-dreams-into-reality-90a3d75b13f1',
+      title: 'Hexa Lite Tech Roadmap: Transforming Dreams into Reality',
+      imgUrl: 'https://miro.medium.com/v2/resize:fit:350/format:webp/1*hTGoxycGxTQO6Iw94Y4iUw.png',
+      dateTime: Date.parse('04/09/2024'),
+      short: 'At Hexa Lite, we blending cutting-edge technology with a passion for progress to create a financial ecosystem that’s as dynamic as it is accessible. One of the pillars of our success? Our commitment to open-source development.'
     }
   ];
 
