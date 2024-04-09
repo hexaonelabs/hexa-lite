@@ -169,7 +169,10 @@ export const addUTM = async (data: {[kex: string]: string}): Promise<{message: s
     // Create a reference to the user's points in the Firebase database
     const utmRef = ref(database, `utm`);
     // Use push method to add the new task object inside the array
-    await push(utmRef, data);
+    await push(utmRef, {
+      ...data,
+      createdAt: Date.now()
+    });
     return {
       message: "UTM added successfully 👍"
     };
