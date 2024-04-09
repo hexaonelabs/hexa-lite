@@ -28,12 +28,6 @@
 	--ion-color-gradient-tint: linear-gradient(270deg, var(--ion-color-secondary-tint),var(--ion-color-primary-tint));
 
 	--ion-color-gradient-text: linear-gradient(to right, rgb(var(--ion-color-primary-rgb)) , rgb(var(--ion-color-secondary-rgb)));
-	.ion-color-gradient-text {
-		background: var(--ion-color-gradient-text);
-		-webkit-background-clip: text;
-		background-clip: text;
-		-webkit-text-fill-color: transparent;
-	}
 	
 	--ion-color-success: #2dd36f;
 	--ion-color-success-rgb: 45,211,111;
@@ -77,7 +71,18 @@
 	--ion-background-color: #f5f8ff;
 	--ion-background-color-rgb: 245,248,255;
 
-  --background-gradient: linear-gradient(125deg,#182449, rgba(61, 158, 255, 0.2));
+	--background-gradient: #e6eefe;
+	--background-shader: #dee6ff;
+
+	--ion-text-color: #180d68;
+	--ion-text-color-rgb: 24, 13, 104;
+
+	--ion-color-dark: #180d68;
+	--ion-color-dark-rgb: 24, 13, 104;
+
+	--item-background: transparent;
+	--item-background-shader: #e2e9ff;
+	--item-background-shader-rgb: 224, 232, 255;
 
 	/* OnBoarding */
 	--account-center-position-top: -3px;
@@ -101,6 +106,13 @@
 	--ion-color-contrast-rgb: var(--ion-color-gradient-contrast-rgb);
 	--ion-color-shade: var(--ion-color-gradient-shade);
 	--ion-color-tint: var(--ion-color-gradient-tint);
+}
+
+.ion-color-gradient-text {
+	background: var(--ion-color-gradient-text);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
 }
 
 /*
@@ -178,6 +190,14 @@ body.dark {
 	--ion-color-light-contrast-rgb: 255, 255, 255;
 	--ion-color-light-shade: #1e2023;
 	--ion-color-light-tint: #383a3e;
+
+  --background-gradient: linear-gradient(125deg,#182449, rgba(61, 158, 255, 0.2));
+	--background-shader: #182449;
+
+	--item-background: transparent;
+	--item-background-shader: #0f1629;
+	--item-background-shader-rgb: 15, 22, 41;
+
 }
 
 /*

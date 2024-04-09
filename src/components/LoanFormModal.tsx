@@ -62,6 +62,7 @@ export function LoanFormModal({
   const readableAction =
     actionType[0].toUpperCase() + actionType.slice(1).toLocaleLowerCase();
 
+  console.log('>>>', userSummary)
   return (
     <IonGrid className="ion-no-padding" style={{ width: "100%" }}>
       <IonRow class="ion-align-items-center ion-padding-start ion-padding-end ion-padding-top">

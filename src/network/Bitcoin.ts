@@ -34,4 +34,7 @@ export class BitcoinWalletUtils extends MagicWalletUtils {
     throw new Error("loadBalances() - Method not implemented.");
   }
   
+  async sendToken(destination: string, decimalAmount: number, contactAddress: string) {
+    throw new Error("sendToken() - Method not implemented.");
+  }
 }

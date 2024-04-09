@@ -1,6 +1,6 @@
 import { CHAIN_DEFAULT } from "@/constants/chains";
 import { MagicWalletUtils } from "@/network/MagicWallet";
-import { setWeb3State } from "../actions";
+import { setErrorState, setWeb3State } from "../actions";
 
 export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
   console.log(`[INFO] {{Web3Effect}} initializeWeb3() - `, chainId);
@@ -14,6 +14,7 @@ export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
   if (magicUtils?.walletAddress) {
     console.log('[INFO] {{Web3Effect}} load balance...');
     await magicUtils.loadBalances().catch((err) => {
+      setErrorState(new Error(`Load wallet balances failed. Try again later.`));
       console.error('[ERROR] {{Web3Effect}} load balance error: ', err?.message ? err.message : err);
     });
   }
@@ -35,8 +36,8 @@ export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
     switchNetwork: async (chainId: number) => {
       await initializeWeb3(chainId);
     },
-    loadAssets: async () => {
-      await magicUtils.loadBalances().catch((err) => {
+    loadAssets: async (force?: boolean) => {
+      await magicUtils.loadBalances(force).catch((err) => {
         console.error('[ERROR] {{Web3Effect}} load balance error: ', err?.message ? err.message : err);
       });
       setWeb3State({
@@ -44,6 +45,18 @@ export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
         assets: magicUtils.assets,
       });
     },
+    transfer: async (ops: {
+      inputFromAmount: number;
+      inputToAddress: string;
+      inputFromAsset: string;
+    }) => {
+      const result = await magicUtils.sendToken(
+        ops.inputToAddress, 
+        ops.inputFromAmount, 
+        ops.inputFromAsset
+      );
+      console.log('[INFO] {{Web3Effect}} transfer result: ', result);
+    }
   };
   console.log('[INFO] {{Web3Effect}} state: ', state);
   setWeb3State(state);

@@ -2,6 +2,7 @@ import Store from "@/store";
 import { useLoader } from "../context/LoaderContext";
 import { IonButton, IonSkeletonText, useIonToast } from "@ionic/react";
 import { getWeb3State } from "@/store/selectors";
+import { MouseEvent } from "react";
 
 const ConnectButton = (props: {
   style?: any;
@@ -57,7 +58,18 @@ const ConnectButton = (props: {
       expand={props?.expand || undefined}
       disabled={web3Provider === null}
       color="gradient"
-      onClick={handleConnect}
+      onClick={async ($event)=> {
+        $event.currentTarget.disabled = true;
+        try {
+          await handleConnect();
+          $event.currentTarget.disabled = false;
+        } catch (err: any) {
+          console.log('[ERROR] {ConnectButton} handleConnect(): ', err);
+          if ($event.currentTarget) {
+            $event.currentTarget.disabled = false;
+          }
+        }
+      }}
     >
       {web3Provider === null ? (
         <IonSkeletonText animated style={{ width: "80px", height: "50%" }} />

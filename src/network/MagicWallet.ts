@@ -31,7 +31,8 @@ export abstract class MagicWalletUtils {
 
   public abstract web3Provider: Web3ProviderType | null;
   public abstract isMagicWallet: boolean;
-  public abstract loadBalances(): Promise<void>;
+  public abstract loadBalances(force?: boolean): Promise<void>;
+  public abstract sendToken(destination: string, decimalAmount: number, contactAddress: string): Promise<any>;
   protected abstract _initializeWeb3(): Promise<void>;
 
   /**

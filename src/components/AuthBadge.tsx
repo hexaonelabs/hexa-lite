@@ -4,30 +4,24 @@ import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import {
   IonAvatar,
+  IonButton,
   IonIcon,
   IonItem,
   IonLabel,
   IonListHeader,
   IonSpinner,
   IonText,
-  useIonModal
+  useIonModal,
 } from "@ionic/react";
-import {
-  checkmarkCircle,
-  copyOutline,
-} from "ionicons/icons";
+import { checkmarkCircle, copyOutline, openOutline } from "ionicons/icons";
 import DisconnectButton from "./DisconnectButton";
 import { SelectNetwork } from "./SelectNetwork";
-import ShowUIButton from "./ShowUIButton";
 import { SuccessCopyAddress } from "./SuccessCopyAddress";
+import { ToggleLightmode } from "./ui/ToogleLightmode";
 
 export const AuthBadge: React.FC<any> = () => {
-  const {
-    walletAddress,
-    currentNetwork,
-    isMagicWallet,
-    switchNetwork,
-  } = Store.useState(getWeb3State);
+  const { walletAddress, currentNetwork, isMagicWallet, switchNetwork } =
+    Store.useState(getWeb3State);
   const { display: displayLoader, hide: hidLoader } = useLoader();
   const chain =
     CHAIN_AVAILABLES.find((chain) => chain.id === currentNetwork) ||
@@ -89,9 +83,12 @@ export const AuthBadge: React.FC<any> = () => {
     await hidLoader();
   };
 
-  if (!walletAddress) return (<>
-    <IonSpinner />
-  </>);
+  if (!walletAddress)
+    return (
+      <>
+        <IonSpinner />
+      </>
+    );
 
   return (
     <>
@@ -137,8 +134,40 @@ export const AuthBadge: React.FC<any> = () => {
           style={{ cursor: "pointer" }}
         />
       </IonItem>
+      <IonItem
+        lines="none"
+        button={false}
+        style={{ "--background": "transparent" }}
+      >
+        <IonLabel>Dark mode</IonLabel>
+        <ToggleLightmode />
+      </IonItem>
+      <IonItem
+        lines="none"
+        button={false}
+        style={{ "--background": "transparent" }}
+      >
+        <IonLabel class="ion-text-wrap">
+          <IonText>
+            <h2>Feedback</h2>
+          </IonText>
+          <IonText color="medium">
+            <p>
+              <small>Send your feedback</small>
+            </p>
+          </IonText>
+        </IonLabel>
+        <IonButton
+          slot="end"
+          fill="clear"
+          onClick={() => {
+            window.open("https://forms.gle/Dx25eG66TMxyFfh8A", "_blank");
+          }}
+        >
+          <IonIcon icon={openOutline} />
+        </IonButton>
+      </IonItem>
       <div className="ion-text-center ion-padding">
-        <ShowUIButton />
         <DisconnectButton />
       </div>
     </>

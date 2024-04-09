@@ -17,28 +17,28 @@ import {
 import { chevronDownOutline } from "ionicons/icons";
 import { ChainId } from "@aave/contract-helpers";
 
-import { getPercent } from "../utils/utils";
-import { CHAIN_AVAILABLES } from "../constants/chains";
+import { getPercent } from "../../utils/utils";
+import { CHAIN_AVAILABLES } from "../../constants/chains";
 import { useEffect, useState } from "react";
-import { MarketList } from "../components/MarketsList";
-import { currencyFormat } from "../utils/currency-format";
+import { MarketList } from "../../components/MarketsList";
 import { valueToBigNumber } from "@aave/math-utils";
 import { getReadableValue } from "@/utils/getReadableValue";
 import Store from "@/store";
 import { getPoolGroupsState, getProtocolSummaryState, getUserSummaryAndIncentivesGroupState, getWeb3State } from "@/store/selectors";
 import { initializePools, initializeUserSummary } from "@/store/effects/pools.effect";
 import { patchPoolsState } from "@/store/actions";
+import { currencyFormat } from "@/utils/currencyFormat";
 
 export const minBaseTokenRemainingByNetwork: Record<number, string> = {
   [ChainId.optimism]: "0.0001",
   [ChainId.arbitrum_one]: "0.0001",
 };
 
-export const DefiContainer = ({
+export default function DefiContainer({
   handleSegmentChange,
 }: {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
-}) => {
+}) {
   const { walletAddress } = Store.useState(getWeb3State);
   const userSummaryAndIncentivesGroup = Store.useState(getUserSummaryAndIncentivesGroupState);
   const poolGroups = Store.useState(getPoolGroupsState);
@@ -46,6 +46,8 @@ export const DefiContainer = ({
   const [filterBy, setFilterBy] = useState<{ [key: string]: string } | null>(
     null
   );
+
+  console.log("userSummaryAndIncentivesGroup>> ", userSummaryAndIncentivesGroup)
 
   const totalBorrowsUsd = protocolSummary.reduce((prev, current)=> {
     return prev + current.totalBorrowsUSD;
@@ -181,7 +183,7 @@ export const DefiContainer = ({
                         size-md="4"
                         class=" ion-padding-vertical"
                       >
-                        <h3>{currencyFormat(totalSupplyUsd)}</h3>
+                        <h3>{currencyFormat.format(totalSupplyUsd)}</h3>
                         <p>
                           DEPOSIT BALANCE
                           <IonText color="medium">
@@ -203,8 +205,8 @@ export const DefiContainer = ({
                           <IonText color="medium">
                             <br />
                             <small>
-                              {currencyFormat(+totalBorrowsUsd)} of{" "}
-                              {currencyFormat(totalBorrowableUsd)}
+                              {currencyFormat.format(+totalBorrowsUsd)} of{" "}
+                              {currencyFormat.format(totalBorrowableUsd)}
                             </small>
                           </IonText>
                         </p>
@@ -214,7 +216,7 @@ export const DefiContainer = ({
                         size-md="4"
                         class=" ion-padding-vertical"
                       >
-                        <h3>{currencyFormat(totalAbailableToBorrow)}</h3>
+                        <h3>{currencyFormat.format(totalAbailableToBorrow)}</h3>
                         <p>
                           AVAILABLE TO BORROW
                           <IonText color="medium">
@@ -372,11 +374,11 @@ export const DefiContainer = ({
                                 class="ion-padding-horizontal ion-text-end ion-hide-md-down"
                               >
                                 <IonText color="dark">
-                                  {currencyFormat(+summary.totalSupplyUSD)}
+                                  {currencyFormat.format(+summary.totalSupplyUSD)}
                                   <br />
                                   <IonText color="medium">
                                     <small>
-                                      {currencyFormat(
+                                      {currencyFormat.format(
                                         summary.totalSupplyUSD *
                                           summary.currentLiquidationThreshold
                                       )}{" "}
@@ -391,7 +393,7 @@ export const DefiContainer = ({
                                 class="ion-padding-horizontal ion-text-end ion-hide-md-down"
                               >
                                 <IonText color="dark">
-                                  {currencyFormat(+summary.totalBorrowsUSD)}
+                                  {currencyFormat.format(+summary.totalBorrowsUSD)}
                                 </IonText>
                               </IonCol>
                               <IonCol
@@ -400,7 +402,7 @@ export const DefiContainer = ({
                                 class="ion-padding-horizontal ion-text-end ion-hide-md-down"
                               >
                                 <IonText color="dark">
-                                  {currencyFormat(
+                                  {currencyFormat.format(
                                     (summary.totalCollateralUSD *
                                       summary.currentLiquidationThreshold) -
                                       summary.totalBorrowsUSD
@@ -413,8 +415,8 @@ export const DefiContainer = ({
                                 class="ion-padding-horizontal ion-text-end"
                               >
                                 <IonText color="dark">
-                                  {currencyFormat(+summary.totalBorrowsUSD)} of{" "}
-                                  {currencyFormat(
+                                  {currencyFormat.format(+summary.totalBorrowsUSD)} of{" "}
+                                  {currencyFormat.format(
                                     summary.totalCollateralUSD *
                                       summary.currentLiquidationThreshold
                                   )}{" "}

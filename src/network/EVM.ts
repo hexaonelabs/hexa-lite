@@ -3,12 +3,34 @@ import { NETWORK } from "../constants/chains";
 import { getTokensBalances } from "../servcies/ankr.service";
 import { MagicWalletUtils } from "./MagicWallet";
 import { getMagic } from "@/servcies/magic";
+import { getTokensPrice } from "@/servcies/lifi.service";
 
-const fetchUserAssets = async (walletAddress: string) => {
+/**
+ * Function tha takes wallet address and fetches all assets for that wallet
+ * using Ankr API. It also fetches token price from LiFi API if Ankr response contains
+ * token with balance > 0 && balanceUsd === 0 && priceUsd === 0
+ * This ensures that all tokens have price in USD and the total balance is calculated correctly
+ * for each token that user has in the wallet.
+ */
+const fetchUserAssets = async (walletAddress: string, force?: boolean) => {
   console.log(`[INFO] fetchUserAssets()`, walletAddress);
   if (!walletAddress) return null;
-  const assets = await getTokensBalances([], walletAddress);
-  return assets;
+  const assets = await getTokensBalances([], walletAddress, force);
+  // remove elements with 0 balance and add to new arrany using extracting
+  const assetWithBalanceUsd = [], 
+        assetsWithoutBalanceUsd = [];
+  for (let i = 0; i < assets.length; i++) {
+    const asset = assets[i];
+    (asset.balanceUsd === 0 && asset.balance > 0)
+      ?  assetsWithoutBalanceUsd.push(asset)
+      : assetWithBalanceUsd.push(asset);
+  }
+  // get token price for tokens without balanceUsd
+  const tokenWithbalanceUsd = await getTokensPrice(assetsWithoutBalanceUsd);
+  return [
+    ...assetWithBalanceUsd, 
+    ...tokenWithbalanceUsd
+  ];
 };
 
 export class EVMWalletUtils extends MagicWalletUtils {
@@ -48,11 +70,60 @@ export class EVMWalletUtils extends MagicWalletUtils {
     }
   }
 
-  async loadBalances() {
+  async loadBalances(force?: boolean) {
     if (!this.walletAddress) return;
-    const assets = await fetchUserAssets(this.walletAddress);
+    const assets = await fetchUserAssets(this.walletAddress, force);
     if (!assets) return;
     this.assets = assets;
+  }
+
+  async sendToken(destination: string, decimalAmount: number, contactAddress: string) {
+    if(!this.web3Provider) {
+      throw new Error("Web3Provider is not initialized");
+    }
+    try {
+      console.log({
+        destination, decimalAmount, contactAddress
+      })
+      const signer = this.web3Provider.getSigner();
+      const from = await signer.getAddress();
+      const amount = ethers.utils.parseUnits(decimalAmount.toString(), 18); // Convert 1 ether to wei
+      const contract = new ethers.Contract(contactAddress, ["function transfer(address, uint256)"], signer);
+
+      const data = contract.interface.encodeFunctionData("transfer", [destination, amount] );
+
+      const tx = await signer.sendTransaction({
+        to: destination,
+        value: amount,
+        // data
+      });
+      const receipt = await tx.wait();
+      // // Load token contract
+      // const tokenContract = new ethers.Contract(contactAddress, ['function transfer(address, uint256)'], signer);
+  
+      // // Send tokens to recipient
+      // const transaction = await tokenContract.transfer(destination, amount);
+      // const receipt = await transaction.wait();
+      // console.log(receipt);
+
+
+
+      //Define the data parameter
+      // const data = contract.interface.encodeFunctionData("transfer", [destination, amount] )
+      // const tx = await signer.sendTransaction({
+      //   to: contactAddress,
+      //   from,
+      //   value: ethers.utils.parseUnits("0.000", "ether"),
+      //   data: data  
+      // });
+      // // const tx = await contract.transfer(destination, amount);
+      // // Wait for transaction to be mined
+      // const receipt = await tx.wait();
+      return receipt;
+    } catch (err: any) {
+      console.error(err);
+      throw new Error("Error during sending token");
+    }
   }
 
   private async _setMetamaskNetwork() {
@@ -74,5 +145,15 @@ export class EVMWalletUtils extends MagicWalletUtils {
         `Error during network setting. Please switch to ${this.network} network and try again.`
       );
     }
+  }
+
+  async estimateGas() {
+    // const limit = await provider.estimateGas({
+    //   from: signer.address,
+    //   to: tokenContract,
+    //   value: ethers.utils.parseUnits("0.000", "ether"),
+    //   data: data
+     
+    // });
   }
 }

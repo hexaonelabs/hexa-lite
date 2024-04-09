@@ -97,7 +97,14 @@ export function MarketList(props: {
 
   return (
     <>
-      <IonGrid className="ion-no-padding ion-padding-vertical">
+      <IonGrid 
+          className="ion-no-padding ion-padding-vertical" 
+          style={{
+            position: 'sticky',
+            'top': '-1px',
+            'background':' var(--ion-background-color)',
+            zIndex: 1
+          }}>
         <IonRow class="ion-justify-content-between ion-align-items-center marketFilters"
               style={{
                 padding: 0,
@@ -248,7 +255,7 @@ export function MarketList(props: {
               }
             }}
           />
-          <IonAccordionGroup>
+          <IonAccordionGroup style={{minHeight: '80vh'}}>
             {groups.map((poolGroup, index) => (
               <PoolAccordionGroup
                 key={index}
@@ -279,7 +286,7 @@ export function MarketList(props: {
         <LoadingPoolGroupsSkeleton itemCounts={5} />
       )}
       {groups.length === 0 && totalTVL && (
-        <IonGrid class="ion-padding">
+        <IonGrid class="ion-padding" style={{minHeight: '80vh'}}>
           <IonRow class="ion-padding">
             <IonCol size="12" class="ion-text-center">
               <IonText>

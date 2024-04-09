@@ -133,7 +133,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
               size-md="2"
               class="ion-text-end ion-hide-sm-down"
             >
-              <IonLabel style={{ fontSize: "1.2rem" }}>
+              <IonLabel style={{ fontSize: "1.2rem", fontWeight: '500' }}  className="ion-color-gradient-text">
                 {poolGroup.topSupplyApy * 100 === 0
                   ? "0"
                   : poolGroup.topSupplyApy * 100 < 0.01
@@ -143,7 +143,7 @@ export function PoolAccordionGroup(props: IPoolAccordionProps) {
               </IonLabel>
             </IonCol>
             <IonCol size="2" class="ion-text-end ion-hide-sm-down">
-              <IonLabel style={{ fontSize: "1.2rem" }}>
+              <IonLabel style={{ fontSize: "1.2rem", fontWeight: '500' }} className="ion-color-gradient-text">
                 {poolGroup?.topBorrowApy * 100 === 0
                   ? poolGroup?.borrowingEnabled === false
                     ? "- "
