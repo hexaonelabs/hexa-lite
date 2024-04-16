@@ -54,6 +54,7 @@ import { TokenDetailMarketDetail } from "@/components/ui/TokenDetailMarketData";
 import { isStableAsset } from "@/utils/isStableAsset";
 import { Currency } from "@/components/ui/Currency";
 import { NetworkTokenDetailCard } from "@/components/ui/NetworkTokenDetailCard/NetworkTokenDetailCard";
+import { getAllocationRatioInPercent } from "@/utils/getAllocationRatioInPercent";
 
 const LightChart = lazy(() => import("@/components/ui/LightChart"));
 
@@ -81,6 +82,7 @@ export const TokenDetailDesktopContainer = (props: {
   const [dataChartHistory, setDataChartHistory] = useState<DataItem[]>([]);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | undefined>(undefined);
   const [isInfoOpen, setInfoOpen] = useState(false);
+  const [isAccOpen, setIsAccOpen] = useState(false);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -240,9 +242,9 @@ export const TokenDetailDesktopContainer = (props: {
                 <IonCol size="12" className="ion-padding-vertical">
                   <IonAccordionGroup>
                     <IonAccordion className="networkList">
-                      <div slot="header" className="ion-text-center">
+                      <div slot="header" className="ion-text-center" onClick={()=> setIsAccOpen(()=> !isAccOpen)}>
                         <IonText color="primary" style={{display: 'block'}}>
-                          <small>Wallet details</small>
+                        <small>{isAccOpen ? 'Hide' : 'Display'} Wallet details</small>
                         </IonText>
                         <IonIcon icon={chevronDown} color="primary" />
                       </div>
@@ -256,7 +258,9 @@ export const TokenDetailDesktopContainer = (props: {
                             )
                             .map((token, index) => (
                               <IonCol key={index} size="auto">
-                                <NetworkTokenDetailCard token={token} />
+                                <NetworkTokenDetailCard 
+                                  token={token} 
+                                  allocationRatioInPercent={getAllocationRatioInPercent(token.balance, data.balance)} />
                               </IonCol>
                             ))}
                         </IonRow>
