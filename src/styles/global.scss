@@ -193,6 +193,12 @@ ion-popover.profil-popover {
 ion-modal {
   --border-radius: 32px;
 }
+@media screen and (max-width: 767px) {
+  ion-modal {
+    --border-radius: 32px 32px 0 0;
+  }
+  
+}
 
 ion-popover.points-popover {
   --width: 100%;
