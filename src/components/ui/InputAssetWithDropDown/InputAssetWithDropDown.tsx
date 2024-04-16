@@ -99,15 +99,16 @@ export const InputAssetWithDropDown = (props: {
             </div>
           </IonCol>
           <IonCol>
-            <div className="ion-text-end" style={{marginRight: '16px', overflow: 'hidden'}}>
+            <div className="ion-text-end">
               <IonInput
-                style={{ fontSize: "1.5rem", minWidth: "100px", transform: 'translateX(16px)' }}
+                style={{ fontSize: "1.5rem", minWidth: "100px" }}
                 placeholder="0"
                 type="number"
                 max={maxBalance}
                 min={0}
                 debounce={800}
                 value={inputFromAmount}
+                onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                 onIonInput={(e) => handleInputChange(e)}
               />
             </div>

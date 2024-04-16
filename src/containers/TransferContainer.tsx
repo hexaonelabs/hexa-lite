@@ -264,7 +264,7 @@ export const TransferContainer = (props: { dismiss: () => Promise<void> }) => {
                     color="medium"
                     style={{ marginBottom: "0.5rem", display: "block" }}
                   >
-                    <h4 className="ion-no-margin">Destination address</h4>
+                    <h4 className="ion-no-margin">EVM Destination address</h4>
                   </IonLabel>
                   <IonGrid className="ion-no-padding itemInputContainter">
                     <IonRow className="ion-align-items-center">
