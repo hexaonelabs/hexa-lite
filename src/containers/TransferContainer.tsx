@@ -18,6 +18,7 @@ import {
   IonSpinner,
   IonTitle,
   IonToolbar,
+  useIonAlert,
 } from "@ionic/react";
 
 import { useEffect, useRef, useState } from "react";
@@ -28,6 +29,7 @@ import { CrossIcon } from "@/components/ui/CrossIcon/CrossIcon";
 import { close, scan } from "ionicons/icons";
 import { InputAssetWithDropDown } from "@/components/ui/InputAssetWithDropDown/InputAssetWithDropDown";
 import { WarningBox } from "@/components/WarningBox";
+import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 
 const scanQrCode = async (
   html5QrcodeScanner: Html5Qrcode
@@ -170,10 +172,12 @@ export const TransferContainer = (props: { dismiss: () => Promise<void> }) => {
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   );
+  const [openConfirm, closeConfirm] = useIonAlert()
 
   const isValid =
-    inputFromAmount > 0 && inputFromAmount <= (inputFromAsset?.balance || 0);
-  inputToAddress &&
+    inputFromAmount > 0 && 
+    inputFromAmount <= (inputFromAsset?.balance || 0) &&
+    inputToAddress &&
     inputToAddress.length > 0 &&
     inputFromAsset?.contractAddress;
 
@@ -183,6 +187,32 @@ export const TransferContainer = (props: { dismiss: () => Promise<void> }) => {
       inputToAddress,
       inputFromAsset,
     });
+    const {detail: {role}}: CustomEvent<OverlayEventDetail<any>> = await new Promise(resolve => {
+      openConfirm({
+        header: 'Confirm',
+        message: `
+          You are about to send ${inputFromAmount} ${inputFromAsset?.symbol} to the EVM ${inputFromAsset?.chain?.name} network address ${inputToAddress}. 
+        `,
+        buttons: [
+          {
+            text: 'cancel',
+            role: 'cancel',
+            cssClass: 'danger'
+          },
+          {
+            text: 'OK',
+            role: 'ok'
+          }
+        ],
+        onDidDismiss: ($event)=> {
+          resolve($event);
+        }
+      });
+
+    });
+    if (role !== 'ok') {
+      return;
+    }
     if (inputFromAmount && inputToAddress && inputFromAsset?.contractAddress) {
       try {
         if (
@@ -353,7 +383,16 @@ export const TransferContainer = (props: { dismiss: () => Promise<void> }) => {
       </IonContent>
       <IonFooter>
         <IonToolbar style={{ "--background": "transparent" }}>
-          {isSuccess !== true && (
+          {isSuccess === false && (
+            <IonButton
+              expand="block"
+              onClick={async ($event) => {
+                props.dismiss()
+              }}
+          >Cancel and retry</IonButton>
+          )}
+
+          {isSuccess === undefined && (
             <>
               <IonButton
                 expand="block"

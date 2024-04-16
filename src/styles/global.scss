@@ -212,6 +212,14 @@ ion-alert.modalAlert {
     background: var(--ion-background-color)!important;
   }
 }
+ion-alert {
+  .alert-button.danger {
+    color: var(--ion-color-danger);
+  }
+  .alert-button.success {
+    color: var(--ion-color-success);
+  }
+}
 
 .modalAlert {
   // --width: fit-content;
