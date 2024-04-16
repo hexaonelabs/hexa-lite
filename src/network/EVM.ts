@@ -82,43 +82,44 @@ export class EVMWalletUtils extends MagicWalletUtils {
       throw new Error("Web3Provider is not initialized");
     }
     try {
-      console.log({
+      console.log('[INFO] sendToken: ',{
         destination, decimalAmount, contactAddress
       })
       const signer = this.web3Provider.getSigner();
-      const from = await signer.getAddress();
-      const amount = ethers.utils.parseUnits(decimalAmount.toString(), 18); // Convert 1 ether to wei
-      const contract = new ethers.Contract(contactAddress, ["function transfer(address, uint256)"], signer);
-
-      const data = contract.interface.encodeFunctionData("transfer", [destination, amount] );
-
-      const tx = await signer.sendTransaction({
-        to: destination,
-        value: amount,
-        // data
-      });
+      // Check if the receiver address is the same as the token contract address
+      if (destination.toLowerCase() === contactAddress.toLowerCase()) {
+        // Sending tokens to the token contract address
+        throw new Error('Sending tokens to ERC20 contract address is not allowed.');
+      }
+      const amount = ethers.utils.parseUnits(decimalAmount.toString()); // Convert 1 ether to wei
+      
+      let tx;
+      // Check if the token address is the same as the native ETH address
+      if (contactAddress.toLowerCase() === ethers.constants.AddressZero.toLowerCase()) {
+        console.log('[INFO] Sending native token');
+        tx = await signer.sendTransaction({
+          to: destination,
+          value: amount
+        });
+      } else {
+        console.log('[INFO] Sending erc20 token');
+        // ABI (Application Binary Interface) of the ERC20 token contract
+        const tokenABI = [
+          // Standard ERC20 functions
+          'function balanceOf(address) view returns (uint)',
+          'function transfer(address to, uint amount) returns (boolean)'
+        ];
+        // Load the ERC20 token contract
+        const tokenContract = new ethers.Contract(contactAddress, tokenABI, signer);
+        // Convert amount to wei if necessary
+        // (depends on the token's decimal precision)
+        // Call the transfer function of the ERC20 token contract
+        tx = await tokenContract.transfer(destination, amount);
+      }
+      console.log('[INFO] Transaction Hash:', tx.hash);
       const receipt = await tx.wait();
-      // // Load token contract
-      // const tokenContract = new ethers.Contract(contactAddress, ['function transfer(address, uint256)'], signer);
-  
-      // // Send tokens to recipient
-      // const transaction = await tokenContract.transfer(destination, amount);
-      // const receipt = await transaction.wait();
-      // console.log(receipt);
+      console.log('[INFO] Transaction confirmed');
 
-
-
-      //Define the data parameter
-      // const data = contract.interface.encodeFunctionData("transfer", [destination, amount] )
-      // const tx = await signer.sendTransaction({
-      //   to: contactAddress,
-      //   from,
-      //   value: ethers.utils.parseUnits("0.000", "ether"),
-      //   data: data  
-      // });
-      // // const tx = await contract.transfer(destination, amount);
-      // // Wait for transaction to be mined
-      // const receipt = await tx.wait();
       return receipt;
     } catch (err: any) {
       console.error(err);
