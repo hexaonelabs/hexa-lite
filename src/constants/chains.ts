@@ -14,6 +14,7 @@ export enum NETWORK {
   solana = 1399811149,
   base = 8453,
   scroll = 534352,
+  sepolia = 11155111,
 }
 
 export interface IChain {
@@ -188,13 +189,16 @@ export const CHAIN_AVAILABLES: IChain[] = [
   //   testnet: true,
   //   rpcUrl: "https://rpc.ankr.com/eth_goerli",
   // },
-  // {
-  //   id: 80001,
-  //   value: 'polygon_mumbai',
-  //   name: 'mumbai',
-  //   testnet: true,
-  //   rpcUrl: "https://rpc.ankr.com/polygon_mumbai",
-  // },
+  {
+    id: NETWORK.sepolia,
+    value: 'sepolia',
+    name: 'sepolia',
+    nativeSymbol: 'ETH',
+    logo: '/assets/cryptocurrency-icons/eth.svg',
+    rpcUrl: 'https://rpc.ankr.com/eth_sepolia',
+    type: 'evm',
+    testnet: true,
+  },
   // {
   //   id: 43113,
   //   value: 'avalanche_fuji',
@@ -229,9 +233,12 @@ export const CHAIN_AVAILABLES: IChain[] = [
     type: 'solana',
   },
 ]
+.filter(c => process.env.NEXT_PUBLIC_APP_IS_PROD === 'true' ? !c.testnet : true)
 .filter(c => !CHAINS_DISABLED.includes(c.id)) as IChain[];
 
-const NETWORK_DEFAULT = NETWORK.optimism;
+const NETWORK_DEFAULT = process.env.NEXT_PUBLIC_APP_IS_PROD === 'true' 
+  ? NETWORK.optimism
+  : NETWORK.sepolia;
 export const CHAIN_DEFAULT = CHAIN_AVAILABLES.find(c => c.id === NETWORK_DEFAULT) || {
   id: NETWORK_DEFAULT, name: 'default', value: 'default', rpcUrl: '', type: 'evm'
 };
