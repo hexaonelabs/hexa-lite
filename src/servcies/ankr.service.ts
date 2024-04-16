@@ -18,6 +18,20 @@ interface IAnkrTokenReponse {
 
 const fake_data = [
   {
+    blockchain: "sepolia",
+    tokenName: "Link",
+    tokenSymbol: "LINK",
+    tokenDecimals: 18,
+    tokenType: "ERC20",
+    holderAddress: "0x475ef9fb4f8d43b63ac9b22fa41fd4db8a103550",
+    contractAddress: "0xf8fb3713d459d7c1018bd0a49d19b4c44290ebe5",
+    balance: "100",
+    balanceRawInteger: "100000000000000000000",
+    balanceUsd: "2000",
+    tokenPrice: "20",
+    thumbnail: "",
+  },
+  {
     blockchain: "optimism",
     tokenName: "Ether",
     tokenSymbol: "ETH",
