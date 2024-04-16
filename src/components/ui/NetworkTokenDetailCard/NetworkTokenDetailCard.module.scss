@@ -1,0 +1,47 @@
+.card {
+  filter: none!important;
+  box-shadow: none;
+  margin: 0;
+  background-color: rgba(var(--ion-color-primary-rgb), 0.05)!important;
+}
+
+.card__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.card__content__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+
+  img {
+    transform: scale(1.01);
+  }
+  
+  p {
+    padding-left: 0.5rem;
+    line-height: 0.8rem;
+
+    span {
+      font-size: 0.6rem;
+    }
+  }
+
+  ion-note {
+    span {
+      font-size: 0.6rem;
+      margin-left: 1rem;
+    }
+  }
+}
+
+.card__content__container {
+  border-top: solid 1px var(--ion-border-color);
+  padding: 0.5rem 1rem;
+
+  h2 {
+    line-height: 1rem;
+  }
+}
