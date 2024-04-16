@@ -41,6 +41,8 @@ import { TokenDetailMarketDetail } from "@/components/ui/TokenDetailMarketData";
 import { TokenDetailDescription } from "@/components/ui/TokenDetailDescription";
 import { isStableAsset } from "@/utils/isStableAsset";
 import { Currency } from "@/components/ui/Currency";
+import { NetworkTokenDetailCard } from "@/components/ui/NetworkTokenDetailCard/NetworkTokenDetailCard";
+import { getAllocationRatioInPercent } from "@/utils/getAllocationRatioInPercent";
 
 const LightChart = lazy(() => import("@/components/ui/LightChart"));
 
@@ -69,6 +71,7 @@ export const TokenDetailMobileContainer = (props: {
   const [dataChartHistory, setDataChartHistory] = useState<DataItem[]>([]);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | undefined>(undefined);
   const [isInfoOpen, setInfoOpen] = useState(false);
+  const [isAccOpen, setIsAccOpen] = useState(false);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -130,7 +133,7 @@ export const TokenDetailMobileContainer = (props: {
         <IonHeader collapse="condense">
           <IonToolbar style={{ "--background": "transparent" }}>
             <IonGrid class="ion-no-padding">
-              <IonRow className="ion-text-center ion-margin-bottom">
+              <IonRow className="ion-text-center">
                 <IonCol size="12" className="ion-no-vertical">
                   <IonAvatar
                     style={{
@@ -158,7 +161,7 @@ export const TokenDetailMobileContainer = (props: {
                     />
                   </IonAvatar>
                   <IonText>
-                    <h1>
+                    <h1 style={{marginBottom: 0}}>
                       {data.balance.toFixed(6)} {data.symbol}
                     </h1>
                   </IonText>
@@ -195,82 +198,40 @@ export const TokenDetailMobileContainer = (props: {
                       </IonChip>
                                     ) : ''}
                   </IonText>
-                  <IonGrid className="ion-no-padding">
-                    <IonRow className="ion-no-padding">
-                      <IonCol size="12" className="ion-padding-top">
-                        <IonAccordionGroup>
-                          <IonAccordion className="networkList">
-                            <div slot="header" className="ion-text-center">
-                              <IonIcon icon={chevronDown} color="primary" />
-                            </div>
-                            <IonList
-                              slot="content"
-                              style={{
-                                background: "transparent",
-                              }}
-                            >
-                              <IonListHeader className="ion-no-padding ion-text-start">
-                                <IonLabel>
-                                  <h3>Networks details</h3>
-                                </IonLabel>
-                              </IonListHeader>
-                              {data.assets
-                                .sort((a, b) =>
-                                  a.chain && b.chain
-                                    ? a.chain.id - b.chain.id
-                                    : a.balance + b.balance
-                                )
-                                .map((token, index) => (
-                                  <IonItem
-                                    key={index}
-                                    style={{
-                                      "--background": "transparent",
-                                      "--padding-start": "0",
-                                    }}
-                                  >
-                                    <IonAvatar
-                                      slot="start"
-                                      style={{ width: "24px", height: "24px" }}
-                                    >
-                                      <img
-                                        src={
-                                          CHAIN_AVAILABLES.find(
-                                            (c) => c.id === token.chain?.id
-                                          )?.logo
-                                        }
-                                        alt={token.symbol}
-                                        style={{ transform: "scale(1.01)" }}
-                                        onError={(event) => {
-                                          (
-                                            event.target as any
-                                          ).src = `https://images.placeholders.dev/?width=42&height=42&text=${token.symbol}&bgColor=%23000000&textColor=%23182449`;
-                                        }}
-                                      />
-                                    </IonAvatar>
-                                    <IonLabel>
-                                      <p>{token.chain?.name}</p>
-                                    </IonLabel>
-                                    <IonNote
-                                      slot="end"
-                                      color="gradient"
-                                      className="ion-text-end ion-padding-vertical"
-                                    >
-                                      {token.balance.toFixed(6)} {token.symbol}
-                                      <br />
-                                      <IonText color="medium">
-                                        <small>
-                                        <Currency value={token.balanceUsd} />
-                                        </small>
-                                      </IonText>
-                                    </IonNote>
-                                  </IonItem>
-                                ))}
-                            </IonList>
-                          </IonAccordion>
-                        </IonAccordionGroup>
-                      </IonCol>
-                    </IonRow>
-                  </IonGrid>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
+            
+            <IonGrid className="ion-no-padding  ion-margin-bottom">
+              <IonRow className="ion-no-padding">
+                <IonCol size="12" className="ion-padding-top">
+                  <IonAccordionGroup>
+                    <IonAccordion id="detail-IonAccordion" className="networkList">
+                      <div slot="header" className="ion-text-center" onClick={()=> setIsAccOpen(()=> !isAccOpen)}>
+                        <IonText color="primary" style={{display: 'block'}}>
+                          <small>{isAccOpen ? 'Hide' : 'Display'} Wallet details</small>
+                        </IonText>
+                        <IonIcon icon={chevronDown} color="primary" />
+                      </div>
+                      <IonGrid slot="content" className="ion-no-padding ion-padding-top">
+                        <IonRow className="ion-justify-content-center ion-align-iems-center">
+                          {data.assets
+                            .sort((a, b) =>
+                              a.chain && b.chain
+                                ? a.chain.id - b.chain.id
+                                : a.balance + b.balance
+                            )
+                            .map((token, index) => (
+                              <IonCol key={index} size="auto">
+                                <NetworkTokenDetailCard 
+                                  token={token} 
+                                  allocationRatioInPercent={getAllocationRatioInPercent(token.balance, data.balance)} />
+                              </IonCol>
+                            ))}
+                        </IonRow>
+                      </IonGrid>
+                    </IonAccordion>
+                  </IonAccordionGroup>
                 </IonCol>
               </IonRow>
             </IonGrid>

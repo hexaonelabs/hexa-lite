@@ -6,6 +6,8 @@ import {
   IonAvatar,
   IonBadge,
   IonButton,
+  IonCard,
+  IonCardContent,
   IonChip,
   IonCol,
   IonContent,
@@ -33,7 +35,15 @@ import { ethers } from "ethers";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import { CHAIN_AVAILABLES } from "@/constants/chains";
-import { airplane, chevronDown, close, closeSharp, download, paperPlane, repeat } from "ionicons/icons";
+import {
+  airplane,
+  chevronDown,
+  close,
+  closeSharp,
+  download,
+  paperPlane,
+  repeat,
+} from "ionicons/icons";
 import { DataItem } from "@/components/ui/LightChart";
 import { getTokenHistoryPrice } from "@/utils/getTokenHistoryPrice";
 import { TokenInfo, getTokenInfo } from "@/utils/getTokenInfo";
@@ -43,6 +53,7 @@ import { TokenDetailDescription } from "@/components/ui/TokenDetailDescription";
 import { TokenDetailMarketDetail } from "@/components/ui/TokenDetailMarketData";
 import { isStableAsset } from "@/utils/isStableAsset";
 import { Currency } from "@/components/ui/Currency";
+import { NetworkTokenDetailCard } from "@/components/ui/NetworkTokenDetailCard/NetworkTokenDetailCard";
 
 const LightChart = lazy(() => import("@/components/ui/LightChart"));
 
@@ -123,8 +134,11 @@ export const TokenDetailDesktopContainer = (props: {
       >
         <IonHeader collapse="condense">
           <IonToolbar style={{ "--background": "transparent" }}>
-            <IonGrid class="ion-padding" style={{ maxWidth: '1224px' }}>
-              <IonRow className="ion-text-center ion-margin-bottom">
+            <IonGrid
+              class="ion-padding-top ion-padding-horizontal"
+              style={{ maxWidth: "1224px" }}
+            >
+              <IonRow className="ion-text-center">
                 <IonCol size="12" className="ion-no-vertical">
                   <IonAvatar
                     style={{
@@ -135,11 +149,14 @@ export const TokenDetailDesktopContainer = (props: {
                     }}
                   >
                     <img
-                      src={data.symbol === 'ETH'
-                      ? getAssetIconUrl({symbol: 'ETH'})
-                      : data.thumbnail || getAssetIconUrl({
-                          symbol: data.symbol,
-                        })}
+                      src={
+                        data.symbol === "ETH"
+                          ? getAssetIconUrl({ symbol: "ETH" })
+                          : data.thumbnail ||
+                            getAssetIconUrl({
+                              symbol: data.symbol,
+                            })
+                      }
                       alt={data.symbol}
                       style={{ transform: "scale(1.01)" }}
                       onError={(event) => {
@@ -157,7 +174,8 @@ export const TokenDetailDesktopContainer = (props: {
                   <IonText color="medium">
                     <p className="ion-no-margin" style={{ fontSize: "1.3rem" }}>
                       <Currency value={data.balanceUsd} />
-                      { tokenInfo?.market_data?.price_change_percentage_24h_in_currency?.usd && (
+                      {tokenInfo?.market_data
+                        ?.price_change_percentage_24h_in_currency?.usd && (
                         <IonText
                           color={
                             tokenInfo.market_data
@@ -168,133 +186,119 @@ export const TokenDetailDesktopContainer = (props: {
                           className="ion-padding-start"
                         >
                           <small>
-                          ({tokenInfo.market_data.price_change_percentage_24h_in_currency.usd.toFixed(
-                            2
-                          )}
-                          % <span style={{fontSize: '80%'}}>/24h</span>)
+                            (
+                            {tokenInfo.market_data.price_change_percentage_24h_in_currency.usd.toFixed(
+                              2
+                            )}
+                            % <span style={{ fontSize: "80%" }}>/24h</span>)
                           </small>
                         </IonText>
                       )}
                     </p>
                   </IonText>
                   {isStableAsset(data.symbol) ? (
-                    <IonChip 
-                      style={{marginTop: '0.5rem'}} 
+                    <IonChip
+                      style={{ marginTop: "0.5rem" }}
                       color="success"
-                      onClick={()=> {
-                        setInfoOpen(()=> true);
-                      }} >
+                      onClick={() => {
+                        setInfoOpen(() => true);
+                      }}
+                    >
                       <small>stable</small>
                     </IonChip>
-                    ) : ''}
-                  <IonGrid className="ion-no-padding">
-                    <IonRow className="ion-padding">
-                      <IonCol size="12">
-                        <IonButton 
-                          color="gradient" 
-                          onClick={() => {
-                            props.setState({ isTransferModalOpen: true });
-                          }}>
-                          <IonIcon slot="start" icon={paperPlane} />
-                          Send
-                        </IonButton>
-                        <IonButton 
-                          color="gradient"
-                          onClick={() => {
-                            props.setState({ isDepositModalOpen: true });
-                          }}>
-                          <IonIcon slot="start" icon={download} />
-                          Deposit
-                        </IonButton>
-                      </IonCol>
-                    </IonRow>
-                    <IonRow className="ion-no-padding">
-                      <IonCol size="12" className="ion-padding-top">
-                        <IonAccordionGroup>
-                          <IonAccordion className="networkList">
-                            <div slot="header" className="ion-text-center">
-                              <IonIcon icon={chevronDown} color="primary" />
-                            </div>
-                            <IonList
-                              slot="content"
-                              style={{
-                                background: "transparent",
-                              }}
-                            >
-                              <IonListHeader className="ion-no-padding ion-text-start">
-                                <IonLabel>
-                                  <h3>Networks details</h3>
-                                </IonLabel>
-                              </IonListHeader>
-                              {data.assets
-                                .sort((a, b) =>
-                                  a.chain && b.chain
-                                    ? a.chain.id - b.chain.id
-                                    : a.balance + b.balance
-                                )
-                                .map((token, index) => (
-                                  <IonItem
-                                    key={index}
-                                    style={{
-                                      "--background": "transparent",
-                                      "--padding-start": "0",
-                                    }}
-                                  >
-                                    <IonAvatar
-                                      slot="start"
-                                      style={{ width: "24px", height: "24px" }}
-                                    >
-                                      <img
-                                        src={
-                                          CHAIN_AVAILABLES.find(
-                                            (c) => c.id === token.chain?.id
-                                          )?.logo
-                                        }
-                                        alt={token.symbol}
-                                        style={{ transform: "scale(1.01)" }}
-                                        onError={(event) => {
-                                          (
-                                            event.target as any
-                                          ).src = `https://images.placeholders.dev/?width=42&height=42&text=${token.symbol}&bgColor=%23000000&textColor=%23182449`;
-                                        }}
-                                      />
-                                    </IonAvatar>
-                                    <IonLabel>
-                                      <p>{token.chain?.name}</p>
-                                    </IonLabel>
-                                    <IonNote
-                                      slot="end"
-                                      color="gradient"
-                                      className="ion-text-end ion-padding-vertical"
-                                    >
-                                      { numberFormat.format(token.balance)} {token.symbol}
-                                      <br />
-                                      <IonText color="medium">
-                                        <small>
-                                          <Currency value={token.balanceUsd} />
-                                        </small>
-                                      </IonText>
-                                    </IonNote>
-                                  </IonItem>
-                                ))}
-                            </IonList>
-                          </IonAccordion>
-                        </IonAccordionGroup>
-                      </IonCol>
-                    </IonRow>
-                  </IonGrid>
+                  ) : (
+                    ""
+                  )}
+                </IonCol>
+              </IonRow>
+            </IonGrid>
+
+            <IonGrid className="ion-no-padding" style={{ maxWidth: "1224px" }}>
+              <IonRow className="ion-padding-top ion-padding-horizontal ion-text-center">
+                <IonCol size="12">
+                  <IonButton
+                    color="gradient"
+                    onClick={() => {
+                      props.setState({ isTransferModalOpen: true });
+                    }}
+                  >
+                    <IonIcon slot="start" icon={paperPlane} />
+                    Send
+                  </IonButton>
+                  <IonButton
+                    color="gradient"
+                    onClick={() => {
+                      props.setState({ isDepositModalOpen: true });
+                    }}
+                  >
+                    <IonIcon slot="start" icon={download} />
+                    Deposit
+                  </IonButton>
+                </IonCol>
+              </IonRow>
+              <IonRow className="ion-no-padding ion-margin-bottom">
+                <IonCol size="12" className="ion-padding-vertical">
+                  <IonAccordionGroup>
+                    <IonAccordion className="networkList">
+                      <div slot="header" className="ion-text-center">
+                        <IonText color="primary" style={{display: 'block'}}>
+                          <small>Wallet details</small>
+                        </IonText>
+                        <IonIcon icon={chevronDown} color="primary" />
+                      </div>
+                      <IonGrid slot="content" className="ion-no-padding ion-padding-top">
+                        <IonRow className="ion-justify-content-center ion-align-iems-center">
+                          {data.assets
+                            .sort((a, b) =>
+                              a.chain && b.chain
+                                ? a.chain.id - b.chain.id
+                                : a.balance + b.balance
+                            )
+                            .map((token, index) => (
+                              <IonCol key={index} size="auto">
+                                <NetworkTokenDetailCard token={token} />
+                              </IonCol>
+                            ))}
+                        </IonRow>
+                      </IonGrid>
+                    </IonAccordion>
+                  </IonAccordionGroup>
                 </IonCol>
               </IonRow>
             </IonGrid>
           </IonToolbar>
         </IonHeader>
 
-        <IonGrid className="widgetWrapper" style={{ paddingLeft: '0', paddingRight: '0', paddingBottom: "200px", marginBottom: '80px', maxWidth: '1224px' }}>
+        <IonGrid
+          className="widgetWrapper"
+          style={{
+            paddingLeft: "0",
+            paddingRight: "0",
+            paddingBottom: "200px",
+            marginBottom: "80px",
+            maxWidth: "1224px",
+          }}
+        >
           <IonRow className="ion-no-padding ion-margin-vertical">
-            <IonCol size="12" className="ion-no-padding ion-text-center ion-margin-bottom">
-              <Suspense fallback={<><IonSpinner /></>}>
+            <IonCol
+              size="12"
+              className="ion-no-padding ion-text-center ion-margin-bottom"
+            >
+              <Suspense
+                fallback={
+                  <>
+                    <IonSpinner />
+                  </>
+                }
+              >
                 <IonText color="dark" className="ion-text-start">
-                  <h2 style={{fontSize: '1.3rem', margin: '0 1rem 0', opacity: 0.8}}>
+                  <h2
+                    style={{
+                      fontSize: "1.3rem",
+                      margin: "0 1rem 0",
+                      opacity: 0.8,
+                    }}
+                  >
                     {props.data.symbol} / USD
                     <span
                       style={{
@@ -303,7 +307,11 @@ export const TokenDetailDesktopContainer = (props: {
                         padding: "0.2rem",
                       }}
                     >
-                      1 {data.symbol} = {currencyFormat.format(tokenInfo?.market_data?.current_price?.usd||data.priceUsd)}
+                      1 {data.symbol} ={" "}
+                      {currencyFormat.format(
+                        tokenInfo?.market_data?.current_price?.usd ||
+                          data.priceUsd
+                      )}
                     </span>
                   </h2>
                 </IonText>
@@ -314,10 +322,20 @@ export const TokenDetailDesktopContainer = (props: {
 
           {tokenInfo && (
             <IonRow className="ion-padding ion-align-items-start">
-              <IonCol size-xs="12" size-sm="12" size-md="5" className="ion-padding-horizontal">
+              <IonCol
+                size-xs="12"
+                size-sm="12"
+                size-md="5"
+                className="ion-padding-horizontal"
+              >
                 <TokenDetailMarketDetail tokenInfo={tokenInfo} />
               </IonCol>
-              <IonCol size-xs="12" size-sm="12" size-md="7" className="ion-padding-horizontal">
+              <IonCol
+                size-xs="12"
+                size-sm="12"
+                size-md="7"
+                className="ion-padding-horizontal"
+              >
                 <TokenDetailDescription tokenInfo={tokenInfo} />
               </IonCol>
             </IonRow>
@@ -328,7 +346,12 @@ export const TokenDetailDesktopContainer = (props: {
                 <p className="ion-text-center">
                   <small>
                     Market datas from Coingeeko API
-                  <br/>Last update: {new Date(tokenInfo?.market_data?.last_updated||new Date ().toLocaleDateString()).toLocaleString()}
+                    <br />
+                    Last update:{" "}
+                    {new Date(
+                      tokenInfo?.market_data?.last_updated ||
+                        new Date().toLocaleDateString()
+                    ).toLocaleString()}
                   </small>
                 </p>
               </IonText>
@@ -355,7 +378,7 @@ export const TokenDetailDesktopContainer = (props: {
               <IonButton
                 size="small"
                 fill="clear"
-                onClick={() => setInfoOpen(false) }
+                onClick={() => setInfoOpen(false)}
               >
                 <IonIcon slot="icon-only" icon={closeSharp}></IonIcon>
               </IonButton>
@@ -363,27 +386,31 @@ export const TokenDetailDesktopContainer = (props: {
           </IonRow>
           <IonRow class="ion-align-items-top ion-margin-bottom">
             <IonCol size="12">
-              <h2>
-                What is a stablecoin?
-              </h2>
+              <h2>What is a stablecoin?</h2>
               <IonItem>
                 <IonText>
                   <p>
-                    Stablecoins are a type of cryptocurrency whose value is pegged to another asset, such as a fiat currency or gold, to maintain a stable price.
+                    Stablecoins are a type of cryptocurrency whose value is
+                    pegged to another asset, such as a fiat currency or gold, to
+                    maintain a stable price.
                   </p>
                 </IonText>
               </IonItem>
               <IonItem>
                 <IonText>
                   <p>
-                    They strive to provide an alternative to the high volatility of popular cryptocurrencies, making them potentially more suitable for common transactions.
+                    They strive to provide an alternative to the high volatility
+                    of popular cryptocurrencies, making them potentially more
+                    suitable for common transactions.
                   </p>
                 </IonText>
               </IonItem>
               <IonItem>
                 <IonText>
                   <p>
-                    Stablecoins can be utilized in various blockchain-based financial services and can even be used to pay for goods and services.
+                    Stablecoins can be utilized in various blockchain-based
+                    financial services and can even be used to pay for goods and
+                    services.
                   </p>
                 </IonText>
               </IonItem>
