@@ -16,6 +16,29 @@ interface IAnkrTokenReponse {
   contractAddress?: string;
 }
 
+interface AnkrTransactionResponseInterface {
+  v: string;
+  r: string;
+  s: string;
+  nonce: string;
+  blockNumber: string;
+  from: string;
+  to: string;
+  gas: string;
+  gasPrice: string;
+  input: string;
+  transactionIndex: string;
+  blockHash: string;
+  value: string;
+  type: string;
+  cumulativeGasUsed: string;
+  gasUsed: string;
+  hash: string;
+  status: string;
+  blockchain: string;
+  timestamp: string;
+}
+
 const fake_data = [
   {
     blockchain: "sepolia",
@@ -167,4 +190,49 @@ export const getTokensBalances = async (
   console.log("[INFO] {ankrFactory} getTokensBalances(): ", balances);
   await setCachedData(KEY, balances);
   return balances;
+};
+
+export const getTransactionsHistory = async (
+  chainIds: number[],
+  address: string
+) => {
+  const url = `https://rpc.ankr.com/multichain/${process.env.NEXT_PUBLIC_APP_ANKR_APIKEY}`;
+  const chainsList = CHAIN_AVAILABLES.filter((availableChain) =>
+    chainIds.find((c) => c === availableChain.id)
+  );
+  const blockchain = chainsList
+    .filter(({ type }) => type === "evm")
+    .map(({ value }) => value);
+  // fromTimestamp = Beginning of a time period starting 30 days ago. UNIX timestamp.
+  const fromTimestamp = Math.floor(Date.now() / 10000) - 30 * 24 * 60 * 60;
+  const toTimestamp = Math.floor(Date.now() / 1000);
+  const options: RequestInit = {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      method: "ankr_getTransactionsByAddress",
+      params: {
+        blockchain,
+        address: [address],
+        fromTimestamp,
+        toTimestamp,
+      },
+      id: 1,
+    }),
+  };
+  const res = await fetch(url, options);
+  const transactions: AnkrTransactionResponseInterface[] =
+    (await res.json())?.result?.transactions || [];
+  // convert transaction.timestamp to Date
+  const txs = transactions.map((tx) => {
+    return {
+      ...tx,
+      timestamp: new Date(parseInt(tx.timestamp) * 1000),
+    };
+  });
+  return txs;
 };
