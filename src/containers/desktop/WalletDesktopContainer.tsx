@@ -1,9 +1,10 @@
-import { card, download, eyeOffOutline, eyeOutline, paperPlane } from "ionicons/icons";
+import { card, download, eyeOffOutline, eyeOutline, image, list, paperPlane, time } from "ionicons/icons";
 import WalletBaseComponent, {
   WalletComponentProps,
 } from "../../components/base/WalletBaseContainer";
 import {
   IonButton,
+  IonButtons,
   IonCard,
   IonCardContent,
   IonCol,
@@ -13,6 +14,8 @@ import {
   IonModal,
   IonRow,
   IonSearchbar,
+  IonSegment,
+  IonSegmentButton,
   IonText,
 } from "@ionic/react";
 import ConnectButton from "@/components/ConnectButton";
@@ -24,6 +27,8 @@ import { WalletAssetEntity } from "@/components/ui/WalletAssetEntity";
 import { Currency } from "@/components/ui/Currency";
 import { patchAppSettings } from "@/store/actions";
 import { ToggleHideCurrencyAmount } from "@/components/ui/ToggleHideCurrencyAmount";
+import { WalletTxEntity } from "@/components/ui/WalletTxEntity";
+import { TxsList } from "@/components/ui/TsxList/TxsList";
 
 class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
   constructor(props: WalletComponentProps) {
@@ -219,108 +224,144 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
           {/* wrapper to display card with assets items */}
           {this.state.assetGroup.length > 0 && (
             <>
-              <IonRow style={{ marginTop: "3rem" }}>
-                <IonCol size="auto">
+              <IonRow style={{ marginTop: "3rem" }} className="ion-align-items-center ion-justify-content-between">
+                <IonCol>
                   <IonSearchbar
                     placeholder="Search by symbol"
+                    style={{maxWidth: '300px'}}
+                    className="ion-no-padding"
                     onIonInput={(e) => {
                       this.handleSearchChange(e);
                     }}
                   />
                 </IonCol>
-              </IonRow>
-              <IonRow class="widgetWrapper" style={{ marginTop: "1rem" }}>
-                <IonCol size="12" class="ion-no-padding">
-                  <IonGrid
-                    class="ion-padding"
-                    style={{
-                      borderBottom:
-                        "solid 1px rgba(var(--ion-color-primary-rgb), 0.2)",
-                    }}
-                  >
-                    <IonRow className="ion-align-items-center ion-justify-content-between">
-                      <IonCol
-                        size="6"
-                      >
-                        <IonLabel color="medium" className="ion-no-padding">
-                          <small>
-                            Asset
-                          </small>
-                        </IonLabel>
-                      </IonCol>
-                      <IonCol
-                        size="6"
-                        className="ion-text-end"
-                      >
-                        <IonGrid className="ion-no-padding">
-                          <IonRow className="ion-text-end">
-                            <IonCol
-                              size-md="4"
-                              size-lg="4"
-                              size-xl="4"
-                              className="ion-hide-md-down ion-padding-horizontal"
-                            >
-                              <IonText color="medium">
-                                <small>Price</small>
-                              </IonText>
-                            </IonCol>
-                            <IonCol
-                              size-md="4"
-                              size-lg="4"
-                              size-xl="4"
-                              className="ion-hide-md-down ion-padding-horizontal"
-                            >
-                              <IonText color="medium">
-                                <small>Balance</small>
-                              </IonText>
-                            </IonCol>
-                            <IonCol
-                              size-xs="12"
-                              size-sm="12"
-                              size-md="4"
-                              size-lg="4"
-                              size-xl="4"
-                              className="ion-padding-horizontal"
-                            >
-                              <IonText color="medium">
-                                <small>Value</small>
-                              </IonText>
-                            </IonCol>
-                          </IonRow>
-                        </IonGrid>
-                      </IonCol>
-                    </IonRow>
-                  </IonGrid>
-                  {this.state.assetGroup
-                    .filter((asset) =>
-                      this.state.filterBy
-                        ? asset.symbol
-                            .toLowerCase()
-                            .includes(this.state.filterBy.toLowerCase())
-                        : true
-                    )
-                    .map((asset, index) => {
-                      return (
-                        <WalletAssetEntity
-                          setSelectedTokenDetail={(asset) =>
-                            this.handleTokenDetailClick(asset)
-                          }
-                          asset={asset}
-                          key={index}
-                        />
-                      );
-                    })}
-
-                    {(this.state.assetGroup.filter((asset) =>
-                      this.state.filterBy
-                        ? asset.symbol
-                            .toLowerCase()
-                            .includes(this.state.filterBy.toLowerCase())
-                        : true
-                    ).length === 0) && (
-                      <p className="ion-padding ion-text-center">Assets not found in your wallet</p>
-                    )}
+                <IonCol size="auto" className="ion-no-padding">
+                  <div className="wallet__switch_current_view">
+                    <IonButton 
+                      disabled={this.state.currentView === 'tokens'} 
+                      size="small"
+                      onClick={()=> this.setState(state => ({
+                        ...state,
+                        currentView: 'tokens'
+                      }))}>
+                      <IonIcon size="small" icon={list} />
+                    </IonButton>
+                    <IonButton 
+                      disabled={this.state.currentView === 'txs'} 
+                      size="small"
+                      onClick={()=> this.setState(state => ({
+                        ...state,
+                        currentView: 'txs'
+                      }))}>
+                      <IonIcon size="small" src="./assets/icons/history-icon.svg" />
+                    </IonButton>
+                    {/* <IonButton disabled={this.state.currentView === 'nfts'} size="small">
+                      <IonIcon color="dark" icon={image} />
+                    </IonButton> */}
+                  </div>
                 </IonCol>
+              </IonRow>
+              <IonRow class="widgetWrapper" style={{ marginTop: "0.5rem" }}>
+                {/* tokens view */}
+                {this.state.currentView === 'tokens' && (
+                  <IonCol size="12" class="ion-no-padding">
+                    <IonGrid
+                      class="ion-padding"
+                      style={{
+                        borderBottom:
+                          "solid 1px rgba(var(--ion-color-primary-rgb), 0.2)",
+                      }}
+                    >
+                      <IonRow className="ion-align-items-center ion-justify-content-between">
+                        <IonCol
+                          size="6"
+                        >
+                          <IonLabel color="medium" className="ion-no-padding">
+                            <small>
+                              Asset
+                            </small>
+                          </IonLabel>
+                        </IonCol>
+                        <IonCol
+                          size="6"
+                          className="ion-text-end"
+                        >
+                          <IonGrid className="ion-no-padding">
+                            <IonRow className="ion-text-end">
+                              <IonCol
+                                size-md="4"
+                                size-lg="4"
+                                size-xl="4"
+                                className="ion-hide-md-down ion-padding-horizontal"
+                              >
+                                <IonText color="medium">
+                                  <small>Price</small>
+                                </IonText>
+                              </IonCol>
+                              <IonCol
+                                size-md="4"
+                                size-lg="4"
+                                size-xl="4"
+                                className="ion-hide-md-down ion-padding-horizontal"
+                              >
+                                <IonText color="medium">
+                                  <small>Balance</small>
+                                </IonText>
+                              </IonCol>
+                              <IonCol
+                                size-xs="12"
+                                size-sm="12"
+                                size-md="4"
+                                size-lg="4"
+                                size-xl="4"
+                                className="ion-padding-horizontal"
+                              >
+                                <IonText color="medium">
+                                  <small>Value</small>
+                                </IonText>
+                              </IonCol>
+                            </IonRow>
+                          </IonGrid>
+                        </IonCol>
+                      </IonRow>
+                    </IonGrid>
+                    {this.state.assetGroup
+                      .filter((asset) =>
+                        this.state.filterBy
+                          ? asset.symbol
+                              .toLowerCase()
+                              .includes(this.state.filterBy.toLowerCase())
+                          : true
+                      )
+                      .map((asset, index) => {
+                        return (
+                          <WalletAssetEntity
+                            setSelectedTokenDetail={(asset) =>
+                              this.handleTokenDetailClick(asset)
+                            }
+                            asset={asset}
+                            key={index}
+                          />
+                        );
+                      })}
+
+                      {(this.state.assetGroup.filter((asset) =>
+                        this.state.filterBy
+                          ? asset.symbol
+                              .toLowerCase()
+                              .includes(this.state.filterBy.toLowerCase())
+                          : true
+                      ).length === 0) && (
+                        <p className="ion-padding ion-text-center">Assets not found in your wallet</p>
+                      )}
+                  </IonCol>
+                )}
+                {/* txs view */}
+                {this.state.currentView === 'txs' && (
+                  <IonCol size="12" class="ion-no-padding" >
+                    <TxsList />
+                  </IonCol>
+                )}
               </IonRow>
             </>
           )}

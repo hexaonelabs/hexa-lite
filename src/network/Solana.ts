@@ -46,4 +46,8 @@ export class SolanaWalletUtils extends MagicWalletUtils {
   async sendToken(destination: string, decimalAmount: number, contactAddress: string) {
     throw new Error("sendToken() - Method not implemented.");
   }
+
+  async loadTransactionHistory() {
+    throw new Error("loadTransactionHistory() - Method not implemented.");
+  }
 }

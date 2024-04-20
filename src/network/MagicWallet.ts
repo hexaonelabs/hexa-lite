@@ -2,6 +2,7 @@ import { CHAIN_DEFAULT, NETWORK } from "../constants/chains";
 import { connect, disconnect } from "../servcies/magic";
 import { IAsset } from "../interfaces/asset.interface";
 import { Web3ProviderType } from "@/interfaces/web3.interface";
+import { TxInterface } from "@/interfaces/tx.interface";
 
 
 // Abstract class to handle magic network-specific operations
@@ -25,14 +26,20 @@ export abstract class MagicWalletUtils {
   public set assets(assets: IAsset[]) {
     this._assets = assets;
   }
+  public get txs(): TxInterface[] {
+    return this._txs;
+  }
+
   private _walletAddress: string | undefined;
   private _network!: NETWORK;
   private _assets: IAsset[] = [];
+  protected _txs: TxInterface[] = [];
 
   public abstract web3Provider: Web3ProviderType | null;
   public abstract isMagicWallet: boolean;
   public abstract loadBalances(force?: boolean): Promise<void>;
   public abstract sendToken(destination: string, decimalAmount: number, contactAddress: string): Promise<any>;
+  public abstract loadTransactionHistory(): Promise<void>;
   protected abstract _initializeWeb3(): Promise<void>;
 
   /**

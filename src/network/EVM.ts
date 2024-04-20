@@ -4,6 +4,7 @@ import { getTokensBalances } from "../servcies/ankr.service";
 import { MagicWalletUtils } from "./MagicWallet";
 import { getMagic } from "@/servcies/magic";
 import { getTokensPrice } from "@/servcies/lifi.service";
+import { getTransactionsHistory } from "@/servcies/zerion.service";
 
 /**
  * Function tha takes wallet address and fetches all assets for that wallet
@@ -125,6 +126,18 @@ export class EVMWalletUtils extends MagicWalletUtils {
       console.error(err);
       throw new Error("Error during sending token");
     }
+  }
+
+  async loadTransactionHistory() {
+    if (!this.walletAddress) {
+      throw new Error("Wallet address is not initialized");
+    }
+    if (!this.web3Provider) {
+      throw new Error("Web3Provider is not initialized");
+    }
+    // use ankr service to get transaction history from all networks
+    const history = await getTransactionsHistory(this.walletAddress);
+    this._txs = history;
   }
 
   private async _setMetamaskNetwork() {

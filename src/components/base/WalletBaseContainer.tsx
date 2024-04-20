@@ -16,6 +16,7 @@ import { IAsset } from "@/interfaces/asset.interface";
 import { DepositContainer } from "@/containers/DepositContainer";
 import { HookOverlayOptions } from "@ionic/react/dist/types/hooks/HookOverlayOptions";
 import { TransferContainer } from "../../containers/TransferContainer";
+import { TxInterface } from "@/interfaces/tx.interface";
 const BuyWithFiatContainer = lazy(() => import("@/containers/BuyWithFiat"));
 
 export type SelectedTokenDetail = {
@@ -45,6 +46,7 @@ export interface WalletComponentState {
   isTransferModalOpen: boolean;
   isDepositModalOpen: boolean;
   isBuyWithFiatModalOpen: boolean;
+  currentView: 'tokens' | 'txs' | 'nfts'
 }
 
 export default class WalletBaseComponent<T> extends React.Component<
@@ -62,6 +64,7 @@ export default class WalletBaseComponent<T> extends React.Component<
       isTransferModalOpen: false,
       isDepositModalOpen: false,
       isBuyWithFiatModalOpen: false,
+      currentView: 'tokens'
     };
   }
 

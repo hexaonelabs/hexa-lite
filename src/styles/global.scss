@@ -366,6 +366,19 @@ body.dark {
     box-shadow: 0 0 12px 0px rgb(0 0 0 / 25%);
   }
 }
+@media screen and (max-width: 767px) {
+  .widgetWrapper {
+    min-height: 100vh;
+    margin-bottom: -6rem;
+  }
+  .widgetWrapper, ion-card:not(.ion-color), .leaderboardPage ion-list {
+    margin-top: 0.5rem;
+    margin-left: -17px;
+    margin-right: -17px;
+    border-radius: 0;
+  }
+  
+}
 
 .welcomeSection {
 
@@ -1029,4 +1042,43 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+
+.wallet__switch_current_view {
+  ion-button {
+    margin: 1px;
+    --background: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.07);
+    --color: var(--ion-color-text);
+    --background-hover: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.1);
+    --background-focused: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.2);
+    --background-activated: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.2);
+
+    ion-icon {
+      transform: scale(0.8);
+    }
+    
+  }
+  ion-button:first-of-type {
+    --border-radius: 10px 0 0 10px !important;
+  }
+  ion-button:last-of-type {
+    --border-radius: 0 10px 10px 0 !important;
+  }
+}
+@media screen and (max-width: 767px) {
+  .wallet_tx_entity__detail_col {
+    flex-direction: column;
+    align-items: flex-start!important;
+
+    p {
+      font-size: 0.8rem;
+      line-height: 0.8rem;
+    }
+    > div {
+      margin: 0.25rem 0;
+
+    }
+  }
+  
 }
