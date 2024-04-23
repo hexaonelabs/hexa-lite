@@ -6,9 +6,30 @@ import { WalletTxEntity } from "../WalletTxEntity";
 import { LoadingPoolGroupsSkeleton } from "@/components/LoadingPoolGroupsSkeleton";
 import { WalletTxEntitySkeleton } from "../WalletTxEntitySkeleton";
 
-export const TxsList = () => {
+export const TxsList = (props: {
+  filterBy?: string|null;
+}) => {
   const { txs } = Store.useState(getWeb3State);
   const [maxItemCount, setMaxItemCount] = useState(10);
+  const data = txs
+  .filter((tx)=> {
+    if (!props.filterBy) {
+      return true;
+    }
+    // check transfers
+    if (tx.attributes.transfers.find(
+      t => t.fungible_info?.symbol.toLocaleLowerCase().includes(`${props.filterBy?.toLocaleLowerCase()}`))
+    ) {
+      return true;
+    }
+    // check approvals
+    if (tx.attributes.approvals.find(
+      t => t.fungible_info?.symbol.toLocaleLowerCase().includes(`${props.filterBy?.toLocaleLowerCase()}`))
+    ) {
+      return true;
+    }
+    return false
+  });
 
   return (
     <>
@@ -44,14 +65,16 @@ export const TxsList = () => {
 
         </IonRow>
       </IonGrid>
-      {txs.slice(0, maxItemCount).map((tx, i) => (
+      {data
+      .slice(0, maxItemCount)
+      .map((tx, i) => (
         <WalletTxEntity key={i} tx={tx} />
       ))}
       <IonInfiniteScroll
         threshold="25%"
         onIonInfinite={(ev) => {
-          console.log(maxItemCount, txs.length)
-          if (maxItemCount >= txs.length) {
+          console.log(maxItemCount, data.length)
+          if (maxItemCount >= data.length) {
             ev.target.disabled = true;
             ev.target.complete();
             return;

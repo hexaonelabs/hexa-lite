@@ -153,7 +153,7 @@ class WalletMobileContainer extends WalletBaseComponent<
             </IonRefresher>
 
             <IonHeader collapse="condense">
-              <IonToolbar style={{ "--background": "transparent", "border-bottom": "solid 1px var(--ion-border-color)" }}>
+              <IonToolbar style={{ "--background": "transparent", "borderBottom": "solid 1px var(--ion-border-color)" }}>
                 <IonGrid style={{ margin: "2vh auto 1rem", maxWidth: "450px" }}>
                   <IonRow className="ion-align-items-center ion-text-center">
                     <IonCol>
@@ -423,7 +423,7 @@ class WalletMobileContainer extends WalletBaseComponent<
                   {/* txs view */}
                   {this.state.currentView === 'txs' && (
                     <IonCol size="12" class="ion-no-padding" >
-                      <TxsList />
+                      <TxsList filterBy={this.state.filterBy} />
                     </IonCol>
                   )}
                 </IonRow>
