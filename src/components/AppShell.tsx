@@ -113,8 +113,8 @@ const setPreferScheme = () => {
 
 const AppShell = () => {
   // get params from url `s=`
-  const { pathname = "/swap" } = window.location;
-  let segment = pathname.split("/")[1] || "swap"; // urlParams.get("s") || "swap";
+  const { pathname = "/wallet" } = window.location;
+  let segment = pathname.split("/")[1] || "wallet"; // urlParams.get("s") || "swap";
   const { walletAddress, isMagicWallet } = Store.useState(getWeb3State);
   const error = Store.useState(getErrorState);
   const [presentFiatWarning, dismissFiatWarning] = useIonAlert();
@@ -190,40 +190,6 @@ const AppShell = () => {
       {!isMobilePWADevice && (
         <IonReactRouter>
           <IonRouterOutlet id="main">
-            <IonRoute
-              path="/index"
-              render={() => (
-                <>
-                  <IonPage>
-                    <IonContent ref={contentRef} scrollEvents={true}>
-                      <IonGrid
-                        class="ion-no-padding"
-                        style={{ minHeight: "100vh" }}
-                      >
-                        <IonRow
-                          style={{
-                            minHeight: "100%",
-                            height:
-                              currentSegment !== "welcome" ? "100%" : "90vh",
-                          }}
-                          class={
-                            currentSegment !== "welcome"
-                              ? "ion-align-items-top ion-justify-content-center ion-no-padding"
-                              : "ion-align-items-center ion-justify-content-center ion-no-padding"
-                          }
-                        >
-                          <IonCol size="12" class="ion-no-padding">
-                            <Welcome
-                              handleSegmentChange={handleSegmentChange}
-                            />
-                          </IonCol>
-                        </IonRow>
-                      </IonGrid>
-                    </IonContent>
-                  </IonPage>
-                </>
-              )}
-            />
             <IonRoute path="/leaderboard" render={() => <Suspense fallback={<DefaultProgressBar />} >
               <LeaderboardContainer />
             </Suspense>} />
@@ -236,7 +202,7 @@ const AppShell = () => {
             <IonRoute
               path="/"
               render={() => (
-                <Redirect to={isPlatform("pwa") ? "/swap" : "/index"} />
+                <Redirect to="/wallet" />
               )}
               exact={true}
             />
