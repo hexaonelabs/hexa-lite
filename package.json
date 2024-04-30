@@ -11,7 +11,7 @@
     "predeploy:gh": "npm run build",
     "predeploy:fb": "npm run build",
     "deploy:gh": "gh-pages -d build",
-    "deploy:fb": "firebase deploy --only hosting:hexa-lite"
+    "deploy:fb": "firebase deploy --only hosting:app-hexa-lite"
   },
   "dependencies": {
     "@0xsquid/widget": "^1.6.23",

@@ -2,8 +2,8 @@
   "targets": {
     "hexaonelabs": {
       "hosting": {
-        "hexa-lite": [
-          "hexa-lite"
+        "app-hexa-lite": [
+          "app-hexa-lite"
         ]
       }
     }
