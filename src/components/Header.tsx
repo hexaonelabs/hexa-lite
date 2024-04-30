@@ -71,7 +71,7 @@ export function Header({
                     <div
                       className="flex"
                       onClick={()=> {
-                        router.push('/index', 'back');
+                        window.location.href = 'https://hexa-lite.io'
                       }}
                     >
                       <AppLogo />
