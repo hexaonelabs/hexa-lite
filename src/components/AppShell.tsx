@@ -207,6 +207,13 @@ const AppShell = () => {
               exact={true}
             />
             <IonRoute
+              path="/index"
+              render={() => (
+                <Redirect to="/wallet" />
+              )}
+              exact={true}
+            />
+            <IonRoute
               render={() => (
                 <>
                   <IonPage>
