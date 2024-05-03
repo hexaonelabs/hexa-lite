@@ -1,39 +1,27 @@
 import {
   IonApp,
-  IonButton,
   IonRouterOutlet,
   setupIonicReact,
   IonText,
-  IonChip,
   IonContent,
   IonGrid,
   IonRow,
   IonCol,
   IonPage,
-  useIonModal,
-  IonIcon,
   useIonAlert,
-  IonImg,
   IonSkeletonText,
-  IonFab,
-  IonFabButton,
   IonList,
   IonItem,
   IonAvatar,
   IonProgressBar,
   IonModal,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
   useIonToast,
 } from "@ionic/react";
 import { StatusBar, Style } from "@capacitor/status-bar";
 
 import { IonReactRouter } from "@ionic/react-router";
-import { Redirect, Route, useHistory } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
-import { Welcome } from "./Welcome";
 import { Header } from "./Header";
 import { NotFoundPage } from "@/containers/NotFoundPage";
 import PwaInstall from "./PwaInstall";
@@ -42,7 +30,6 @@ import Store from "@/store";
 import { getErrorState, getWeb3State } from "@/store/selectors";
 import { IonRoute } from "@ionic/react";
 import { isPlatform } from "@ionic/core";
-import { close } from "ionicons/icons";
 import { setErrorState } from "@/store/actions";
 import { initializeAppSettings } from "@/store/effects/app-settings.effect";
 
@@ -193,12 +180,12 @@ const AppShell = () => {
             <IonRoute path="/leaderboard" render={() => <Suspense fallback={<DefaultProgressBar />} >
               <LeaderboardContainer />
             </Suspense>} />
-            <IonRoute path="/about" render={() => <Suspense fallback={<DefaultProgressBar />}>
+            {/* <IonRoute path="/about" render={() => <Suspense fallback={<DefaultProgressBar />}>
               <AboutContainer/>
             </Suspense>} />
             <IonRoute path="/available-platforms" render={() => <Suspense fallback={<DefaultProgressBar />}>
               <AvailablePlatformsContainer />
-            </Suspense>} />
+            </Suspense>} /> */}
             <IonRoute
               path="/"
               render={() => (
