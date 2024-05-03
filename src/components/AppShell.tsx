@@ -127,10 +127,9 @@ const AppShell = () => {
     })
   }
 
-  const isNotFound =
-    segment && ["wallet", "swap", "fiat", "defi", "earn"].indexOf(segment) === -1;
   // use state to handle segment change
   const [currentSegment, setSegment] = useState(segment.includes('index') ? 'wallet' : segment);
+  const isNotFound = ["wallet", "swap", "fiat", "defi", "earn"].indexOf(currentSegment) === -1;
   const handleSegmentChange = async (e: any) => {
     if (e.detail.value === "fiat") {
       if (walletAddress && walletAddress !== "") {
@@ -229,7 +228,7 @@ const AppShell = () => {
                         )}
                       </Suspense>
                       <Suspense fallback={<DefaultProgressBar />}>
-                        {currentSegment === isNotFound && <NotFoundPage />}
+                        {isNotFound === true && <NotFoundPage />}
                       </Suspense>
                     </IonContent>
                   </IonPage>
