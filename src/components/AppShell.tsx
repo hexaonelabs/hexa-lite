@@ -99,7 +99,6 @@ const setPreferScheme = () => {
 }
 
 const AppShell = () => {
-  // get params from url `s=`
   const { pathname = "/wallet" } = window.location;
   let segment = pathname.split("/")[1] || "wallet"; // urlParams.get("s") || "swap";
   const { walletAddress, isMagicWallet } = Store.useState(getWeb3State);
@@ -131,7 +130,7 @@ const AppShell = () => {
   const isNotFound =
     segment && ["wallet", "swap", "fiat", "defi", "earn"].indexOf(segment) === -1;
   // use state to handle segment change
-  const [currentSegment, setSegment] = useState(segment);
+  const [currentSegment, setSegment] = useState(segment.includes('index') ? 'wallet' : segment);
   const handleSegmentChange = async (e: any) => {
     if (e.detail.value === "fiat") {
       if (walletAddress && walletAddress !== "") {
