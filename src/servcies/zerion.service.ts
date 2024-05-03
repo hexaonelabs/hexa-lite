@@ -7,16 +7,14 @@ export const getTransactionsHistory = async (address: string) => {
   if (cachedData) {
     return cachedData;
   }
-  const API_KEY = process.env.NEXT_PUBLIC_APP_ZERION_APIKEY
   const options = {
     method: 'GET',
     headers: {
       accept: 'application/json',
-      authorization: `Basic ${API_KEY}`
     }
   };
   
-  const {data} = await fetch(`https://api.zerion.io/v1/wallets/${address}/transactions/?currency=usd&page[size]=100&filter[operation_types]=approve,borrow,burn,claim,deploy,deposit,execute,mint,receive,repay,send,stake,trade,unstake,withdraw&filter[trash]=only_non_trash`, options)
+  const {data} = await fetch(`https://nicolasfazio.ch/api/txs/txs.php?walletAddress=${address}`, options)
     .then(response => response.json());
   if (!data) {
     throw new Error('No data found');
