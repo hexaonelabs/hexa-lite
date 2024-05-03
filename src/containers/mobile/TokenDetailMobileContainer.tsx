@@ -222,7 +222,7 @@ export const TokenDetailMobileContainer = (props: {
                                 : a.balance + b.balance
                             )
                             .map((token, index) => (
-                              <IonCol key={index} size="auto">
+                              <IonCol key={index} size="auto" className="ion-padding">
                                 <NetworkTokenDetailCard 
                                   token={token} 
                                   allocationRatioInPercent={getAllocationRatioInPercent(token.balance, data.balance)} />
