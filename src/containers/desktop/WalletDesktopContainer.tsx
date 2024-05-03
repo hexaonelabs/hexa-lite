@@ -359,7 +359,7 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                 {/* txs view */}
                 {this.state.currentView === 'txs' && (
                   <IonCol size="12" class="ion-no-padding" >
-                    <TxsList />
+                    <TxsList filterBy={this.state.filterBy} />
                   </IonCol>
                 )}
               </IonRow>
