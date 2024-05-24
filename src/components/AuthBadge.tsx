@@ -20,7 +20,7 @@ import { SuccessCopyAddress } from "./SuccessCopyAddress";
 import { ToggleLightmode } from "./ui/ToogleLightmode";
 
 export const AuthBadge: React.FC<any> = () => {
-  const { walletAddress, currentNetwork, isMagicWallet, switchNetwork } =
+  const { walletAddress, currentNetwork, switchNetwork } =
     Store.useState(getWeb3State);
   const { display: displayLoader, hide: hidLoader } = useLoader();
   const chain =
@@ -38,7 +38,7 @@ export const AuthBadge: React.FC<any> = () => {
   const [presentSelectNetwork, dismissSelectNetwork] = useIonModal(() => (
     <SelectNetwork
       chains={CHAIN_AVAILABLES}
-      isMagicWallet={isMagicWallet}
+      isExternalWallet={false}
       dismiss={dismissSelectNetwork}
     />
   ));

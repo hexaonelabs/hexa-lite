@@ -54,7 +54,6 @@ import { ToggleHideCurrencyAmount } from "@/components/ui/ToggleHideCurrencyAmou
 import { TxsList } from "@/components/ui/TsxList/TxsList";
 
 interface WalletMobileComProps {
-  isMagicWallet: boolean;
   isSwapModalOpen: SelectedTokenDetail | boolean | undefined;
   setIsSwapModalOpen: (
     value?: SelectedTokenDetail | boolean | undefined
@@ -509,7 +508,7 @@ const withStore = (
 ) => {
   // use named function to prevent re-rendering failure
   return function WalletMobileContainerWithStore() {
-    const { walletAddress, assets, isMagicWallet, loadAssets } =
+    const { walletAddress, assets, loadAssets } =
       Store.useState(getWeb3State);
     const [isSettingOpen, setIsSettingOpen] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -519,7 +518,6 @@ const withStore = (
 
     return (
       <Component
-        isMagicWallet={isMagicWallet}
         walletAddress={walletAddress}
         assets={assets}
         isAlertOpen={isAlertOpen}

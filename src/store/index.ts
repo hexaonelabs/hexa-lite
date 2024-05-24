@@ -57,7 +57,6 @@ const defaultState: IStore = Object.freeze({
     currentNetwork: NETWORK.optimism,
     walletAddress: undefined,
     signer: undefined,
-    isMagicWallet: false,
     assets: [],
     txs: [],
     connectWallet: async (ops?: {email: string;}) => {

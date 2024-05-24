@@ -4,8 +4,44 @@ import { CHAIN_AVAILABLES } from '@/constants/chains';
 import { TxInterface } from '@/interfaces/tx.interface';
 import { getTransactionsHistory } from './zerion.service';
 import { IAsset } from '@/interfaces/asset.interface';
-import { fetchUserAssets } from '@/network/EVM';
+import { getTokensBalances } from './ankr.service';
+import { getTokensPrice } from './lifi.service';
 
+/**
+ * Function tha takes wallet address and fetches all assets for that wallet
+ * using Ankr API. It also fetches token price from LiFi API if Ankr response contains
+ * token with balance > 0 && balanceUsd === 0 && priceUsd === 0
+ * This ensures that all tokens have price in USD and the total balance is calculated correctly
+ * for each token that user has in the wallet.
+ */
+const fetchEVMAssets = async (walletAddress: string, force?: boolean) => {
+  console.log(`[INFO] fetchUserAssets()`, walletAddress);
+  if (!walletAddress) return null;
+  const assets = await getTokensBalances([], walletAddress, force);
+  // remove elements with 0 balance and add to new arrany using extracting
+  const assetWithBalanceUsd = [], 
+        assetsWithoutBalanceUsd = [];
+  for (let i = 0; i < assets.length; i++) {
+    const asset = assets[i];
+    (asset.balanceUsd === 0 && asset.balance > 0)
+      ?  assetsWithoutBalanceUsd.push(asset)
+      : assetWithBalanceUsd.push(asset);
+  }
+  // get token price for tokens without balanceUsd
+  const tokenWithbalanceUsd = await getTokensPrice(assetsWithoutBalanceUsd);
+  return [
+    ...assetWithBalanceUsd, 
+    ...tokenWithbalanceUsd
+  ];
+};
+
+/**
+ * Web3Connector class that wraps FirebaseWeb3Connect class
+ * that provides methods to connect, disconnect, switch accross networks and
+ * get signer for the connected wallet.
+ * It also provides methods to load balances and transactions for the connected wallet
+ * and also provides methods to listen to connect state changes.
+ */
 class Web3Connector {
 
   private readonly _connector = new FirebaseWeb3Connect(auth, 'APIKEY');
@@ -52,7 +88,7 @@ class Web3Connector {
       switch (true) {
         // evm wallet type 
         case chain?.type === 'evm': {
-          const evmAssets = await fetchUserAssets(wallet.address, force)||[];
+          const evmAssets = await fetchEVMAssets(wallet.address, force)||[];
           assets.push(...evmAssets);
           break;
         }
@@ -86,4 +122,6 @@ class Web3Connector {
 
 }
 const web3Connector = new Web3Connector();
+
+// export default instance
 export default web3Connector;
