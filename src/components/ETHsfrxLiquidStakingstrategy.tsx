@@ -46,7 +46,7 @@ export interface IStrategyModalProps {
 export function ETHsfrxLiquidStakingstrategyCard(props: { asImage?: boolean }) {  
   const {
     currentNetwork,
-    web3Provider,
+    signer,
     switchNetwork,
     connectWallet,
     disconnectWallet,
@@ -86,10 +86,9 @@ export function ETHsfrxLiquidStakingstrategyCard(props: { asImage?: boolean }) {
         try {
           await displayLoader();
           await connectWallet();
-          if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
-            throw new Error("Provider not found");
+          if (!(signer)) {
+            throw new Error("signer not found");
           }
-          const signer = web3Provider?.getSigner();
           console.log("[INFO] signer", signer);
           if (!signer) {
             throw new Error("Signer not found");
@@ -142,7 +141,7 @@ export function ETHsfrxLiquidStakingstrategyCard(props: { asImage?: boolean }) {
           });
         }
       },
-      signer: web3Provider instanceof ethers.providers.Web3Provider ? web3Provider?.getSigner() : undefined,
+      signer
     },
     // set source chain to Polygon
     fromChain: NETWORK.optimism,
@@ -189,13 +188,13 @@ export function ETHsfrxLiquidStakingstrategyCard(props: { asImage?: boolean }) {
   }, []);
 
   useEffect(() => {
-    if (!web3Provider) {
+    if (!signer) {
       return;
     }
     getETHByWstETH(1).then((value) => {
       setWstToEthAmount(() => Number(value));
     });
-  }, [web3Provider]);
+  }, [signer]);
 
   const widgetEvents = useWidgetEvents();
   useEffect(() => {

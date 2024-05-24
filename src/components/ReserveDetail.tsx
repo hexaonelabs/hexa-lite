@@ -142,7 +142,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
     handleSegmentChange,
   } = props;
   const {
-    web3Provider,
+    signer,
     currentNetwork,
     walletAddress,
     assets,
@@ -306,24 +306,20 @@ export function ReserveDetail(props: IReserveDetailProps) {
       `[INFO] ReserveDetail - onWillDismiss from LoanFormModal: `,
       ev.detail
     );
-    if (!web3Provider) {
-      throw new Error("No web3Provider found");
+    if (!signer) {
+      throw new Error("No signer found");
     }
-    if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
-      throw new Error("No EVM web3Provider");
+    if (!signer) {
+      throw new Error("No EVM signer");
     }
     if (ev.detail.role !== "confirm") {
       return;
     }
     displayLoader();
-    // switch network if need
-    let provider = web3Provider;
     if (currentNetwork !== pool.chainId) {
       await switchNetwork(pool.chainId);
-      // update provider after switch network
-      provider = web3Provider;
     }
-    if (!provider) {
+    if (!signer) {
       throw new Error("No provider found or update failed");
     }
     // perform action
@@ -332,19 +328,19 @@ export function ReserveDetail(props: IReserveDetailProps) {
     const amount = Number(value);
     switch (true) {
       case type === "deposit": {
-        await pool.deposit(amount, provider);
+        await pool.deposit(amount, signer);
         break;
       }
       case type === "withdraw": {
-        await pool.withdraw(amount, provider);
+        await pool.withdraw(amount, signer);
         break;
       }
       case type === "borrow": {
-        await pool.borrow(amount, provider);
+        await pool.borrow(amount, signer);
         break;
       }
       case type === "repay": {
-        await pool.repay(amount, provider);
+        await pool.repay(amount, signer);
         break;
       }
       default:

@@ -130,7 +130,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <ErrorBoundary>
         <Component {...pageProps} />
       </ErrorBoundary>
-      <GoogleAnalytics gaId="G-70XCWQ9YE2" />
+      {/* <GoogleAnalytics gaId="G-70XCWQ9YE2" /> */}
     </>
   );
 }

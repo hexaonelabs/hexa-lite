@@ -48,7 +48,7 @@ const isNumberKey = (evt: React.KeyboardEvent<HTMLIonInputElement>) => {
 }
 
 const requestQuote = async (ops: {
-  web3Provider: ethers.providers.Web3Provider;
+  signer: ethers.Signer;
   selectedCollateral: Pick<
     IAavePool,
     "chainId" | "aTokenAddress" | "decimals" | "priceInUSD"
@@ -57,7 +57,7 @@ const requestQuote = async (ops: {
   inputFromAmount: number;
 }): Promise<LiFiQuoteResponse & { errors?: any; message?: string }> => {
   const {
-    web3Provider,
+    signer,
     selectedCollateral,
     newCollateral,
     inputFromAmount,
@@ -69,7 +69,7 @@ const requestQuote = async (ops: {
     )
     .toString();
   console.log("[INFO] CrosschainLoanForm requestQuote...", ops);
-  const fromAddress = (await web3Provider?.getSigner().getAddress()) || "";
+  const fromAddress = (await signer.getAddress()) || "";
   // return {...fakeQuote, estimate: {
   //   ...fakeQuote.estimate,
   //   toAmount: `${(Number(inputFromAmount||0) * Number(selectedCollateral.priceInUSD)) / Number(newCollateral.priceInUSD)}`
@@ -135,7 +135,7 @@ export function CrosschainLoanForm(props: {
   const { reserve, userSummary, toggleCrosschainForm, onSubmit } = props;
   const userSummaryAndIncentivesGroup = Store.useState(getUserSummaryAndIncentivesGroupState)
   const poolGroups = Store.useState(getPoolGroupsState);
-  const { web3Provider, assets } = Store.useState(getWeb3State);
+  const { signer, assets } = Store.useState(getWeb3State);
   const [healthFactor, setHealthFactor] = useState<number | undefined>(
     +userSummary.healthFactor
   );
@@ -249,7 +249,7 @@ export function CrosschainLoanForm(props: {
       ),
       currentLiquidationThreshold: summary.currentLiquidationThreshold,
     });
-    if (!web3Provider) {
+    if (!signer) {
       // UI loader control
       setIsLoading(() => false);
       throw new Error("No ethereum provider");
@@ -258,7 +258,7 @@ export function CrosschainLoanForm(props: {
     setIsLoading(() => true);
     // request Quote
     const { errors, message, ...quote } = await requestQuote({
-      web3Provider: web3Provider as ethers.providers.Web3Provider,
+      signer,
       inputFromAmount: value,
       newCollateral,
       selectedCollateral,
@@ -749,38 +749,38 @@ export function CrosschainLoanForm(props: {
           <IonButton
             expand="block"
             onClick={async () => {
-              // exclud all action if no quote available
-              if (!quote?.id || !web3Provider) {
-                return;
-              }
-              await displayLoader();
-              try {
-                // perform swap collaterals
-                await checkAndSetAllowance(
-                  web3Provider as ethers.providers.Web3Provider, 
-                  quote.action.fromToken.address, 
-                  quote.estimate.approvalAddress, 
-                  quote.action.fromAmount,
-                );
-                await sendTransaction(quote, web3Provider as ethers.providers.Web3Provider);
-                await presentToast({
-                  message: `Swap callaterals successfully. Waiting form Borrow transaction...`,
-                  duration: 5000,
-                  color: "primary",
-                  buttons: ['x']
+              // // exclud all action if no quote available
+              // if (!quote?.id || !signer) {
+              //   return;
+              // }
+              // await displayLoader();
+              // try {
+              //   // perform swap collaterals
+              //   await checkAndSetAllowance(
+              //     signer, 
+              //     quote.action.fromToken.address, 
+              //     quote.estimate.approvalAddress, 
+              //     quote.action.fromAmount,
+              //   );
+              //   await sendTransaction(quote, signer);
+              //   await presentToast({
+              //     message: `Swap callaterals successfully. Waiting form Borrow transaction...`,
+              //     duration: 5000,
+              //     color: "primary",
+              //     buttons: ['x']
                   
-                });
-                await hideLoader();
-                // perform borrow by closing modal with params as `data`
-                onSubmit(borrowAmount, "confirm");
-              } catch (error: any) {
-                await presentToast({
-                  message: `Error while swap callaterals: ${error?.message||'Transaction failed'}. Please try again.`,
-                  duration: 5000,
-                  color: "danger",
-                });
-                await hideLoader();
-              }
+              //   });
+              //   await hideLoader();
+              //   // perform borrow by closing modal with params as `data`
+              //   onSubmit(borrowAmount, "confirm");
+              // } catch (error: any) {
+              //   await presentToast({
+              //     message: `Error while swap callaterals: ${error?.message||'Transaction failed'}. Please try again.`,
+              //     duration: 5000,
+              //     color: "danger",
+              //   });
+              //   await hideLoader();
+              // }
             }}
             strong={true}
             color="gradient"

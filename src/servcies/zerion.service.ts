@@ -14,13 +14,18 @@ export const getTransactionsHistory = async (address: string) => {
     }
   };
   
-  const {data} = await fetch(`https://nicolasfazio.ch/api/txs/txs.php?walletAddress=${address}`, options)
-    .then(response => response.json());
-  if (!data) {
-    throw new Error('No data found');
+  try {
+    const {data} = await fetch(`https://nicolasfazio.ch/api/txs/txs.php?walletAddress=${address}`, options)
+      .then(response => response.json());
+    if (!data) {
+      throw new Error('No data found');
+    }
+    await setCachedData(KEY, data);
+    return data as TxInterface[];
+  } catch (error) {
+    console.error(error);
+    return [];
   }
-  await setCachedData(KEY, data);
-  return data as TxInterface[];
 }
 
 const getCachedData = async (key: string, force?: boolean) => {

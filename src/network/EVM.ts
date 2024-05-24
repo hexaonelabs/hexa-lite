@@ -13,7 +13,7 @@ import { getTransactionsHistory } from "@/servcies/zerion.service";
  * This ensures that all tokens have price in USD and the total balance is calculated correctly
  * for each token that user has in the wallet.
  */
-const fetchUserAssets = async (walletAddress: string, force?: boolean) => {
+export const fetchUserAssets = async (walletAddress: string, force?: boolean) => {
   console.log(`[INFO] fetchUserAssets()`, walletAddress);
   if (!walletAddress) return null;
   const assets = await getTokensBalances([], walletAddress, force);

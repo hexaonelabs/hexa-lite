@@ -51,7 +51,7 @@ export interface IStrategyModalProps {
 export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?: boolean }) {  
   const {
     currentNetwork,
-    web3Provider,
+    signer,
     switchNetwork,
     connectWallet,
     disconnectWallet,
@@ -91,10 +91,9 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?
         try {
           await displayLoader();
           await connectWallet();
-          if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
+          if (!signer) {
             throw new Error("Provider not found");
           }
-          const signer = web3Provider?.getSigner();
           console.log("[INFO] signer", signer);
           if (!signer) {
             throw new Error("Signer not found");
@@ -147,7 +146,7 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?
           });
         }
       },
-      signer: web3Provider instanceof ethers.providers.Web3Provider ? web3Provider?.getSigner() : undefined,
+      signer
     },
     // set source chain to Polygon
     fromChain: NETWORK.optimism,
@@ -195,13 +194,13 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?
   }, []);
 
   useEffect(() => {
-    if (!web3Provider) {
+    if (!signer) {
       return;
     }
     getETHByWstETH(1).then((value) => {
       setWstToEthAmount(() => Number(value));
     });
-  }, [web3Provider]);
+  }, [signer]);
 
   const widgetEvents = useWidgetEvents();
   useEffect(() => {

@@ -101,7 +101,7 @@ const setPreferScheme = () => {
 const AppShell = () => {
   const { pathname = "/wallet" } = window.location;
   let segment = pathname.split("/")[1] || "wallet"; // urlParams.get("s") || "swap";
-  const { walletAddress, isMagicWallet } = Store.useState(getWeb3State);
+  const { walletAddress } = Store.useState(getWeb3State);
   const error = Store.useState(getErrorState);
   const [presentFiatWarning, dismissFiatWarning] = useIonAlert();
   const [isBuyWithFiatModalOpen, setIsBuyWithFiatModalOpen] = useState(false);
