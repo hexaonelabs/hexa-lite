@@ -131,6 +131,22 @@ function MyApp({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
       </ErrorBoundary>
       {/* <GoogleAnalytics gaId="G-70XCWQ9YE2" /> */}
+      {process.env.NEXT_PUBLIC_APP_IS_PROD !== 'true' && (<>
+        <div style={{
+          position: 'absolute',
+          bottom: '0',
+          left: '0',
+          display: 'block',
+          width: '100%',
+          padding: '0.5rem',
+          background: 'var(--ion-color-warning)',
+          color: '#000'
+        }}>
+          {process.env.NEXT_PUBLIC_APP_IS_LOCAL === 'true' && (<>[ENV] LOCAL: Using fake data.</>)}
+          {process.env.NEXT_PUBLIC_APP_IS_LOCAL === 'false' && 
+          process.env.NEXT_PUBLIC_APP_IS_PROD === 'false' && (<>[ENV] DEV: Using you own API Keys</>)}
+        </div>
+      </>)}
     </>
   );
 }

@@ -98,6 +98,9 @@ export  default function SwapContainer() {
   const chain = CHAIN_AVAILABLES.find((chain) => chain.id === currentNetwork);
   switch (true) {
     case chain?.type === "evm": {
+      const defaultChain = process.env.NEXT_PUBLIC_APP_IS_LOCAL === 'true' 
+        ? NETWORK.goerli
+        : currentNetwork || CHAIN_DEFAULT.id;
       // load environment config
       const widgetConfig: WidgetConfig = {
         ...LIFI_CONFIG,
@@ -169,9 +172,9 @@ export  default function SwapContainer() {
           signer,
         },
         // set source chain to Polygon
-        fromChain: currentNetwork || CHAIN_DEFAULT.id,
+        fromChain: defaultChain,
         // set destination chain to Optimism
-        toChain: currentNetwork || CHAIN_DEFAULT.id,
+        toChain: defaultChain,
         // set source token to ETH (Ethereum)
         fromToken: "0x0000000000000000000000000000000000000000",
       };
