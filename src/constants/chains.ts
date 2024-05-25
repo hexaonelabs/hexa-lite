@@ -228,7 +228,7 @@ export const CHAIN_AVAILABLES: IChain[] = [
   //   name: 'Fuji',
   // },
 ]
-.filter(c => process.env.NEXT_PUBLIC_APP_IS_PROD === 'true' ? !c.testnet : true)
+.filter(c => process.env.NEXT_PUBLIC_APP_IS_PROD === 'true' ? !c.testnet : c.testnet)
 .filter(c => !CHAINS_DISABLED.includes(c.id)) as IChain[];
 
 const NETWORK_DEFAULT = process.env.NEXT_PUBLIC_APP_IS_PROD === 'true' 

@@ -299,14 +299,8 @@ export const getMarkets = (chainId: number) => {
       return MARKETS.AaveV3Ethereum;
     case chainId === MARKETS.AaveV3Polygon.CHAIN_ID:
       return MARKETS.AaveV3Polygon;
-    case chainId === MARKETS.AaveV3Mumbai.CHAIN_ID:
-      return MARKETS.AaveV3Mumbai;
-    case chainId === MARKETS.AaveV3Fuji.CHAIN_ID:
-      return MARKETS.AaveV3Fuji;
     case chainId === MARKETS.AaveV3Arbitrum.CHAIN_ID:
       return MARKETS.AaveV3Arbitrum;
-    case chainId === MARKETS.AaveV3ArbitrumGoerli.CHAIN_ID:
-      return MARKETS.AaveV3ArbitrumGoerli;
     case chainId === MARKETS.AaveV3Optimism.CHAIN_ID:
       return MARKETS.AaveV3Optimism;
     case chainId === MARKETS.AaveV3Avalanche.CHAIN_ID:
@@ -319,6 +313,17 @@ export const getMarkets = (chainId: number) => {
       return MARKETS.AaveV3Base;
     case chainId === MARKETS.AaveV3Scroll.CHAIN_ID:
       return MARKETS.AaveV3Scroll;
+    /**
+     * HERE TESTNETS
+     */
+    case chainId === MARKETS.AaveV3ArbitrumGoerli.CHAIN_ID:
+      return MARKETS.AaveV3ArbitrumGoerli;
+    case chainId === MARKETS.AaveV3Sepolia.CHAIN_ID:
+      return MARKETS.AaveV3Sepolia;
+    case chainId === MARKETS.AaveV3Mumbai.CHAIN_ID:
+      return MARKETS.AaveV3Mumbai;
+    case chainId === MARKETS.AaveV3Fuji.CHAIN_ID:
+      return MARKETS.AaveV3Fuji;
     default:
       throw new Error(`ChainId ${chainId} not supported`);
   }
@@ -597,16 +602,20 @@ export const getUserSummaryAndIncentives = async (ops: {
 export type MARKETTYPE =
   | typeof MARKETS.AaveV3Ethereum
   | typeof MARKETS.AaveV3Polygon
-  | typeof MARKETS.AaveV3Mumbai
   | typeof MARKETS.AaveV3Avalanche
-  | typeof MARKETS.AaveV3Fuji
   | typeof MARKETS.AaveV3Arbitrum
   | typeof MARKETS.AaveV3ArbitrumGoerli
   | typeof MARKETS.AaveV3Optimism
   | typeof MARKETS.AaveV3BNB
   | typeof MARKETS.AaveV3PolygonZkEvm
   | typeof MARKETS.AaveV3Base
-  | typeof MARKETS.AaveV3Scroll;
+  | typeof MARKETS.AaveV3Scroll
+  /**
+   * HERE TESTNETS
+   */
+  | typeof MARKETS.AaveV3Mumbai
+  | typeof MARKETS.AaveV3Fuji
+  | typeof MARKETS.AaveV3Sepolia;
 
 export const permitByChainAndToken: {
   [chainId: number]: Record<string, boolean>;
