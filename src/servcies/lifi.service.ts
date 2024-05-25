@@ -873,11 +873,12 @@ export const getTokensPrice = async (tokens: IAsset[]) => {
       tokensResponse = responseData.tokens;
     }
   } catch (error) {
-    throw error;
+    // throw error;
+    tokensResponse = {};
   }
   const tokenWithPrice: IAsset[] = [];
   for (const token of tokens) {
-    const index = tokensResponse[token.chain?.id as number].findIndex(
+    const index = tokensResponse?.[token.chain?.id as number].findIndex(
       (t) => t.symbol === token.symbol
     );
     if (index > -1) {

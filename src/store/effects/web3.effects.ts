@@ -4,8 +4,8 @@ import { IWeb3State } from "..";
 import web3Connector from '@/servcies/firebase-web3-connect';
 
 const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
-  console.log(`[INFO] {{Web3Effect}} initializeWeb3() - `, chainId);
   const wallet = web3Connector.currentWallet();
+  console.log(`[INFO] {{Web3Effect}} initializeWeb3() - `, {chainId, wallet});
   const assets = await web3Connector.loadBalances(false);
   const txs = await web3Connector.loadTxs(false);
 

@@ -1,6 +1,6 @@
 import { FirebaseWeb3Connect } from '@hexaonelabs/firebase-web3connect';
 import { auth } from '@/firebase-config';
-import { CHAIN_AVAILABLES } from '@/constants/chains';
+import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from '@/constants/chains';
 import { TxInterface } from '@/interfaces/tx.interface';
 import { getTransactionsHistory } from './zerion.service';
 import { IAsset } from '@/interfaces/asset.interface';
@@ -44,7 +44,9 @@ const fetchEVMAssets = async (walletAddress: string, force?: boolean) => {
  */
 class Web3Connector {
 
-  private readonly _connector = new FirebaseWeb3Connect(auth, 'APIKEY');
+  private readonly _connector = new FirebaseWeb3Connect(auth, 'APIKEY', {
+    chainId: CHAIN_DEFAULT.id,
+  });
 
   async connect(){
     const { address } = await this._connector.connectWithUI() || {};
