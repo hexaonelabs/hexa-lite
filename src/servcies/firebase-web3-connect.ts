@@ -71,17 +71,17 @@ class Web3Connector {
     return this._connector.wallet;
   }
 
-  async getSigner(): Promise<Signer> {
+  async getSigner(): Promise<Signer|undefined> {
     const signer = await this._connector.wallet?.getSigner<Signer>();
-    if (!signer) {
-      throw new Error('Signer not available. Please connect wallet first.');
-    }
     return signer;
   }
 
   async getNetworkFeesAsUSD(): Promise<string> {
     // get ethers network fees using ethers.js
     const signer = await this.getSigner();
+    if (!signer) {
+      throw new Error('Signer not available');
+    }
     const network = await signer.provider?.getNetwork();
     if (!network) {
       throw new Error('Network not available');

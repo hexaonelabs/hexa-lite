@@ -7,7 +7,7 @@ import {
   UiPoolDataProvider,
   WalletBalanceProvider,
 } from "@aave/contract-helpers";
-import { ethers } from "ethers";
+import { Signer, Wallet, ethers, providers } from "ethers";
 import * as MARKETS from "@bgd-labs/aave-address-book";
 import {
   FormatReserveUSDResponse,
@@ -19,9 +19,10 @@ import { ChainId } from "@aave/contract-helpers";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { IUserSummary } from "../interfaces/reserve.interface";
 import { IAavePool } from "@/pool/Aave.pool";
+import web3Connector from "./firebase-web3-connect";
 
 const submitTransaction = async (ops: {
-  signer: ethers.providers.JsonRpcSigner; // Signing transactions requires a wallet provider
+  signer: Signer; // Signing transactions requires a wallet provider
   tx: EthereumTransactionTypeExtended;
 }) => {
   const { signer, tx } = ops;
@@ -41,7 +42,7 @@ const submitTransaction = async (ops: {
  * @returns 
  */
 const submitMultiplesTransaction = async (ops: {
-  signer: ethers.providers.JsonRpcSigner; // Signing transactions requires a wallet provider
+  signer: Signer; // Signing transactions requires a wallet provider
   txs: EthereumTransactionTypeExtended[];
 }) => {
   const { signer, txs } = ops;
@@ -68,7 +69,7 @@ export const fetchTVL = async (reserves: {totalLiquidityUSD: string;}[]): Promis
 };
 
 export const supply = async (ops: {
-  signer: ethers.providers.JsonRpcSigner; // Signing transactions requires a wallet provider
+  signer: Signer; // Signing transactions requires a wallet provider
   reserve: Pick<IAavePool, 'underlyingAsset'>;
   amount: string;
   onBehalfOf?: string;
@@ -77,6 +78,9 @@ export const supply = async (ops: {
 }) => {
   const { signer, reserve: {underlyingAsset}, amount, onBehalfOf, poolAddress, gatewayAddress } =
     ops;
+  if(!signer.provider) {
+    throw new Error('Provider not available');
+  }
   const pool = new Pool(signer.provider, {
     POOL: poolAddress,
     WETH_GATEWAY: gatewayAddress,
@@ -106,7 +110,7 @@ export const supply = async (ops: {
 };
 
 export const supplyWithPermit = async (ops: {
-  signer: ethers.providers.JsonRpcSigner; 
+  signer: Signer; 
   reserve: Pick<IAavePool, 'chainId' | 'underlyingAsset' | 'aTokenAddress'>;
   amount: string;
   onBehalfOf?: string;
@@ -115,6 +119,9 @@ export const supplyWithPermit = async (ops: {
 }) => {
   const { signer, reserve, amount, onBehalfOf, poolAddress, gatewayAddress } =
     ops;
+  if(!signer.provider) {
+    throw new Error('Provider not available');
+  }
   const pool = new Pool(signer.provider, {
     POOL: poolAddress,
     WETH_GATEWAY: gatewayAddress,
@@ -132,8 +139,7 @@ export const supplyWithPermit = async (ops: {
   const tokenAdress = reserve.underlyingAsset;
   // create timestamp of 10 minutes from now
   const deadline = `${new Date().setMinutes(new Date().getMinutes() + 10)}`;
-
-  const isTestnet = signer.provider.network?.chainId === 5 || signer.provider.network?.chainId === 80001 || false;
+  const isTestnet = network?.chainId === 5 || network?.chainId === 80001 || false;
   const havePermitConfig =
     permitByChainAndToken[network.chainId]?.[tokenAdress] || false;
   if (!havePermitConfig || isTestnet) {
@@ -147,9 +153,9 @@ export const supplyWithPermit = async (ops: {
     amount,
     deadline,
   });
-  console.log("dataToSign: ", dataToSign);
-
-  const signature = await signer.provider.send("eth_signTypedData_v4", [
+  console.log("dataToSign: ", dataToSign, web3Connector.currentWallet());
+  
+  const signature = await web3Connector.currentWallet()?.provider?.send("eth_signTypedData_v4", [
     user,
     dataToSign,
   ]);
@@ -175,7 +181,7 @@ export const supplyWithPermit = async (ops: {
 };
 
 export const withdraw = async (ops: {
-  signer: ethers.providers.JsonRpcSigner; 
+  signer: Signer; 
   reserve: Pick<IAavePool, 'underlyingAsset' | 'aTokenAddress'>;
   amount: string;
   onBehalfOf?: string;
@@ -184,7 +190,9 @@ export const withdraw = async (ops: {
 }) => {
   const { signer, reserve, amount, onBehalfOf, poolAddress, gatewayAddress } =
     ops;
-
+  if(!signer.provider) {
+    throw new Error('Provider not available');
+  }
   const pool = new Pool(signer.provider, {
     POOL: poolAddress,
     WETH_GATEWAY: gatewayAddress,
@@ -216,7 +224,7 @@ export const withdraw = async (ops: {
 };
 
 export const borrow = async (ops: {
-  signer: ethers.providers.JsonRpcSigner; 
+  signer: Signer; 
   reserve:Pick<IAavePool, 'underlyingAsset'>;
   amount: string;
   onBehalfOf?: string;
@@ -225,7 +233,9 @@ export const borrow = async (ops: {
 }) => {
   const { signer, reserve, amount, onBehalfOf, poolAddress, gatewayAddress } =
     ops;
-
+  if(!signer.provider) {
+    throw new Error('Provider not available');
+  }
   const pool = new Pool(signer.provider, {
     POOL: poolAddress,
     WETH_GATEWAY: gatewayAddress,
@@ -255,7 +265,7 @@ export const borrow = async (ops: {
 };
 
 export const repay = async (ops: {
-  signer: ethers.providers.JsonRpcSigner; 
+  signer: Signer; 
   reserve: Pick<IAavePool, 'underlyingAsset'>;
   amount: string;
   onBehalfOf?: string;
@@ -264,7 +274,9 @@ export const repay = async (ops: {
 }) => {
   const { signer, reserve, amount, onBehalfOf, poolAddress, gatewayAddress } =
     ops;
-
+  if(!signer.provider) {
+    throw new Error('Provider not available');
+  }
   const pool = new Pool(signer.provider, {
     POOL: poolAddress,
     WETH_GATEWAY: gatewayAddress,
