@@ -249,7 +249,6 @@ export function ReserveDetail(props: IReserveDetailProps) {
     throw new Error("No poolGroup found");
   }
 
-  console.log('>>>>x x', userSummaryAndIncentivesGroup)
   const userSummary = userSummaryAndIncentivesGroup?.find((group) =>
     group?.userReservesData?.find(({ reserve }) => reserve.id === id)
   );
@@ -407,11 +406,10 @@ export function ReserveDetail(props: IReserveDetailProps) {
     ) : (
       <></>
     );
-
   const DepositBtn =
     walletAddress &&
     (walletBalance || 0) > 0 &&
-    supplyPoolRatioInPercent < 99 ? (
+    (supplyPoolRatioInPercent < 99 || Infinity) ? (
       <IonButton
         fill="solid"
         expand="block"

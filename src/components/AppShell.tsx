@@ -32,6 +32,7 @@ import { IonRoute } from "@ionic/react";
 import { isPlatform } from "@ionic/core";
 import { setErrorState } from "@/store/actions";
 import { initializeAppSettings } from "@/store/effects/app-settings.effect";
+import { LoaderProvider } from "@/context/LoaderContext";
 
 setupIonicReact({ mode: "ios" });
 
@@ -174,68 +175,70 @@ const AppShell = () => {
     <IonApp>
       {!isMobilePWADevice && (
         <IonReactRouter>
-          <IonRouterOutlet id="main">
-            <IonRoute path="/leaderboard" render={() => <Suspense fallback={<DefaultProgressBar />} >
-              <LeaderboardContainer />
-            </Suspense>} />
-            {/* <IonRoute path="/about" render={() => <Suspense fallback={<DefaultProgressBar />}>
-              <AboutContainer/>
-            </Suspense>} />
-            <IonRoute path="/available-platforms" render={() => <Suspense fallback={<DefaultProgressBar />}>
-              <AvailablePlatformsContainer />
-            </Suspense>} /> */}
-            <IonRoute
-              path="/"
-              render={() => (
-                <Redirect to="/wallet" />
-              )}
-              exact={true}
-            />
-            <IonRoute
-              path="/index"
-              render={() => (
-                <Redirect to="/wallet" />
-              )}
-              exact={true}
-            />
-            <IonRoute
-              render={() => (
-                <>
-                  <IonPage>
-                    {!isNotFound && (
-                      <Header
-                        currentSegment={currentSegment}
-                        handleSegmentChange={handleSegmentChange}
-                      />
-                    )}
-                    <IonContent>
-                      <Suspense fallback={<DefaultProgressBar />}>
-                        {currentSegment === "wallet" && (
-                          <WalletDesktopContainer />
-                        )}
-                      </Suspense>
-                      <Suspense fallback={<DefaultProgressBar />}>
-                        {currentSegment === "swap" && (<SwapContainer />)}
-                      </Suspense>
-                      <Suspense fallback={<DefaultProgressBar />}>
-                        {currentSegment === "earn" && <EarnContainer />}
-                      </Suspense>
-                      <Suspense fallback={<DefaultProgressBar />}>
-                        {currentSegment === "defi" && (
-                          <DefiContainer
-                            handleSegmentChange={handleSegmentChange}
-                          />
-                        )}
-                      </Suspense>
-                      <Suspense fallback={<DefaultProgressBar />}>
-                        {isNotFound === true && <NotFoundPage />}
-                      </Suspense>
-                    </IonContent>
-                  </IonPage>
-                </>
-              )}
-            />
-          </IonRouterOutlet>
+          <LoaderProvider>
+            <IonRouterOutlet id="main">
+              <IonRoute path="/leaderboard" render={() => <Suspense fallback={<DefaultProgressBar />} >
+                <LeaderboardContainer />
+              </Suspense>} />
+              {/* <IonRoute path="/about" render={() => <Suspense fallback={<DefaultProgressBar />}>
+                <AboutContainer/>
+              </Suspense>} />
+              <IonRoute path="/available-platforms" render={() => <Suspense fallback={<DefaultProgressBar />}>
+                <AvailablePlatformsContainer />
+              </Suspense>} /> */}
+              <IonRoute
+                path="/"
+                render={() => (
+                  <Redirect to="/wallet" />
+                )}
+                exact={true}
+              />
+              <IonRoute
+                path="/index"
+                render={() => (
+                  <Redirect to="/wallet" />
+                )}
+                exact={true}
+              />
+              <IonRoute
+                render={() => (
+                  <>
+                    <IonPage>
+                      {!isNotFound && (
+                        <Header
+                          currentSegment={currentSegment}
+                          handleSegmentChange={handleSegmentChange}
+                        />
+                      )}
+                      <IonContent>
+                        <Suspense fallback={<DefaultProgressBar />}>
+                          {currentSegment === "wallet" && (
+                            <WalletDesktopContainer />
+                          )}
+                        </Suspense>
+                        <Suspense fallback={<DefaultProgressBar />}>
+                          {currentSegment === "swap" && (<SwapContainer />)}
+                        </Suspense>
+                        <Suspense fallback={<DefaultProgressBar />}>
+                          {currentSegment === "earn" && <EarnContainer />}
+                        </Suspense>
+                        <Suspense fallback={<DefaultProgressBar />}>
+                          {currentSegment === "defi" && (
+                            <DefiContainer
+                              handleSegmentChange={handleSegmentChange}
+                            />
+                          )}
+                        </Suspense>
+                        <Suspense fallback={<DefaultProgressBar />}>
+                          {isNotFound === true && <NotFoundPage />}
+                        </Suspense>
+                      </IonContent>
+                    </IonPage>
+                  </>
+                )}
+              />
+            </IonRouterOutlet>
+          </LoaderProvider>
         </IonReactRouter>
       )}
 

@@ -8,12 +8,13 @@ const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
   console.log(`[INFO] {{Web3Effect}} initializeWeb3() - `, {chainId, wallet});
   const assets = await web3Connector.loadBalances(false);
   const txs = await web3Connector.loadTxs(false);
+  const signer = await web3Connector?.getSigner();
 
   const state: IWeb3State = {
     assets,
     currentNetwork: chainId,
     walletAddress: wallet?.address,
-    signer: web3Connector?.getSigner(),
+    signer,
     txs,
     connectWallet: async (ops?: {email: string;}) => {
       await web3Connector.connect();

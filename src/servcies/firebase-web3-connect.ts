@@ -6,6 +6,7 @@ import { getTransactionsHistory } from './zerion.service';
 import { IAsset } from '@/interfaces/asset.interface';
 import { getTokensBalances } from './ankr.service';
 import { getTokensPrice } from './lifi.service';
+import { Signer } from 'ethers';
 
 /**
  * Function tha takes wallet address and fetches all assets for that wallet
@@ -70,8 +71,12 @@ class Web3Connector {
     return this._connector.wallet;
   }
 
-  getSigner() {
-    return this._connector?.provider?.getSigner(this._connector.wallet?.address);
+  async getSigner(): Promise<Signer> {
+    const signer = await this._connector.wallet?.getSigner<Signer>();
+    if (!signer) {
+      throw new Error('Signer not available. Please connect wallet first.');
+    }
+    return signer;
   }
 
   onConnectStateChanged(callback: (user: {
