@@ -6,7 +6,7 @@ import { getTransactionsHistory } from './zerion.service';
 import { IAsset } from '@/interfaces/asset.interface';
 import { getTokensBalances } from './ankr.service';
 import { getTokensPrice } from './lifi.service';
-import { Signer } from 'ethers';
+import { Signer, utils } from 'ethers';
 
 /**
  * Function tha takes wallet address and fetches all assets for that wallet
@@ -77,6 +77,29 @@ class Web3Connector {
       throw new Error('Signer not available. Please connect wallet first.');
     }
     return signer;
+  }
+
+  async getNetworkFeesAsUSD(): Promise<string> {
+    // get ethers network fees using ethers.js
+    const signer = await this.getSigner();
+    const network = await signer.provider?.getNetwork();
+    if (!network) {
+      throw new Error('Network not available');
+    }
+    // get network fees in USD
+    const networkFees = await signer.provider?.getFeeData();
+    if (!networkFees || !networkFees.gasPrice || !networkFees.maxFeePerGas) {
+      throw new Error('Network fees not available');
+    }
+    // get network fees in ETH
+    const totalFee = utils.formatUnits(
+      networkFees.gasPrice.add(networkFees.maxFeePerGas), 'gwei'
+    );
+    // const response = await fetch('https://api.coingecko.com/api/v3/coins/ethereum');
+    // const result = await response.json();
+    // const ethPriceUSD = result?.market_data?.current_price?.usd as number||0;
+    // const total = ethPriceUSD * Number(totalFee);
+    return Number(totalFee).toFixed(0) + ' Gwei';
   }
 
   onConnectStateChanged(callback: (user: {
