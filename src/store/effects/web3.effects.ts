@@ -75,7 +75,6 @@ export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
   });
 };
 
-// export const initializeMagicWeb3Connect = async (chainId: number = CHAIN_DEFAULT.id) => {
 //   console.log(`[INFO] {{Web3Effect}} initializeWeb3() - `, chainId);
 //   const magicUtils = await MagicWalletUtils.create(chainId);
 //   console.log(`[INFO] {{Web3Effect}} initialized - `, magicUtils);

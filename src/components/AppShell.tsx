@@ -16,6 +16,13 @@ import {
   IonProgressBar,
   IonModal,
   useIonToast,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButton,
+  IonCard,
+  IonCardHeader,
+  IonCardContent,
 } from "@ionic/react";
 import { StatusBar, Style } from "@capacitor/status-bar";
 
@@ -63,6 +70,7 @@ const WalletMobileContainer = lazy(
 const WelcomeMobileContainer = lazy(
   () => import("@/containers/mobile/WelcomeMobileContainer")
 );
+const MagicMigrationContainer = lazy(()=> import('@/containers/MagicMigrationContainer'))
 
 const DefaultProgressBar = () => {
   return (<IonProgressBar
@@ -106,6 +114,8 @@ const AppShell = () => {
   const error = Store.useState(getErrorState);
   const [presentFiatWarning, dismissFiatWarning] = useIonAlert();
   const [isBuyWithFiatModalOpen, setIsBuyWithFiatModalOpen] = useState(false);
+  const [isMagicMigrationModalOpen, setIsMagicMigrationModalOpen] = useState(false);
+  const [isMigrationMadalAlreadyDisplayed, setIsMigrationMadalAlreadyDisplayed] = useState(Boolean(localStorage.getItem('hexa-lite__migration-modal-displayed')))
   const [presentToast, dismissToast] = useIonToast();
 
   if(error) {
@@ -155,8 +165,24 @@ const AppShell = () => {
   };
 
   useEffect(() => {
+    // initialize by check if user have an existing Wallet created with Magic.link
+    // to display Migration Guide to Hexa Lite FirebaseWeb3Connect integration
+    window.indexedDB?.databases()
+    .then((databases)=> {
+      // check existing DB
+      const magicExist = databases.find(db => db.name?.toLowerCase()?.includes('magic'));
+      // check modal already displayed
+      const displayModal = magicExist && !isMigrationMadalAlreadyDisplayed;
+      if (displayModal) {
+        // Migration guide process
+        setIsMagicMigrationModalOpen(true);
+        setIsMigrationMadalAlreadyDisplayed(true);
+        localStorage.setItem('hexa-lite__migration-modal-displayed', 'true');
+      } 
+    });
+    // initialze Web3 connection & app settings
     initializeWeb3();
-    initializeAppSettings()
+    initializeAppSettings();
   }, []);
 
   useEffect(() => {
@@ -173,7 +199,7 @@ const AppShell = () => {
 
   return (
     <IonApp>
-      {!isMobilePWADevice && (
+      {!isMobilePWADevice && !isMagicMigrationModalOpen && (
         <IonReactRouter>
           <LoaderProvider>
             <IonRouterOutlet id="main">
@@ -243,7 +269,7 @@ const AppShell = () => {
       )}
 
       {/* Here use mobile UI */}
-      {isMobilePWADevice && (
+      {isMobilePWADevice && !isMagicMigrationModalOpen && (
         <IonReactRouter>
           <IonRouterOutlet id="main">
             <IonRoute path="/leaderboard" render={() => <Suspense fallback={<DefaultProgressBar />} >
@@ -357,17 +383,31 @@ const AppShell = () => {
           </IonRouterOutlet>
         </IonReactRouter>
       )}
+
       <PwaInstall />
+
       <IonModal
-          isOpen={isBuyWithFiatModalOpen}
-          onDidDismiss={() => setIsBuyWithFiatModalOpen(false)}
-        >
-          <Suspense fallback={<DefaultProgressBar />}>
-            <BuyWithFiatContainer 
-              dismiss={()=> setIsBuyWithFiatModalOpen(false)}
-              isLightmode={localStorage.getItem('hexa-lite_is-lightmode') === 'true' ? true : undefined} />
-          </Suspense>
-        </IonModal>
+        isOpen={isBuyWithFiatModalOpen}
+        onDidDismiss={() => setIsBuyWithFiatModalOpen(false)}
+      >
+        <Suspense fallback={<DefaultProgressBar />}>
+          <BuyWithFiatContainer 
+            dismiss={()=> setIsBuyWithFiatModalOpen(false)}
+            isLightmode={localStorage.getItem('hexa-lite_is-lightmode') === 'true' ? true : undefined} />
+        </Suspense>
+      </IonModal>
+
+      <IonModal
+        isOpen={isMagicMigrationModalOpen}
+        onDidDismiss={() => {
+          setIsMagicMigrationModalOpen(false);
+        }}
+      >
+        <Suspense fallback={<DefaultProgressBar />}>
+          <MagicMigrationContainer setIsMagicMigrationModalOpen={setIsMagicMigrationModalOpen} />
+        </Suspense>
+      </IonModal>
+
     </IonApp>
   );
 };
