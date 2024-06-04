@@ -403,13 +403,7 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?
 
                   <IonButton
                     onClick={async () => {
-                      const chainId = currentNetwork;
-                      await displayLoader();
-                      if (chainId !== NETWORK.optimism) {
-                        await switchNetwork(NETWORK.optimism);
-                      }
                       await modal.current?.present();
-                      await hideLoader();
                     }}
                     expand="block"
                     color="gradient"
@@ -429,13 +423,7 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?
         <IonItem 
           style={{'--background': 'transparent'}}
           onClick={async () => {
-            const chainId = currentNetwork;
-            await displayLoader();
-            if (chainId !== NETWORK.optimism) {
-              await switchNetwork(NETWORK.optimism);
-            }
             await modal.current?.present();
-            await hideLoader();
           }}>
           <IonAvatar slot="start" style={{
               width: '64px',
