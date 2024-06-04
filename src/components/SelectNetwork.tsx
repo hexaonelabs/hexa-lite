@@ -70,7 +70,7 @@ export const SelectNetwork: React.FC<SelectNetworkProps> = ({
                   button={true}
                   detail={false}
                   disabled={
-                    isExternalWallet ? false : chain.type === "evm" ? false : true
+                    isExternalWallet && chain.type !== "evm" ? true : false
                   }
                   style={{ "--background": "transparent" }}
                   onClick={() => dismiss(chain.id, "getAddressFromNetwork")}
