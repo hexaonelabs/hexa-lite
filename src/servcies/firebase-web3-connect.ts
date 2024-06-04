@@ -72,8 +72,12 @@ class Web3Connector {
   }
 
   async getSigner(): Promise<Signer|undefined> {
-    const signer = await this._connector.wallet?.getSigner<Signer>();
-    return signer;
+    try {
+      const signer = await this._connector.wallet?.getSigner<Signer>();
+      return signer;
+    } catch (error) {
+      return undefined;
+    }
   }
 
   async getNetworkFeesAsUSD(): Promise<string> {
