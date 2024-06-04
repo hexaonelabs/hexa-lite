@@ -184,7 +184,7 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                     <IonGrid>
                       <IonRow className="ion-align-items-center">
                         <IonCol size="auto" class="ion-text-center">
-                          <IonIcon icon={card} size="large" color="dark" />
+                          <IonIcon icon={download} size="large" color="dark" />
                         </IonCol>
                         <IonCol class="ion-text-start ion-padding">
                           <IonText color="dark">
