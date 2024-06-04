@@ -2,7 +2,7 @@ import { ChainId } from "@aave/contract-helpers";
 
 // Define Network enum that represents supported networks
 export enum NETWORK {
-  bitcoin = 1000,
+  bitcoin = 128,
   mainnet = 1,
   polygon = 137,
   avalanche = 43114,
