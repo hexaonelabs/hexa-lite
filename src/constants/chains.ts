@@ -35,6 +35,7 @@ export interface IChain {
 const CHAINS_DISABLED = [
   NETWORK.cosmos,
   NETWORK.polkadot,
+  NETWORK.avalanche,
 ];
 
 export const CHAIN_AVAILABLES: IChain[] = [

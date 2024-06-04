@@ -154,6 +154,11 @@ class Web3Connector {
     return txs;
   }
 
+  async backupWallet() {
+    return this._connector.backupWallet(true);
+  
+  }
+
 }
 const web3Connector = new Web3Connector();
 
