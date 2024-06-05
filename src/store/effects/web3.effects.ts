@@ -18,7 +18,13 @@ const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
     signer,
     txs,
     connectWallet: async (ops?: {email: string;}) => {
-      await web3Connector.connect();
+      try {
+        await web3Connector.connect();
+      } catch (error: any) {
+        console.error("[ERROR] handleConnect:", error);
+        // disable error feedback UI 
+        // because the error message is managed by the web3Connector
+      }
       await initState(chainId);
     },
     disconnectWallet: async () => {
