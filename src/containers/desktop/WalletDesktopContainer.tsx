@@ -1,4 +1,4 @@
-import { card, download, eyeOffOutline, eyeOutline, image, list, paperPlane, time } from "ionicons/icons";
+import { card, download, eyeOffOutline, eyeOutline, grid, gridOutline, gridSharp, image, list, logoUsd, paperPlane, ticket, ticketOutline, time } from "ionicons/icons";
 import WalletBaseComponent, {
   WalletComponentProps,
 } from "../../components/base/WalletBaseContainer";
@@ -29,6 +29,7 @@ import { patchAppSettings } from "@/store/actions";
 import { ToggleHideCurrencyAmount } from "@/components/ui/ToggleHideCurrencyAmount";
 import { WalletTxEntity } from "@/components/ui/WalletTxEntity";
 import { TxsList } from "@/components/ui/TsxList/TxsList";
+import { NftsList } from "@/components/ui/NftsList/NftsList";
 
 class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
   constructor(props: WalletComponentProps) {
@@ -244,7 +245,16 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                         ...state,
                         currentView: 'tokens'
                       }))}>
-                      <IonIcon size="small" icon={list} />
+                      <IonIcon size="small" icon={logoUsd} />
+                    </IonButton>
+                    <IonButton 
+                      disabled={this.state.currentView === 'nfts'} 
+                      size="small"
+                      onClick={()=> this.setState(state => ({
+                        ...state,
+                        currentView: 'nfts'
+                      }))}>
+                      <IonIcon color="dark" icon={gridSharp} />
                     </IonButton>
                     <IonButton 
                       disabled={this.state.currentView === 'txs'} 
@@ -255,13 +265,10 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                       }))}>
                       <IonIcon size="small" src="./assets/icons/history-icon.svg" />
                     </IonButton>
-                    {/* <IonButton disabled={this.state.currentView === 'nfts'} size="small">
-                      <IonIcon color="dark" icon={image} />
-                    </IonButton> */}
                   </div>
                 </IonCol>
               </IonRow>
-              <IonRow class="widgetWrapper" style={{ marginTop: "0.5rem" }}>
+              <IonRow class={this.state.currentView !== 'nfts' ? 'widgetWrapper' : ''} style={{ marginTop: "0.5rem" }}>
                 {/* tokens view */}
                 {this.state.currentView === 'tokens' && (
                   <IonCol size="12" class="ion-no-padding">
@@ -360,6 +367,12 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                 {this.state.currentView === 'txs' && (
                   <IonCol size="12" class="ion-no-padding" >
                     <TxsList filterBy={this.state.filterBy} />
+                  </IonCol>
+                )}
+                {/* nfts view */}
+                {this.state.currentView === 'nfts' && (
+                  <IonCol size="12" class="ion-no-padding" >
+                    <NftsList filterBy={this.state.filterBy} />
                   </IonCol>
                 )}
               </IonRow>

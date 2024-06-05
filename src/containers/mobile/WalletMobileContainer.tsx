@@ -52,6 +52,7 @@ import { isStableAsset } from "@/utils/isStableAsset";
 import { Currency } from "@/components/ui/Currency";
 import { ToggleHideCurrencyAmount } from "@/components/ui/ToggleHideCurrencyAmount";
 import { TxsList } from "@/components/ui/TsxList/TxsList";
+import { NftsList } from "@/components/ui/NftsList/NftsList";
 
 interface WalletMobileComProps {
   isSwapModalOpen: SelectedTokenDetail | boolean | undefined;
@@ -207,6 +208,14 @@ class WalletMobileContainer extends WalletBaseComponent<
                                 currentView: 'tokens'
                               }))}>
                               Assets
+                            </IonSegmentButton>
+                            <IonSegmentButton 
+                              value="nfts"
+                              onClick={()=> this.setState(state => ({
+                                ...state,
+                                currentView: 'nfts'
+                              }))}>
+                              NFTs
                             </IonSegmentButton>
                             <IonSegmentButton 
                               value="txs"
@@ -423,6 +432,13 @@ class WalletMobileContainer extends WalletBaseComponent<
                   {this.state.currentView === 'txs' && (
                     <IonCol size="12" class="ion-no-padding" >
                       <TxsList filterBy={this.state.filterBy} />
+                    </IonCol>
+                  )}
+
+                  {/* nfts view */}
+                  {this.state.currentView === 'nfts' && (
+                    <IonCol size="12" class="ion-padding" >
+                      <NftsList filterBy={this.state.filterBy} />
                     </IonCol>
                   )}
                 </IonRow>

@@ -4,9 +4,10 @@ import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from '@/constants/chains';
 import { TxInterface } from '@/interfaces/tx.interface';
 import { getTransactionsHistory } from './zerion.service';
 import { IAsset } from '@/interfaces/asset.interface';
-import { getTokensBalances } from './ankr.service';
+import { getNFTsBalances, getTokensBalances } from './ankr.service';
 import { getTokensPrice } from './lifi.service';
 import { Signer, utils } from 'ethers';
+import { INFT } from '@/interfaces/nft.interface';
 
 /**
  * Function tha takes wallet address and fetches all assets for that wallet
@@ -152,6 +153,28 @@ class Web3Connector {
       }
     }
     return txs;
+  }
+
+  async loadNFTs(force?: boolean) {
+    const nfts: INFT[] = [];
+    for (const wallet of this.wallets()) {
+      if (!wallet) {
+        return nfts;
+      }
+      const chain = CHAIN_AVAILABLES.find((chain) => chain.id === wallet.chainId);
+      switch (true) {
+        // evm wallet type 
+        case chain?.type === 'evm': {
+          const evmAssets = await getNFTsBalances([], wallet.address, force)||[];
+          nfts.push(...evmAssets);
+          break;
+        }
+        default:
+          break
+      }
+    }
+    return nfts;
+  
   }
 
   async backupWallet() {

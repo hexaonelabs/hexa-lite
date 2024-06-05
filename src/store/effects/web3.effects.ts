@@ -8,11 +8,13 @@ const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
   const wallet = web3Connector.currentWallet();
   console.log(`[INFO] {{Web3Effect}} initializeWeb3() - `, {chainId, wallet});
   const assets = await web3Connector.loadBalances(false);
+  const nfts = await web3Connector.loadNFTs(false);
   const txs = await web3Connector.loadTxs(false);
   const signer = await web3Connector?.getSigner();
 
   const state: IWeb3State = {
     assets,
+    nfts,
     currentNetwork: chainId,
     walletAddress: wallet?.address,
     signer,

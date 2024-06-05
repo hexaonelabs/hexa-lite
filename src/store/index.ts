@@ -1,5 +1,6 @@
 import { NETWORK } from '@/constants/chains';
 import { IAsset } from '@/interfaces/asset.interface';
+import { INFT } from '@/interfaces/nft.interface';
 import { IUserSummary } from '@/interfaces/reserve.interface';
 import { TxInterface } from '@/interfaces/tx.interface';
 import { Web3SignerType } from '@/interfaces/web3.interface';
@@ -11,6 +12,7 @@ export interface IWeb3State {
   walletAddress: string | undefined;
   signer: Web3SignerType | undefined;
   assets: IAsset[];
+  nfts: INFT[];
   txs: TxInterface[];
   connectWallet(ops?: {email: string;}): Promise<void>;
   disconnectWallet(): Promise<void>;
@@ -58,6 +60,7 @@ const defaultState: IStore = Object.freeze({
     walletAddress: undefined,
     signer: undefined,
     assets: [],
+    nfts: [],
     txs: [],
     connectWallet: async (ops?: {email: string;}) => {
       throw new Error("connectWallet function not implemented");

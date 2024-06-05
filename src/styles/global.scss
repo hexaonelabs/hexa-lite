@@ -1065,6 +1065,9 @@ input[type=number] {
     }
     
   }
+  ion-button {
+    --border-radius: 0px !important;
+  }
   ion-button:first-of-type {
     --border-radius: 10px 0 0 10px !important;
   }
