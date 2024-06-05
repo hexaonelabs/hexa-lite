@@ -98,6 +98,7 @@ export const SwapMobileContainer = (props: {
       ...(LIFI_CONFIG?.hiddenUI as any[]),
       HiddenUI.History,
       HiddenUI.WalletMenu,
+      HiddenUI.ToAddress,
       // HiddenUI.DrawerButton,
       // HiddenUI.DrawerCloseButton
     ],
