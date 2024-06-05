@@ -22,7 +22,7 @@ import { close, openOutline, saveOutline, ribbonOutline } from "ionicons/icons";
 import { getAddressPoints } from "@/servcies/datas.service";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
-import ConnectButton from "../ConnectButton";
+import ConnectButton from "./ConnectButton";
 import DisconnectButton from "../DisconnectButton";
 import { ToggleLightmode } from "./ToogleLightmode";
 import { PointsPopover } from "../PointsPopover";

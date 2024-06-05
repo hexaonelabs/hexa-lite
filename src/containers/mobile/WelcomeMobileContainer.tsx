@@ -1,6 +1,6 @@
 import { IonCol, IonContent, IonGrid, IonImg, IonRow, IonText, useIonRouter } from "@ionic/react";
 import { IonPage,  } from '@ionic/react';
-import ConnectButton from "../../components/ConnectButton";
+import ConnectButton from "../../components/ui/ConnectButton";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import { useEffect } from "react";

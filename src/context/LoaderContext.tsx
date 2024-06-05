@@ -8,12 +8,12 @@ import { useIonLoading } from "@ionic/react";
 // Define the type for the user context.
 type LoaderContextType = {
   isVisible: boolean;
-  display: () => Promise<void>;
+  display: (msg?: string) => Promise<void>;
   hide: () => Promise<void>;
 };
 const LoaderContext = createContext<LoaderContextType>({
   isVisible: false,
-  display: () => Promise.resolve(),
+  display: (msg?: string) => Promise.resolve(),
   hide: () => Promise.resolve(),
 })
 

@@ -125,22 +125,7 @@ export  default function SwapContainer() {
             } catch (error: any) {
               // Log any errors that occur during the connection process
               hideLoader();
-              await presentToast({
-                message: `[ERROR] Connect Failed with reason: ${
-                  error?.message || error
-                }`,
-                color: "danger",
-                buttons: [
-                  {
-                    text: "x",
-                    role: "cancel",
-                    handler: () => {
-                      dismissToast();
-                    },
-                  },
-                ],
-              });
-              throw new Error("handleConnect:" + error?.message);
+              return error;
             }
           },
           disconnect: async () => {

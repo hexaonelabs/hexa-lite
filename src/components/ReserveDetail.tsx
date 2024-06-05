@@ -35,7 +35,7 @@ import {
 import { ethers } from "ethers";
 import { getReadableAmount } from "../utils/getReadableAmount";
 import { valueToBigNumber } from "@aave/math-utils";
-import ConnectButton from "./ConnectButton";
+import ConnectButton from "./ui/ConnectButton";
 import { LoanFormModal } from "./LoanFormModal";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
