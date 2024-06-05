@@ -7,6 +7,7 @@ import {
   useIonToast,
 } from "@ionic/react";
 import {
+  HiddenUI,
   RouteExecutionUpdate,
   WidgetConfig,
   WidgetEvent,
@@ -156,6 +157,13 @@ export  default function SwapContainer() {
           },
           signer,
         },
+        hiddenUI: [
+          ...(LIFI_CONFIG?.hiddenUI as any[]),
+          HiddenUI.WalletMenu,
+          HiddenUI.ToAddress,
+          // HiddenUI.DrawerButton,
+          // HiddenUI.DrawerCloseButton
+        ],
         // set source chain to Polygon
         fromChain: defaultChain,
         // set destination chain to Optimism
