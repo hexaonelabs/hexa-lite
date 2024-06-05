@@ -9,6 +9,7 @@ import {
   IonContent,
   IonFabButton,
   IonFabList,
+  IonFooter,
   IonGrid,
   IonHeader,
   IonIcon,
@@ -75,6 +76,7 @@ import {
 import { initializeUserSummary } from "@/store/effects/pools.effect";
 import { ModalMessage } from "./ModalMessage";
 import { currencyFormat } from "@/utils/currencyFormat";
+import { isMobilePWADevice } from "@/utils/isMobile";
 
 interface IReserveDetailProps {
   pool: MarketPool;
@@ -495,6 +497,22 @@ export function ReserveDetail(props: IReserveDetailProps) {
   //   });
   // }, [pool.symbol]);
 
+  const callActionsBtn = walletAddress ? (
+    <>
+      <IonButton
+        color="gradient"
+        expand={isMobilePWADevice ? 'block': undefined}
+        onClick={() => {
+          setIsModalOptionsOpen(() => true);
+        }}
+      >
+        Choose option
+      </IonButton>
+    </>
+  ) : (
+    <ConnectButton expand={isMobilePWADevice ? 'block': undefined}></ConnectButton>
+  );
+
   return (
     <>
       <IonHeader className="ion-no-border" translucent={true}>
@@ -611,60 +629,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     size-lg="6"
                     className="ion-text-center"
                   >
-                    {walletAddress ? (
-                      <>
-                        <IonButton
-                          color="gradient"
-                          onClick={() => {
-                            setIsModalOptionsOpen(() => true);
-                          }}
-                        >
-                          Choose option
-                        </IonButton>
-                        <IonModal
-                          className="modalAlert"
-                          onIonModalDidDismiss={() => {}}
-                          keyboardClose={false}
-                          isOpen={isModalOptionsOpen}
-                          onDidDismiss={() => {
-                            setIsModalOptionsOpen(false);
-                          }}
-                        >
-                          <IonGrid
-                            className="ion-padding"
-                            style={{ width: "100%" }}
-                          >
-                            <IonRow>
-                              <IonCol>
-                                <IonText>
-                                  <h3 style={{ marginBottom: 0 }}>
-                                    <b>Select option</b>
-                                  </h3>
-                                </IonText>
-                                <IonText color="medium">
-                                  <p className="ion-no-margin">
-                                    <small>
-                                      Choose an option to interact with this
-                                      pool.
-                                    </small>
-                                  </p>
-                                </IonText>
-                              </IonCol>
-                              <IonCol size="12">
-                                {/* {ExchangeAssetBtn}
-                                {BuyAssetBtn} */}
-                                {WithdrawBtn}
-                                {DepositBtn}
-                                {RepayBtn}
-                                {BorrowBtn}
-                              </IonCol>
-                            </IonRow>
-                          </IonGrid>
-                        </IonModal>
-                      </>
-                    ) : (
-                      <ConnectButton></ConnectButton>
-                    )}
+                    {!isMobilePWADevice ? callActionsBtn : null}
                   </IonCol>
                   {tokenDetails && (
                     <IonCol
@@ -1067,7 +1032,55 @@ export function ReserveDetail(props: IReserveDetailProps) {
           </IonRow>
         </IonGrid>
       </IonContent>
+      {isMobilePWADevice && (
+        <IonFooter>
+          <IonToolbar style={{'--background': 'transparent'}}>
+            {callActionsBtn}
+          </IonToolbar>
+        </IonFooter>
+      )}
 
+      <IonModal
+        className="modalAlert"
+        onIonModalDidDismiss={() => {}}
+        keyboardClose={false}
+        isOpen={isModalOptionsOpen}
+        onDidDismiss={() => {
+          setIsModalOptionsOpen(false);
+        }}
+      >
+        <IonGrid
+          className="ion-padding"
+          style={{ width: "100%" }}
+        >
+          <IonRow>
+            <IonCol>
+              <IonText>
+                <h3 style={{ marginBottom: 0 }}>
+                  <b>Select option</b>
+                </h3>
+              </IonText>
+              <IonText color="medium">
+                <p className="ion-no-margin">
+                  <small>
+                    Choose an option to interact with this
+                    pool.
+                  </small>
+                </p>
+              </IonText>
+            </IonCol>
+            <IonCol size="12">
+              {/* {ExchangeAssetBtn}
+              {BuyAssetBtn} */}
+              {WithdrawBtn}
+              {DepositBtn}
+              {RepayBtn}
+              {BorrowBtn}
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+      </IonModal>
+      
       <IonModal
         className="modalAlert"
         onIonModalDidDismiss={() => {
