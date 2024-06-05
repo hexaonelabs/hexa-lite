@@ -41,7 +41,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <link rel="manifest" href="manifest.webmanifest" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="theme-color" content="#182449" />
-        <meta name="color-scheme" content="dark" />
+        <meta name="color-scheme" content="dark light" />
 
         <meta name="author" content="HexaOneLabs" />
         <meta name="mobile-web-app-capable" content="yes" />

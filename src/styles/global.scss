@@ -75,7 +75,12 @@ p {
 /* You can add global styles to this file, and also import other style files */
 // global
 * {
-  color-scheme: light dark;
+  color-scheme: light;
+}
+body.dark {
+  * {
+    color-scheme: dark;
+  }
 }
 
 // Hide scrollbar for Chrome, Safari and Opera
