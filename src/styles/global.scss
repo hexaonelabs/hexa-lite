@@ -358,11 +358,16 @@ ion-card {
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 
-  -webkit-filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px); 
-  filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px );
+  > ion-col {
+    ion-grid:last-of-type {
+      border-bottom: none!important;
+    }
+  }
 }
 body.dark {
   .widgetWrapper, ion-card:not(.ion-color), .leaderboardPage ion-list {
+    -webkit-filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px); 
+    filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px );
     box-shadow: 0 0 12px 0px rgb(0 0 0 / 25%);
   }
 }
@@ -870,10 +875,6 @@ div.MuiScopedCssBaseline-root > .MuiBox-root > .MuiBox-root {
   backdrop-filter: none;
 }
 
-body.dark div[id^="widget-relative-container"]{
-  box-shadow: 0 0 12px 0px rgba(0, 0, 0, 0.25);
-}
-
 div.MuiScopedCssBaseline-root {
   background: var(--ion-background-color)!important;
   -webkit-backdrop-filter: blur(10px)!important;
@@ -1081,4 +1082,11 @@ input[type=number] {
     }
   }
   
+}
+
+/***********************************************
+ *  Utils styles
+ ***********************************************/
+.no-shadow {
+  box-shadow: none;
 }

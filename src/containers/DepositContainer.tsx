@@ -118,7 +118,7 @@ export const DepositContainer = (props: {
       <IonHeader className="ion-no-border" translucent={true}>
         <IonToolbar style={{'--background': 'transparent'}}>
           <IonTitle>
-            <h1>Deposit</h1>
+            Deposit
           </IonTitle>
           <IonButtons slot="end">
             <IonButton 

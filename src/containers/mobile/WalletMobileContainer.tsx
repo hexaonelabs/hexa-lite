@@ -236,7 +236,7 @@ class WalletMobileContainer extends WalletBaseComponent<
               {this.state.totalBalance <= 0 && (
                 <IonRow className="ion-padding-vertical">
                   <IonCol size="12">
-                    <IonCard onClick={()=> super.handleBuyWithFiat(true)}>
+                    <IonCard className="no-shadow" onClick={()=> super.handleBuyWithFiat(true)}>
                       <IonCardContent>
                         <IonGrid>
                           <IonRow className="ion-align-items-center">

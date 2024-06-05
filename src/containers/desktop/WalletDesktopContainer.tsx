@@ -133,7 +133,7 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
               >
                 <IonCard
                   style={{ cursor: "pointer" }}
-                  className="ion-no-margin"
+                  className="ion-no-margin no-shadow"
                   onClick={() => {
                     super.handleBuyWithFiat(true);
                   }}
@@ -175,7 +175,7 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
               >
                 <IonCard
                   style={{ cursor: "pointer" }}
-                  className="ion-no-margin"
+                  className="ion-no-margin no-shadow"
                   onClick={() => {
                     super.handleDepositClick()
                   }}

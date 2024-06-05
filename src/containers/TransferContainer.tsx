@@ -252,7 +252,7 @@ export const TransferContainer = (props: { dismiss: () => Promise<void> }) => {
       <IonHeader className="ion-no-border" translucent={true}>
         <IonToolbar style={{ "--background": "transparent" }}>
           <IonTitle>
-            <h1>Send token</h1>
+            Send token
           </IonTitle>
           <IonButtons slot="end">
             <IonButton
