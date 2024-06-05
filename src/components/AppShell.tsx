@@ -51,6 +51,7 @@ import {
   WalletMobileContainer,
   WelcomeMobileContainer,
 } from "@/containers";
+import { isMobilePWADevice } from "@/utils/isMobile";
 
 setupIonicReact({ mode: "ios" });
 
@@ -86,11 +87,6 @@ const DefaultLoadingPage = () => {
   );
 };
 
-const isMobilePWADevice =
-  localStorage.getItem("hexa-lite_is-pwa") ||
-  Boolean(isPlatform("pwa")) ||
-  Boolean(isPlatform("electron")) ||
-  (Boolean(isPlatform("mobile")) && !Boolean(isPlatform("mobileweb")));
 
 const setPreferScheme = () => {
   const prefersLightScheme = window.matchMedia("(prefers-color-scheme: light)");
