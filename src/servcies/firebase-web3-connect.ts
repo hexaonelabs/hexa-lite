@@ -58,7 +58,7 @@ class Web3Connector {
   }
 
   async disconnect(){
-    this._connector.signout();
+    await this._connector.signout();
     return true;
   }
   wallets(){
