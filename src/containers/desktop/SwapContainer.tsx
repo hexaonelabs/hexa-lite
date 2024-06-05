@@ -16,7 +16,7 @@ import type { Route } from "@lifi/sdk";
 import { useEffect } from "react";
 import { useLoader } from "../../context/LoaderContext";
 import { CHAIN_AVAILABLES, CHAIN_DEFAULT, NETWORK } from "../../constants/chains";
-import { ethers } from "ethers";
+import { Wallet, ethers } from "ethers";
 import { LiFiWidgetDynamic } from "../../components/LiFiWidgetDynamic";
 import { LIFI_CONFIG } from "../../servcies/lifi.service";
 // import { SquidWidgetDynamic } from "@/components/SquidWidgetDynamic";
@@ -28,7 +28,7 @@ import { getWeb3State } from "@/store/selectors";
 
 export  default function SwapContainer() {
   const {
-    web3Provider,
+    signer,
     currentNetwork,
     walletAddress,
     connectWallet,
@@ -98,10 +98,9 @@ export  default function SwapContainer() {
   const chain = CHAIN_AVAILABLES.find((chain) => chain.id === currentNetwork);
   switch (true) {
     case chain?.type === "evm": {
-      const signer =
-        web3Provider instanceof ethers.providers.Web3Provider && walletAddress
-          ? web3Provider?.getSigner()
-          : undefined;
+      const defaultChain = process.env.NEXT_PUBLIC_APP_IS_LOCAL === 'true' 
+        ? NETWORK.goerli
+        : currentNetwork || CHAIN_DEFAULT.id;
       // load environment config
       const widgetConfig: WidgetConfig = {
         ...LIFI_CONFIG,
@@ -111,12 +110,11 @@ export  default function SwapContainer() {
             try {
               await displayLoader();
               await connectWallet();
-              if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
+              if (!(signer instanceof ethers.Signer)) {
                 throw new Error(
-                  "[ERROR] Only support ethers.providers.Web3Provider"
+                  "[ERROR] Only support ethers.Signer"
                 );
               }
-              const signer = web3Provider?.getSigner();
               console.log("signer", signer);
               if (!signer) {
                 throw new Error("Signer not found");
@@ -174,9 +172,9 @@ export  default function SwapContainer() {
           signer,
         },
         // set source chain to Polygon
-        fromChain: currentNetwork || CHAIN_DEFAULT.id,
+        fromChain: defaultChain,
         // set destination chain to Optimism
-        toChain: currentNetwork || CHAIN_DEFAULT.id,
+        toChain: defaultChain,
         // set source token to ETH (Ethereum)
         fromToken: "0x0000000000000000000000000000000000000000",
       };

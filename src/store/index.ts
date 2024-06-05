@@ -1,16 +1,15 @@
 import { NETWORK } from '@/constants/chains';
 import { IAsset } from '@/interfaces/asset.interface';
-import { IPoolGroup, IUserSummary } from '@/interfaces/reserve.interface';
+import { IUserSummary } from '@/interfaces/reserve.interface';
 import { TxInterface } from '@/interfaces/tx.interface';
-import { Web3ProviderType } from '@/interfaces/web3.interface';
+import { Web3SignerType } from '@/interfaces/web3.interface';
 import { MarketPool } from '@/pool/Market.pool';
 import { Store as PullStateStore } from 'pullstate';
 
 export interface IWeb3State {
   currentNetwork: NETWORK;
   walletAddress: string | undefined;
-  web3Provider: Web3ProviderType | null;
-  isMagicWallet: boolean;
+  signer: Web3SignerType | undefined;
   assets: IAsset[];
   txs: TxInterface[];
   connectWallet(ops?: {email: string;}): Promise<void>;
@@ -57,8 +56,7 @@ const defaultState: IStore = Object.freeze({
   web3: {
     currentNetwork: NETWORK.optimism,
     walletAddress: undefined,
-    web3Provider: null,
-    isMagicWallet: false,
+    signer: undefined,
     assets: [],
     txs: [],
     connectWallet: async (ops?: {email: string;}) => {

@@ -44,7 +44,7 @@ export const SwapMobileContainer = (props: {
   dismiss: ()=> void;
 }) => {
   const {
-    web3Provider,
+    signer,
     currentNetwork,
     walletAddress,
     connectWallet,
@@ -88,10 +88,6 @@ export const SwapMobileContainer = (props: {
     return () => widgetEvents.all.clear();
   }, [widgetEvents]);
 
-  const signer =
-    web3Provider instanceof ethers.providers.Web3Provider && walletAddress
-      ? web3Provider?.getSigner()
-      : undefined;
   // load environment config
   const widgetConfig: WidgetConfig = {
     ...LIFI_CONFIG,
@@ -111,12 +107,6 @@ export const SwapMobileContainer = (props: {
         try {
           await displayLoader();
           await connectWallet();
-          if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
-            throw new Error(
-              "[ERROR] Only support ethers.providers.Web3Provider"
-            );
-          }
-          const signer = web3Provider?.getSigner();
           console.log("signer", signer);
           if (!signer) {
             throw new Error("Signer not found");

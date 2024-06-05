@@ -16,13 +16,13 @@ import { IChain } from "@/constants/chains";
 
 interface SelectNetworkProps {
   chains: Pick<IChain, "id" | "name" | "type" | "logo">[];
-  isMagicWallet: boolean;
+  isExternalWallet: boolean;
   dismiss: (data?: any, role?: string | undefined) => void;
 }
 
 export const SelectNetwork: React.FC<SelectNetworkProps> = ({
   chains,
-  isMagicWallet,
+  isExternalWallet,
   dismiss,
 }) => {
   return (
@@ -32,7 +32,7 @@ export const SelectNetwork: React.FC<SelectNetworkProps> = ({
           <h3 className="ion-padding-horizontal ion-padding-top">
             <b>Select network</b>
           </h3>
-          {!isMagicWallet && (
+          {isExternalWallet && (
             <IonText color="medium">
               <p
                 className="ion-no-margin ion-padding-horizontal ion-padding-bottom"
@@ -62,7 +62,6 @@ export const SelectNetwork: React.FC<SelectNetworkProps> = ({
             }}
           >
             {chains
-              // .filter(chain => isMagicWallet ? true : chain.type === "evm")
               .sort((a, b) => (a.name > b.name ? 1 : -1))
               .map((chain, index) => (
                 <IonItem
@@ -71,7 +70,7 @@ export const SelectNetwork: React.FC<SelectNetworkProps> = ({
                   button={true}
                   detail={false}
                   disabled={
-                    isMagicWallet ? false : chain.type === "evm" ? false : true
+                    isExternalWallet && chain.type !== "evm" ? true : false
                   }
                   style={{ "--background": "transparent" }}
                   onClick={() => dismiss(chain.id, "getAddressFromNetwork")}

@@ -151,9 +151,9 @@ export const getTokensBalances = async (
       : CHAIN_AVAILABLES.filter((availableChain) =>
           chainIds.find((c) => c === availableChain.id)
         );
-  // return fake_data for DEV mode
-  if (process.env.NEXT_PUBLIC_APP_IS_PROD === "false") {
-    console.log("[INFO] DEV mode return fake data");
+  // return fake_data for LOCAL mode
+  if (process.env.NEXT_PUBLIC_APP_IS_LOCAL === 'true') {
+    console.log("[INFO] LOCAL mode return fake data");
     const balances = formatingTokensBalances(fake_data, chainsList);
     return balances;
   }

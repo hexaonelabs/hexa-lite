@@ -13,7 +13,7 @@ const ConnectButton = (props: {
   const presentToast = toastContext[0];
   const dismissToast = toastContext[1];
   // Get the initializeWeb3 function from the Web3 context
-  const { connectWallet, web3Provider } = Store.useState(getWeb3State);
+  const { connectWallet, walletAddress } = Store.useState(getWeb3State);
   const { display: displayLoader, hide: hideLoader } = useLoader();
   // Define the event handler for the button click
   const handleConnect = async () => {
@@ -56,7 +56,7 @@ const ConnectButton = (props: {
       size={props?.size || "default"}
       style={props.style || {}}
       expand={props?.expand || undefined}
-      disabled={web3Provider === null}
+      disabled={walletAddress === null}
       color="gradient"
       onClick={async ($event)=> {
         $event.currentTarget.disabled = true;
@@ -71,7 +71,7 @@ const ConnectButton = (props: {
         }
       }}
     >
-      {web3Provider === null ? (
+      {walletAddress === null ? (
         <IonSkeletonText animated style={{ width: "80px", height: "50%" }} />
       ) : (
         "Connect"

@@ -13,14 +13,15 @@ import {
   IonText,
   useIonModal,
 } from "@ionic/react";
-import { checkmarkCircle, copyOutline, openOutline } from "ionicons/icons";
+import { checkmarkCircle, copyOutline, openOutline, saveOutline } from "ionicons/icons";
 import DisconnectButton from "./DisconnectButton";
 import { SelectNetwork } from "./SelectNetwork";
 import { SuccessCopyAddress } from "./SuccessCopyAddress";
 import { ToggleLightmode } from "./ui/ToogleLightmode";
+import web3Connector from "@/servcies/firebase-web3-connect";
 
 export const AuthBadge: React.FC<any> = () => {
-  const { walletAddress, currentNetwork, isMagicWallet, switchNetwork } =
+  const { walletAddress, currentNetwork, switchNetwork } =
     Store.useState(getWeb3State);
   const { display: displayLoader, hide: hidLoader } = useLoader();
   const chain =
@@ -38,16 +39,16 @@ export const AuthBadge: React.FC<any> = () => {
   const [presentSelectNetwork, dismissSelectNetwork] = useIonModal(() => (
     <SelectNetwork
       chains={CHAIN_AVAILABLES}
-      isMagicWallet={isMagicWallet}
+      isExternalWallet={false}
       dismiss={dismissSelectNetwork}
     />
   ));
 
-  const handleActions = async (type: string, payload: string) => {
+  const handleActions = async (type: string, payload?: string) => {
     await displayLoader();
     switch (true) {
-      case type === "copy": {
-        navigator?.clipboard?.writeText(payload);
+      case type === "copy" && payload !== undefined: {
+        navigator?.clipboard?.writeText(`${payload}`);
         // display toast confirmation
         presentSuccessCopyAddress({
           cssClass: "modalAlert",
@@ -76,6 +77,9 @@ export const AuthBadge: React.FC<any> = () => {
         dismissSelectNetwork(null, "cancel");
         await handleActions("copy", `${walletAddress}`);
         break;
+      }
+      case type === 'backup': {
+        await web3Connector.backupWallet()
       }
       default:
         break;
@@ -165,6 +169,32 @@ export const AuthBadge: React.FC<any> = () => {
           }}
         >
           <IonIcon icon={openOutline} />
+        </IonButton>
+      </IonItem>
+      <IonItem
+        lines="none"
+        button={false}
+        style={{ "--background": "transparent" }}
+      >
+        <IonLabel class="ion-text-wrap">
+          <IonText>
+            <h2>Backup Wallet</h2>
+          </IonText>
+          <IonText color="medium">
+            <p>
+              <small>
+                Download wallet backup
+              </small>
+            </p>
+          </IonText>
+        </IonLabel>
+        <IonButton
+          slot="end"
+          fill="clear"
+          color="primary"
+          onClick={() => handleActions('backup')}
+        >
+          <IonIcon icon={saveOutline} />
         </IonButton>
       </IonItem>
       <div className="ion-text-center ion-padding">

@@ -12,6 +12,8 @@ import {
   IonImg,
   IonInput,
   IonItem,
+  IonLabel,
+  IonNote,
   IonRow,
   IonText,
 } from "@ionic/react";
@@ -27,6 +29,7 @@ import {
 import { WarningBox } from "./WarningBox";
 import { CrosschainLoanForm } from "./CrosschainLoanForm";
 import { IAavePool } from "@/pool/Aave.pool";
+import web3Connector from '@/servcies/firebase-web3-connect';
 
 export function LoanFormModal({
   onDismiss,
@@ -43,6 +46,9 @@ export function LoanFormModal({
 }) {
   const { pool, actionType, userSummary } = selectedPool;
   const inputRef = useRef<HTMLIonInputElement>(null);
+  const [isConfirm, setIsConfirm ] = useState(false);
+  const [feesAmount, setFeesAmount ] = useState('0 Gwei');
+  const [valueAmount, setValueAmount ] = useState(0);
   const [isCrossChainEnabled, setIsCrossChainEnabled] = useState(isCrossChain);
   const [healthFactor, setHealthFactor] = useState<number | undefined>(
     -1
@@ -62,7 +68,16 @@ export function LoanFormModal({
   const readableAction =
     actionType[0].toUpperCase() + actionType.slice(1).toLocaleLowerCase();
 
-  console.log('>>>', userSummary)
+  const handleClick = async () => {
+    if (!isConfirm) {
+      const fees = await web3Connector.getNetworkFeesAsUSD();
+      setFeesAmount(fees);
+      setIsConfirm(true);
+      return;
+    }
+    onDismiss(valueAmount, "confirm");
+  }
+
   return (
     <IonGrid className="ion-no-padding" style={{ width: "100%" }}>
       <IonRow class="ion-align-items-center ion-padding-start ion-padding-end ion-padding-top">
@@ -99,46 +114,102 @@ export function LoanFormModal({
       {!isCrossChainEnabled && (
         <>
           <IonRow className="ion-padding-top">
-            <IonCol
-              size="12"
-              className="ion-padding-horizontal ion-padding-top"
-            >
-              <IonText
-                color="medium"
-                style={{
-                  display: "block",
-                  padding: "0rem 0rem 0.25rem",
-                }}
+            {!isConfirm && (
+              <IonCol
+                size="12"
+                className="ion-padding-horizontal ion-padding-top"
               >
-                <small>Amount</small>
-              </IonText>
-              <IonItem lines="none">
-                <div
-                  slot="start"
+                <IonText
+                  color="medium"
                   style={{
-                    display: "flex",
-                    alignItems: "center",
+                    display: "block",
+                    padding: "0rem 0rem 0.25rem",
                   }}
                 >
-                  <IonAvatar>
-                    <IonImg src={pool.logo}></IonImg>
-                  </IonAvatar>
+                  <small>Amount</small>
+                </IonText>
+                <IonItem lines="none">
                   <div
-                    className="ion-padding"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => {
-                      const el = inputRef.current;
-                      if (el) {
-                        (el as any).value = maxAmount || 0;
+                    slot="start"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <IonAvatar>
+                      <IonImg src={pool.logo}></IonImg>
+                    </IonAvatar>
+                    <div
+                      className="ion-padding"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        const el = inputRef.current;
+                        if (el) {
+                          (el as any).value = maxAmount || 0;
 
+                          const newHealthFactor =
+                            calculateHealthFactorFromBalancesBigUnits({
+                              collateralBalanceMarketReferenceCurrency:
+                                userSummary.totalCollateralUSD,
+                              borrowBalanceMarketReferenceCurrency:
+                                valueToBigNumber(
+                                  userSummary.totalBorrowsUSD
+                                ).plus(
+                                  valueToBigNumber(
+                                    inputRef.current?.value || 0
+                                  ).times(pool?.priceInUSD || 0)
+                                ),
+                              currentLiquidationThreshold:
+                                userSummary.currentLiquidationThreshold,
+                            });
+                          console.log(">>newHealthFactor.toNumber()", {
+                            newHealthFactor: newHealthFactor.toNumber(),
+                            userSummary,
+                            v: inputRef.current?.value,
+                          });
+
+                          setHealthFactor(newHealthFactor.toNumber());
+                        }
+                      }}
+                    >
+                      <IonText>
+                        <h3 style={{ margin: " 0" }}>{pool.symbol}</h3>
+                      </IonText>
+                      <IonText color="medium">
+                        <small style={{ margin: "0" }}>
+                          Max :{maxAmount.toFixed(6)}
+                        </small>
+                      </IonText>
+                    </div>
+                  </div>
+                  <div slot="end" className="ion-text-end">
+                    <IonInput
+                      ref={inputRef}
+                      style={{ fontSize: "1.5rem" }}
+                      placeholder="0"
+                      type="number"
+                      max={maxAmount}
+                      min={0}
+                      debounce={100}
+                      onIonInput={(e) => {
+                        const value = (e.target as any).value;
+                        if (maxAmount && value && Number(value) > maxAmount) {
+                          (e.target as any).value = maxAmount;
+                        }
+                        if (value && Number(value) < 0) {
+                          (e.target as any).value = "0";
+                          setValueAmount(0);
+                          return;
+                        }
+                        // set State
+                        setValueAmount(Number(value));
+                        // calculate healthfactor
                         const newHealthFactor =
                           calculateHealthFactorFromBalancesBigUnits({
                             collateralBalanceMarketReferenceCurrency:
                               userSummary.totalCollateralUSD,
                             borrowBalanceMarketReferenceCurrency:
-                              valueToBigNumber(
-                                userSummary.totalBorrowsUSD
-                              ).plus(
+                              valueToBigNumber(userSummary.totalBorrowsUSD).plus(
                                 valueToBigNumber(
                                   inputRef.current?.value || 0
                                 ).times(pool?.priceInUSD || 0)
@@ -147,67 +218,46 @@ export function LoanFormModal({
                               userSummary.currentLiquidationThreshold,
                           });
                         console.log(">>newHealthFactor.toNumber()", {
-                          newHealthFactor: newHealthFactor.toNumber(),
+                          newHealthFactor,
                           userSummary,
                           v: inputRef.current?.value,
                         });
 
                         setHealthFactor(newHealthFactor.toNumber());
-                      }
-                    }}
-                  >
-                    <IonText>
-                      <h3 style={{ margin: " 0" }}>{pool.symbol}</h3>
-                    </IonText>
-                    <IonText color="medium">
-                      <small style={{ margin: "0" }}>
-                        Max :{maxAmount.toFixed(6)}
-                      </small>
-                    </IonText>
+                      }}
+                    />
                   </div>
-                </div>
-                <div slot="end" className="ion-text-end">
-                  <IonInput
-                    ref={inputRef}
-                    style={{ fontSize: "1.5rem" }}
-                    placeholder="0"
-                    type="number"
-                    max={maxAmount}
-                    min={0}
-                    debounce={100}
-                    onIonInput={(e) => {
-                      const value = (e.target as any).value;
-                      if (maxAmount && value && Number(value) > maxAmount) {
-                        (e.target as any).value = maxAmount;
-                      }
-                      if (value && Number(value) < 0) {
-                        (e.target as any).value = "0";
-                      }
-                      const newHealthFactor =
-                        calculateHealthFactorFromBalancesBigUnits({
-                          collateralBalanceMarketReferenceCurrency:
-                            userSummary.totalCollateralUSD,
-                          borrowBalanceMarketReferenceCurrency:
-                            valueToBigNumber(userSummary.totalBorrowsUSD).plus(
-                              valueToBigNumber(
-                                inputRef.current?.value || 0
-                              ).times(pool?.priceInUSD || 0)
-                            ),
-                          currentLiquidationThreshold:
-                            userSummary.currentLiquidationThreshold,
-                        });
-                      console.log(">>newHealthFactor.toNumber()", {
-                        newHealthFactor,
-                        userSummary,
-                        v: inputRef.current?.value,
-                      });
-
-                      setHealthFactor(newHealthFactor.toNumber());
-                    }}
-                  />
-                </div>
-              </IonItem>
-            </IonCol>
+                </IonItem>
+              </IonCol>
+            )}
+            {isConfirm && (
+              <IonCol
+                size="12"
+                className="ion-padding-horizontal ion-padding-top"
+              >
+                <IonText
+                  color="medium"
+                  style={{
+                    display: "block",
+                    padding: "0rem 0rem 0.25rem",
+                  }}
+                >
+                  <small>Review Transaction</small>
+                </IonText>
+                <IonItem>
+                  <IonLabel>Action</IonLabel>
+                  <IonText slot="end">{readableAction}</IonText>
+                </IonItem>
+                <IonItem>
+                  <IonLabel>Amount</IonLabel>
+                  <IonText slot="end">{valueAmount||0} { pool.symbol }</IonText>
+                </IonItem>
+                <IonItem>
+                  <IonLabel>Fees</IonLabel>
+                  <IonText slot="end">{feesAmount||0}</IonText>
+                </IonItem>
+              </IonCol>
+            )}
           </IonRow>
           {displayRiskCheckbox && (
             <IonRow class="ion-justify-content-center">
@@ -239,14 +289,15 @@ export function LoanFormModal({
                   <small>or use crosschain collateral</small>
                 </IonButton>
               )} */}
+              
               <IonButton
                 expand="block"
-                onClick={() => onDismiss(inputRef.current?.value, "confirm")}
+                onClick={() => handleClick()}
                 strong={true}
                 color="gradient"
-                disabled={Number(inputRef.current?.value||0) > maxAmount || Number(inputRef.current?.value||0) <= 0}
+                disabled={(valueAmount||0) > maxAmount || Number(valueAmount||0) <= 0}
               >
-                Confirm
+                {isConfirm ? 'Confirm' : readableAction}
               </IonButton>
             </IonCol>
           </IonRow>

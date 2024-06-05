@@ -2,7 +2,7 @@ import { ChainId } from "@aave/contract-helpers";
 
 // Define Network enum that represents supported networks
 export enum NETWORK {
-  bitcoin = 1000,
+  bitcoin = 128,
   mainnet = 1,
   polygon = 137,
   avalanche = 43114,
@@ -14,7 +14,11 @@ export enum NETWORK {
   solana = 1399811149,
   base = 8453,
   scroll = 534352,
+  /**
+   * HERE ADD TESTNETS
+   */
   sepolia = 11155111,
+  goerli = 5,
 }
 
 export interface IChain {
@@ -30,9 +34,9 @@ export interface IChain {
 
 const CHAINS_DISABLED = [
   NETWORK.cosmos,
-  // NETWORK.avalanche,
   NETWORK.polkadot,
-]
+  NETWORK.avalanche,
+];
 
 export const CHAIN_AVAILABLES: IChain[] = [
   {
@@ -64,19 +68,6 @@ export const CHAIN_AVAILABLES: IChain[] = [
     )?.url||'',
     type: 'evm',
   },
-  // {
-  //   id: 250,
-  //   value: 'fantom',
-  //   name: 'Fantom',
-  //   nativeSymbol: 'FTM',
-  //   logo: '/assets/cryptocurrency-icons/eth.svg'
-  // },
-  // {
-  //   id: 43114,
-  //   value: 'avalanche',
-  //   name: 'Avalanche',
-  //   nativeSymbol: 'AVAX'
-  // },
   {
     id: NETWORK.polygon,
     value: 'polygon',
@@ -181,43 +172,6 @@ export const CHAIN_AVAILABLES: IChain[] = [
     )?.url||'',
     type: 'evm',
   },
-  // testnets
-  // {
-  //   id: 5,
-  //   value: 'eth_goerli',
-  //   name: 'Goerli',
-  //   testnet: true,
-  //   rpcUrl: "https://rpc.ankr.com/eth_goerli",
-  // },
-  {
-    id: NETWORK.sepolia,
-    value: 'sepolia',
-    name: 'sepolia',
-    nativeSymbol: 'ETH',
-    logo: '/assets/cryptocurrency-icons/eth.svg',
-    rpcUrl: 'https://rpc.ankr.com/eth_sepolia',
-    type: 'evm',
-    testnet: true,
-  },
-  // {
-  //   id: 43113,
-  //   value: 'avalanche_fuji',
-  //   name: 'Fuji',
-  // },
-  {
-    id: NETWORK.bitcoin,
-    name: 'Bitcoin',
-    value: 'bitcoin',
-    nativeSymbol: 'BTC',
-    rpcUrl: [
-      {url: '84-30-190-204.cable.dynamic.v4.ziggo.nl', primary: false},
-      {url: 'https://rpc.coinsdo.net/btc', primary: true}
-    ].find(
-      (rpc) => rpc.primary
-    )?.url||'',
-    type: 'bitcoin',
-    logo: '/assets/cryptocurrency-icons/btc.svg',
-  },
   {
     id: NETWORK.solana,
     value: 'solana',
@@ -232,8 +186,50 @@ export const CHAIN_AVAILABLES: IChain[] = [
     )?.url||'',
     type: 'solana',
   },
+  {
+    id: NETWORK.bitcoin,
+    name: 'Bitcoin',
+    value: 'bitcoin',
+    nativeSymbol: 'BTC',
+    rpcUrl: [
+      {url: '84-30-190-204.cable.dynamic.v4.ziggo.nl', primary: false},
+      {url: 'https://rpc.coinsdo.net/btc', primary: true}
+    ].find(
+      (rpc) => rpc.primary
+    )?.url||'',
+    type: 'bitcoin',
+    logo: '/assets/cryptocurrency-icons/btc.svg',
+  },
+
+  /**
+   * HERE ADD TESTNETS
+   */
+  {
+    id: NETWORK.sepolia,
+    value: 'sepolia',
+    name: 'sepolia',
+    nativeSymbol: 'ETH',
+    logo: '/assets/cryptocurrency-icons/eth.svg',
+    rpcUrl: 'https://rpc.ankr.com/eth_sepolia',
+    type: 'evm',
+    testnet: true,
+  },
+  {
+    id: NETWORK.goerli,
+    value: 'eth_goerli',
+    name: 'Goerli',
+    testnet: true,
+    logo: '/assets/cryptocurrency-icons/eth.svg',
+    rpcUrl: "https://rpc.ankr.com/eth_goerli",
+    type: 'evm',
+  },
+  // {
+  //   id: 43113,
+  //   value: 'avalanche_fuji',
+  //   name: 'Fuji',
+  // },
 ]
-.filter(c => process.env.NEXT_PUBLIC_APP_IS_PROD === 'true' ? !c.testnet : true)
+.filter(c => process.env.NEXT_PUBLIC_APP_IS_PROD === 'true' ? !c.testnet : c.testnet)
 .filter(c => !CHAINS_DISABLED.includes(c.id)) as IChain[];
 
 const NETWORK_DEFAULT = process.env.NEXT_PUBLIC_APP_IS_PROD === 'true' 
