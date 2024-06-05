@@ -178,12 +178,12 @@ export const AuthBadge: React.FC<any> = () => {
       >
         <IonLabel class="ion-text-wrap">
           <IonText>
-            <h2>Backup</h2>
+            <h2>Backup Wallet</h2>
           </IonText>
           <IonText color="medium">
             <p>
               <small>
-                Backup wallet seed phrase
+                Download wallet backup
               </small>
             </p>
           </IonText>
