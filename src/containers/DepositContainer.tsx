@@ -153,7 +153,7 @@ export const DepositContainer = (props: {
             <IonCol size="12" className="ion-padding">
 
               <div
-                className="ion-margin"
+                className="qrCodeContainer ion-margin"
                 style={{
                   border: 'solid 2px var(--ion-color-primary)',
                   borderRadius: "32px",
