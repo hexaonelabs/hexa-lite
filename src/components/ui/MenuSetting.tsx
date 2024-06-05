@@ -274,28 +274,7 @@ export const MenuSettings: React.FC<MenuSettingsProps> = ({dismiss}) => {
           }}>
             <IonIcon icon={openOutline} />
           </IonButton>
-        </IonItem>  
-        <IonItem
-          lines="none"
-          button={false}
-          style={{ "--background": "transparent" }}
-        >
-          <IonLabel class="ion-text-wrap">
-            <IonText>
-              <h2>Wallet key export</h2>
-            </IonText>            
-            <IonText color="medium">
-              <p>
-                <small>Wallet Magik</small>
-              </p>
-            </IonText>
-          </IonLabel>
-          <IonButton slot="end" fill="clear" onClick={()=> {
-            window.open('https://wallet.magic.link/', '_blank')
-          }}>
-            <IonIcon icon={openOutline} />
-          </IonButton>
-        </IonItem>     
+        </IonItem>    
         <IonItem
           lines="none"
           button={false}
