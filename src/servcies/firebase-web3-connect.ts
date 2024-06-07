@@ -51,7 +51,8 @@ class Web3Connector {
   });
 
   async connect(){
-    const { address } = await this._connector.connectWithUI() || {};
+    const isLightmode = !document.querySelector('body')?.classList.contains('dark');
+    const { address } = await this._connector.connectWithUI(isLightmode) || {};
     if (!address) {
       throw new Error('Connect wallet fail');
     }
@@ -59,7 +60,7 @@ class Web3Connector {
   }
 
   async disconnect(){
-    await this._connector.signout();
+    await this._connector.signout(true);
     return true;
   }
   wallets(){
