@@ -30,6 +30,7 @@ import { ToggleHideCurrencyAmount } from "@/components/ui/ToggleHideCurrencyAmou
 import { WalletTxEntity } from "@/components/ui/WalletTxEntity";
 import { TxsList } from "@/components/ui/TsxList/TxsList";
 import { NftsList } from "@/components/ui/NftsList/NftsList";
+import { getAllocationRatioInPercent } from "@/utils/getAllocationRatioInPercent";
 
 class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
   constructor(props: WalletComponentProps) {
@@ -279,9 +280,10 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                           "solid 1px rgba(var(--ion-color-primary-rgb), 0.2)",
                       }}
                     >
+                      {/* Header List */}
                       <IonRow className="ion-align-items-center ion-justify-content-between">
                         <IonCol
-                          size="6"
+                          size="5"
                         >
                           <IonLabel color="medium" className="ion-no-padding">
                             <small>
@@ -290,25 +292,37 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                           </IonLabel>
                         </IonCol>
                         <IonCol
-                          size="6"
+                          size="7"
                           className="ion-text-end"
                         >
                           <IonGrid className="ion-no-padding">
                             <IonRow className="ion-text-end">
                               <IonCol
-                                size-md="4"
-                                size-lg="4"
-                                size-xl="4"
-                                className="ion-hide-md-down ion-padding-horizontal"
+                                size-xs="5"
+                                size-sm="5"
+                                size-md="3"
+                                size-lg="3"
+                                size-xl="3"
+                                className="ion-padding-horizontal ion-text-nowrap"
                               >
                                 <IonText color="medium">
-                                  <small>Price</small>
+                                  <small>Wallet %</small>
                                 </IonText>
                               </IonCol>
                               <IonCol
-                                size-md="4"
-                                size-lg="4"
-                                size-xl="4"
+                                size-md="3"
+                                size-lg="3"
+                                size-xl="3"
+                                className="ion-hide-md-down ion-padding-horizontal"
+                              >
+                                <IonText color="medium">
+                                  <small>Price USD</small>
+                                </IonText>
+                              </IonCol>
+                              <IonCol
+                                size-md="3"
+                                size-lg="3"
+                                size-xl="3"
                                 className="ion-hide-md-down ion-padding-horizontal"
                               >
                                 <IonText color="medium">
@@ -316,15 +330,15 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                                 </IonText>
                               </IonCol>
                               <IonCol
-                                size-xs="12"
-                                size-sm="12"
-                                size-md="4"
-                                size-lg="4"
-                                size-xl="4"
-                                className="ion-padding-horizontal"
+                                size-xs="7"
+                                size-sm="7"
+                                size-md="3"
+                                size-lg="3"
+                                size-xl="3"
+                                className="ion-padding-horizontal ion-text-nowrap"
                               >
                                 <IonText color="medium">
-                                  <small>Value</small>
+                                  <small>Value USD</small>
                                 </IonText>
                               </IonCol>
                             </IonRow>
@@ -347,6 +361,7 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
                               this.handleTokenDetailClick(asset)
                             }
                             asset={asset}
+                            allocationRatioInPercent={getAllocationRatioInPercent(asset.balanceUsd, this.state.totalBalance)}
                             key={index}
                           />
                         );
