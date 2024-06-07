@@ -333,7 +333,7 @@ export const getNFTsBalances = async (
   const blockchain = chainsList
     .filter(({ type }) => type === "evm")
     .map(({ value }) => value);
-  const url = `https://rpc.ankr.com/multichain/${APP_ANKR_APIKEY}`;
+  const url = `https://rpc.ankr.com/multichain/${APP_ANKR_APIKEY}/?ankr_getNFTsByOwner=`;
   const options: RequestInit = {
     method: "POST",
     headers: {
@@ -342,7 +342,7 @@ export const getNFTsBalances = async (
     },
     body: JSON.stringify({
       jsonrpc: "2.0",
-      method: "?ankr_getNFTsByOwner",
+      method: "ankr_getNFTsByOwner",
       params: {
         blockchain,
         walletAddress: address,
@@ -351,7 +351,7 @@ export const getNFTsBalances = async (
     }),
   };
   const res = await fetch(url, options);
-  const assets = (await res.json())?.result?.assets;
+  const assets = (await res.json())?.result?.assets||[];
   const balances = formatingNFTsBalances(assets, chainsList);
   console.log("[INFO] {ankrFactory} getNFTsBalances(): ", balances);
   await setCachedData(KEY, balances);
