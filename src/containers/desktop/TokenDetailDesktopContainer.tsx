@@ -44,7 +44,7 @@ import {
   paperPlane,
   repeat,
 } from "ionicons/icons";
-import { DataItem } from "@/components/ui/LightChart";
+import { DataItem, SeriesData } from "@/components/ui/LightChart";
 import { getTokenHistoryPrice } from "@/utils/getTokenHistoryPrice";
 import { TokenInfo, getTokenInfo } from "@/utils/getTokenInfo";
 import { numberFormat } from "@/utils/numberFormat";
@@ -79,23 +79,17 @@ export const TokenDetailDesktopContainer = (props: {
 }) => {
   const { data, dismiss } = props;
   const { walletAddress } = Store.useState(getWeb3State);
-  const [dataChartHistory, setDataChartHistory] = useState<DataItem[]>([]);
+  const [dataChartHistory, setDataChartHistory] = useState<SeriesData>(new Map());
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | undefined>(undefined);
   const [isInfoOpen, setInfoOpen] = useState(false);
   const [isAccOpen, setIsAccOpen] = useState(false);
 
   useEffect(() => {
     if (!walletAddress) return;
-    getTxsFromAddress(walletAddress);
+    // getTxsFromAddress(walletAddress);
     getTokenHistoryPrice(props.data.symbol).then((prices) => {
-      const data: DataItem[] = prices.map(([time, value]: string[]) => {
-        const dataItem = {
-          time: new Date(time).toISOString().split("T").shift() || "",
-          value: Number(value),
-        };
-        return dataItem;
-      });
-      setDataChartHistory(() => data.slice(0, data.length - 1));
+      console.log({prices})
+      setDataChartHistory(() => prices);
     });
     getTokenInfo(props.data.symbol).then((tokenInfo) =>
       setTokenInfo(() => tokenInfo)
@@ -319,7 +313,7 @@ export const TokenDetailDesktopContainer = (props: {
                     </span>
                   </h2>
                 </IonText>
-                <LightChart data={dataChartHistory} minHeight={400} />
+                <LightChart seriesData={dataChartHistory} minHeight={400} />
               </Suspense>
             </IonCol>
           </IonRow>

@@ -1,33 +1,48 @@
+import { SeriesData } from "@/components/ui/LightChart";
+import { getCoingeekoTokenId } from "./getCoingeekoTokenId";
 
-export const getTokenHistoryPrice = async (symbol: string) => {
+export const getTokenHistoryPrice = async (
+  symbol: string, 
+  intervals: ('1D' | '1W' | '1M' | '1Y')[] = ['1D','1W','1M', '1Y']
+) => {
   // convert symbol to coingeeko id
-  const responseList = localStorage.getItem('hexa-lite-coingeeko/coinList');
-  let data;
-  if (responseList) {
-    data = JSON.parse(responseList);
-  } else {
-    const fetchResponse = await fetch(`https://api.coingecko.com/api/v3/coins/list`);
-    data = await fetchResponse.json();
-    localStorage.setItem('hexa-lite-coingeeko/coinList', JSON.stringify(data));
-  }
-  const coin = data.find((c: any) => c.symbol.toLowerCase() === symbol.toLowerCase());
-  if (!coin) return [];
+  const coinId = await getCoingeekoTokenId(symbol);
+  if (!coinId) return new Map() as SeriesData;
 
-  const responseToken = localStorage.getItem(`hexa-lite-coingeeko/coin/${coin.id}/market_chart`);
-  const jsonData = JSON.parse(responseToken||'{}');
-  const isDeadlineReach = (Date.now() - jsonData.timestamp) > (60 * 1000 * 30);
-  let tokenMarketData;
-  if (responseToken && !isDeadlineReach && jsonData.data) {
-    tokenMarketData = jsonData.data;
-  } else {
-    const url = `https://api.coingecko.com/api/v3/coins/${coin.id}/market_chart?vs_currency=usd&days=30&interval=daily`;
-    const res = await fetch(url);
-    const result = await res.json();
-    tokenMarketData = result?.prices as number[]||[];
-    localStorage.setItem(`hexa-lite-coingeeko/coin/${coin.id}/market_chart`, JSON.stringify({
-      data: tokenMarketData,
-      timestamp: Date.now()
-    }));
+  const seriesData: SeriesData = new Map();
+  for (let index = 0; index < intervals.length; index++) {
+    const interval = intervals[index];
+
+    const responseToken = localStorage.getItem(`hexa-lite-coingeeko/coin/${coinId}/market_chart?interval=${interval}`);
+    const jsonData = JSON.parse(responseToken||'{}');
+    const isDeadlineReach = (Date.now() - jsonData.timestamp) > (60 * 1000 * 30);
+    if (responseToken && !isDeadlineReach && jsonData.data) {
+      seriesData.set(interval, jsonData.data);
+    } else {
+      const days = interval === '1D' ? 1 : interval === '1W' ? 7 : interval === '1M' ? 30 : 365;
+      const dataInterval = interval === '1D' ? '' : interval === '1W' ? '' : interval === '1M' ? '' : '&interval=daily';
+      const url = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=${days}${dataInterval}`;
+      const res = await fetch(url);
+      const result = await res.json();
+      const prices = (result?.prices as number[][]||[]);
+      const data = prices
+      .map(([time, value]: number[]) => {
+        const dataItem = {
+          time: time / 1000|| "",
+          value: Number(value),
+        };
+        return dataItem;
+      })
+      // remove latest element
+      .slice(0, -1)
+      // remove duplicates
+      .filter((item, index, self) => index === self.findIndex((t) => t.time === item.time));
+      seriesData.set(interval, data);
+      localStorage.setItem(`hexa-lite-coingeeko/coin/${coinId}/market_chart?interval=${interval}`, JSON.stringify({
+        data,
+        timestamp: Date.now()
+      })); 
+    }
   }
-  return tokenMarketData;
+  return seriesData;
 }
