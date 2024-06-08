@@ -34,7 +34,7 @@ import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
 import { CHAIN_AVAILABLES } from "@/constants/chains";
 import { airplane, chevronDown, close, closeSharp, download, paperPlane } from "ionicons/icons";
-import { DataItem } from "@/components/ui/LightChart";
+import { DataItem, SeriesData } from "@/components/ui/LightChart";
 import { getTokenHistoryPrice } from "@/utils/getTokenHistoryPrice";
 import { TokenInfo, getTokenInfo } from "@/utils/getTokenInfo";
 import { TokenDetailMarketDetail } from "@/components/ui/TokenDetailMarketData";
@@ -68,23 +68,16 @@ export const TokenDetailMobileContainer = (props: {
 }) => {
   const { data, dismiss } = props;
   const { walletAddress } = Store.useState(getWeb3State);
-  const [dataChartHistory, setDataChartHistory] = useState<DataItem[]>([]);
+  const [dataChartHistory, setDataChartHistory] = useState<SeriesData>(new Map());
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | undefined>(undefined);
   const [isInfoOpen, setInfoOpen] = useState(false);
   const [isAccOpen, setIsAccOpen] = useState(false);
 
   useEffect(() => {
     if (!walletAddress) return;
-    getTxsFromAddress(walletAddress);
+    // getTxsFromAddress(walletAddress);
     getTokenHistoryPrice(props.data.symbol).then((prices) => {
-      const data: DataItem[] = prices.map(([time, value]: string[]) => {
-        const dataItem = {
-          time: new Date(time).toISOString().split("T").shift() || "",
-          value: Number(value),
-        };
-        return dataItem;
-      });
-      setDataChartHistory(() => data.slice(0, data.length - 1));
+      setDataChartHistory(() => prices);
     });
     getTokenInfo(props.data.symbol).then((tokenInfo) =>
       setTokenInfo(() => tokenInfo)
@@ -242,7 +235,7 @@ export const TokenDetailMobileContainer = (props: {
           <IonRow className="ion-margin-vertical">
             <IonCol size="12" className="ion-text-center">
               <Suspense fallback={<>.....</>}>
-                <LightChart data={dataChartHistory} />
+                <LightChart seriesData={dataChartHistory} />
                 <IonBadge color="primary">
                   <span
                     style={{

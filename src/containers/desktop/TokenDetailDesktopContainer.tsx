@@ -88,7 +88,6 @@ export const TokenDetailDesktopContainer = (props: {
     if (!walletAddress) return;
     // getTxsFromAddress(walletAddress);
     getTokenHistoryPrice(props.data.symbol).then((prices) => {
-      console.log({prices})
       setDataChartHistory(() => prices);
     });
     getTokenInfo(props.data.symbol).then((tokenInfo) =>
