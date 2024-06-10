@@ -8,7 +8,7 @@ import { getNFTsBalances, getTokensBalances } from './ankr.service';
 import { getTokensPrice } from './lifi.service';
 import { Signer, utils } from 'ethers';
 import { INFT } from '@/interfaces/nft.interface';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, browserPopupRedirectResolver, signInWithPopup, } from 'firebase/auth';
 
 /**
  * Function tha takes wallet address and fetches all assets for that wallet
@@ -54,7 +54,7 @@ class Web3Connector {
   async connect(){
     const provider = new GoogleAuthProvider();
     try {
-      const { user } = await signInWithPopup(auth, provider);
+      const { user } = await signInWithPopup(auth, provider, browserPopupRedirectResolver);
       alert(`[INFO] connect(): ` +  user.uid);
     } catch (error: any) {
       alert(`[ERROR] connect(): ` +  error?.message);
