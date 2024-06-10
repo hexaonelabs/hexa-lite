@@ -7,9 +7,9 @@ import web3Connector from '@/servcies/firebase-web3-connect';
 const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
   const wallet = web3Connector.currentWallet();
   console.log(`[INFO] {{Web3Effect}} initializeWeb3() - `, {chainId, wallet});
-  const assets = await web3Connector.loadBalances(false);
-  const nfts = await web3Connector.loadNFTs(false);
-  const txs = await web3Connector.loadTxs(false);
+  const assets = [] as any; // await web3Connector.loadBalances(false);
+  const nfts = [] as any; // await web3Connector.loadNFTs(false);
+  const txs = [] as any; // await web3Connector.loadTxs(false);
   const signer = await web3Connector?.getSigner();
 
   const state: IWeb3State = {
