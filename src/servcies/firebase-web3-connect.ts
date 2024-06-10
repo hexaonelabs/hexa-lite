@@ -55,9 +55,9 @@ class Web3Connector {
     const provider = new GoogleAuthProvider();
     try {
       const { user } = await signInWithPopup(auth, provider);
-      console.log(`[INFO] connect(): ` +  user.uid);
+      alert(`[INFO] connect(): ` +  user.uid);
     } catch (error: any) {
-      console.log(`[ERROR] connect()` +  error?.message);
+      alert(`[ERROR] connect(): ` +  error?.message);
     }
     // const isLightmode = !document.querySelector('body')?.classList.contains('dark');
     // const { address } = await this._connector.connectWithUI(isLightmode) || {};
