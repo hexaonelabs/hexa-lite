@@ -52,24 +52,12 @@ class Web3Connector {
   });
 
   async connect(){
-    const provider = new GoogleAuthProvider();
-    try {
-      const credential = await signInWithPopup(auth, provider, browserPopupRedirectResolver);
-      const { isNewUser } = getAdditionalUserInfo(credential) || {};
-	    if (!isNewUser ) {
-        alert(`[INFO] connect() not new user: ` +  credential.user.uid);
-      } else {
-        alert(`[INFO] connect() new user: ` +  credential.user.uid);
-      }
-    } catch (error: any) {
-      alert(`[ERROR] connect(): ` +  error?.message);
+    const isLightmode = !document.querySelector('body')?.classList.contains('dark');
+    const { address } = await this._connector.connectWithUI(isLightmode) || {};
+    if (!address) {
+      throw new Error('Connect wallet fail');
     }
-    // const isLightmode = !document.querySelector('body')?.classList.contains('dark');
-    // const { address } = await this._connector.connectWithUI(isLightmode) || {};
-    // if (!address) {
-    //   throw new Error('Connect wallet fail');
-    // }
-    // return address;
+    return address; 
   }
 
   async disconnect(){
