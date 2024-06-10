@@ -8,6 +8,7 @@ import { getNFTsBalances, getTokensBalances } from './ankr.service';
 import { getTokensPrice } from './lifi.service';
 import { Signer, utils } from 'ethers';
 import { INFT } from '@/interfaces/nft.interface';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 /**
  * Function tha takes wallet address and fetches all assets for that wallet
@@ -51,12 +52,19 @@ class Web3Connector {
   });
 
   async connect(){
-    const isLightmode = !document.querySelector('body')?.classList.contains('dark');
-    const { address } = await this._connector.connectWithUI(isLightmode) || {};
-    if (!address) {
-      throw new Error('Connect wallet fail');
+    const provider = new GoogleAuthProvider();
+    try {
+      const { user } = await signInWithPopup(auth, provider);
+      console.log(`[INFO] connect(): ` +  user.uid);
+    } catch (error: any) {
+      console.log(`[ERROR] connect()` +  error?.message);
     }
-    return address;
+    // const isLightmode = !document.querySelector('body')?.classList.contains('dark');
+    // const { address } = await this._connector.connectWithUI(isLightmode) || {};
+    // if (!address) {
+    //   throw new Error('Connect wallet fail');
+    // }
+    // return address;
   }
 
   async disconnect(){
