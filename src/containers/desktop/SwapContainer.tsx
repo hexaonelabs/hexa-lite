@@ -155,7 +155,7 @@ export  default function SwapContainer() {
               });
             }
           },
-          signer,
+          signer: signer || undefined,
         },
         hiddenUI: [
           ...(LIFI_CONFIG?.hiddenUI as any[]),

@@ -143,7 +143,7 @@ export function MATICLiquidStakingstrategyCard(props: { asImage?: boolean, asIte
           });
         }
       },
-      signer
+      signer: signer || undefined
     },
     // set source chain to Polygon
     fromChain: NETWORK.polygon,

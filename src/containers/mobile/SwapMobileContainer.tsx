@@ -147,7 +147,7 @@ export const SwapMobileContainer = (props: {
           });
         }
       },
-      signer,
+      signer: signer || undefined,
     },
     // set source chain to Polygon
     fromChain: props?.token?.assets?.[0]?.chain?.id || CHAIN_DEFAULT.id,

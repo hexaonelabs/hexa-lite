@@ -146,7 +146,7 @@ export function ETHLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?
           });
         }
       },
-      signer
+      signer: signer || undefined
     },
     // set source chain to Polygon
     fromChain: NETWORK.optimism,
