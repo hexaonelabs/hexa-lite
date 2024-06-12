@@ -32,7 +32,7 @@ export type SelectedTokenDetail = {
 export interface WalletComponentProps {
   modalOpts: Omit<ModalOptions, "component" | "componentProps"> &
     HookOverlayOptions;
-  walletAddress?: string;
+  walletAddress?: string|null;
   assets: IAsset[];
   loadAssets: (force?: boolean) => Promise<void>;
 }

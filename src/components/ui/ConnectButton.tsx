@@ -1,6 +1,6 @@
 import Store from "@/store";
 import { useLoader } from "../../context/LoaderContext";
-import { IonButton, IonSkeletonText } from "@ionic/react";
+import { IonButton, IonSkeletonText, IonSpinner } from "@ionic/react";
 import { getWeb3State } from "@/store/selectors";
 import { useRef } from "react";
 
@@ -12,7 +12,11 @@ const ConnectButton = (props: {
   const { style = {}, size = "default", expand = undefined } = props;
   // Get the initializeWeb3 function from the Web3 context
   const { connectWallet, walletAddress } = Store.useState(getWeb3State);
-  const { display: displayLoader, hide: hideLoader, isVisible } = useLoader();
+  const {
+    display: displayLoader,
+    hide: hideLoader,
+    isVisible: isLoaderVisible,
+  } = useLoader();
   const buttonRef = useRef<HTMLIonButtonElement>(null);
 
   // Define the event handler for the button click
@@ -24,7 +28,7 @@ const ConnectButton = (props: {
     await hideLoader();
   };
 
-  const isDisabled = isVisible ? true : Boolean(walletAddress);
+  const isDisabled = isLoaderVisible ? true : Boolean(walletAddress);
   // Render the button component with the click event handler
   return (
     <IonButton
@@ -32,7 +36,7 @@ const ConnectButton = (props: {
       size={size}
       style={style}
       expand={expand}
-      disabled={isDisabled}
+      disabled={walletAddress === undefined || isDisabled}
       color="gradient"
       onClick={async () => {
         if (!buttonRef.current) {
@@ -47,7 +51,7 @@ const ConnectButton = (props: {
         }
       }}
     >
-      {walletAddress === null || isVisible ? (
+      {walletAddress === undefined || isLoaderVisible ? (
         <IonSkeletonText animated style={{ width: "80px", height: "50%" }} />
       ) : (
         "Connect"

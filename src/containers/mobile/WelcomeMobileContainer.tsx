@@ -1,4 +1,4 @@
-import { IonCol, IonContent, IonGrid, IonImg, IonRow, IonText, useIonRouter } from "@ionic/react";
+import { IonCol, IonContent, IonGrid, IonImg, IonRow, IonSpinner, IonText, useIonRouter } from "@ionic/react";
 import { IonPage,  } from '@ionic/react';
 import ConnectButton from "../../components/ui/ConnectButton";
 import Store from "@/store";
@@ -34,7 +34,11 @@ export default function WelcomeMobileContainer() {
                 Build your wealth with cryptoassets
               </p>
             </IonText>
-            {!walletAddress && (
+            {walletAddress === undefined 
+            ? (
+                <IonSpinner />
+              ) 
+            :  (
                 <ConnectButton />
             )}
           </IonCol>

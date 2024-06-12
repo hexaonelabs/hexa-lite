@@ -180,9 +180,11 @@ const AppShell = () => {
         localStorage.setItem("hexa-lite__migration-modal-displayed", "true");
       }
     });
-    // initialze Web3 connection & app settings
-    initializeWeb3();
-    initializeAppSettings();
+    if (walletAddress === undefined) {
+      // initialze Web3 connection & app settings
+      initializeWeb3();
+      initializeAppSettings();
+    }
   }, []);
 
   useEffect(() => {
@@ -284,7 +286,7 @@ const AppShell = () => {
             <IonRoute
               path="/index"
               render={() =>
-                !walletAddress ? (
+                walletAddress === undefined || walletAddress === null ? (
                   <Suspense fallback={<DefaultLoadingPage />}>
                     <WelcomeMobileContainer />
                   </Suspense>

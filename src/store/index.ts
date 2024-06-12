@@ -9,8 +9,8 @@ import { Store as PullStateStore } from 'pullstate';
 
 export interface IWeb3State {
   currentNetwork: NETWORK;
-  walletAddress: string | undefined;
-  signer: Web3SignerType | undefined;
+  walletAddress: string | undefined | null;
+  signer: Web3SignerType | undefined | null;
   assets: IAsset[];
   nfts: INFT[];
   txs: TxInterface[];
@@ -57,8 +57,8 @@ const defaultState: IStore = Object.freeze({
   },
   web3: {
     currentNetwork: NETWORK.optimism,
-    walletAddress: undefined,
-    signer: undefined,
+    walletAddress: undefined, // use undefined as default value. After loading, value will be updated and set tuo null if no value is provided
+    signer: undefined, // use undefined as default value. After loading, value will be updated and set to null if no value is provided
     assets: [],
     nfts: [],
     txs: [],

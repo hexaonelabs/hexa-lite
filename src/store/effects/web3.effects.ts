@@ -10,13 +10,13 @@ const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
   const assets = [] as any; // await web3Connector.loadBalances(false);
   const nfts = [] as any; // await web3Connector.loadNFTs(false);
   const txs = [] as any; // await web3Connector.loadTxs(false);
-  const signer = await web3Connector?.getSigner();
+  const signer = await web3Connector?.getSigner() || null;
 
   const state: IWeb3State = {
     assets,
     nfts,
     currentNetwork: chainId,
-    walletAddress: wallet?.address,
+    walletAddress: wallet?.address || null,
     signer,
     txs,
     connectWallet: async (ops?: {email: string;}) => {
@@ -31,7 +31,8 @@ const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
     },
     disconnectWallet: async () => {
       await web3Connector.disconnect();
-      await initState(CHAIN_DEFAULT.id);
+      window.location.reload();
+      // await initState(CHAIN_DEFAULT.id);
     },
     loadAssets: async(force) => {
       if (!wallet) {
@@ -79,7 +80,7 @@ const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
 export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
   web3Connector.onConnectStateChanged(async (user) => {
     console.log('[INFO] {{Web3Effect}} onConnectStateChanged: ', user);
-    await initState(chainId)
+    await initState(chainId);
   });
 };
 
