@@ -1,5 +1,5 @@
 import { CHAIN_DEFAULT } from "@/constants/chains";
-import { setErrorState, setWeb3State } from "../actions";
+import { patchWeb3State, setErrorState } from "../actions";
 import { IWeb3State } from "..";
 import web3Connector from '@/servcies/firebase-web3-connect';
 // import { MagicWalletUtils } from "@/network/MagicWallet";
@@ -7,18 +7,12 @@ import web3Connector from '@/servcies/firebase-web3-connect';
 const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
   const wallet = web3Connector.currentWallet();
   console.log(`[INFO] {{Web3Effect}} initializeWeb3() - `, {chainId, wallet});
-  const assets = [] as any; // await web3Connector.loadBalances(false);
-  const nfts = [] as any; // await web3Connector.loadNFTs(false);
-  const txs = [] as any; // await web3Connector.loadTxs(false);
   const signer = await web3Connector?.getSigner() || null;
 
-  const state: IWeb3State = {
-    assets,
-    nfts,
+  const state: Omit<IWeb3State, 'assets'|'nfts'|'txs'> = {
     currentNetwork: chainId,
     walletAddress: wallet?.address || null,
     signer,
-    txs,
     connectWallet: async (ops?: {email: string;}) => {
       try {
         await web3Connector.connect();
@@ -36,29 +30,25 @@ const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
     },
     loadAssets: async(force) => {
       if (!wallet) {
-        setWeb3State({
-          ...state,
+        patchWeb3State({
           assets: []
         });
         return;
       }
       const assets = await web3Connector.loadBalances(force);
-      setWeb3State({
-        ...state,
+      patchWeb3State({
         assets
       });
     },
     loadTxs: async (force) => {
       if (!wallet) {
-        setWeb3State({
-          ...state,
+        patchWeb3State({
           txs: []
         });
         return;
       }
       const txs = await web3Connector.loadTxs(force);
-      setWeb3State({
-        ...state,
+      patchWeb3State({
         txs
       });
     },
@@ -73,8 +63,19 @@ const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
       await wallet.sendTransaction(ops);
     },
   }
-  console.log('[INFO] {{Web3Effect}} state: ', state);
-  setWeb3State(state);
+  // update state with available props, methods and Signer
+  patchWeb3State(state);
+
+  // load async data without `await` to avoid blocking the UI
+  state.loadAssets(false);
+  state.loadTxs(false);
+  web3Connector
+    .loadNFTs(false)
+    .then(nfts => {
+      wallet 
+      ? patchWeb3State({nfts})
+      : patchWeb3State({nfts: []});
+    });
 }
 
 export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
