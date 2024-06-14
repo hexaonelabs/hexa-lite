@@ -8,8 +8,6 @@ import { getNFTsBalances, getTokensBalances } from './ankr.service';
 import { getTokensPrice } from './lifi.service';
 import { Signer, utils } from 'ethers';
 import { INFT } from '@/interfaces/nft.interface';
-import { GoogleAuthProvider, browserPopupRedirectResolver, getAdditionalUserInfo, signInWithPopup, } from 'firebase/auth';
-import { KEYS } from '@hexaonelabs/firebase-web3connect/dist/constant';
 
 /**
  * Function tha takes wallet address and fetches all assets for that wallet
@@ -41,7 +39,7 @@ const fetchEVMAssets = async (walletAddress: string, force?: boolean) => {
 
 const origin = window.location.origin;
 const path = '/auth/link';
-const params = `/?${KEYS.URL_QUERYPARAM_FINISH_SIGNUP}=true`;
+const params = `/?finishSignUp=true`;
 const EMAIL_LINK_URL = [origin, path, params].join('');
 
 /**
