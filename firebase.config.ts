@@ -8,8 +8,9 @@ import {
   browserLocalPersistence,
   browserSessionPersistence,
   getAuth,
+  connectAuthEmulator,
 } from "firebase/auth";
-import { Database, getDatabase } from "firebase/database";
+import { Database, connectDatabaseEmulator, getDatabase } from "firebase/database";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -34,11 +35,16 @@ if (!getApps().length) {
   // Initialize Realtime Database and get a reference to the service
   _database = getDatabase(_app);
   // Initialize Auth
-  _auth = initializeAuth(_app, {
-    persistence: [indexedDBLocalPersistence, browserSessionPersistence],
-    // popupRedirectResolver: browserPopupRedirectResolver,
-  });
-  // _auth = getAuth(_app);
+  // _auth = initializeAuth(_app, {
+  //   persistence: [indexedDBLocalPersistence, browserSessionPersistence],
+  //   // popupRedirectResolver: browserPopupRedirectResolver,
+  // });
+  _auth = getAuth(_app);
+  
+  if (process.env.NEXT_PUBLIC_APP_IS_LOCAL === 'true') {
+    connectDatabaseEmulator(_database, 'localhost', 9000);
+    connectAuthEmulator(_auth, 'http://127.0.0.1:9099');
+  }
 }
 
 export const database = _database;
