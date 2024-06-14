@@ -16,19 +16,12 @@ import {
   IonProgressBar,
   IonModal,
   useIonToast,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButton,
-  IonCard,
-  IonCardHeader,
-  IonCardContent,
 } from "@ionic/react";
 import { StatusBar, Style } from "@capacitor/status-bar";
 
 import { IonReactRouter } from "@ionic/react-router";
 import { Redirect } from "react-router-dom";
-import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { Header } from "./Header";
 import { NotFoundPage } from "@/containers/NotFoundPage";
 import PwaInstall from "./PwaInstall";
@@ -36,11 +29,11 @@ import { initializeWeb3 } from "@/store/effects/web3.effects";
 import Store from "@/store";
 import { getErrorState, getWeb3State } from "@/store/selectors";
 import { IonRoute } from "@ionic/react";
-import { isPlatform } from "@ionic/core";
 import { setErrorState } from "@/store/actions";
 import { initializeAppSettings } from "@/store/effects/app-settings.effect";
 import { LoaderProvider } from "@/context/LoaderContext";
 import {
+  AuthWithLinkContainer,
   BuyWithFiatContainer,
   DefiContainer,
   EarnContainer,
@@ -157,11 +150,6 @@ const AppShell = () => {
     }
     setSegment(e.detail.value);
   };
-  const contentRef = useRef<HTMLIonContentElement | null>(null);
-  const scrollToTop = () => {
-    // @ts-ignore
-    contentRef.current.scrollToTop();
-  };
 
   useEffect(() => {
     // initialize by check if user have an existing Wallet created with Magic.link
@@ -205,6 +193,14 @@ const AppShell = () => {
         <IonReactRouter>
           <LoaderProvider>
             <IonRouterOutlet id="main">
+              <IonRoute 
+                path="/auth/link"
+                render={() => (
+                  <Suspense fallback={<DefaultProgressBar />}>
+                    <AuthWithLinkContainer />
+                  </Suspense>
+                )}
+              />
               <IonRoute
                 path="/leaderboard"
                 render={() => (
@@ -275,6 +271,14 @@ const AppShell = () => {
       {isMobilePWADevice && !isMagicMigrationModalOpen && (
         <IonReactRouter>
           <IonRouterOutlet id="main">
+            <IonRoute 
+              path="/auth/link"
+              render={() => (
+                <Suspense fallback={<DefaultProgressBar />}>
+                  <AuthWithLinkContainer />
+                </Suspense>
+              )}
+            />
             <IonRoute
               path="/leaderboard"
               render={() => (
