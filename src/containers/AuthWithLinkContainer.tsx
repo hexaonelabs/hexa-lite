@@ -50,7 +50,7 @@ export default function AuthWithLinkContainer() {
         });
         redirect();
       }
-    });
+    })();
   }, []);
 
   return (
