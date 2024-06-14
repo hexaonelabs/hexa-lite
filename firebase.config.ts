@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
-import { getApp, getApps, initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getDatabase } from "firebase/database";
+import { FirebaseApp, getApps, initializeApp } from "firebase/app";
+import { Auth, browserPopupRedirectResolver, indexedDBLocalPersistence, initializeAuth } from "firebase/auth";
+import { Database, getDatabase } from "firebase/database";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -16,13 +16,23 @@ const firebaseConfig = {
   databaseURL: process.env.NEXT_PUBLIC_APP_FIREBASE_DATABASEURL,
 };
 
-// Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+let _app!: FirebaseApp;
+let _auth!: Auth;
+let _database!: Database;
 
-// Initialize Realtime Database and get a reference to the service
-const database = getDatabase(app);
+if (!getApps().length) {
+  // Initialize Firebase
+  _app = initializeApp(firebaseConfig);
+  // Initialize Realtime Database and get a reference to the service
+  _database = getDatabase(_app);
+  // Initialize Auth
+  _auth = initializeAuth(_app, {
+    persistence: [
+      indexedDBLocalPersistence,
+    ],
+    popupRedirectResolver: browserPopupRedirectResolver,
+  });
+}
 
-// Initialize Firebase Auth
-const auth = getAuth(app);
-
-export { database, auth }
+export const database = _database;
+export const auth = _auth;
