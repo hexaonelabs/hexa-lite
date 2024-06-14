@@ -6,13 +6,6 @@ export default function AuthWithLinkContainer() {
   const [presentLoader, dismissLoader] = useIonLoading();
   const [presentAlert] = useIonAlert();
 
-  const redirect = () => {
-    const t = setTimeout(()=> {
-      window.location.href = '../'
-      clearTimeout(t)
-    }, 1500);
-  }
-
   useEffect(() => {
     const connectFromEmailLink = FirebaseWeb3Connect.isConnectWithLink();
     if (!connectFromEmailLink) {
@@ -21,8 +14,6 @@ export default function AuthWithLinkContainer() {
         header: 'Error',
         subHeader: 'Authentication failed.',
         message: 'Unable to access to this page without email connection link. Restart application & try again.',
-        buttons: ['ok'],
-        onDidDismiss: ()=> redirect()
       })
       return ()=> {};
     }
@@ -45,10 +36,8 @@ export default function AuthWithLinkContainer() {
           header: 'Error',
           subHeader: 'Authentication failed.',
           message: (error as Error)?.message || 'Unable to authenticate. Restart application & try again.',
-          buttons: ['ok'],
-          onDidDismiss: ()=> redirect()
+          buttons: ['ok']
         });
-        redirect();
       }
     })();
   }, []);
