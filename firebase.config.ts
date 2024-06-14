@@ -35,7 +35,7 @@ if (!getApps().length) {
   _database = getDatabase(_app);
   // Initialize Auth
   _auth = initializeAuth(_app, {
-    persistence: [indexedDBLocalPersistence],
+    persistence: [indexedDBLocalPersistence, browserSessionPersistence],
     // popupRedirectResolver: browserPopupRedirectResolver,
   });
   // _auth = getAuth(_app);
