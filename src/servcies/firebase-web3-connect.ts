@@ -9,6 +9,7 @@ import { getTokensPrice } from './lifi.service';
 import { Signer, utils } from 'ethers';
 import { INFT } from '@/interfaces/nft.interface';
 import { GoogleAuthProvider, browserPopupRedirectResolver, getAdditionalUserInfo, signInWithPopup, } from 'firebase/auth';
+import { KEYS } from '@hexaonelabs/firebase-web3connect/dist/constant';
 
 /**
  * Function tha takes wallet address and fetches all assets for that wallet
@@ -38,6 +39,11 @@ const fetchEVMAssets = async (walletAddress: string, force?: boolean) => {
   ];
 };
 
+const origin = window.location.origin;
+const path = '/auth/link';
+const params = `/?${KEYS.URL_QUERYPARAM_FINISH_SIGNUP}=true`;
+const EMAIL_LINK_URL = [origin, path, params].join('');
+
 /**
  * Web3Connector class that wraps FirebaseWeb3Connect class
  * that provides methods to connect, disconnect, switch accross networks and
@@ -49,6 +55,13 @@ class Web3Connector {
 
   private readonly _connector = new FirebaseWeb3Connect(auth, 'APIKEY', {
     chainId: CHAIN_DEFAULT.id,
+    dialogUI: {
+      ops: {
+        authProvider: {
+          authEmailUrl: EMAIL_LINK_URL
+        }
+      }
+    }
   });
 
   async connect(){

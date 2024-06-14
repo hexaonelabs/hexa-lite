@@ -27,7 +27,7 @@
     "@capacitor/ios": "^5.0.0",
     "@capacitor/status-bar": "^5.0.0",
     "@cosmjs/stargate": "^0.32.1",
-    "@hexaonelabs/firebase-web3connect": "^0.0.9-alpha.8",
+    "@hexaonelabs/firebase-web3connect": "^0.0.9-alpha.9",
     "@ionic/react": "latest",
     "@ionic/react-router": "latest",
     "@khmyznikov/pwa-install": "^0.2.7",
