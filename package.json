@@ -5,6 +5,7 @@
   "private": false,
   "scripts": {
     "dev": "next dev",
+    "dev:emulator": "firebase emulators:start",
     "build": "next build",
     "start": "next start",
     "export": "next export",

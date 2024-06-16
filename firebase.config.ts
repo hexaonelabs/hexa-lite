@@ -35,16 +35,12 @@ if (!getApps().length) {
   // Initialize Realtime Database and get a reference to the service
   _database = getDatabase(_app);
   // Initialize Auth
-  // _auth = initializeAuth(_app, {
-  //   persistence: [browserLocalPersistence, indexedDBLocalPersistence, browserSessionPersistence],
-  //   popupRedirectResolver: browserPopupRedirectResolver,
-  // });
   _auth = getAuth(_app);
-  
-  // if (process.env.NEXT_PUBLIC_APP_IS_LOCAL === 'true') {
-  //   connectDatabaseEmulator(_database, 'localhost', 9000);
-  //   connectAuthEmulator(_auth, 'http://127.0.0.1:9099');
-  // }
+  // Emulator setup
+  if (process.env.NEXT_PUBLIC_APP_IS_LOCAL === 'true') {
+    connectDatabaseEmulator(_database, 'localhost', 9000);
+    connectAuthEmulator(_auth, 'http://127.0.0.1:9099');
+  }
 }
 
 export const database = _database;
