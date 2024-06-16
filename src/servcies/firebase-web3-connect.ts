@@ -1,4 +1,4 @@
-import { FirebaseWeb3Connect } from '@hexaonelabs/firebase-web3connect';
+import { FirebaseWeb3Connect } from '@/lib';
 import { auth } from '@/firebase-config';
 import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from '@/constants/chains';
 import { TxInterface } from '@/interfaces/tx.interface';
