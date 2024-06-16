@@ -31,20 +31,20 @@ let _database!: Database;
 
 if (!getApps().length) {
   // Initialize Firebase
-  _app = initializeApp(firebaseConfig);
+  _app = initializeApp(firebaseConfig, 'hexa-lite');
   // Initialize Realtime Database and get a reference to the service
   _database = getDatabase(_app);
   // Initialize Auth
   // _auth = initializeAuth(_app, {
-  //   persistence: [indexedDBLocalPersistence, browserSessionPersistence],
-  //   // popupRedirectResolver: browserPopupRedirectResolver,
+  //   persistence: [browserLocalPersistence, indexedDBLocalPersistence, browserSessionPersistence],
+  //   popupRedirectResolver: browserPopupRedirectResolver,
   // });
   _auth = getAuth(_app);
   
-  if (process.env.NEXT_PUBLIC_APP_IS_LOCAL === 'true') {
-    connectDatabaseEmulator(_database, 'localhost', 9000);
-    connectAuthEmulator(_auth, 'http://127.0.0.1:9099');
-  }
+  // if (process.env.NEXT_PUBLIC_APP_IS_LOCAL === 'true') {
+  //   connectDatabaseEmulator(_database, 'localhost', 9000);
+  //   connectAuthEmulator(_auth, 'http://127.0.0.1:9099');
+  // }
 }
 
 export const database = _database;
