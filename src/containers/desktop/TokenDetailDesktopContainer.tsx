@@ -44,7 +44,7 @@ import {
   paperPlane,
   repeat,
 } from "ionicons/icons";
-import { DataItem, SeriesData } from "@/components/ui/LightChart";
+import { DataItem, SeriesData, SeriesMarkerData } from "@/components/ui/LightChart";
 import { getTokenHistoryPrice } from "@/utils/getTokenHistoryPrice";
 import { TokenInfo, getTokenInfo } from "@/utils/getTokenInfo";
 import { numberFormat } from "@/utils/numberFormat";
@@ -55,6 +55,7 @@ import { isStableAsset } from "@/utils/isStableAsset";
 import { Currency } from "@/components/ui/Currency";
 import { NetworkTokenDetailCard } from "@/components/ui/NetworkTokenDetailCard/NetworkTokenDetailCard";
 import { getAllocationRatioInPercent } from "@/utils/getAllocationRatioInPercent";
+import { formatTxsAsSeriemarker } from "@/servcies/zerion.service";
 
 const LightChart = lazy(() => import("@/components/ui/LightChart"));
 
@@ -78,15 +79,17 @@ export const TokenDetailDesktopContainer = (props: {
   setState: (state: any) => void;
 }) => {
   const { data, dismiss } = props;
-  const { walletAddress } = Store.useState(getWeb3State);
+  const { walletAddress, txs } = Store.useState(getWeb3State);
   const [dataChartHistory, setDataChartHistory] = useState<SeriesData>(new Map());
+  const [txsChartHistory, setTxsChartHistory] = useState<SeriesMarkerData>(new Map());
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | undefined>(undefined);
   const [isInfoOpen, setInfoOpen] = useState(false);
   const [isAccOpen, setIsAccOpen] = useState(false);
 
   useEffect(() => {
     if (!walletAddress) return;
-    // getTxsFromAddress(walletAddress);
+    const TxsSerie = formatTxsAsSeriemarker(txs, {symbol: data.symbol});
+    setTxsChartHistory(()=> TxsSerie);
     getTokenHistoryPrice(props.data.symbol).then((prices) => {
       setDataChartHistory(() => prices);
     });
@@ -312,7 +315,10 @@ export const TokenDetailDesktopContainer = (props: {
                     </span>
                   </h2>
                 </IonText>
-                <LightChart seriesData={dataChartHistory} minHeight={400} />
+                <LightChart 
+                  seriesData={dataChartHistory} 
+                  minHeight={400} 
+                  markers={txsChartHistory} />
               </Suspense>
             </IonCol>
           </IonRow>

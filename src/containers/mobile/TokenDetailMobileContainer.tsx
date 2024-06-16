@@ -77,11 +77,10 @@ export const TokenDetailMobileContainer = (props: {
 
   useEffect(() => {
     if (!walletAddress) return;
-    // getTxsFromAddress(walletAddress);
+    const TxsSerie = formatTxsAsSeriemarker(txs, {symbol: data.symbol});
+    setTxsChartHistory(()=> TxsSerie);
     getTokenHistoryPrice(props.data.symbol).then((prices) => {
       setDataChartHistory(() => prices);
-      const TxsSerie = formatTxsAsSeriemarker(txs, {symbol: data.symbol});
-      setTxsChartHistory(()=> TxsSerie);
     });
     getTokenInfo(props.data.symbol).then((tokenInfo) =>
       setTokenInfo(() => tokenInfo)
