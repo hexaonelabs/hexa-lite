@@ -17,11 +17,12 @@ export interface DataItem {
 }
 type SerieIntervalType = "1D" | "1W" | "1M" | "1Y";
 export type SeriesData = Map<SerieIntervalType, DataItem[]>;
+export type SeriesMarkerData = Map<SerieIntervalType, SeriesMarker<Time>[]>;
 
 export default function LightChart(props: {
   data?: DataItem[];
   seriesData?: SeriesData;
-  markers?: SeriesMarker<Time>[];
+  markers?: SeriesMarkerData;
   handleChartEvent?: ({
     action,
     payload,
@@ -57,6 +58,12 @@ export default function LightChart(props: {
       lineWidth: 3,
       baseLineWidth: 3,
     });
+    // markers
+    const markerValue = markers?.get(interval);
+    if (chartSeries && markerValue) {
+      
+      chartSeries.setMarkers(markerValue);
+    }
     chartRef.current.timeScale().fitContent();
     setcurrentInterval(interval);
   };
@@ -135,9 +142,10 @@ export default function LightChart(props: {
       const series = chart.addAreaSeries();
       setChartSeries(series);
 
-      if (markers && series) {
-        series.setMarkers(markers);
-      }
+      // if (markers && series) {
+
+      //   series.setMarkers(markers);
+      // }
     }
     // clean up the chart when the component is unmounted
     return () => {

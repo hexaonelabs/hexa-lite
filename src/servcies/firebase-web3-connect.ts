@@ -157,8 +157,8 @@ class Web3Connector {
       switch (true) {
         // evm wallet type 
         case chain?.type === 'evm': {
-          const txs = await getTransactionsHistory(wallet.address);
-          txs.push(...txs);
+          const result = await getTransactionsHistory(wallet.address);
+          txs.push(...result);
           break;
         }
         default:
