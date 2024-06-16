@@ -22,8 +22,9 @@ export const getTokenHistoryPrice = async (
       const days = interval === '1D' ? 1 : interval === '1W' ? 7 : interval === '1M' ? 30 : 365;
       const dataInterval = interval === '1D' ? '' : interval === '1W' ? '' : interval === '1M' ? '' : '&interval=daily';
       const url = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=${days}${dataInterval}`;
-      const res = await fetch(url);
-      const result = await res.json();
+      const result = await fetch(url)
+      .then((res) => res.json())
+      .catch((error) => ({prices: []}));
       const prices = (result?.prices as number[][]||[]);
       const data = prices
       .map(([time, value]: number[]) => {
