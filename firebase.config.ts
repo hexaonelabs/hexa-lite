@@ -37,7 +37,7 @@ if (!getApps().length) {
   // Initialize Auth
   _auth = getAuth(_app);
   // Emulator setup
-  if (process.env.NEXT_PUBLIC_APP_IS_LOCAL === 'true') {
+  if (process.env.NEXT_PUBLIC_ENABLE_EMULATORS === 'true') {
     connectDatabaseEmulator(_database, 'localhost', 9000);
     connectAuthEmulator(_auth, 'http://127.0.0.1:9099');
   }

@@ -51,6 +51,11 @@ declare namespace NodeJS {
     readonly NEXT_PUBLIC_APP_COINGECKO_APIKEY: string;
 
     /**
+     * Enable/Disable Emulator for Firebase
+     */
+    readonly NEXT_PUBLIC_ENABLE_EMULATORS: string;
+
+    /**
      * FIREBASE Configurations for the Firebase SDK
      * @description Following are the configurations required for the Firebase SDK
      */
