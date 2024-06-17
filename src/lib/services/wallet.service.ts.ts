@@ -1,7 +1,7 @@
 import evmWallet from '../networks/evm';
 import btcWallet from '../networks/bitcoin';
 import authProvider from '../providers/auth/firebase';
-import { CHAIN_AVAILABLES } from '../constant';
+import { ALL_CHAINS } from '../constant';
 import { Web3Wallet } from '../networks/web3-wallet';
 import solanaWallet from '../networks/solana';
 import { Logger } from '../utils';
@@ -39,7 +39,7 @@ export const initWallet = async (
 	}
 	let wallet!: Web3Wallet;
 	// check if is EVM chain
-	const chain = CHAIN_AVAILABLES.find(chain => chain.id === chainId);
+	const chain = ALL_CHAINS.find(chain => chain.id === chainId);
 	// generate wallet from encrypted mnemonic or generate new from random mnemonic
 	switch (true) {
 		// evm wallet
