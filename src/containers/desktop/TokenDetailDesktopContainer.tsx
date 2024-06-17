@@ -45,8 +45,7 @@ import {
   repeat,
 } from "ionicons/icons";
 import { DataItem, SeriesData, SeriesMarkerData } from "@/components/ui/LightChart";
-import { getTokenHistoryPrice } from "@/utils/getTokenHistoryPrice";
-import { TokenInfo, getTokenInfo } from "@/utils/getTokenInfo";
+import { TokenInfo } from '@/servcies/coingecko.service';
 import { numberFormat } from "@/utils/numberFormat";
 import { currencyFormat } from "@/utils/currencyFormat";
 import { TokenDetailDescription } from "@/components/ui/TokenDetailDescription";
@@ -56,6 +55,7 @@ import { Currency } from "@/components/ui/Currency";
 import { NetworkTokenDetailCard } from "@/components/ui/NetworkTokenDetailCard/NetworkTokenDetailCard";
 import { getAllocationRatioInPercent } from "@/utils/getAllocationRatioInPercent";
 import { formatTxsAsSeriemarker } from "@/servcies/zerion.service";
+import { CoingeckoAPI } from "@/servcies/coingecko.service";
 
 const LightChart = lazy(() => import("@/components/ui/LightChart"));
 
@@ -90,10 +90,10 @@ export const TokenDetailDesktopContainer = (props: {
     if (!walletAddress) return;
     const TxsSerie = formatTxsAsSeriemarker(txs, {symbol: data.symbol});
     setTxsChartHistory(()=> TxsSerie);
-    getTokenHistoryPrice(props.data.symbol).then((prices) => {
+    CoingeckoAPI.getTokenHistoryPrice(props.data.symbol).then((prices) => {
       setDataChartHistory(() => prices);
     });
-    getTokenInfo(props.data.symbol).then((tokenInfo) =>
+    CoingeckoAPI.getTokenInfo(props.data.symbol).then((tokenInfo) =>
       setTokenInfo(() => tokenInfo)
     );
   }, [walletAddress]);

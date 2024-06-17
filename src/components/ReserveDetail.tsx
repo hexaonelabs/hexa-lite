@@ -84,59 +84,6 @@ interface IReserveDetailProps {
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }
 
-const loadTokenData = async (symbol: string) => {
-  // check if have localstorage data
-  const localCoinsListString = localStorage.getItem("coingecko-coins-list");
-  let localCoinsList = localCoinsListString
-    ? JSON.parse(localCoinsListString)
-    : null;
-  if (!localCoinsList) {
-    localCoinsList = await fetch(
-      `https://api.coingecko.com/api/v3/coins/list`
-    ).then((response) => response.json());
-    localStorage.setItem(
-      "coingecko-coins-list",
-      JSON.stringify(localCoinsList)
-    );
-  }
-  if (!localCoinsList) {
-    return;
-  }
-  // find coin id by symbol
-  const coin = localCoinsList.find(
-    (coin: { symbol: string }) =>
-      coin.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase()
-  );
-  if (coin) {
-    // fetch coin data by id
-    return fetch(`https://api.coingecko.com/api/v3/coins/${coin.id}`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("coin data: ", data.description.en);
-        const {
-          description: { en: description },
-          market_data: {
-            fully_diluted_valuation: { usd: fullyDilutedValuationUSD },
-            market_cap: { usd: marketCapUSD },
-            max_supply: maxSupply,
-            total_supply: totalSupply,
-            circulating_supply: circulatingSupply,
-          },
-        } = data;
-        return {
-          description,
-          fullyDilutedValuationUSD,
-          marketCapUSD,
-          maxSupply,
-          totalSupply,
-          circulatingSupply,
-        };
-      });
-  } else {
-    return;
-  }
-};
-
 export function ReserveDetail(props: IReserveDetailProps) {
   const {
     pool: { id, chainId },

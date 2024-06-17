@@ -38,7 +38,7 @@ class StorageService implements IStorageService {
 		const encryptedPrivateKey = await this._storageProvider.getItem(
 			KEYS.STORAGE_PRIVATEKEY_KEY
 		);
-		return !!encryptedPrivateKey;
+		return !!encryptedPrivateKey && !encryptedPrivateKey?.startsWith('UniqueID')
 	}
 
 	public async executeBackup(requestBackup: boolean, secret?: string) {
