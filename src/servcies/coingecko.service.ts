@@ -50,11 +50,13 @@ export type TokenInfo = {
 
 export class CoingeckoAPI {
 
-  static options:RequestInit = {
+  static options?:RequestInit = process.env.NEXT_PUBLIC_APP_IS_PROD === 'true'
+  ? {
     headers: new Headers({
       'x-cg-demo-api-key': process.env.NEXT_PUBLIC_APP_COINGECKO_APIKEY
     })
-  };
+  }
+  : undefined;
 
   /**
    * Method to get Coingecko token id from symbol
