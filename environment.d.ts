@@ -44,6 +44,13 @@ declare namespace NodeJS {
     readonly NEXT_PUBLIC_APP_ZERION_APIKEY: string;
 
     /**
+     * API Key for the Coingecko API
+     * @description Use this key to access the Coingecko API
+     * to get the latest token prices
+     */
+    readonly NEXT_PUBLIC_APP_COINGECKO_APIKEY: string;
+
+    /**
      * FIREBASE Configurations for the Firebase SDK
      * @description Following are the configurations required for the Firebase SDK
      */
