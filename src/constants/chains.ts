@@ -21,6 +21,8 @@ export enum NETWORK {
   goerli = 5,
 }
 
+export type chainType = 'evm' | 'cosmos' | 'bitcoin' | 'solana' | 'polkadot';
+
 export interface IChain {
   id: number;
   value: string;
@@ -29,12 +31,12 @@ export interface IChain {
   nativeSymbol?: string;
   logo?: string;
   testnet?: boolean;
-  type: "evm" | "cosmos" | "bitcoin" | "solana" | "polkadot";
+  type: chainType;
 }
 
 const CHAINS_DISABLED = [NETWORK.cosmos, NETWORK.polkadot, NETWORK.avalanche];
 
-export const CHAIN_AVAILABLES: IChain[] = [
+export const ALL_CHAINS: IChain[] = [
   {
     id: NETWORK.mainnet,
     value: "eth",
@@ -57,7 +59,7 @@ export const CHAIN_AVAILABLES: IChain[] = [
     rpcUrl:
       [
         { primary: false, url: "https://rpc.ankr.com/bsc" },
-        { primary: true, url: "https://binance.llamarpc.com" },
+        { primary: true, url: "https://1rpc.io/bnb" },
       ].find((rpc) => rpc.primary)?.url || "",
     type: "evm",
   },
@@ -82,7 +84,7 @@ export const CHAIN_AVAILABLES: IChain[] = [
     logo: "/assets/icons/arb.svg",
     rpcUrl:
       [
-        { primary: true, url: "https://arbitrum.llamarpc.com" },
+        { primary: true, url: "https://1rpc.io/arb" },
         { primary: false, url: "https://rpc.ankr.com/arbitrum_one" },
       ].find((rpc) => rpc.primary)?.url || "",
     type: "evm",
@@ -112,7 +114,7 @@ export const CHAIN_AVAILABLES: IChain[] = [
           primary: false,
           url: "https://endpoints.omniatech.io/v1/base/mainnet/public",
         },
-        { primary: true, url: "https://base.llamarpc.com" },
+        { primary: true, url: "https://1rpc.io/base" },
       ].find((rpc) => rpc.primary)?.url || "",
     type: "evm",
   },
@@ -208,7 +210,9 @@ export const CHAIN_AVAILABLES: IChain[] = [
   //   value: 'avalanche_fuji',
   //   name: 'Fuji',
   // },
-]
+];
+
+export const CHAIN_AVAILABLES: IChain[] = ALL_CHAINS
 .filter((c) =>
   // PROD: only mainnets
   // LOCAL: only testnets
