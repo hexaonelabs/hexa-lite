@@ -37,7 +37,6 @@ export const promptImportSeedElement = async (
 	ref: HTMLElement
 ): Promise<{
 	seed: string;
-	secret: string;
 }> => {
 	const container = document.createElement('div');
 	container.classList.add('prompt-container');
@@ -58,16 +57,12 @@ export const promptImportSeedElement = async (
       <div class="prompt__seed">
         <div class="input__container">
           <textarea placeholder="secret seed" id="input__seed"></textarea>
-          <input id="input__password" type="password" placeholder="password" />
         </div>
         <button id="button__import_seed">Import</button>
       </div>
     `;
 
 	const inputSeed = container.querySelector('#input__seed') as HTMLInputElement;
-	const inputPassword = container.querySelector(
-		'#input__password'
-	) as HTMLInputElement;
 	const buttonImportSeed = container.querySelector(
 		'#button__import_seed'
 	) as HTMLButtonElement;
@@ -76,7 +71,6 @@ export const promptImportSeedElement = async (
 		buttonImportSeed.addEventListener('click', () => {
 			resolve({
 				seed: inputSeed.value,
-				secret: inputPassword.value
 			});
 			container.remove();
 			ref.style.display = 'block';
