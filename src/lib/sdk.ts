@@ -99,11 +99,19 @@ export class FirebaseWeb3Connect {
 		}
 	}
 
-	static connectWithLink() {
-		if (!this.isConnectWithLink()) {
-			return undefined;
+	public async connectWithLink() {
+		if (!FirebaseWeb3Connect.isConnectWithLink()) {
+			return;
 		}
-		return authProvider.signInWithLink();
+		try {
+			authProvider.signInWithLink();
+		} catch (error: unknown) {
+			Logger.error(
+				'[ERROR] FirebaseWeb3Connect - connectWithLink: ',
+				(error as Error).message
+			);
+			throw error;
+		}
 	}
 
 	public async connectWithUI(isLightMode?: boolean) {
