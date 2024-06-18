@@ -71,6 +71,10 @@ class Web3Connector {
     return address; 
   }
 
+  async connectWithLink() {
+    await this._connector.connectWithLink();
+  }
+
   async disconnect(){
     await this._connector.signout(true);
     return true;
