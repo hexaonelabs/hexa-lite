@@ -1,3 +1,4 @@
+import web3Connector from "@/servcies/firebase-web3-connect";
 import { FirebaseWeb3Connect } from "@hexaonelabs/firebase-web3connect";
 import { IonContent, IonPage, useIonAlert, useIonLoading } from "@ionic/react";
 import { useEffect } from "react";
@@ -22,7 +23,7 @@ export default function AuthWithLinkContainer() {
     });
     void (async ()=> {
       try {
-        await FirebaseWeb3Connect.connectWithLink();
+        await web3Connector.connectWithLink();
         await dismissLoader();
         await presentAlert({
           backdropDismiss: false,
@@ -31,6 +32,7 @@ export default function AuthWithLinkContainer() {
           message: 'You can close this page & go back to the app.',
         });
       } catch (error) {
+        await dismissLoader();
         await presentAlert({
           backdropDismiss: false,
           header: 'Error',
