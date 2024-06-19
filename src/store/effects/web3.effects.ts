@@ -79,13 +79,13 @@ const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
 }
 
 export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
+  // do not initialize state if user is runing authentication proccess
+  // from `auth/**` routes to prevent wallet creation on page 
+  // that the user is requested to close after authentication success
+  if (window.location.pathname.includes('/auth/')) {
+    return;
+  }
   web3Connector.onConnectStateChanged(async (user) => {
-    // do not initialize state if user is runing authentication proccess
-    // from `auth/**` routes to prevent wallet creation on page 
-    // that the user is requested to close after authentication success
-    if (window.location.pathname.includes('/auth/')) {
-      return;
-    }
     // Perform state initialization
     console.log('[INFO] {{Web3Effect}} onConnectStateChanged: ', user);
     await initState(chainId);
