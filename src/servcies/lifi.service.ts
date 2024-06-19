@@ -925,16 +925,16 @@ export const LIFI_CONFIG = Object.freeze<WidgetConfig>({
         secondary: "rgba(var(--ion-text-color-rgb), 0.6)",
       },
       background: {
-        paper: "rgb(var(--item-background-shader-rgb))", // green
+        paper: "rgb(var(--lifi-paper-background-rgb))", // green
         // default: '#182449',
       },
       primary: {
         main: "#0090FF",
-        contrastText: "rgb(var(--ion-text-color.rgb))",
+        contrastText: "rgb(var(--ion-text-color-rgb))",
       },
       secondary: {
         main: "#4CCCE6",
-        contrastText: "rgb(var(--ion-text-color.rgb))",
+        contrastText: "rgb(var(--ion-text-color-rgb))",
       },
     },
   },

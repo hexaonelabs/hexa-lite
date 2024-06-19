@@ -96,6 +96,8 @@
 	--fc-event-border-color: var(--ionic-color-primary-shade);
 	--fc-event-bg-color: var(--ion-color-primary-tint);
 	--fc-today-bg-color: rgba(var(--ion-color-primary-rgb), 0.05);
+
+	--lifi-paper-background-rgb: 235, 240, 250;
 	
 }
 
@@ -197,6 +199,8 @@ body.dark {
 	--item-background: transparent;
 	--item-background-shader: #0f1629;
 	--item-background-shader-rgb: 15, 22, 41;
+
+	--lifi-paper-background-rgb: 15, 22, 41;
 
 }
 
