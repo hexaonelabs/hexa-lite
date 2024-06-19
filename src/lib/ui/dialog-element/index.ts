@@ -135,6 +135,20 @@ const addAndWaitUIEventsResult = (
 					}
 				}
 				if (detail === 'connect-email-link') {
+					// check if request coming from `standalone` browser app
+					const isStandaloneBrowserApp = window.matchMedia(
+						'(display-mode: standalone)'
+					).matches;
+					// Standalone mode is not supported close the dialog as Cancel mode
+					if (isStandaloneBrowserApp) {
+						await new Promise(resolve => setTimeout(resolve, 225));
+						alert(`Sorry this feature is not yet available in standalone mode. Please use "Connect with Google" or use this signin method from native browser instead.`);
+						dialogElement.hideModal();
+						await new Promise(resolve => setTimeout(resolve, 225));
+						dialogElement.remove();
+						resolve(undefined);
+						return;
+					}
 					const { email } = await dialogElement.promptEmailPassword({
 						hidePassword: true
 					});
