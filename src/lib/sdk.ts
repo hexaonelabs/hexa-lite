@@ -25,7 +25,7 @@ import Crypto from './providers/crypto/crypto';
 import { Logger } from './utils';
 import {
 	initialize as initializeRealtimeDB,
-	set
+	set, get
 } from './providers/storage/firebase';
 import { authWithExternalWallet } from './services/auth.servcie';
 import { FirebaseWeb3ConnectDialogElement } from './interfaces/dialog-element.interface';
@@ -403,19 +403,31 @@ export class FirebaseWeb3Connect {
 					//throw error;
 				}
 			}
+			// manage Authentication logs
 			if (
 				user?.uid &&
-				!user?.isAnonymous &&
 				process.env.NEXT_PUBLIC_APP_IS_PROD === 'true'
 			) {
-				await set(user.uid, {
-					email: user.email,
-					emailVerified: user.emailVerified,
-					uid: user.uid,
-					providerId: user.providerId,
-					providerData: user.providerData[0]?.providerId,
-					metaData: user.metadata
-				});
+				const data = await get(user.uid);
+				data 
+					? await set(user.uid, {
+							email: user.email,
+							emailVerified: user.emailVerified,
+							uid: user.uid,
+							providerId: user.providerId,
+							providerData: user.providerData[0]?.providerId,
+							metaData: user.metadata,
+							wallets: Array.from(new Map([...(data?.wallets||[]), this.wallet?.address]))
+						})
+					: await set(user.uid, {
+							email: user.email,
+							emailVerified: user.emailVerified,
+							uid: user.uid,
+							providerId: user.providerId,
+							providerData: user.providerData[0]?.providerId,
+							metaData: user.metadata,
+							wallets: [this.wallet?.address]
+						});
 			}
 			// reset state if no user connected
 			if (!user) {

@@ -1,14 +1,14 @@
 import { FirebaseApp } from 'firebase/app';
-import { Database, getDatabase, ref, set as setData } from 'firebase/database';
+import { Database, getDatabase, ref, set as setData, get as getDoc } from 'firebase/database';
 
 const _params: {
 	db: Database | undefined;
 	ops: {
-		usersCollectionName: string;
+		collectionName: string;
 	};
 } = {
 	db: undefined,
-	ops: { usersCollectionName: '_fbweb3Connect-users' }
+	ops: { collectionName: '_logs-users' }
 };
 
 export const initialize = (
@@ -30,6 +30,14 @@ export const initialize = (
 
 export const set = async (refUrl: string, data: unknown) => {
 	if (!_params.db) throw new Error('Database not initialized');
-	const dbRef = ref(_params.db, `${_params.ops.usersCollectionName}/${refUrl}`);
+	const dbRef = ref(_params.db, `${_params.ops.collectionName}/${refUrl}`);
 	return await setData(dbRef, data);
 };
+
+export const get = async (refUrl: string) => {
+	if (!_params.db) throw new Error('Database not initialized');
+	const dbRef = ref(_params.db, `${_params.ops.collectionName}/${refUrl}`);
+	// check doc exists
+	const snapshot = await getDoc(dbRef);
+	return snapshot.exists() ? snapshot.val() : null;
+}
