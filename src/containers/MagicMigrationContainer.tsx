@@ -40,7 +40,7 @@ export default function MagicMigrationContainer(props: {
                 control over your Wallet & can manage all your financial assets securely.
               </p>
               <h2 className="ion-padding-horizontal ion-padding-top">
-                2 Steps Migration Guide
+                Migration Guide with 2 steps
               </h2>
 
               <IonCard
@@ -63,7 +63,7 @@ export default function MagicMigrationContainer(props: {
                       </a>
                       .
                     </li>
-                    <li>Connect to your Wallet.</li>
+                    <li>Connect to your Wallet with usual method.</li>
                     <li>Click you avatar on top left of the wallet card.</li>
                     <li>
                       Click on <i>Wallet secret phrase</i>.
@@ -83,10 +83,10 @@ export default function MagicMigrationContainer(props: {
                 <IonCardContent>
                   <ul className="ion-padding-horizontal ion-no-margin">
                     <li>
-                      Connect using <i>Connect Wallet ➡ Import secret phrase</i>{" "}
+                      Back to HexaLite App, click Connect button & select <i>Connect Wallet ➡ Import secret seed</i>{" "}
                       option.
                     </li>
-                    <li>Use you secret phrase & connect with Google.</li>
+                    <li>Use you secret seed & connect with Google.</li>
                     <li>
                       Backup your secret seed phrase to ensure that you never
                       loose your wallet access.

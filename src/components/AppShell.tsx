@@ -164,8 +164,6 @@ const AppShell = () => {
       if (displayModal) {
         // Migration guide process
         setIsMagicMigrationModalOpen(true);
-        setIsMigrationMadalAlreadyDisplayed(true);
-        localStorage.setItem("hexa-lite__migration-modal-displayed", "true");
       }
     });
     if (walletAddress === undefined) {
@@ -436,6 +434,8 @@ const AppShell = () => {
         isOpen={isMagicMigrationModalOpen}
         onDidDismiss={() => {
           setIsMagicMigrationModalOpen(false);
+          setIsMigrationMadalAlreadyDisplayed(true);
+          localStorage.setItem("hexa-lite__migration-modal-displayed", "true");
         }}
       >
         <Suspense fallback={<DefaultProgressBar />}>
