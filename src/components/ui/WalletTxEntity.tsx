@@ -149,7 +149,7 @@ export function WalletTxEntity(props: { tx: TxInterface }) {
                 />
             </IonAvatar>
             <IonText>
-              {(tx.attributes.operation_type === 'trade' || tx.attributes.operation_type === 'receive' || tx.attributes.operation_type === 'approve') && (
+              {(tx.attributes.operation_type === 'trade' || tx.attributes.operation_type === 'receive' || tx.attributes.operation_type === 'approve'|| tx.attributes.operation_type === 'deposit') && (
                 <p className="ion-no-margin">
                   {tx.attributes.operation_type !== 'approve' && (
                     (action1 as Transfer).direction === 'in' ? '+ ' : '- '

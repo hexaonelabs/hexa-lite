@@ -56,6 +56,7 @@ import { NetworkTokenDetailCard } from "@/components/ui/NetworkTokenDetailCard/N
 import { getAllocationRatioInPercent } from "@/utils/getAllocationRatioInPercent";
 import { formatTxsAsSeriemarker } from "@/servcies/zerion.service";
 import { CoingeckoAPI } from "@/servcies/coingecko.service";
+import { TxsList } from "@/components/ui/TsxList/TxsList";
 
 const LightChart = lazy(() => import("@/components/ui/LightChart"));
 
@@ -86,9 +87,15 @@ export const TokenDetailDesktopContainer = (props: {
   const [isInfoOpen, setInfoOpen] = useState(false);
   const [isAccOpen, setIsAccOpen] = useState(false);
 
+  const filteredTxs = txs.filter((tx) => {
+    return tx.attributes.transfers.some((transfer) => {
+      return transfer.fungible_info.symbol === data.symbol;
+    });
+  });
+
   useEffect(() => {
     if (!walletAddress) return;
-    const TxsSerie = formatTxsAsSeriemarker(txs, {symbol: data.symbol});
+    const TxsSerie = formatTxsAsSeriemarker(filteredTxs);
     setTxsChartHistory(()=> TxsSerie);
     CoingeckoAPI.getTokenHistoryPrice(props.data.symbol).then((prices) => {
       setDataChartHistory(() => prices);
@@ -322,6 +329,20 @@ export const TokenDetailDesktopContainer = (props: {
               </Suspense>
             </IonCol>
           </IonRow>
+
+          {/* TXs list if existing tx */}
+          {filteredTxs.length > 0
+            ? (<IonRow>
+              <IonCol size="12" className="ion-no-padding">
+                <IonListHeader className="">
+                  <IonLabel>
+                    <h3>Transaction history</h3>
+                  </IonLabel>
+                </IonListHeader>
+                <TxsList filterBy={data.symbol} />
+              </IonCol>
+            </IonRow>)
+            : null}
 
           {tokenInfo && (
             <IonRow className="ion-padding ion-align-items-start">

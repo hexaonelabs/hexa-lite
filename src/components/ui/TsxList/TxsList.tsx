@@ -18,13 +18,13 @@ export const TxsList = (props: {
     }
     // check transfers
     if (tx.attributes.transfers.find(
-      t => t.fungible_info?.symbol.toLocaleLowerCase().includes(`${props.filterBy?.toLocaleLowerCase()}`))
+      t => t.fungible_info?.symbol.toLocaleLowerCase() === props.filterBy?.toLocaleLowerCase())
     ) {
       return true;
     }
     // check approvals
     if (tx.attributes.approvals.find(
-      t => t.fungible_info?.symbol.toLocaleLowerCase().includes(`${props.filterBy?.toLocaleLowerCase()}`))
+      t => t.fungible_info?.symbol.toLocaleLowerCase() === props.filterBy?.toLocaleLowerCase())
     ) {
       return true;
     }
@@ -65,7 +65,13 @@ export const TxsList = (props: {
 
         </IonRow>
       </IonGrid>
-      {data
+      {data.length <= 0 
+        ? (<div className="ion-padding ion-text-center">
+          <IonText>
+            <small>no existing transaction</small>
+          </IonText>
+        </div>) 
+        : data
       .slice(0, maxItemCount)
       .map((tx, i) => (
         <WalletTxEntity key={i} tx={tx} />

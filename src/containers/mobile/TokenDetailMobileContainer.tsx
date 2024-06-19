@@ -44,6 +44,7 @@ import { NetworkTokenDetailCard } from "@/components/ui/NetworkTokenDetailCard/N
 import { getAllocationRatioInPercent } from "@/utils/getAllocationRatioInPercent";
 import { formatTxsAsSeriemarker } from "@/servcies/zerion.service";
 import { CoingeckoAPI } from "@/servcies/coingecko.service";
+import { TxsList } from "@/components/ui/TsxList/TxsList";
 
 const LightChart = lazy(() => import("@/components/ui/LightChart"));
 
@@ -75,9 +76,15 @@ export const TokenDetailMobileContainer = (props: {
   const [isInfoOpen, setInfoOpen] = useState(false);
   const [isAccOpen, setIsAccOpen] = useState(false);
 
+  const filteredTxs = txs.filter((tx) => {
+    return tx.attributes.transfers.some((transfer) => {
+      return transfer.fungible_info.symbol === data.symbol;
+    });
+  });
+
   useEffect(() => {
     if (!walletAddress) return;
-    const TxsSerie = formatTxsAsSeriemarker(txs, {symbol: data.symbol});
+    const TxsSerie = formatTxsAsSeriemarker(filteredTxs);
     setTxsChartHistory(()=> TxsSerie);
     CoingeckoAPI.getTokenHistoryPrice(props.data.symbol).then((prices) => {
       setDataChartHistory(() => prices);
@@ -254,8 +261,23 @@ export const TokenDetailMobileContainer = (props: {
             </IonCol>
           </IonRow>
 
+          {/* TXs list if existing tx */}
+          {filteredTxs.length > 0
+            ? (<IonRow>
+              <IonCol size="12" className="ion-no-padding">
+                <IonListHeader className="">
+                  <IonLabel>
+                    <h3>Transaction history</h3>
+                  </IonLabel>
+                </IonListHeader>
+                <TxsList filterBy={data.symbol} />
+              </IonCol>
+            </IonRow>)
+            : null}
+
+          {/* Token detail information */}
           <IonRow>
-            {tokenInfo && (
+            {tokenInfo ? (
               <>
                 <IonCol size="12" className="ion-padding">
                   <TokenDetailMarketDetail tokenInfo={tokenInfo} />
@@ -264,7 +286,7 @@ export const TokenDetailMobileContainer = (props: {
                   <TokenDetailDescription tokenInfo={tokenInfo} />
                 </IonCol>
               </>
-            )}
+            ): null}
             <IonCol size="12">
               <IonText color="medium">
                 <p className="ion-text-center">
