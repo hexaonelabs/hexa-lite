@@ -12,4 +12,8 @@ module.exports = {
     '@lifi/wallet-management',
     '@0xsquid/widget'
   ],
+  compiler: {
+    // Remove console logs only in production, excluding error logs
+    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error"] } : false
+  }
 }
