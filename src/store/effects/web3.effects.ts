@@ -2,7 +2,30 @@ import { CHAIN_DEFAULT } from "@/constants/chains";
 import { patchWeb3State, setErrorState } from "../actions";
 import { IWeb3State } from "..";
 import web3Connector from '@/servcies/firebase-web3-connect';
-// import { MagicWalletUtils } from "@/network/MagicWallet";
+
+const initialWeb3State: IWeb3State = {
+  currentNetwork: CHAIN_DEFAULT.id,
+  walletAddress: null,
+  signer: null,
+  connectWallet: async (ops?: {email: string;}) => {
+    try {
+      await web3Connector.connect();
+    } catch (error: any) {
+      console.error("[ERROR] handleConnect:", error);
+      // disable error feedback UI 
+      // because the error message is managed by the web3Connector
+    }
+    await initState(CHAIN_DEFAULT.id);
+  },
+  disconnectWallet: async () => {},
+  loadAssets: async () => {},
+  loadTxs: async () => {},
+  switchNetwork: async () => {},
+  transfer: async () => {},
+  assets: [],
+  nfts: [],
+  txs: [],
+};
 
 const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
   const wallet = web3Connector.currentWallet();
@@ -26,7 +49,6 @@ const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
     disconnectWallet: async () => {
       await web3Connector.disconnect();
       window.location.reload();
-      // await initState(CHAIN_DEFAULT.id);
     },
     loadAssets: async(force) => {
       if (!wallet) {
@@ -88,80 +110,10 @@ export const initializeWeb3 = async (chainId: number = CHAIN_DEFAULT.id) => {
   web3Connector.onConnectStateChanged(async (user) => {
     // Perform state initialization
     console.log('[INFO] {{Web3Effect}} onConnectStateChanged: ', user);
-    await initState(chainId);
+    if (user) {
+      await initState(chainId);
+    } else {
+      patchWeb3State(initialWeb3State);
+    }
   });
 };
-
-//   console.log(`[INFO] {{Web3Effect}} initializeWeb3() - `, chainId);
-//   const magicUtils = await MagicWalletUtils.create(chainId);
-//   console.log(`[INFO] {{Web3Effect}} initialized - `, magicUtils);
-//   const web3Provider = magicUtils.web3Provider;
-//   const walletAddress = magicUtils.walletAddress;
-//   const currentNetwork = magicUtils.network;
-//   const isMagicWallet = magicUtils.isMagicWallet;
-
-//   if (magicUtils?.walletAddress) {
-//     console.log('[INFO] {{Web3Effect}} load balance...');
-//     await magicUtils.loadBalances().catch((err) => {
-//       setErrorState(new Error(`Load wallet balances failed. Try again later.`));
-//       console.error('[ERROR] {{Web3Effect}} load balance error: ', err?.message ? err.message : err);
-//     });
-//     console.log('[INFO] {{Web3Effect}} load Txs...');
-//     await magicUtils.loadTransactionHistory().catch((err) => {
-//       setErrorState(new Error(`Load wallet transactions failed. Try again later.`));
-//       console.error('[ERROR] {{Web3Effect}} load txs error: ', err?.message ? err.message : err);
-//     });    
-//   }
-
-//   const state = {
-//     web3Provider,
-//     walletAddress,
-//     currentNetwork,
-//     isMagicWallet,
-//     assets: magicUtils.assets,
-//     txs: magicUtils.txs,
-//     disconnectWallet: async () => {
-//       await magicUtils.disconnect();
-//       await initializeWeb3(chainId);
-//     },
-//     connectWallet: async (ops?: {email: string;}) => {
-//       await magicUtils.connect(ops);
-//       await initializeWeb3(chainId);
-//     },
-//     switchNetwork: async (chainId: number) => {
-//       await initializeWeb3(chainId);
-//     },
-//     loadAssets: async (force?: boolean) => {
-//       await magicUtils.loadBalances(force).catch((err) => {
-//         console.error('[ERROR] {{Web3Effect}} load balance error: ', err?.message ? err.message : err);
-//       });
-//       setWeb3State({
-//         ...state,
-//         assets: magicUtils.assets,
-//       });
-//     },
-//     loadTxs: async (force?: boolean) => {
-//       await magicUtils.loadTransactionHistory().catch((err) => {
-//         console.error('[ERROR] {{Web3Effect}} load txs error: ', err?.message ? err.message : err);
-//       });
-//       setWeb3State({
-//         ...state,
-//         txs: magicUtils.txs,
-//       });
-//     },
-//     transfer: async (ops: {
-//       inputFromAmount: number;
-//       inputToAddress: string;
-//       inputFromAsset: string;
-//     }) => {
-//       const result = await magicUtils.sendToken(
-//         ops.inputToAddress, 
-//         ops.inputFromAmount, 
-//         ops.inputFromAsset
-//       );
-//       console.log('[INFO] {{Web3Effect}} transfer result: ', result);
-//     }
-//   };
-//   console.log('[INFO] {{Web3Effect}} state: ', state);
-//   setWeb3State(state);
-// };
