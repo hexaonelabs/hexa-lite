@@ -2,13 +2,11 @@ import { SeriesData, SeriesMarkerData } from "@/components/ui/LightChart";
 import { TxInterface } from "@/interfaces/tx.interface";
 import { SeriesMarker, Time } from "lightweight-charts";
 
-export const formatTxsAsSeriemarker = (txs: TxInterface[], token: {symbol: string}): SeriesMarkerData => {
+export const formatTxsAsSeriemarker = (txs: TxInterface[]): SeriesMarkerData => {
   // only `in` and `out` transfers form `symbol` token
-  const filteredTxs = txs.filter((tx) => {
-    return tx.attributes.transfers.some((transfer) => {
-      return transfer.fungible_info.symbol === token.symbol;
-    });
-  });
+  const filteredTxs = txs.filter((tx) => 
+    tx.attributes.transfers[0].direction === "in" || tx.attributes.transfers[0].direction === "out"
+  );
   const serieData:SeriesMarkerData = new Map();
   serieData.set("1D", []);
   serieData.set("1W", []);
@@ -24,8 +22,9 @@ export const formatTxsAsSeriemarker = (txs: TxInterface[], token: {symbol: strin
   const oneWeekAgo = today - oneWeek;
   const oneMonthAgo = today - oneMonth;
   const oneYearAgo = today - oneYear;
-  filteredTxs
   
+  // loop over txs and create SeriesMarkerData
+  filteredTxs
   .forEach((tx) => {
     // `tx.attributes.mined_at` as `2024-06-20`
     const txDate = new Date(tx.attributes.mined_at).getTime();
