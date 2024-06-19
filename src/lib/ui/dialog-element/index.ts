@@ -143,20 +143,6 @@ const addAndWaitUIEventsResult = (
 						return;
 					}
 					try {
-						const unsubscribe = authProvider.getOnAuthStateChanged(
-							async user => {
-								if (user) {
-									unsubscribe();
-									await dialogElement.toggleSpinnerAsCheck();
-									dialogElement.hideModal();
-									resolve({
-										uid: user.uid,
-										isAnonymous: user.isAnonymous,
-										authMethod: detail as SigninMethod
-									});
-								}
-							}
-						);
 						await authWithEmailLink({
 							email,
 							url: dialogElement?.ops?.ops?.authProvider?.authEmailUrl
@@ -167,13 +153,29 @@ const addAndWaitUIEventsResult = (
 						finalStepElement.innerHTML = `
 							<p>
 								Please check your email & click on the link to authenticate.
-								<br />
-								Once authenticated, this dialog will close automatically & you will be connected.
+							</p>
+							<p>
+								Once authenticated, you will be prompted to provide a password 
+								to lock your Wallet account from unauthorized access
 							</p>
 						`;
 						dialogElement.shadowRoot
 							?.querySelector('dialog #spinner')
 							?.after(finalStepElement);
+						// listen to auth state change to manage dialog content
+						const unsubscribe = authProvider.getOnAuthStateChanged(
+							async user => {
+								if (user) {
+									finalStepElement.remove();
+									unsubscribe();
+									resolve({
+										uid: user.uid,
+										isAnonymous: user.isAnonymous,
+										authMethod: detail as SigninMethod
+									});
+								}
+							}
+						);
 					} catch (error: unknown) {
 						dialogElement.hideModal();
 						const message =

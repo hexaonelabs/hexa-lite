@@ -12,36 +12,46 @@ export default function AuthWithLinkContainer() {
     if (!connectFromEmailLink) {
       presentAlert({
         backdropDismiss: false,
-        header: 'Error',
-        subHeader: 'Authentication failed.',
-        message: 'Unable to access to this page without email connection link. Restart application & try again.',
-      })
-      return ()=> {};
+        header: "Error",
+        subHeader: "Authentication failed.",
+        message:
+          "Unable to access to this page without email connection link. Restart application & try again.",
+      });
+      return () => {};
     }
+    // display loader
     presentLoader({
-      message: 'Authenticate with email link...'
+      message: "Authenticate with email link...",
+    })
+    // call connetWithLink()
+    .then(async () => await web3Connector.connectWithLink())
+    // hide loader
+    .then(async () => await dismissLoader())
+    // display success message
+    .then(async () =>
+      await presentAlert({
+        backdropDismiss: false,
+        header: "Authentication",
+        subHeader: "Success",
+        message: "Close this page & go back to the app.",
+      })
+    )
+    // handle error
+    .catch(async (error) => {
+      // dismiss loader
+      await dismissLoader();
+      // display alert
+      await presentAlert({
+        backdropDismiss: false,
+        header: "Error",
+        subHeader: "Authentication failed.",
+        message:
+          (error as Error)?.message ||
+          "Unable to authenticate. Restart application & try again.",
+        buttons: ["ok"],
+      });
     });
-    void (async ()=> {
-      try {
-        await web3Connector.connectWithLink();
-        await dismissLoader();
-        await presentAlert({
-          backdropDismiss: false,
-          header: 'Authentication',
-          subHeader: 'Success',
-          message: 'You can close this page & go back to the app.',
-        });
-      } catch (error) {
-        await dismissLoader();
-        await presentAlert({
-          backdropDismiss: false,
-          header: 'Error',
-          subHeader: 'Authentication failed.',
-          message: (error as Error)?.message || 'Unable to authenticate. Restart application & try again.',
-          buttons: ['ok']
-        });
-      }
-    })();
+    return () => {};
   }, []);
 
   return (
@@ -49,4 +59,4 @@ export default function AuthWithLinkContainer() {
       <IonContent className="ion-no-padding"></IonContent>
     </IonPage>
   );
-};
+}
