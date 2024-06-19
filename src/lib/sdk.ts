@@ -417,7 +417,7 @@ export class FirebaseWeb3Connect {
 							providerId: user.providerId,
 							providerData: user.providerData[0]?.providerId,
 							metaData: user.metadata,
-							wallets: Array.from(new Map([...(data?.wallets||[]), this.wallet?.address]))
+							wallets: Array.from(new Set([...(data?.wallets||[]), this.wallet?.address])).filter(Boolean)
 						})
 					: await set(user.uid, {
 							email: user.email,
