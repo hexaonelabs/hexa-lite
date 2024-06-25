@@ -422,7 +422,7 @@ export class FirebaseWeb3Connect {
 							emailVerified: user.emailVerified,
 							uid: user.uid,
 							providerId: user.providerId,
-							providerData: user.providerData[0]?.providerId,
+							providerData: user.providerData?.[0]?.providerId||'external-wallet',
 							metaData: user.metadata,
 							wallets: Array.from(new Set([...(data?.wallets||[]), this.wallet?.address])).filter(Boolean)
 						})
