@@ -34,7 +34,6 @@ Hexa Lite is frictionless, secure, and reliable for everyone to use and enjoy th
 - [Ethers.js](https://docs.ethers.io/v5/)
 - [Ankr](https://ankr.com/)
 - [LiFi](https://li.fi/)
-- [Magic](https://magic.link/)
 - [Chain Link](https://chain.link/)
 - [Lido](https://lido.fi/)
 - [Aave](https://aave.com/)
@@ -59,10 +58,7 @@ Hexa Lite is a web-based platform that can be accessed from any device with a we
 Hexa Lite is deployed automatically using Github Actions. The deployment process is triggered when a new push is made to the master branch. The deployment process is managed by [Firebase Hosting](https://firebase.google.com/docs/hosting) and the project is available on [IPFS](https://ipfs.io/) using [Fleek](https://fleek.co/).
 
 ## Environment Variables
-Hexa Lite uses environment variables to store sensitive data and API keys. The environment variables are stored in a .env file at the root of the project. The .env file is not commited to the repository and is ignored by Git. The .env file must be created manually and the environment variables must be provided by the user. The .env file must contain the following environment variables:
-
-- `REACT_APP_ONBOARD_APIKEY`: Onboard API key
-- `REACT_APP_ANKR_APIKEY`: Ankr API key
+Hexa Lite uses environment variables to store sensitive data and API keys. The environment variables are stored in a .env file at the root of the project. The .env file is not commited to the repository and is ignored by Git. The .env file must be created manually and the environment variables must be provided by the user. Checkout `./example.env` file for more information about the environment variables that are required.
 
 ## Contributing
 Contributions are welcome and appreciated. To contribute to Hexa Lite, please fork the repository, create a new branch and submit a pull request. For major changes, please open an issue first to discuss what you would like to change.
