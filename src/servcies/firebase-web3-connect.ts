@@ -76,7 +76,8 @@ class Web3Connector {
   }
 
   async disconnect(){
-    await this._connector.signout(true);
+    const isLightmode = !document.querySelector('body')?.classList.contains('dark');
+    await this._connector.signout(true, isLightmode);
     return true;
   }
   wallets(){
@@ -195,7 +196,8 @@ class Web3Connector {
   }
 
   async backupWallet() {
-    return this._connector.backupWallet(true);
+    const isLightmode = !document.querySelector('body')?.classList.contains('dark');
+    return this._connector.backupWallet(true, isLightmode);
   
   }
 

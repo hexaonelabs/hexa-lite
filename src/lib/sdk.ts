@@ -529,7 +529,8 @@ export class FirebaseWeb3Connect {
 					enabledSigninMethods: [SigninMethod.Wallet],
 					integrator: this._ops?.dialogUI?.integrator,
 					logoUrl: this._ops?.dialogUI?.logoUrl,
-					ops: this._ops?.dialogUI?.ops
+					ops: this._ops?.dialogUI?.ops,
+					isLightMode: !document.querySelector('body')?.classList.contains('dark')
 				}));
 			// remove all default login buttons if existing
 			const btnsElement = dialogElement.shadowRoot?.querySelector(
