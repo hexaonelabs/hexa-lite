@@ -45,6 +45,7 @@ import { getAllocationRatioInPercent } from "@/utils/getAllocationRatioInPercent
 import { formatTxsAsSeriemarker } from "@/servcies/zerion.service";
 import { CoingeckoAPI } from "@/servcies/coingecko.service";
 import { TxsList } from "@/components/ui/TsxList/TxsList";
+import { currencyFormat } from "@/utils/currencyFormat";
 
 const LightChart = lazy(() => import("@/components/ui/LightChart"));
 
@@ -75,12 +76,16 @@ export const TokenDetailMobileContainer = (props: {
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | undefined>(undefined);
   const [isInfoOpen, setInfoOpen] = useState(false);
   const [isAccOpen, setIsAccOpen] = useState(false);
+  const [chartInterval, setChartInterval] = useState< "1D"|"1W"|"1M"|"1Y">('1M')
 
   const filteredTxs = txs.filter((tx) => {
     return tx.attributes.transfers.some((transfer) => {
       return transfer.fungible_info.symbol === data.symbol;
     });
   });
+
+  const [tokentPrice, setTokentPrice] = useState(tokenInfo?.market_data?.current_price?.usd ||
+    data.priceUsd);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -245,18 +250,64 @@ export const TokenDetailMobileContainer = (props: {
           <IonRow className="ion-margin-vertical">
             <IonCol size="12" className="ion-text-center">
               <Suspense fallback={<>.....</>}>
-                <LightChart seriesData={dataChartHistory} markers={txsChartHistory} />
-                <IonBadge color="primary">
-                  <span
-                    style={{
-                      fontSize: "0.8rem",
-                      display: "block",
-                      padding: "0.2rem",
-                    }}
-                  >
-                    1 {data.symbol} = $ {(tokenInfo?.market_data?.current_price?.usd||data.priceUsd).toFixed(2)}
-                  </span>
-                </IonBadge>
+                <IonGrid className="ion-no-padding">
+                  <IonRow className="ion-align-items-center">
+                    <IonCol>
+                      <IonText color="dark" className="ion-text-start">
+                        <p
+                          style={{
+                            fontSize: "0.8rem",
+                            margin: "0 0.5rem 0",
+                            opacity: 0.8,
+                          }}
+                        >
+                          {props.data.symbol} / USD
+                          <span
+                            style={{
+                              fontSize: "0.6rem",
+                              display: "block",
+                              padding: "0.2rem 0",
+                            }}
+                          >
+                            1 {data.symbol} ={" "}
+                            {currencyFormat.format(
+                              tokentPrice
+                            )}
+                          </span>
+                        </p>
+                      </IonText>
+                    </IonCol>
+                    <IonCol size="auto">
+                      <div className="ion-padding">
+                        <IonButtons>
+                          {["1D", "1W", "1M", "1Y"].map((interval: any, index: number) => (
+                            <IonButton
+                              key={index}
+                              color="primary"
+                              fill="solid"
+                              disabled={chartInterval === interval}
+                              onClick={() => setChartInterval(()=> interval)}
+                            >
+                              <small>{interval}</small>
+                            </IonButton>
+                          ))}
+                        </IonButtons>
+                      </div>
+                    </IonCol>
+                  </IonRow>
+                </IonGrid>
+                <LightChart 
+                  seriesData={dataChartHistory} 
+                  markers={txsChartHistory}
+                  interval={chartInterval}
+                  handleChartEvent={({action, payload})=> {
+                    if (action === 'leave') {
+                      setTokentPrice(tokenInfo?.market_data?.current_price?.usd ||
+                        data.priceUsd);
+                    } else {
+                      setTokentPrice((payload as any)?.price)
+                    }
+                  }} />
               </Suspense>
             </IonCol>
           </IonRow>

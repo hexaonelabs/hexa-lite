@@ -97,6 +97,16 @@ class WalletMobileContainer extends WalletBaseComponent<
   }
 
   render() {
+    const assetGroup = this.state.assetGroup
+    .filter((asset) =>
+      this.state.filterBy
+        ? asset.symbol
+            .toLowerCase()
+            .includes(this.state.filterBy.toLowerCase())
+        : true
+    )
+    .sort((a, b) => (a.balanceUsd > b.balanceUsd ? -1 : 1));
+
     return (
       <>
         <IonPage>
@@ -194,6 +204,7 @@ class WalletMobileContainer extends WalletBaseComponent<
                         <div>
                           <IonSearchbar
                             debounce={500}
+                            placeholder="Filter by symbol"
                             onIonInput={(event) => {
                               this.handleSearchChange(event);
                             }}
@@ -318,15 +329,7 @@ class WalletMobileContainer extends WalletBaseComponent<
                         style={{ background: "transparent" }}
                         className="ion-no-padding"
                       >
-                        {this.state.assetGroup
-                          .filter((asset) =>
-                            this.state.filterBy
-                              ? asset.symbol
-                                  .toLowerCase()
-                                  .includes(this.state.filterBy.toLowerCase())
-                              : true
-                          )
-                          .sort((a, b) => (a.balanceUsd > b.balanceUsd ? -1 : 1))
+                        {assetGroup
                           .map((asset, index) => (
                             <IonItemSliding key={index}>
                               <IonItem

@@ -229,7 +229,7 @@ class WalletDesktopContainer extends WalletBaseComponent<WalletComponentProps> {
               <IonRow style={{ marginTop: "3rem" }} className="ion-align-items-center ion-justify-content-between">
                 <IonCol>
                   <IonSearchbar
-                    placeholder="Search by symbol"
+                    placeholder="Filter by symbol"
                     style={{maxWidth: '300px'}}
                     className="ion-no-padding"
                     onIonInput={(e) => {
