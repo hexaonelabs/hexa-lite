@@ -23,6 +23,7 @@ export default function LightChart(props: {
   data?: DataItem[];
   seriesData?: SeriesData;
   markers?: SeriesMarkerData;
+  interval?: "1D"|"1W"|"1M"|"1Y";
   handleChartEvent?: ({
     action,
     payload,
@@ -32,14 +33,14 @@ export default function LightChart(props: {
   }) => any;
   minHeight?: number;
 }) {
-  const { seriesData, data, minHeight, markers, handleChartEvent } = props;
+  const { seriesData, data, interval, markers, handleChartEvent } = props;
   const chartContainerRef = useRef(null);
   const chartRef = useRef<IChartApi | null>(null);
   const [chartSeries, setChartSeries] = useState<
     ISeriesApi<"Line" | "Area", any>
   >(null as any);
   const [currentInterval, setcurrentInterval] =
-    useState<SerieIntervalType>("1M");
+    useState<SerieIntervalType>(interval || "1M");
 
   const setChartInterval = (interval: SerieIntervalType) => {
     if (!chartSeries) throw new Error("chartSeries not initialized");
@@ -128,7 +129,7 @@ export default function LightChart(props: {
             param.point.x < 0 ||
             param.point.y < 0
           ) {
-            return;
+            handleChartEvent({ action: "leave", payload: undefined });
           } else {
             const dateStr = new Date(param.time.toString()).toDateString();
             const data = param.seriesData.get(series) as DataItem;
@@ -159,14 +160,14 @@ export default function LightChart(props: {
 
   useEffect(() => {
     if (!chartSeries || !chartRef.current) return () => {};
-    setChartInterval(currentInterval);
+    setChartInterval(interval||currentInterval);
     chartRef.current?.timeScale().fitContent();
-  }, [chartSeries, chartRef.current, currentInterval]);
+  }, [chartSeries, chartRef.current, interval || currentInterval]);
 
   return (
     <>
       <div ref={chartContainerRef} />
-      {(seriesData?.size || 0) > 1 ? (
+      {(seriesData?.size || 0) > 1 && !interval? (
         <div className="ion-padding">
           <IonButtons>
             {["1D", "1W", "1M", "1Y"].map((interval: any, index: number) => (
