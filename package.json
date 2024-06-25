@@ -32,6 +32,7 @@
     "@hexaonelabs/firebase-web3connect": "^0.0.9-alpha.10",
     "@ionic/react": "latest",
     "@ionic/react-router": "latest",
+    "@ionic/storage": "^4.0.0",
     "@khmyznikov/pwa-install": "^0.2.7",
     "@lifi/widget": "^2.10.2",
     "@magic-ext/avalanche": "^16.4.0",

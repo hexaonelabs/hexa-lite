@@ -1,5 +1,5 @@
 import authProvider from './providers/auth/firebase';
-import storageProvider from './providers/storage/local';
+import storageProvider from './providers/storage/localforage';
 import './ui/dialog-element/dialogElement';
 import {
 	addAndWaitUIEventsResult,
