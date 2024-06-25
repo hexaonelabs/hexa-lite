@@ -28,7 +28,7 @@ const generateUIDUsingCanvasID = (): string => {
 };
 
 const Environment = Object.freeze({
-	applyEncryption: () => true,
+	applyEncryption: () => (process.env.NEXT_PUBLIC_APP_IS_PROD === 'true' ? true : false),
 	bucketName: generateBucketNameUsingWebGlSignature()
 });
 
