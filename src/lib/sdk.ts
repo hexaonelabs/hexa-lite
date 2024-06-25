@@ -251,6 +251,10 @@ export class FirebaseWeb3Connect {
 					)
 				);
 			}
+			if (reSkip === true) {
+				await storageService.setItem(KEYS.STORAGE_SKIP_BACKUP_KEY, `${Date.now()}`);
+			}
+
 			if (clearStorage) {
 				await storageService.clear();
 				await authProvider.signOut();
@@ -310,6 +314,9 @@ export class FirebaseWeb3Connect {
 						this._encryptedSecret
 					)
 				);
+			}
+			if (reSkip === true) {
+				await storageService.setItem(KEYS.STORAGE_SKIP_BACKUP_KEY, `${Date.now()}`);
 			}
 			dialogElement.hideModal();
 			await new Promise(resolve => setTimeout(resolve, 125));

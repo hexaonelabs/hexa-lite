@@ -48,7 +48,6 @@ const initState = async (chainId: number = CHAIN_DEFAULT.id) => {
     },
     disconnectWallet: async () => {
       await web3Connector.disconnect();
-      window.location.reload();
     },
     loadAssets: async(force) => {
       if (!wallet) {

@@ -108,7 +108,7 @@ const html = `<dialog class="dialog">
 
 		<div id="spinner" style="display: none"></div>
 	</div>
-	<p class="policy"><a href="#">Privacy Policy</a> - <a href="#">Terms</a></p>
+	<p class="policy"><a href="https://hexa-lite.io/terms/" target="_blank" rel="noopener">Terms & Privacy Policy</a></p>
 	<p class="powered-by">
 		Powered by
 		<a href="https://hexaonelabs.com" target="_blank" rel="noopener"
@@ -320,7 +320,7 @@ a {
 	border: none;
 	background: transparent;
 	padding: 0;
-	margin: 0 auto;
+	margin: 1rem auto 0;
 	opacity: 0.6;
 }
 :host dialog button#create-new-wallet:hover {

@@ -54,6 +54,7 @@ class Web3Connector {
   private readonly _connector = new FirebaseWeb3Connect(auth, 'APIKEY', {
     chainId: CHAIN_DEFAULT.id,
     dialogUI: {
+      integrator: 'Hexa Lite',
       ops: {
         authProvider: {
           authEmailUrl: EMAIL_LINK_URL

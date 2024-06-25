@@ -32,7 +32,8 @@ export const promptToDownloadElement = async (
 
       ${CheckboxElement({
 				label: 'Encrypt backup file',
-				id: 'toggle__encription'
+				id: 'toggle__encription',
+				checked: true
 			})}
 
       <button id="button__download">Download backup file</button>
