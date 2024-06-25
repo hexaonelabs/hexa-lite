@@ -1,20 +1,24 @@
 import { NETWORK } from '@/constants/chains';
 import { IAsset } from '@/interfaces/asset.interface';
-import { IPoolGroup, IUserSummary } from '@/interfaces/reserve.interface';
-import { Web3ProviderType } from '@/interfaces/web3.interface';
+import { INFT } from '@/interfaces/nft.interface';
+import { IUserSummary } from '@/interfaces/reserve.interface';
+import { TxInterface } from '@/interfaces/tx.interface';
+import { Web3SignerType } from '@/interfaces/web3.interface';
 import { MarketPool } from '@/pool/Market.pool';
 import { Store as PullStateStore } from 'pullstate';
 
 export interface IWeb3State {
   currentNetwork: NETWORK;
-  walletAddress: string | undefined;
-  web3Provider: Web3ProviderType | null;
-  isMagicWallet: boolean;
+  walletAddress: string | undefined | null;
+  signer: Web3SignerType | undefined | null;
   assets: IAsset[];
+  nfts: INFT[];
+  txs: TxInterface[];
   connectWallet(ops?: {email: string;}): Promise<void>;
   disconnectWallet(): Promise<void>;
   switchNetwork: (chainId: number) => Promise<void>;
   loadAssets: (force?: boolean) => Promise<void>;
+  loadTxs: (force?: boolean) => Promise<void>;
   transfer: (ops: {
     inputFromAmount: number;
     inputToAddress: string;
@@ -53,10 +57,11 @@ const defaultState: IStore = Object.freeze({
   },
   web3: {
     currentNetwork: NETWORK.optimism,
-    walletAddress: undefined,
-    web3Provider: null,
-    isMagicWallet: false,
+    walletAddress: undefined, // use undefined as default value. After loading, value will be updated and set tuo null if no value is provided
+    signer: undefined, // use undefined as default value. After loading, value will be updated and set to null if no value is provided
     assets: [],
+    nfts: [],
+    txs: [],
     connectWallet: async (ops?: {email: string;}) => {
       throw new Error("connectWallet function not implemented");
     },
@@ -68,6 +73,9 @@ const defaultState: IStore = Object.freeze({
     },
     loadAssets: async () => {
       throw new Error("loadAssets function not implemented");
+    },
+    loadTxs: async () => {
+      throw new Error("loadTxs function not implemented");
     },
     transfer: async (ops: {
       inputFromAmount: number;

@@ -96,7 +96,7 @@ function NetworkPopover({
 }
 
 export function NetworkButton() {
-  const { web3Provider, currentNetwork } = Store.useState(getWeb3State);
+  const { signer, currentNetwork } = Store.useState(getWeb3State);
   const popoverRef = useRef<HTMLIonPopoverElement>(null);
 
   const getChainData = (chainId: number) => {
@@ -109,13 +109,6 @@ export function NetworkButton() {
     currentNetwork || CHAIN_DEFAULT.id
   );
   const handleSwitchNetwork = async (chainId: number) => {
-    const isMagic = (web3Provider as any)?.provider?.sdk?.rpcProvider
-      ?.isMagic;
-    console.log(
-      "{{NetworkButton}} handleSwitchNetwork(): web3Provider",
-      isMagic,
-      Number(BigInt(chainId).toString())
-    );
     // save the new chainId to localstorage
     localStorage.setItem(
       "default-chainId",

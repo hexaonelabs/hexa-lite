@@ -14,7 +14,7 @@ import {
   IonModal,
 } from "@ionic/react";
 import { radioButtonOn, ribbonOutline } from "ionicons/icons";
-import ConnectButton from "./ConnectButton";
+import ConnectButton from "./ui/ConnectButton";
 import { AuthBadge } from "./AuthBadge";
 import { getAddressPoints } from "@/servcies/datas.service";
 import { PointsPopover } from "./PointsPopover";

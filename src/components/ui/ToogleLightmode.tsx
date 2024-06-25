@@ -23,6 +23,7 @@ export const ToggleLightmode = () => {
     <IonToggle 
       checked={!isLightmode} 
       onIonChange={handleToggle}
+      slot="end"
       labelPlacement="start" />
   </>);
 }

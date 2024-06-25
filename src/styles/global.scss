@@ -75,7 +75,12 @@ p {
 /* You can add global styles to this file, and also import other style files */
 // global
 * {
-  color-scheme: light dark;
+  color-scheme: light;
+}
+body.dark {
+  * {
+    color-scheme: dark;
+  }
 }
 
 // Hide scrollbar for Chrome, Safari and Opera
@@ -193,6 +198,12 @@ ion-popover.profil-popover {
 ion-modal {
   --border-radius: 32px;
 }
+@media screen and (max-width: 767px) {
+  ion-modal {
+    --border-radius: 32px 32px 0 0;
+  }
+  
+}
 
 ion-popover.points-popover {
   --width: 100%;
@@ -204,6 +215,14 @@ ion-alert.modalAlert {
     box-shadow: 0 0 12px 0px rgba(0, 0, 0, 0.25)!important;
     border-radius: 32px!important;
     background: var(--ion-background-color)!important;
+  }
+}
+ion-alert {
+  .alert-button.danger {
+    color: var(--ion-color-danger);
+  }
+  .alert-button.success {
+    color: var(--ion-color-success);
   }
 }
 
@@ -344,13 +363,28 @@ ion-card {
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 
-  -webkit-filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px); 
-  filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px );
+  > ion-col {
+    ion-grid:last-of-type {
+      border-bottom: none!important;
+    }
+  }
 }
 body.dark {
   .widgetWrapper, ion-card:not(.ion-color), .leaderboardPage ion-list {
+    -webkit-filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px); 
+    filter: drop-shadow(rgba(var(--ion-color-primary-rgb), .2) 0px 0px 50px );
     box-shadow: 0 0 12px 0px rgb(0 0 0 / 25%);
   }
+}
+@media screen and (max-width: 767px) {
+  .widgetWrapper {
+    min-height: 100vh;
+    margin-bottom: -6rem;
+  }
+  .widgetWrapper, ion-card:not(.ion-color), .leaderboardPage ion-list {
+    margin-top: 0.5rem;
+  }
+  
 }
 
 .welcomeSection {
@@ -682,7 +716,7 @@ ion-accordion:not(.faq) {
   }
   *[slot="content"] {
     > ion-grid {
-      background: rgba(0,0,0, 0.65) !important;
+      background: rgba(0,0,0, 0.05) !important;
       margin: 0rem;
       padding: 0.5rem 0;
 
@@ -843,10 +877,6 @@ div.MuiScopedCssBaseline-root > .MuiBox-root > .MuiBox-root {
   backdrop-filter: none;
 }
 
-body.dark div[id^="widget-relative-container"]{
-  box-shadow: 0 0 12px 0px rgba(0, 0, 0, 0.25);
-}
-
 div.MuiScopedCssBaseline-root {
   background: var(--ion-background-color)!important;
   -webkit-backdrop-filter: blur(10px)!important;
@@ -876,6 +906,9 @@ div.MuiScopedCssBaseline-root {
 
 .flex {
   display: flex;
+}
+.alignItemsCenter {
+  align-items: center;
 }
 .transition {
   transition: all 85ms ease-in-out;
@@ -939,7 +972,7 @@ div.MuiScopedCssBaseline-root {
   }
 }
 
-.mobileConentModal{
+.mobileConentModal, .defaultBackgroundColor{
   --background: var(--ion-background-color);
 }
 #reader-scan-element {
@@ -999,4 +1032,72 @@ div.MuiScopedCssBaseline-root {
       opacity: 0.6;
     }
   }
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+
+.wallet__switch_current_view {
+  ion-button {
+    margin: 1px;
+    --background: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.07);
+    --color: var(--ion-color-text);
+    --background-hover: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.1);
+    --background-focused: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.2);
+    --background-activated: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.2);
+
+    ion-icon {
+      transform: scale(0.8);
+    }
+    
+  }
+  ion-button {
+    --border-radius: 0px !important;
+  }
+  ion-button:first-of-type {
+    --border-radius: 10px 0 0 10px !important;
+  }
+  ion-button:last-of-type {
+    --border-radius: 0 10px 10px 0 !important;
+  }
+}
+@media screen and (max-width: 767px) {
+  .wallet_tx_entity__detail_col {
+    flex-direction: column;
+    align-items: flex-start!important;
+
+    p {
+      font-size: 0.8rem;
+      line-height: 0.8rem;
+    }
+    > div {
+      margin: 0.25rem 0;
+
+    }
+  }
+  
+}
+
+.qrCodeContainer {
+  svg {
+    transform: scale(1.05);
+  }
+}
+
+/***********************************************
+ *  Utils styles
+ ***********************************************/
+.no-shadow {
+  box-shadow: none;
 }

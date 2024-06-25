@@ -31,7 +31,6 @@ export const DepositContainer = (props: {
     currentNetwork,
     walletAddress,
     switchNetwork,
-    isMagicWallet
   } = Store.useState(getWeb3State);
   const [qrCodeSVG, setQrCodeSVG] = useState<SVGElement | null>(null);
   const chain =
@@ -49,7 +48,7 @@ export const DepositContainer = (props: {
   const [presentSelectNetwork, dismissSelectNetwork] = useIonModal(() => (
     <SelectNetwork
       chains={CHAIN_AVAILABLES}
-      isMagicWallet={isMagicWallet}
+      isExternalWallet={false}
       dismiss={dismissSelectNetwork}
     />
   ));
@@ -119,7 +118,7 @@ export const DepositContainer = (props: {
       <IonHeader className="ion-no-border" translucent={true}>
         <IonToolbar style={{'--background': 'transparent'}}>
           <IonTitle>
-            <h1>Deposit</h1>
+            Deposit
           </IonTitle>
           <IonButtons slot="end">
             <IonButton 
@@ -154,7 +153,7 @@ export const DepositContainer = (props: {
             <IonCol size="12" className="ion-padding">
 
               <div
-                className="ion-margin"
+                className="qrCodeContainer ion-margin"
                 style={{
                   border: 'solid 2px var(--ion-color-primary)',
                   borderRadius: "32px",

@@ -1,5 +1,5 @@
 import { currencyFormat } from "@/utils/currencyFormat";
-import { TokenInfo } from "@/utils/getTokenInfo";
+import { TokenInfo } from '@/servcies/coingecko.service';
 import { numberFormat } from "@/utils/numberFormat";
 import {
   IonItem,

@@ -30,8 +30,6 @@ export const WalletAssetsList = (props: {
     totalBalance, assetGroup, filterBy, 
     handleTokenDetailClick, handleTransferClick, setIsSwapModalOpen 
   } = props;
-  const { walletAddress, assets, isMagicWallet, loadAssets } =
-    Store.useState(getWeb3State);
 
   return (
     <>

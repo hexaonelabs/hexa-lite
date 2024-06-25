@@ -81,7 +81,6 @@ export const MobileActionNavButtons = (props: {
           <IonFab style={style.fab}>
             <IonFabButton
               color="gradient"
-              disabled={balance <= 0}
               onClick={() => {
                 setState({ isEarnModalOpen: true });
               }}

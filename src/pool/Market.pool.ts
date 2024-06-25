@@ -1,6 +1,7 @@
 import { IMarketPool } from "@/interfaces/reserve.interface";
 import { IAavePool } from "./Aave.pool";
-import { Web3ProviderType } from "@/interfaces/web3.interface";
+import { Web3SignerType } from "@/interfaces/web3.interface";
+import { ethers } from "ethers";
 
 export abstract class MarketPool implements IMarketPool {
   readonly id: string;
@@ -40,10 +41,10 @@ export abstract class MarketPool implements IMarketPool {
   public borrowBalance: number;
 
 
-  public abstract deposit(amount: number, provider: Web3ProviderType): Promise<void>;
-  public abstract withdraw(amount: number, provider: Web3ProviderType): Promise<void>;
-  public abstract borrow(amount: number, provider: Web3ProviderType): Promise<void>;
-  public abstract repay(amount: number, provider: Web3ProviderType): Promise<void>;
+  public abstract deposit(amount: number, signer: ethers.Signer): Promise<void>;
+  public abstract withdraw(amount: number, signer: ethers.Signer): Promise<void>;
+  public abstract borrow(amount: number, signer: ethers.Signer): Promise<void>;
+  public abstract repay(amount: number, signer: ethers.Signer): Promise<void>;
 
   constructor(pool: IMarketPool) {
     this.id = pool.id;

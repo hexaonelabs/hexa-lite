@@ -43,6 +43,7 @@ import type { Route } from '@lifi/sdk';
 import { PointsData, addAddressPoints } from "@/servcies/datas.service";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
+import { signInWithPhoneNumber } from "firebase/auth";
 
 export interface IStrategyModalProps {
   dismiss?: (
@@ -52,7 +53,7 @@ export interface IStrategyModalProps {
 }
 
 export function MATICLiquidStakingstrategyCard(props: { asImage?: boolean, asItem?: boolean }) { 
-  const { web3Provider, switchNetwork, connectWallet, disconnectWallet, currentNetwork } = Store.useState(getWeb3State);
+  const { signer, switchNetwork, connectWallet, disconnectWallet, currentNetwork } = Store.useState(getWeb3State);
   const [baseAPRst, setBaseAPRst] = useState(-1);
   const [action, setAction] = useState<"stake" | "unstake">("stake");
   const { display: displayLoader, hide: hideLoader } = useLoader();
@@ -87,10 +88,9 @@ export function MATICLiquidStakingstrategyCard(props: { asImage?: boolean, asIte
         try {
           await displayLoader();
           await connectWallet();
-          if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
+          if (!signer) {
             throw new Error("Provider not found");
           }
-          const signer = web3Provider?.getSigner();
           console.log("[INFO] signer", signer);
           if (!signer) {
             throw new Error("Signer not found");
@@ -143,7 +143,7 @@ export function MATICLiquidStakingstrategyCard(props: { asImage?: boolean, asIte
           });
         }
       },
-      signer: web3Provider instanceof ethers.providers.Web3Provider ? web3Provider?.getSigner() : undefined,
+      signer: signer || undefined
     },
     // set source chain to Polygon
     fromChain: NETWORK.polygon,
@@ -393,12 +393,7 @@ export function MATICLiquidStakingstrategyCard(props: { asImage?: boolean, asIte
 
                 <IonButton
                   onClick={async () => {
-                    await displayLoader();
-                    if (currentNetwork !== NETWORK.polygon) {
-                      await switchNetwork(NETWORK.polygon);
-                    }
                     await modal.current?.present();
-                    await hideLoader();
                   }}
                   expand="block"
                   color="gradient"
@@ -417,13 +412,7 @@ export function MATICLiquidStakingstrategyCard(props: { asImage?: boolean, asIte
         <IonItem 
           style={{'--background': 'transparent'}}
           onClick={async () => {
-            const chainId = currentNetwork;
-            await displayLoader();
-            if (chainId !== NETWORK.optimism) {
-              await switchNetwork(NETWORK.optimism);
-            }
             await modal.current?.present();
-            await hideLoader();
           }}>
           <IonAvatar slot="start" style={{
               width: '64px',

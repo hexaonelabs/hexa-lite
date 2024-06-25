@@ -41,7 +41,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <link rel="manifest" href="manifest.webmanifest" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="theme-color" content="#182449" />
-        <meta name="color-scheme" content="dark" />
+        <meta name="color-scheme" content="dark light" />
 
         <meta name="author" content="HexaOneLabs" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -130,7 +130,23 @@ function MyApp({ Component, pageProps }: AppProps) {
       <ErrorBoundary>
         <Component {...pageProps} />
       </ErrorBoundary>
-      <GoogleAnalytics gaId="G-70XCWQ9YE2" />
+      {/* <GoogleAnalytics gaId="G-70XCWQ9YE2" /> */}
+      {process.env.NEXT_PUBLIC_APP_IS_PROD !== 'true' && (<>
+        <div style={{
+          position: 'absolute',
+          bottom: '0',
+          left: '0',
+          display: 'block',
+          width: '100%',
+          padding: '0.5rem',
+          background: 'var(--ion-color-warning)',
+          color: '#000'
+        }}>
+          {process.env.NEXT_PUBLIC_APP_IS_LOCAL === 'true' && (<>[ENV] LOCAL: Using fake data.</>)}
+          {process.env.NEXT_PUBLIC_APP_IS_LOCAL === 'false' && 
+          process.env.NEXT_PUBLIC_APP_IS_PROD === 'false' && (<>[ENV] DEV: Using you own API Keys</>)}
+        </div>
+      </>)}
     </>
   );
 }

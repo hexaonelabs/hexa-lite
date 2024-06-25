@@ -22,7 +22,7 @@ import {
   ribbonOutline,
 } from "ionicons/icons";
 import { AuthBadge } from "./AuthBadge";
-import ConnectButton from "./ConnectButton";
+import ConnectButton from "./ui/ConnectButton";
 import { useEffect, useState } from "react";
 import { getAddressPoints } from "@/servcies/datas.service";
 import { PointsPopover } from "./PointsPopover";
@@ -71,7 +71,7 @@ export function Header({
                     <div
                       className="flex"
                       onClick={()=> {
-                        router.push('/index', 'back');
+                        window.location.href = 'https://hexa-lite.io'
                       }}
                     >
                       <AppLogo />

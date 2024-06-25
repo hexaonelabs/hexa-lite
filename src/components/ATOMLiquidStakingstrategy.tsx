@@ -40,7 +40,7 @@ export interface IStrategyModalProps {
 }
 
 export function ATOMLiquidStakingstrategyCard() {
-  const { web3Provider, switchNetwork, connectWallet, disconnectWallet, currentNetwork } = Store.useState(getWeb3State);
+  const { switchNetwork, connectWallet, disconnectWallet, currentNetwork } = Store.useState(getWeb3State);
   const [baseAPRst, setBaseAPRst] = useState(-1);
   const { display: displayLoader, hide: hideLoader } = useLoader();
   const toastContext = useIonToast();

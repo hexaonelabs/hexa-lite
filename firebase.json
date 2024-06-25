@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "target": "hexa-lite",
+    "target": "app-hexa-lite",
     "public": "build",
     "ignore": [
       "firebase.json",
@@ -13,5 +13,18 @@
         "destination": "/index.html"
       }
     ]
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "database": {
+      "port": 9000
+    },
+    "ui": {
+      "enabled": true,
+      "port": 9001
+    },
+    "singleProjectMode": true
   }
 }

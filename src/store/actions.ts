@@ -6,6 +6,14 @@ export const setWeb3State = (web3State: IWeb3State) => {
     s.web3 = web3State;
   });
 };
+export const patchWeb3State = (web3State:  Partial<IWeb3State>) => {
+  Store.update(s => {
+    s.web3 = {
+      ...s.web3,
+      ...web3State
+    }
+  });
+};
 
 export const patchPoolsState = (poolsState: Partial<IPoolsState>) => {
   Store.update(s => {

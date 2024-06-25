@@ -764,9 +764,8 @@ export const fakeQuote = {
  */
 export const sendTransaction = async (
   quote: LiFiQuoteResponse,
-  provider: ethers.providers.Web3Provider
+  signer: ethers.providers.JsonRpcSigner
 ) => {
-  const signer = provider.getSigner();
   const tx = await signer.sendTransaction(quote.transactionRequest);
   const receipt = await tx.wait();
   return receipt;
@@ -778,7 +777,7 @@ export const sendTransaction = async (
 
  */
 export const checkAndSetAllowance = async (
-  provider: ethers.providers.Web3Provider,
+  signer: ethers.providers.JsonRpcSigner,
   tokenAddress: string,
   approvalAddress: string,
   amount: string
@@ -787,7 +786,6 @@ export const checkAndSetAllowance = async (
   if (tokenAddress === ethers.constants.AddressZero) {
     return;
   }
-  const signer = provider.getSigner();
   const erc20 = new Contract(tokenAddress, ERC20_ABI, signer);
   const address = await signer.getAddress();
   const allowance = await erc20.allowance(address, approvalAddress);
@@ -811,7 +809,7 @@ export const swapWithLiFi = async (
     fromAmount: string;
     fromAddress: string;
   },
-  provider: ethers.providers.Web3Provider
+  signer: ethers.providers.JsonRpcSigner
 ) => {
   const quote = await getQuote(
     ops.fromChain,
@@ -822,12 +820,12 @@ export const swapWithLiFi = async (
     ops.fromAddress
   );
   await checkAndSetAllowance(
-    provider,
+    signer,
     quote.action.fromToken.address,
     quote.estimate.approvalAddress,
     quote.action.fromAmount
   );
-  const receipt = await sendTransaction(quote, provider);
+  const receipt = await sendTransaction(quote, signer);
   return receipt;
 };
 
@@ -875,11 +873,12 @@ export const getTokensPrice = async (tokens: IAsset[]) => {
       tokensResponse = responseData.tokens;
     }
   } catch (error) {
-    throw error;
+    // throw error;
+    tokensResponse = {};
   }
   const tokenWithPrice: IAsset[] = [];
   for (const token of tokens) {
-    const index = tokensResponse[token.chain?.id as number].findIndex(
+    const index = tokensResponse?.[token.chain?.id as number].findIndex(
       (t) => t.symbol === token.symbol
     );
     if (index > -1) {
@@ -926,16 +925,16 @@ export const LIFI_CONFIG = Object.freeze<WidgetConfig>({
         secondary: "rgba(var(--ion-text-color-rgb), 0.6)",
       },
       background: {
-        paper: "rgb(var(--item-background-shader-rgb))", // green
+        paper: "rgb(var(--lifi-paper-background-rgb))", // green
         // default: '#182449',
       },
       primary: {
         main: "#0090FF",
-        contrastText: "rgb(var(--ion-text-color.rgb))",
+        contrastText: "rgb(var(--ion-text-color-rgb))",
       },
       secondary: {
         main: "#4CCCE6",
-        contrastText: "rgb(var(--ion-text-color.rgb))",
+        contrastText: "rgb(var(--ion-text-color-rgb))",
       },
     },
   },

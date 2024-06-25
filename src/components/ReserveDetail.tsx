@@ -9,6 +9,7 @@ import {
   IonContent,
   IonFabButton,
   IonFabList,
+  IonFooter,
   IonGrid,
   IonHeader,
   IonIcon,
@@ -35,7 +36,7 @@ import {
 import { ethers } from "ethers";
 import { getReadableAmount } from "../utils/getReadableAmount";
 import { valueToBigNumber } from "@aave/math-utils";
-import ConnectButton from "./ConnectButton";
+import ConnectButton from "./ui/ConnectButton";
 import { LoanFormModal } from "./LoanFormModal";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -75,65 +76,13 @@ import {
 import { initializeUserSummary } from "@/store/effects/pools.effect";
 import { ModalMessage } from "./ModalMessage";
 import { currencyFormat } from "@/utils/currencyFormat";
+import { isMobilePWADevice } from "@/utils/isMobile";
 
 interface IReserveDetailProps {
   pool: MarketPool;
   dismiss: (actionType?: string) => void;
   handleSegmentChange: (e: { detail: { value: string } }) => void;
 }
-
-const loadTokenData = async (symbol: string) => {
-  // check if have localstorage data
-  const localCoinsListString = localStorage.getItem("coingecko-coins-list");
-  let localCoinsList = localCoinsListString
-    ? JSON.parse(localCoinsListString)
-    : null;
-  if (!localCoinsList) {
-    localCoinsList = await fetch(
-      `https://api.coingecko.com/api/v3/coins/list`
-    ).then((response) => response.json());
-    localStorage.setItem(
-      "coingecko-coins-list",
-      JSON.stringify(localCoinsList)
-    );
-  }
-  if (!localCoinsList) {
-    return;
-  }
-  // find coin id by symbol
-  const coin = localCoinsList.find(
-    (coin: { symbol: string }) =>
-      coin.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase()
-  );
-  if (coin) {
-    // fetch coin data by id
-    return fetch(`https://api.coingecko.com/api/v3/coins/${coin.id}`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("coin data: ", data.description.en);
-        const {
-          description: { en: description },
-          market_data: {
-            fully_diluted_valuation: { usd: fullyDilutedValuationUSD },
-            market_cap: { usd: marketCapUSD },
-            max_supply: maxSupply,
-            total_supply: totalSupply,
-            circulating_supply: circulatingSupply,
-          },
-        } = data;
-        return {
-          description,
-          fullyDilutedValuationUSD,
-          marketCapUSD,
-          maxSupply,
-          totalSupply,
-          circulatingSupply,
-        };
-      });
-  } else {
-    return;
-  }
-};
 
 export function ReserveDetail(props: IReserveDetailProps) {
   const {
@@ -142,7 +91,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
     handleSegmentChange,
   } = props;
   const {
-    web3Provider,
+    signer,
     currentNetwork,
     walletAddress,
     assets,
@@ -249,7 +198,6 @@ export function ReserveDetail(props: IReserveDetailProps) {
     throw new Error("No poolGroup found");
   }
 
-  console.log('>>>>x x', userSummaryAndIncentivesGroup)
   const userSummary = userSummaryAndIncentivesGroup?.find((group) =>
     group?.userReservesData?.find(({ reserve }) => reserve.id === id)
   );
@@ -306,24 +254,20 @@ export function ReserveDetail(props: IReserveDetailProps) {
       `[INFO] ReserveDetail - onWillDismiss from LoanFormModal: `,
       ev.detail
     );
-    if (!web3Provider) {
-      throw new Error("No web3Provider found");
+    if (!signer) {
+      throw new Error("No signer found");
     }
-    if (!(web3Provider instanceof ethers.providers.Web3Provider)) {
-      throw new Error("No EVM web3Provider");
+    if (!signer) {
+      throw new Error("No EVM signer");
     }
     if (ev.detail.role !== "confirm") {
       return;
     }
     displayLoader();
-    // switch network if need
-    let provider = web3Provider;
     if (currentNetwork !== pool.chainId) {
       await switchNetwork(pool.chainId);
-      // update provider after switch network
-      provider = web3Provider;
     }
-    if (!provider) {
+    if (!signer) {
       throw new Error("No provider found or update failed");
     }
     // perform action
@@ -332,19 +276,19 @@ export function ReserveDetail(props: IReserveDetailProps) {
     const amount = Number(value);
     switch (true) {
       case type === "deposit": {
-        await pool.deposit(amount, provider);
+        await pool.deposit(amount, signer);
         break;
       }
       case type === "withdraw": {
-        await pool.withdraw(amount, provider);
+        await pool.withdraw(amount, signer);
         break;
       }
       case type === "borrow": {
-        await pool.borrow(amount, provider);
+        await pool.borrow(amount, signer);
         break;
       }
       case type === "repay": {
-        await pool.repay(amount, provider);
+        await pool.repay(amount, signer);
         break;
       }
       default:
@@ -411,11 +355,10 @@ export function ReserveDetail(props: IReserveDetailProps) {
     ) : (
       <></>
     );
-
   const DepositBtn =
     walletAddress &&
     (walletBalance || 0) > 0 &&
-    supplyPoolRatioInPercent < 99 ? (
+    (supplyPoolRatioInPercent < 99 || Infinity) ? (
       <IonButton
         fill="solid"
         expand="block"
@@ -500,6 +443,22 @@ export function ReserveDetail(props: IReserveDetailProps) {
   //     setTokenDetails(() => details);
   //   });
   // }, [pool.symbol]);
+
+  const callActionsBtn = walletAddress ? (
+    <>
+      <IonButton
+        color="gradient"
+        expand={isMobilePWADevice ? 'block': undefined}
+        onClick={() => {
+          setIsModalOptionsOpen(() => true);
+        }}
+      >
+        Choose option
+      </IonButton>
+    </>
+  ) : (
+    <ConnectButton expand={isMobilePWADevice ? 'block': undefined}></ConnectButton>
+  );
 
   return (
     <>
@@ -617,60 +576,7 @@ export function ReserveDetail(props: IReserveDetailProps) {
                     size-lg="6"
                     className="ion-text-center"
                   >
-                    {walletAddress ? (
-                      <>
-                        <IonButton
-                          color="gradient"
-                          onClick={() => {
-                            setIsModalOptionsOpen(() => true);
-                          }}
-                        >
-                          Choose option
-                        </IonButton>
-                        <IonModal
-                          className="modalAlert"
-                          onIonModalDidDismiss={() => {}}
-                          keyboardClose={false}
-                          isOpen={isModalOptionsOpen}
-                          onDidDismiss={() => {
-                            setIsModalOptionsOpen(false);
-                          }}
-                        >
-                          <IonGrid
-                            className="ion-padding"
-                            style={{ width: "100%" }}
-                          >
-                            <IonRow>
-                              <IonCol>
-                                <IonText>
-                                  <h3 style={{ marginBottom: 0 }}>
-                                    <b>Select option</b>
-                                  </h3>
-                                </IonText>
-                                <IonText color="medium">
-                                  <p className="ion-no-margin">
-                                    <small>
-                                      Choose an option to interact with this
-                                      pool.
-                                    </small>
-                                  </p>
-                                </IonText>
-                              </IonCol>
-                              <IonCol size="12">
-                                {/* {ExchangeAssetBtn}
-                                {BuyAssetBtn} */}
-                                {WithdrawBtn}
-                                {DepositBtn}
-                                {RepayBtn}
-                                {BorrowBtn}
-                              </IonCol>
-                            </IonRow>
-                          </IonGrid>
-                        </IonModal>
-                      </>
-                    ) : (
-                      <ConnectButton></ConnectButton>
-                    )}
+                    {!isMobilePWADevice ? callActionsBtn : null}
                   </IonCol>
                   {tokenDetails && (
                     <IonCol
@@ -1073,7 +979,55 @@ export function ReserveDetail(props: IReserveDetailProps) {
           </IonRow>
         </IonGrid>
       </IonContent>
+      {isMobilePWADevice && (
+        <IonFooter>
+          <IonToolbar style={{'--background': 'transparent'}}>
+            {callActionsBtn}
+          </IonToolbar>
+        </IonFooter>
+      )}
 
+      <IonModal
+        className="modalAlert"
+        onIonModalDidDismiss={() => {}}
+        keyboardClose={false}
+        isOpen={isModalOptionsOpen}
+        onDidDismiss={() => {
+          setIsModalOptionsOpen(false);
+        }}
+      >
+        <IonGrid
+          className="ion-padding"
+          style={{ width: "100%" }}
+        >
+          <IonRow>
+            <IonCol>
+              <IonText>
+                <h3 style={{ marginBottom: 0 }}>
+                  <b>Select option</b>
+                </h3>
+              </IonText>
+              <IonText color="medium">
+                <p className="ion-no-margin">
+                  <small>
+                    Choose an option to interact with this
+                    pool.
+                  </small>
+                </p>
+              </IonText>
+            </IonCol>
+            <IonCol size="12">
+              {/* {ExchangeAssetBtn}
+              {BuyAssetBtn} */}
+              {WithdrawBtn}
+              {DepositBtn}
+              {RepayBtn}
+              {BorrowBtn}
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+      </IonModal>
+      
       <IonModal
         className="modalAlert"
         onIonModalDidDismiss={() => {

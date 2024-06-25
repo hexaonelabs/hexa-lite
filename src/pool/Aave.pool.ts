@@ -8,7 +8,7 @@ import {
   supplyWithPermit,
   withdraw,
 } from "@/servcies/aave.service";
-import { Web3ProviderType } from "@/interfaces/web3.interface";
+import { Web3SignerType } from "@/interfaces/web3.interface";
 
 export interface IAavePool extends IMarketPool {
   readonly unborrowedLiquidity: string;
@@ -87,20 +87,20 @@ export class AavePool extends MarketPool implements IAavePool {
 
   public async deposit(
     amount: number,
-    provider: Web3ProviderType
+    signer: Web3SignerType
   ): Promise<void> {
     // handle invalid amount
     if (isNaN(amount) || amount <= 0) {
       throw new Error("Invalid amount. Value must be greater than 0.");
     }
-    if (!(provider instanceof ethers.providers.Web3Provider)) {
-      throw new Error("No EVM web3Provider");
+    if (!signer) {
+      throw new Error("No EVM signer");
     }
     const markets = getMarkets(this.chainId);
     // call method
     const { chainId, aTokenAddress, underlyingAsset } = this;
     const params = {
-      provider: provider as ethers.providers.Web3Provider,
+      signer,
       reserve: { chainId, aTokenAddress, underlyingAsset },
       amount: amount.toString(),
       onBehalfOf: undefined,
@@ -118,7 +118,7 @@ export class AavePool extends MarketPool implements IAavePool {
 
   public async withdraw(
     amount: number,
-    provider: Web3ProviderType
+    signer: Web3SignerType
   ): Promise<void> {
     // handle invalid amount
     if (isNaN(amount) || amount <= 0) {
@@ -126,14 +126,14 @@ export class AavePool extends MarketPool implements IAavePool {
         "[INFO] AavePool.withdraw() Invalid amount. Value must be greater than 0."
       );
     }
-    if (!(provider instanceof ethers.providers.Web3Provider)) {
-      throw new Error("[INFO] AavePool.withdraw() No EVM web3Provider");
+    if (!signer) {
+      throw new Error("[INFO] AavePool.withdraw() No EVM signer");
     }
     const markets = getMarkets(this.chainId);
     const { underlyingAsset, aTokenAddress } = this;
     // call method
     const params = {
-      provider: provider as ethers.providers.Web3Provider,
+      signer,
       reserve: { underlyingAsset, aTokenAddress },
       amount: amount.toString(),
       onBehalfOf: undefined,
@@ -151,7 +151,7 @@ export class AavePool extends MarketPool implements IAavePool {
 
   public async borrow(
     amount: number,
-    provider: Web3ProviderType
+    signer: Web3SignerType
   ): Promise<void> {
     // handle invalid amount
     if (isNaN(amount) || amount <= 0) {
@@ -159,15 +159,15 @@ export class AavePool extends MarketPool implements IAavePool {
         "[INFO] AavePool.borrow() Invalid amount. Value must be greater than 0."
       );
     }
-    if (!(provider instanceof ethers.providers.Web3Provider)) {
-      throw new Error("[INFO] AavePool.borrow() No EVM web3Provider");
+    if (!signer) {
+      throw new Error("[INFO] AavePool.borrow() No EVM signer");
     }
     const markets = getMarkets(this.chainId);
     // call method
     const { underlyingAsset } = this;
     // call method
     const params = {
-      provider,
+      signer,
       reserve: { underlyingAsset },
       amount: amount.toString(),
       onBehalfOf: undefined,
@@ -185,21 +185,21 @@ export class AavePool extends MarketPool implements IAavePool {
 
   public async repay(
     amount: number,
-    provider: Web3ProviderType
+    signer: Web3SignerType
   ): Promise<void> {
     // handle invalid amount
     if (isNaN(amount) || amount <= 0) {
       throw new Error("Invalid amount. Value must be greater than 0.");
     }
-    if (!(provider instanceof ethers.providers.Web3Provider)) {
-      throw new Error("[INFO] AavePool.borrow() No EVM web3Provider");
+    if (!signer) {
+      throw new Error("[INFO] AavePool.borrow() No EVM signer");
     }
     const markets = getMarkets(this.chainId);
     // call method
     const { underlyingAsset } = this;
     // call method
     const params = {
-      provider: provider as ethers.providers.Web3Provider,
+      signer,
       reserve: { underlyingAsset },
       amount: amount.toString(),
       onBehalfOf: undefined,

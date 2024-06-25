@@ -29,6 +29,7 @@ jobs:
           touch .env.local
           echo NEXT_PUBLIC_APP_ONBOARD_APIKEY=${{ secrets.NEXT_PUBLIC_APP_ONBOARD_APIKEY }} >> .env.local
           echo NEXT_PUBLIC_APP_ANKR_APIKEY=${{ secrets.NEXT_PUBLIC_APP_ANKR_APIKEY }} >> .env.local
+          echo NEXT_PUBLIC_APP_COINGECKO_APIKEY=${{ secrets.NEXT_PUBLIC_APP_COINGECKO_APIKEY }} >> .env.local
           echo NEXT_PUBLIC_APP_VERSION=${{ steps.extract_version.outputs.version }} >> .env.local
           echo NEXT_PUBLIC_APP_BUILD_DATE=${{ steps.version.outputs.builddate }} >> .env.local
           echo NEXT_PUBLIC_APP_IS_PROD=true >> .env.local

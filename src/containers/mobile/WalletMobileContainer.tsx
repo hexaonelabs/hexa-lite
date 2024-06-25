@@ -37,6 +37,8 @@ import {
   IonRefresherContent,
   RefresherEventDetail,
   IonChip,
+  IonSegment,
+  IonSegmentButton,
 } from "@ionic/react";
 import { card, download, paperPlane, repeat, settings, settingsOutline } from "ionicons/icons";
 import { useState } from "react";
@@ -49,9 +51,10 @@ import { currencyFormat } from "@/utils/currencyFormat";
 import { isStableAsset } from "@/utils/isStableAsset";
 import { Currency } from "@/components/ui/Currency";
 import { ToggleHideCurrencyAmount } from "@/components/ui/ToggleHideCurrencyAmount";
+import { TxsList } from "@/components/ui/TsxList/TxsList";
+import { NftsList } from "@/components/ui/NftsList/NftsList";
 
 interface WalletMobileComProps {
-  isMagicWallet: boolean;
   isSwapModalOpen: SelectedTokenDetail | boolean | undefined;
   setIsSwapModalOpen: (
     value?: SelectedTokenDetail | boolean | undefined
@@ -94,6 +97,16 @@ class WalletMobileContainer extends WalletBaseComponent<
   }
 
   render() {
+    const assetGroup = this.state.assetGroup
+    .filter((asset) =>
+      this.state.filterBy
+        ? asset.symbol
+            .toLowerCase()
+            .includes(this.state.filterBy.toLowerCase())
+        : true
+    )
+    .sort((a, b) => (a.balanceUsd > b.balanceUsd ? -1 : 1));
+
     return (
       <>
         <IonPage>
@@ -150,7 +163,7 @@ class WalletMobileContainer extends WalletBaseComponent<
             </IonRefresher>
 
             <IonHeader collapse="condense">
-              <IonToolbar style={{ "--background": "transparent" }}>
+              <IonToolbar style={{ "--background": "transparent", "borderBottom": "solid 1px var(--ion-border-color)" }}>
                 <IonGrid style={{ margin: "2vh auto 1rem", maxWidth: "450px" }}>
                   <IonRow className="ion-align-items-center ion-text-center">
                     <IonCol>
@@ -191,11 +204,40 @@ class WalletMobileContainer extends WalletBaseComponent<
                         <div>
                           <IonSearchbar
                             debounce={500}
+                            placeholder="Filter by symbol"
                             onIonInput={(event) => {
                               this.handleSearchChange(event);
                             }}
                           ></IonSearchbar>
                         </div>
+                        {this.state.totalBalance > 0 && (
+                          <IonSegment mode="md" value={this.state.currentView} style={{marginBottom: '-1.58rem'}}>
+                            <IonSegmentButton 
+                              value="tokens" 
+                              onClick={()=> this.setState(state => ({
+                                ...state,
+                                currentView: 'tokens'
+                              }))}>
+                              Assets
+                            </IonSegmentButton>
+                            <IonSegmentButton 
+                              value="nfts"
+                              onClick={()=> this.setState(state => ({
+                                ...state,
+                                currentView: 'nfts'
+                              }))}>
+                              NFTs
+                            </IonSegmentButton>
+                            <IonSegmentButton 
+                              value="txs"
+                              onClick={()=> this.setState(state => ({
+                                ...state,
+                                currentView: 'txs'
+                              }))}>
+                              History
+                            </IonSegmentButton>
+                          </IonSegment>
+                        )}
                       </IonCol>
                     </IonRow>
                   )}
@@ -214,7 +256,7 @@ class WalletMobileContainer extends WalletBaseComponent<
               {this.state.totalBalance <= 0 && (
                 <IonRow className="ion-padding-vertical">
                   <IonCol size="12">
-                    <IonCard onClick={()=> super.handleBuyWithFiat(true)}>
+                    <IonCard className="no-shadow" onClick={()=> super.handleBuyWithFiat(true)}>
                       <IonCardContent>
                         <IonGrid>
                           <IonRow className="ion-align-items-center">
@@ -280,119 +322,128 @@ class WalletMobileContainer extends WalletBaseComponent<
                   className="ion-no-padding"
                   style={{ maxWidth: "950px", margin: "auto" }}
                 >
-                  <IonCol size="12" className="ion-no-padding">
-                    <IonList
-                      style={{ background: "transparent" }}
-                      className="ion-no-padding"
-                    >
-                      {this.state.assetGroup
-                        .filter((asset) =>
-                          this.state.filterBy
-                            ? asset.symbol
-                                .toLowerCase()
-                                .includes(this.state.filterBy.toLowerCase())
-                            : true
-                        )
-                        .sort((a, b) => (a.balanceUsd > b.balanceUsd ? -1 : 1))
-                        .map((asset, index) => (
-                          <IonItemSliding key={index}>
-                            <IonItem
-                              style={{
-                                "--background": "var(--ion-background-color)",
-                              }}
-                              onClick={() => {
-                                console.log("handleTokenDetailClick: ", asset);
-                                this.handleTokenDetailClick(asset);
-                              }}
-                            >
-                              <IonAvatar
-                                slot="start"
+                  {/* tokens view */}
+                  {this.state.currentView === 'tokens' && (
+                    <IonCol size="12" className="ion-no-padding">
+                      <IonList
+                        style={{ background: "transparent" }}
+                        className="ion-no-padding"
+                      >
+                        {assetGroup
+                          .map((asset, index) => (
+                            <IonItemSliding key={index}>
+                              <IonItem
                                 style={{
-                                  overflow: "hidden",
-                                  width: "42px",
-                                  height: "42px",
+                                  "--background": "var(--ion-background-color)",
+                                }}
+                                onClick={() => {
+                                  console.log("handleTokenDetailClick: ", asset);
+                                  this.handleTokenDetailClick(asset);
                                 }}
                               >
-                                <img
-                                  src={asset.symbol === 'ETH'
-                                  ? getAssetIconUrl({
-                                      symbol: asset.symbol,
-                                    })
-                                  : asset.thumbnail||getAssetIconUrl({
-                                      symbol: asset.symbol,
-                                    })}
-                                  alt={asset.symbol}
-                                  style={{ transform: "scale(1.01)" }}
-                                  onError={(event) => {
-                                    (
-                                      event.target as any
-                                    ).src = `https://images.placeholders.dev/?width=42&height=42&text=${asset.symbol}&bgColor=%23000000&textColor=%23182449`;
+                                <IonAvatar
+                                  slot="start"
+                                  style={{
+                                    overflow: "hidden",
+                                    width: "42px",
+                                    height: "42px",
                                   }}
-                                />
-                              </IonAvatar>
-                              <IonLabel className="">
-                                <IonText>
-                                  <h2 className="ion-no-margin">
-                                    {asset.symbol}
-                                  </h2>
-                                </IonText>
-                                <IonText color="medium">
-                                  <p className="ion-no-margin">
-                                    <small>{asset.name}</small>
+                                >
+                                  <img
+                                    src={asset.symbol === 'ETH'
+                                    ? getAssetIconUrl({
+                                        symbol: asset.symbol,
+                                      })
+                                    : asset.thumbnail||getAssetIconUrl({
+                                        symbol: asset.symbol,
+                                      })}
+                                    alt={asset.symbol}
+                                    style={{ transform: "scale(1.01)" }}
+                                    onError={(event) => {
+                                      (
+                                        event.target as any
+                                      ).src = `https://images.placeholders.dev/?width=42&height=42&text=${asset.symbol}&bgColor=%23000000&textColor=%23182449`;
+                                    }}
+                                  />
+                                </IonAvatar>
+                                <IonLabel className="">
+                                  <IonText>
+                                    <h2 className="ion-no-margin">
+                                      {asset.symbol}
+                                    </h2>
+                                  </IonText>
+                                  <IonText color="medium">
+                                    <p className="ion-no-margin">
+                                      <small>{asset.name}</small>
+                                    </p>
+                                  </IonText>
+                                </IonLabel>
+                                {isStableAsset(asset.symbol) ? (<IonChip style={{marginRight: '1rem'}} color="success">
+                                        <small>stable</small>
+                                      </IonChip>) : ''}
+                                <IonText slot="end" className="ion-text-end">
+                                  <p>
+                                    <Currency value={asset.balanceUsd} />
+                                    <br />
+                                    <IonText color="medium">
+                                      <small>{asset.balance.toFixed(6)}</small>
+                                    </IonText>
                                   </p>
                                 </IonText>
-                              </IonLabel>
-                              {isStableAsset(asset.symbol) ? (<IonChip style={{marginRight: '1rem'}} color="success">
-                                      <small>stable</small>
-                                    </IonChip>) : ''}
-                              <IonText slot="end" className="ion-text-end">
-                                <p>
-                                  <Currency value={asset.balanceUsd} />
-                                  <br />
-                                  <IonText color="medium">
-                                    <small>{asset.balance.toFixed(6)}</small>
-                                  </IonText>
-                                </p>
-                              </IonText>
-                            </IonItem>
-                            <IonItemOptions
-                              side="end"
-                              onClick={(event) => {
-                                // close the sliding item after clicking the option
-                                (event.target as HTMLElement)
-                                  .closest("ion-item-sliding")
-                                  ?.close();
-                              }}
-                            >
-                              <IonItemOption
-                                color="primary"
-                                onClick={() => {
-                                  this.handleTransferClick(true);
+                              </IonItem>
+                              <IonItemOptions
+                                side="end"
+                                onClick={(event) => {
+                                  // close the sliding item after clicking the option
+                                  (event.target as HTMLElement)
+                                    .closest("ion-item-sliding")
+                                    ?.close();
                                 }}
                               >
-                                <IonIcon
-                                  slot="icon-only"
-                                  size="small"
-                                  icon={paperPlane}
-                                ></IonIcon>
-                              </IonItemOption>
-                              <IonItemOption
-                                color="primary"
-                                onClick={() => {
-                                  this.setIsSwapModalOpen(asset);
-                                }}
-                              >
-                                <IonIcon
-                                  slot="icon-only"
-                                  size="small"
-                                  icon={repeat}
-                                ></IonIcon>
-                              </IonItemOption>
-                            </IonItemOptions>
-                          </IonItemSliding>
-                        ))}
-                    </IonList>
-                  </IonCol>
+                                <IonItemOption
+                                  color="primary"
+                                  onClick={() => {
+                                    this.handleTransferClick(true);
+                                  }}
+                                >
+                                  <IonIcon
+                                    slot="icon-only"
+                                    size="small"
+                                    icon={paperPlane}
+                                  ></IonIcon>
+                                </IonItemOption>
+                                <IonItemOption
+                                  color="primary"
+                                  onClick={() => {
+                                    this.setIsSwapModalOpen(asset);
+                                  }}
+                                >
+                                  <IonIcon
+                                    slot="icon-only"
+                                    size="small"
+                                    icon={repeat}
+                                  ></IonIcon>
+                                </IonItemOption>
+                              </IonItemOptions>
+                            </IonItemSliding>
+                          ))}
+                      </IonList>
+                    </IonCol>
+                  )}
+
+                  {/* txs view */}
+                  {this.state.currentView === 'txs' && (
+                    <IonCol size="12" class="ion-no-padding" >
+                      <TxsList filterBy={this.state.filterBy} />
+                    </IonCol>
+                  )}
+
+                  {/* nfts view */}
+                  {this.state.currentView === 'nfts' && (
+                    <IonCol size="12" class="ion-padding" >
+                      <NftsList filterBy={this.state.filterBy} />
+                    </IonCol>
+                  )}
                 </IonRow>
               )}
               
@@ -476,7 +527,7 @@ const withStore = (
 ) => {
   // use named function to prevent re-rendering failure
   return function WalletMobileContainerWithStore() {
-    const { walletAddress, assets, isMagicWallet, loadAssets } =
+    const { walletAddress, assets, loadAssets } =
       Store.useState(getWeb3State);
     const [isSettingOpen, setIsSettingOpen] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -486,7 +537,6 @@ const withStore = (
 
     return (
       <Component
-        isMagicWallet={isMagicWallet}
         walletAddress={walletAddress}
         assets={assets}
         isAlertOpen={isAlertOpen}

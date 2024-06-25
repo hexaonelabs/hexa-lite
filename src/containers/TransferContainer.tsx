@@ -7,41 +7,29 @@ import {
   IonCol,
   IonContent,
   IonFab,
-  IonFabButton,
+  IonFooter,
   IonGrid,
   IonHeader,
   IonIcon,
   IonInput,
-  IonItem,
   IonLabel,
-  IonList,
-  IonListHeader,
   IonModal,
-  IonPopover,
   IonRow,
-  IonText,
+  IonSpinner,
   IonTitle,
   IonToolbar,
+  useIonAlert,
 } from "@ionic/react";
-import { chevronDown, close, scan } from "ionicons/icons";
-import { SymbolIcon } from "../components/SymbolIcon";
-import {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { CHAIN_AVAILABLES, CHAIN_DEFAULT } from "@/constants/chains";
-import { getReadableAmount } from "@/utils/getReadableAmount";
-import { InputInputEventDetail, IonInputCustomEvent } from "@ionic/core";
-import { Html5Qrcode } from "html5-qrcode";
 
-const isNumberKey = (evt: React.KeyboardEvent<HTMLIonInputElement>) => {
-  var charCode = evt.which ? evt.which : evt.keyCode;
-  return !(charCode > 31 && (charCode < 48 || charCode > 57));
-};
+import { useEffect, useRef, useState } from "react";
+
+import { Html5Qrcode } from "html5-qrcode";
+import { CheckIcon } from "@/components/ui/CheckIcon/CheckIcon";
+import { CrossIcon } from "@/components/ui/CrossIcon/CrossIcon";
+import { close, scan } from "ionicons/icons";
+import { InputAssetWithDropDown } from "@/components/ui/InputAssetWithDropDown/InputAssetWithDropDown";
+import { WarningBox } from "@/components/WarningBox";
+import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 
 const scanQrCode = async (
   html5QrcodeScanner: Html5Qrcode
@@ -65,7 +53,8 @@ const scanQrCode = async (
 
     // get prefered back camera if available or load the first one
     const cameraId =
-      cameras.find((c) => c.label.toLowerCase().includes("rear"))?.id || cameras[0].id;
+      cameras.find((c) => c.label.toLowerCase().includes("rear"))?.id ||
+      cameras[0].id;
     console.log(">>", cameraId, cameras);
     // start scanner
     const config = {
@@ -167,224 +156,9 @@ const ScanModal = (props: {
   );
 };
 
-const InputAssetWithDropDown = (props: {
-  assets: IAsset[];
-  inputFromAmount: number;
-  setInputFromAmount: Dispatch<SetStateAction<number>>;
-  setInputFromAsset: Dispatch<SetStateAction<IAsset | undefined>>;
-}) => {
-  const { assets, setInputFromAmount, inputFromAmount, setInputFromAsset } =
-    props;
-  const [errorMessage, setErrorMessage] = useState<string | undefined>();
-  const [selectedAsset, setSelectedAsset] = useState(assets[0]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [popoverOpen, setPopoverOpen] = useState(false);
-  // const popover = useRef<HTMLIonPopoverElement>(null);
-
-  useEffect(() => {
-    if (selectedAsset) {
-      setInputFromAsset(selectedAsset);
-    }
-    return () => {};
-  });
-
-  const maxBalance = useMemo(() => {
-    // round to the lower tenth
-    return Math.floor(selectedAsset?.balance * 10000) / 10000;
-  }, [selectedAsset]);
-
-  const handleInputChange = async (
-    e: IonInputCustomEvent<InputInputEventDetail>
-  ) => {
-    let value = Number((e.target as any).value || 0);
-    if (maxBalance && value > maxBalance) {
-      (e.target as any).value = maxBalance;
-      value = maxBalance;
-    }
-    if (value <= 0) {
-      setErrorMessage(() => undefined);
-      // UI loader control
-      setIsLoading(() => false);
-      return;
-    }
-    setInputFromAmount(() => value);
-    setErrorMessage(() => undefined);
-    // UI loader control
-    setIsLoading(() => false);
-  };
-
-  return (
-    <>
-      <IonGrid className="ion-no-padding InputAssetWithDropDown">
-        <IonRow         
-          className="ion-align-items-center">
-          <IonCol size="auto">
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-              }}
-              onClick={($event) => {
-                $event.stopPropagation();
-                // set position
-                // popover.current!.event = $event;
-                // open popover
-                setPopoverOpen(() => true);
-              }}
-            >
-              <div
-                id="select-from"
-                style={{
-                  cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "row",
-                  flexWrap: "nowrap",
-                  justifyContent: "flex-start",
-                  alignItems: "center",
-                  alignContent: "flex-start",
-                }}
-              >
-                <IonIcon src={chevronDown} style={{ marginRight: "0.25rem" }} />
-                <SymbolIcon
-                  assetIconURL={
-                    selectedAsset?.symbol === "ETH"
-                      ? undefined
-                      : selectedAsset.thumbnail
-                  }
-                  symbol={selectedAsset?.symbol || ""}
-                  chainId={selectedAsset?.chain?.id || CHAIN_DEFAULT.id}
-                  iconSize="34px"
-                />
-              </div>
-
-              <div className="ion-padding" style={{ cursor: "pointer" }}>
-                <IonText>
-                  <h3 style={{ margin: " 0" }}>{selectedAsset?.symbol}</h3>
-                </IonText>
-                <IonText
-                  color="medium"
-                  onClick={($event) => {
-                    $event.stopPropagation();
-                    setInputFromAmount(() => selectedAsset?.balance || 0);
-                  }}
-                >
-                  <small style={{ margin: "0" }}>Max: {maxBalance}</small>
-                </IonText>
-              </div>
-            </div>
-          </IonCol>
-          <IonCol>
-            <div className="ion-text-end">
-              <IonInput
-                style={{ fontSize: "1.5rem", minWidth: "100px" }}
-                placeholder="0"
-                type="number"
-                max={maxBalance}
-                min={0}
-                debounce={1500}
-                value={inputFromAmount}
-                onKeyUp={(e) => {
-                  if (isNumberKey(e)) {
-                    setIsLoading(() => true);
-                  }
-                }}
-                onIonInput={(e) => handleInputChange(e)}
-              />
-            </div>
-          </IonCol>
-        </IonRow>
-      </IonGrid>
-
-      <IonModal
-        isOpen={popoverOpen}
-        onDidDismiss={() => setPopoverOpen(false)}
-        className="modalAlert"
-      >
-        <IonListHeader>
-          <IonText>
-            <p>Available assets</p>
-          </IonText>
-        </IonListHeader>
-        <IonList
-          style={{ background: "transparent" }}
-          className="ion-padding-bottom"
-        >
-          {assets
-            .filter((a) => a.balance > 0)
-            .map((asset, index) => (
-              <IonItem
-                button
-                detail={false}
-                key={index}
-                style={{ "--background": "transparent" }}
-                onClick={() => {
-                  setPopoverOpen(() => false);
-                  setSelectedAsset(asset);
-                  setInputFromAsset(asset);
-                  setInputFromAmount(() => 0);
-                  setErrorMessage(() => undefined);
-                  // setQuote(() => undefined);
-                  console.log({ selectedAsset });
-                }}
-              >
-                <div slot="start" style={{ margin: "0 0.25rem 0 0" }}>
-                  <SymbolIcon
-                    assetIconURL={
-                      asset?.symbol === "ETH" ? undefined : asset.thumbnail
-                    }
-                    symbol={asset.symbol}
-                    chainId={asset.chain?.id}
-                    iconSize="28px"
-                  />
-                </div>
-                <IonLabel
-                  style={{
-                    marginLeft: "0.25rem",
-                    lineHeight: "0.8rem",
-                  }}
-                >
-                  <IonText>{asset.symbol}</IonText>
-                  <br />
-                  <IonText color="medium">
-                    <small>
-                      {
-                        CHAIN_AVAILABLES.find((c) => c.id === asset?.chain?.id)
-                          ?.name
-                      }
-                    </small>
-                  </IonText>
-                </IonLabel>
-                <div slot="end" className="ion-text-end">
-                  <IonText>{Number(asset?.balance).toFixed(6)}</IonText>
-                  <br />
-                  <IonText color="medium">
-                    <small>
-                      {getReadableAmount(
-                        +asset?.balance,
-                        Number(asset?.priceUsd),
-                        "No deposit"
-                      )}
-                    </small>
-                  </IonText>
-                </div>
-              </IonItem>
-            ))}
-        </IonList>
-      </IonModal>
-    </>
-  );
-};
-
 export const TransferContainer = (props: { dismiss: () => Promise<void> }) => {
-  const {
-    walletAddress,
-    isMagicWallet,
-    assets,
-    loadAssets,
-    transfer,
-    switchNetwork,
-    currentNetwork,
-  } = Store.useState(getWeb3State);
+  const { assets, loadAssets, transfer, switchNetwork, currentNetwork } =
+    Store.useState(getWeb3State);
   const [inputFromAmount, setInputFromAmount] = useState<number>(0);
   const [inputToAddress, setInputToAddress] = useState<string | undefined>(
     undefined
@@ -392,43 +166,93 @@ export const TransferContainer = (props: { dismiss: () => Promise<void> }) => {
   const [inputFromAsset, setInputFromAsset] = useState<IAsset | undefined>(
     undefined
   );
-  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isScanModalOpen, setIsScanModalOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSuccess, setIsSuccess] = useState<undefined | boolean>(undefined);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  );
+  const [openConfirm, closeConfirm] = useIonAlert()
 
   const isValid =
-    inputFromAmount > 0 &&
+    inputFromAmount > 0 && 
+    inputFromAmount <= (inputFromAsset?.balance || 0) &&
     inputToAddress &&
     inputToAddress.length > 0 &&
     inputFromAsset?.contractAddress;
 
   const handleSend = async () => {
-    console.log("handleSend: ", {
+    console.log("[INFO] handleSend: ", {
       inputFromAmount,
       inputToAddress,
       inputFromAsset,
     });
-    if (inputFromAmount && inputToAddress && inputFromAsset?.contractAddress) {
-      if (
-        inputFromAsset?.chain?.id &&
-        inputFromAsset?.chain?.id !== currentNetwork
-      ) {
-        await switchNetwork(inputFromAsset?.chain?.id);
-      }
-      await transfer({
-        inputFromAmount,
-        inputToAddress,
-        inputFromAsset: inputFromAsset.contractAddress,
+    const {detail: {role}}: CustomEvent<OverlayEventDetail<any>> = await new Promise(resolve => {
+      openConfirm({
+        header: 'Confirm',
+        message: `
+          You are about to send ${inputFromAmount} ${inputFromAsset?.symbol} to the EVM ${inputFromAsset?.chain?.name} network address ${inputToAddress}. 
+        `,
+        buttons: [
+          {
+            text: 'cancel',
+            role: 'cancel',
+            cssClass: 'danger'
+          },
+          {
+            text: 'OK',
+            role: 'ok'
+          }
+        ],
+        onDidDismiss: ($event)=> {
+          resolve($event);
+        }
       });
-      // finalize with reload asset list
-      await loadAssets(true);
+
+    });
+    if (role !== 'ok') {
+      return;
+    }
+    if (inputFromAmount && inputToAddress && inputFromAsset?.contractAddress) {
+      try {
+        if (
+          inputFromAsset?.chain?.id &&
+          inputFromAsset?.chain?.id !== currentNetwork
+        ) {
+          await switchNetwork(inputFromAsset?.chain?.id);
+        }
+        await transfer({
+          inputFromAmount,
+          inputToAddress,
+          inputFromAsset: inputFromAsset.contractAddress,
+        });
+        // toggle state
+        setIsSuccess(true);
+        setIsLoading(false);
+        setErrorMessage(undefined);
+        await Promise.all([
+          // ensure waiting to display check animation
+          new Promise((resolve) => setTimeout(resolve, 3000)),
+          // finalize with reload asset list
+          loadAssets(true),
+        ]);
+        // close modal
+        props.dismiss();
+      } catch (error: any) {
+        // toggle state
+        setIsSuccess(false);
+        setIsLoading(false);
+        setErrorMessage(error?.message || "Error while transfer token");
+      }
     }
   };
+
   return (
     <>
       <IonHeader className="ion-no-border" translucent={true}>
         <IonToolbar style={{ "--background": "transparent" }}>
           <IonTitle>
-            <h1>Send token</h1>
+            Send token
           </IonTitle>
           <IonButtons slot="end">
             <IonButton
@@ -444,77 +268,132 @@ export const TransferContainer = (props: { dismiss: () => Promise<void> }) => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="mobileConentModal">
-        <IonGrid className="ion-margin-top ion-padding">
-          <IonRow className="ion-text-center">
-            <IonCol size="12" className="ion-margin-bottom">
-              <IonText color="medium">
-                <p className="ion-no-margin">
-                  <small>Currently only support native token transfer</small>
-                </p>
-              </IonText>
-            </IonCol>
-            <IonCol size="12" className="ion-margin-top ion-text-start">
-              <IonLabel
-                color="medium"
-                style={{ marginBottom: "0.5rem", display: "block" }}
+        <IonGrid
+          className="ion-margin-top ion-padding"
+          style={{ height: "100%" }}
+        >
+          {isSuccess === undefined && (
+            <>
+              <IonRow className="ion-text-center ion-align-items-center">
+                <IonCol size="12" className="ion-margin-top ion-text-start">
+                  <IonLabel
+                    color="medium"
+                    style={{ marginBottom: "0.5rem", display: "block" }}
+                  >
+                    <h4 className="ion-no-margin">Token</h4>
+                  </IonLabel>
+                  <InputAssetWithDropDown
+                    assets={assets.filter((a) => a.balance > 0)}
+                    inputFromAmount={inputFromAmount}
+                    setInputFromAmount={setInputFromAmount}
+                    setInputFromAsset={setInputFromAsset}
+                  />
+                </IonCol>
+                <IonCol size="12" className="ion-text-start ion-margin-top">
+                  <IonLabel
+                    color="medium"
+                    style={{ marginBottom: "0.5rem", display: "block" }}
+                  >
+                    <h4 className="ion-no-margin">EVM Destination address</h4>
+                  </IonLabel>
+                  <IonGrid className="ion-no-padding itemInputContainter">
+                    <IonRow className="ion-align-items-center">
+                      <IonCol>
+                        <IonInput
+                          type="text"
+                          clearInput={true}
+                          placeholder="0x..."
+                          value={inputToAddress}
+                          onIonInput={($event) => {
+                            setInputToAddress(
+                              () => $event.detail.value || undefined
+                            );
+                          }}
+                        />
+                      </IonCol>
+                      <IonCol size="auto" className="ion-text-end">
+                        <IonButton
+                          fill="clear"
+                          size="small"
+                          onClick={async () => {
+                            setIsScanModalOpen(() => true);
+                          }}
+                        >
+                          <IonIcon icon-only={true} icon={scan} />
+                        </IonButton>
+                      </IonCol>
+                    </IonRow>
+                  </IonGrid>
+                  <ScanModal
+                    isOpen={isScanModalOpen}
+                    onDismiss={(data?: string) => {
+                      if (data) {
+                        setInputToAddress(() => data);
+                      }
+                      setIsScanModalOpen(() => false);
+                    }}
+                  />
+                </IonCol>
+              </IonRow>
+            </>
+          )}
+
+          {isSuccess === true && (
+            <>
+              <IonRow
+                className="ion-text-center ion-align-items-center"
+                style={{ height: "100%" }}
               >
-                <h4 className="ion-no-margin">Token</h4>
-              </IonLabel>
-              <InputAssetWithDropDown
-                assets={assets.filter((a) => a.type === "NATIVE")}
-                inputFromAmount={inputFromAmount}
-                setInputFromAmount={setInputFromAmount}
-                setInputFromAsset={setInputFromAsset}
-              />
-            </IonCol>
-            <IonCol size="12" className="ion-text-start ion-margin-top">
-              <IonLabel
-                color="medium"
-                style={{ marginBottom: "0.5rem", display: "block" }}
+                <IonCol size="12" className="ion-margin-vertical">
+                  <CheckIcon message="Transaction completed with success" />
+                </IonCol>
+              </IonRow>
+            </>
+          )}
+
+          {isSuccess === false && errorMessage && (
+            <>
+              <IonRow
+                className="ion-text-center ion-align-items-center"
+                style={{ height: "100%" }}
               >
-                <h4 className="ion-no-margin">Destination address</h4>
-              </IonLabel>
-              <IonGrid className="ion-no-padding itemInputContainter">
-                <IonRow
-                  className="ion-align-items-center"
-                >
-                  <IonCol>
-                    <IonInput
-                      type="text"
-                      clearInput={true}
-                      placeholder="0x..."
-                      value={inputToAddress}
-                      onIonInput={($event) => {
-                        setInputToAddress(
-                          () => $event.detail.value || undefined
-                        );
-                      }}
-                    />
-                  </IonCol>
-                  <IonCol size="auto" className="ion-text-end">
-                    <IonButton
-                      fill="clear"
-                      size="small"
-                      onClick={async () => {
-                        setIsScanModalOpen(() => true);
-                      }}
-                    >
-                      <IonIcon icon-only={true} icon={scan} />
-                    </IonButton>
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
-              <ScanModal
-                isOpen={isScanModalOpen}
-                onDismiss={(data?: string) => {
-                  if (data) {
-                    setInputToAddress(() => data);
-                  }
-                  setIsScanModalOpen(() => false);
-                }}
-              />
-            </IonCol>
-            <IonCol size="12">
+                <IonCol size="12" className="ion-margin-vertical">
+                  <CrossIcon message={errorMessage} />
+                </IonCol>
+              </IonRow>
+            </>
+          )}
+
+          {inputFromAmount > (inputFromAsset?.balance || 0) && (
+            <>
+              <IonRow
+                className="ion-text-center ion-align-items-center"
+              >
+                <IonCol size="12">
+                  <WarningBox>
+                    <p>
+                      You don't have enough funds to complete the transaction.
+                    </p>
+                  </WarningBox>
+                </IonCol>
+              </IonRow>
+            </>
+          )}
+        </IonGrid>
+      </IonContent>
+      <IonFooter>
+        <IonToolbar style={{ "--background": "transparent" }}>
+          {isSuccess === false && (
+            <IonButton
+              expand="block"
+              onClick={async ($event) => {
+                props.dismiss()
+              }}
+          >Cancel and retry</IonButton>
+          )}
+
+          {isSuccess === undefined && (
+            <>
               <IonButton
                 expand="block"
                 disabled={!isValid || isLoading}
@@ -524,12 +403,32 @@ export const TransferContainer = (props: { dismiss: () => Promise<void> }) => {
                   setIsLoading(false);
                 }}
               >
-                Send
+                {isLoading === true ? (
+                  <>
+                    <IonSpinner className="ion-margin-end" /> Waiting
+                    confirmation
+                  </>
+                ) : (
+                  "Send"
+                )}
               </IonButton>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
-      </IonContent>
+            </>
+          )}
+          {isSuccess === true && (
+            <>
+              <IonButton
+                expand="block"
+                disabled={!isSuccess}
+                onClick={async ($event) => {
+                  props.dismiss();
+                }}
+              >
+                OK
+              </IonButton>
+            </>
+          )}
+        </IonToolbar>
+      </IonFooter>
     </>
   );
 };

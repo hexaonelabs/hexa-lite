@@ -22,7 +22,7 @@ export default function BuyWithFiat(props: {
       <IonHeader className="ion-no-border" translucent={true}>
         <IonToolbar style={{ "--background": "transparent" }}>
           <IonTitle>
-            <h1>Buy</h1>
+            Buy
           </IonTitle>
           <IonButtons slot="end">
             <IonButton

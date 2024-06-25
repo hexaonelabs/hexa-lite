@@ -18,14 +18,15 @@ import {
   useIonRouter,
   IonPopover,
 } from "@ionic/react";
-import { close, open, openOutline, radioButtonOn, ribbonOutline } from "ionicons/icons";
+import { close, openOutline, saveOutline, ribbonOutline } from "ionicons/icons";
 import { getAddressPoints } from "@/servcies/datas.service";
 import Store from "@/store";
 import { getWeb3State } from "@/store/selectors";
-import ConnectButton from "../ConnectButton";
+import ConnectButton from "./ConnectButton";
 import DisconnectButton from "../DisconnectButton";
 import { ToggleLightmode } from "./ToogleLightmode";
 import { PointsPopover } from "../PointsPopover";
+import web3Connector from "@/servcies/firebase-web3-connect";
 
 interface MenuSettingsProps {
   dismiss: ()=> void
@@ -169,6 +170,34 @@ export const MenuSettings: React.FC<MenuSettingsProps> = ({dismiss}) => {
         >
           <IonLabel class="ion-text-wrap">
             <IonText>
+              <h2>Backup Wallet</h2>
+            </IonText>
+            <IonText color="medium">
+              <p>
+                <small>
+                  Download wallet backup
+                </small>
+              </p>
+            </IonText>
+          </IonLabel>
+          <IonButton
+            slot="end"
+            fill="clear"
+            color="primary"
+            onClick={async () => {
+              await web3Connector.backupWallet();
+            }}
+          >
+            <IonIcon icon={saveOutline} />
+          </IonButton>
+        </IonItem>
+        <IonItem
+          lines="none"
+          button={false}
+          style={{ "--background": "transparent" }}
+        >
+          <IonLabel class="ion-text-wrap">
+            <IonText>
               <h2>Feedback</h2>
             </IonText>
             <IonText color="medium">
@@ -245,28 +274,7 @@ export const MenuSettings: React.FC<MenuSettingsProps> = ({dismiss}) => {
           }}>
             <IonIcon icon={openOutline} />
           </IonButton>
-        </IonItem>  
-        <IonItem
-          lines="none"
-          button={false}
-          style={{ "--background": "transparent" }}
-        >
-          <IonLabel class="ion-text-wrap">
-            <IonText>
-              <h2>Wallet key export</h2>
-            </IonText>            
-            <IonText color="medium">
-              <p>
-                <small>Wallet Magik</small>
-              </p>
-            </IonText>
-          </IonLabel>
-          <IonButton slot="end" fill="clear" onClick={()=> {
-            window.open('https://wallet.magic.link/', '_blank')
-          }}>
-            <IonIcon icon={openOutline} />
-          </IonButton>
-        </IonItem>     
+        </IonItem>    
         <IonItem
           lines="none"
           button={false}

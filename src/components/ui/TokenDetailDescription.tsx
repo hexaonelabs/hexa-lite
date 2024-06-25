@@ -1,4 +1,4 @@
-import { TokenInfo } from "@/utils/getTokenInfo";
+import { TokenInfo } from "@/servcies/coingecko.service";
 import { IonChip, IonLabel, IonListHeader, IonText } from "@ionic/react";
 
 export function TokenDetailDescription(props: { tokenInfo: TokenInfo }) {

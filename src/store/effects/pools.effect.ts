@@ -18,10 +18,10 @@ import { PublicKey, Connection as SolanaClient } from "@solana/web3.js";
 const CHAIN_AVAILABLES = ALL_CHAINS.filter((chain) => chain.id !== NETWORK.avalanche);
 
 const loadAavePools = async () => {
-  console.log("[INFO] {{loadAavePools}} init context... ");
+  console.log("[INFO] {{loadAavePools}} init context... ", CHAIN_AVAILABLES);
   const currentTimestamp = dayjs().unix();
   // load markets from all available chains
-  const markets = CHAIN_AVAILABLES.filter((chain) => !chain.testnet)
+  const markets = CHAIN_AVAILABLES
     .map((chain) => {
       let market: MARKETTYPE | null = null;
       try {
@@ -104,7 +104,7 @@ const loadAaveUserSummary = async (walletAddress: string) => {
     };
   }
   // load markets from all available chains
-  const markets = CHAIN_AVAILABLES.filter((chain) => !chain.testnet)
+  const markets = CHAIN_AVAILABLES
     .map((chain) => {
       let market: MARKETTYPE | null = null;
       try {
@@ -146,20 +146,25 @@ const loadAaveUserSummary = async (walletAddress: string) => {
 };
 
 const loadSolendPools = async () => {
-  const connection = new SolanaClient(
-    "https://api.devnet.solana.com",
-    "confirmed"
-  );
-  // const poolsMetaData  = await fetchPoolMetadata(connection, 'production', true, true);
+  // check if solana networ is available
+  if (!CHAIN_AVAILABLES.find((chain) => chain.id === NETWORK.solana)) {
+    return;
+  }
   console.log("[INFO] {{SolendProvider}} init context... ");
   const marketsConfig: IMarketConfig[] = await fetch(
-    "https://api.solend.fi/v1/markets/configs?ids=4UpD2fh7xH3VP9QQaXtsS1YY3bxzWhtfpks7FatyKvdY&scope=solend&deployment=production"
+  "https://api.solend.fi/v1/markets/configs?ids=4UpD2fh7xH3VP9QQaXtsS1YY3bxzWhtfpks7FatyKvdY&scope=solend&deployment=production"
   ).then((response) => response.json());
   const ids = marketsConfig[0].reserves.map((r) => r.address);
   // // load markets from all available chains
   const reserveData = await fetch(
-    `https://api.solend.fi/reserves?scope=production&ids=${ids.join("%2C")}`
+  `https://api.solend.fi/reserves?scope=production&ids=${ids.join("%2C")}`
   ).then((response) => response.json());
+
+  // const connection = new SolanaClient(
+  //   "https://api.devnet.solana.com",
+  //   "confirmed"
+  // );
+  // const poolsMetaData  = await fetchPoolMetadata(connection, 'production', true, true);
   // const programId =  SOLEND_PRODUCTION_PROGRAM_ID;
   // const slot  = await (connection)?.getSlot();
   // const switchboardProgram = await SwitchboardProgram.loadMainnet(connection);

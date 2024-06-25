@@ -17,9 +17,10 @@ import { Currency } from "./Currency";
 
 export function WalletAssetEntity(props: {
   asset: SelectedTokenDetail;
+  allocationRatioInPercent: number;
   setSelectedTokenDetail: (asset: SelectedTokenDetail) => void;
 }) {
-  const { asset, setSelectedTokenDetail } = props;
+  const { asset, setSelectedTokenDetail, allocationRatioInPercent } = props;
 
   return (
     <IonGrid
@@ -80,24 +81,31 @@ export function WalletAssetEntity(props: {
                                     </IonChip>) : ''}
         </IonCol>
         <IonCol
-          size="6"
+          size="7"
           className="ion-text-end ion-padding-end"
         >
           <IonGrid className="ion-no-padding">
             <IonRow className="ion-no-padding ion-text-end">
-              <IonCol size-md="4" className="ion-padding ion-hide-md-down">
+              <IonCol size-xs="5" size-sm="5" size-md="3" className="ion-padding ion-text-nowrap">
+                <IonText color="dark">
+                  <p className="ion-no-margin">
+                    <small>{allocationRatioInPercent}%</small>
+                  </p>
+                </IonText>
+              </IonCol>
+              <IonCol size-md="3" className="ion-padding ion-hide-md-down">
                 <IonText color="dark">
                   <p className="ion-no-margin">{currencyFormat.format(asset.priceUsd)}</p>
                 </IonText>
               </IonCol>
-              <IonCol size-md="4" className="ion-padding ion-hide-md-down">
+              <IonCol size-sm="3" size-md="3" className="ion-padding ion-hide-md-down">
                 <IonText color="dark">
                   <p className="ion-no-margin">{numberFormat.format(asset.balance)}</p>
                 </IonText>
               </IonCol>
-              <IonCol size-xs="12" size-sm="12" size-md="4" className="ion-padding">
+              <IonCol size-xs="7" size-sm="7" size-md="3" className="ion-padding">
                 <IonText color="dark">
-                  <p className="ion-no-margin">
+                  <p className="ion-no-margin ion-text-nowrap">
                     <b>
                       <Currency value={asset.balanceUsd} />
                     </b>
