@@ -336,73 +336,80 @@ export class FirebaseWeb3Connect {
 			}
 			this._uid = user?.uid;
 
-			if (!this.userInfo && user && this._requestSignout === false) {
-				try {
+			switch(true) {
+				// manage external wallet
+				case !this.userInfo && user && user?.isAnonymous: {
 					// initialize all wallets
-					await this._initWallets(user);
-					if (user.isAnonymous) {
-						return;
-					}
-					// check local storage to existing tag to trigger backup download of private key
-					const requestBackup = localStorage.getItem(KEYS.STORAGE_BACKUP_KEY);
-					if (this.userInfo && requestBackup && this._encryptedSecret) {
-						await storageService.executeBackup(
-							Boolean(requestBackup),
-							await Crypto.decrypt(
-								storageService.getUniqueID(),
-								this._encryptedSecret
-							)
-						);
-					}
-
-					// ask to download if user skip download prompt from more than 15 minutes
-					const skip = await storageService.getItem(
-						KEYS.STORAGE_SKIP_BACKUP_KEY
-					);
-					const skipTime = skip ? parseInt(skip) : Date.now();
-					// check if is more than 15 minutes
-					// TODO: check if is working correctly
-					const isOut = Date.now() - skipTime > MAX_SKIP_BACKUP_TIME;
-					const dialogElement = document.querySelector(
-						'firebase-web3connect-dialog'
-					) as FirebaseWeb3ConnectDialogElement;
-					if (
-						this.userInfo &&
-						isOut &&
-						this._encryptedSecret &&
-						dialogElement
-					) {
-						const { withEncryption, skip: reSkip } =
-							await dialogElement.promptBackup();
-						if (!reSkip) {
+					await this._initWallets(user as any);
+					break;
+				}
+				// manage local wallet
+				case !this.userInfo && user && !user.isAnonymous && this._requestSignout === false: {
+					try {
+						// initialize all wallets
+						await this._initWallets(user as any);
+						// check local storage to existing tag to trigger backup download of private key
+						const requestBackup = localStorage.getItem(KEYS.STORAGE_BACKUP_KEY);
+						if (this.userInfo && requestBackup && this._encryptedSecret) {
 							await storageService.executeBackup(
-								Boolean(withEncryption),
+								Boolean(requestBackup),
 								await Crypto.decrypt(
 									storageService.getUniqueID(),
 									this._encryptedSecret
 								)
 							);
 						}
-						dialogElement.hideModal();
-						await new Promise(resolve => setTimeout(resolve, 125));
-						dialogElement.remove();
+						// ask to download if user skip download prompt from more than 15 minutes
+						const skip = await storageService.getItem(
+							KEYS.STORAGE_SKIP_BACKUP_KEY
+						);
+						const skipTime = skip ? parseInt(skip) : Date.now();
+						// check if is more than 15 minutes
+						// TODO: check if is working correctly
+						const isOut = Date.now() - skipTime > MAX_SKIP_BACKUP_TIME;
+						const dialogElement = document.querySelector(
+							'firebase-web3connect-dialog'
+						) as FirebaseWeb3ConnectDialogElement;
+						if (
+							this.userInfo &&
+							isOut &&
+							this._encryptedSecret &&
+							dialogElement
+						) {
+							const { withEncryption, skip: reSkip } =
+								await dialogElement.promptBackup();
+							if (!reSkip) {
+								await storageService.executeBackup(
+									Boolean(withEncryption),
+									await Crypto.decrypt(
+										storageService.getUniqueID(),
+										this._encryptedSecret
+									)
+								);
+							}
+							dialogElement.hideModal();
+							await new Promise(resolve => setTimeout(resolve, 125));
+							dialogElement.remove();
+						}
+					} catch (error: unknown) {
+						await authProvider.signOut();
+						const existingDialog = document.querySelector(
+							`firebase-web3connect-dialog`
+						) as FirebaseWeb3ConnectDialogElement | undefined;
+						// await storageService.clear();
+						const message =
+							(error as Error)?.message || 'An error occured while connecting';
+						if (existingDialog) {
+							await existingDialog.toggleSpinnerAsCross(message);
+						} else {
+							Logger.error('[ERROR] onConnectStateChanged:', message);
+						}
+						//throw error;
 					}
-				} catch (error: unknown) {
-					await authProvider.signOut();
-					const existingDialog = document.querySelector(
-						`firebase-web3connect-dialog`
-					) as FirebaseWeb3ConnectDialogElement | undefined;
-					// await storageService.clear();
-					const message =
-						(error as Error)?.message || 'An error occured while connecting';
-					if (existingDialog) {
-						await existingDialog.toggleSpinnerAsCross(message);
-					} else {
-						Logger.error('[ERROR] onConnectStateChanged:', message);
-					}
-					//throw error;
+					break;
 				}
 			}
+
 			// manage Authentication logs
 			if (
 				user?.uid &&

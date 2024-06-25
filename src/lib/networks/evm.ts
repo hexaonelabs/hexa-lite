@@ -162,7 +162,7 @@ class ExternalEVMWallet extends Web3Wallet {
 		if (!fromInitializer) {
 			throw new Error('Use create method to initialize ExternalEVMWallet');
 		}
-		this.chainId = provider.network.chainId;
+		this.chainId = provider?.network?.chainId;
 		this.externalProvider = provider;
 		this._signer = provider.getSigner();
 	}
@@ -170,12 +170,16 @@ class ExternalEVMWallet extends Web3Wallet {
 	static async create(chainId: number) {
 		// get current account
 		const externalProvider = new providers.Web3Provider(
-			(window as unknown as WindowWithEthereumProvider).ethereum,
-			chainId
+			(window as unknown as WindowWithEthereumProvider).ethereum
 		);
 		await externalProvider.send('eth_requestAccounts', []);
 		// build wallet
 		const wallet = new ExternalEVMWallet(externalProvider, true);
+		// switch to default chain 
+		if (wallet.externalProvider?.network?.chainId !== chainId || !wallet.chainId) {
+			await wallet.switchNetwork(chainId);
+		}
+		wallet.chainId = chainId;
 		wallet.address = await wallet._signer.getAddress();
 		return wallet;
 	}
