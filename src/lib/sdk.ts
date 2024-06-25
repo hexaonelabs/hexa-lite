@@ -416,25 +416,29 @@ export class FirebaseWeb3Connect {
 				process.env.NEXT_PUBLIC_APP_IS_PROD === 'true'
 			) {
 				const data = await get(user.uid);
-				data 
-					? await set(user.uid, {
-							email: user.email,
-							emailVerified: user.emailVerified,
-							uid: user.uid,
-							providerId: user.providerId,
-							providerData: user.providerData?.[0]?.providerId||'external-wallet',
-							metaData: user.metadata,
-							wallets: Array.from(new Set([...(data?.wallets||[]), this.wallet?.address])).filter(Boolean)
-						})
-					: await set(user.uid, {
-							email: user.email,
-							emailVerified: user.emailVerified,
-							uid: user.uid,
-							providerId: user.providerId,
-							providerData: user.providerData[0]?.providerId,
-							metaData: user.metadata,
-							wallets: [this.wallet?.address]
-						});
+				try {
+					data 
+						? await set(user.uid, {
+								email: user.email,
+								emailVerified: user.emailVerified,
+								uid: user.uid,
+								providerId: user.providerId,
+								providerData: user.providerData?.[0]?.providerId||'external-wallet',
+								metaData: user.metadata,
+								wallets: Array.from(new Set([...(data?.wallets||[]), this.wallet?.address])).filter(Boolean)
+							})
+						: await set(user.uid, {
+								email: user.email,
+								emailVerified: user.emailVerified,
+								uid: user.uid,
+								providerId: user.providerId,
+								providerData: user.providerData[0]?.providerId,
+								metaData: user.metadata,
+								wallets: [this.wallet?.address]
+							});
+				} catch(err: any) {
+					console.log('[ERROR] Set log faild: ', err);
+				}
 			}
 			// reset state if no user connected
 			if (!user) {
