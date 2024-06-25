@@ -86,6 +86,8 @@ export const TokenDetailDesktopContainer = (props: {
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | undefined>(undefined);
   const [isInfoOpen, setInfoOpen] = useState(false);
   const [isAccOpen, setIsAccOpen] = useState(false);
+  const [tokentPrice, setTokentPrice] = useState(tokenInfo?.market_data?.current_price?.usd ||
+    data.priceUsd);
 
   const filteredTxs = txs.filter((tx) => {
     return tx.attributes.transfers.some((transfer) => {
@@ -316,8 +318,7 @@ export const TokenDetailDesktopContainer = (props: {
                     >
                       1 {data.symbol} ={" "}
                       {currencyFormat.format(
-                        tokenInfo?.market_data?.current_price?.usd ||
-                          data.priceUsd
+                        tokentPrice
                       )}
                     </span>
                   </h2>
@@ -325,7 +326,15 @@ export const TokenDetailDesktopContainer = (props: {
                 <LightChart 
                   seriesData={dataChartHistory} 
                   minHeight={400} 
-                  markers={txsChartHistory} />
+                  markers={txsChartHistory}
+                  handleChartEvent={({action, payload})=> {
+                    if (action === 'leave') {
+                      setTokentPrice(tokenInfo?.market_data?.current_price?.usd ||
+                        data.priceUsd);
+                    } else {
+                      setTokentPrice((payload as any)?.price)
+                    }
+                  }} />
               </Suspense>
             </IonCol>
           </IonRow>
