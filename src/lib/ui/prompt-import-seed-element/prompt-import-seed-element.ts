@@ -51,7 +51,7 @@ export const promptImportSeedElement = async (
         <p><b>Access your Wallet with secret seed & authenticate with Google.
         </b></p>
         <p>
-          The password you enter will encrypts your seed & gives access to your funds. Please store your password in a safe place. We don’t keep your information & can’t restore it.
+          Write down your secret seed & keep it in a safe place.
         </p>
       </div>
       <div class="prompt__seed">
