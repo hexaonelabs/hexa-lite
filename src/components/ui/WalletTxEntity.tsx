@@ -144,7 +144,7 @@ export function WalletTxEntity(props: { tx: TxInterface }) {
                   onError={(event) => {
                     (
                       event.target as any
-                    ).src = `https://images.placeholders.dev/?width=42&height=42&text=${action1.fungible_info.symbol}&bgColor=%23cccccc&textColor=%23182449`;
+                    ).src = `https://images.placeholders.dev/?width=42&height=42&text=${action1?.fungible_info?.symbol}&bgColor=%23cccccc&textColor=%23182449`;
                   }}
                 />
             </IonAvatar>
@@ -155,7 +155,7 @@ export function WalletTxEntity(props: { tx: TxInterface }) {
                     (action1 as Transfer).direction === 'in' ? '+ ' : '- '
                   )}
                   {action1.quantity.float.toFixed(3) + ' '}
-                  {action1.fungible_info.symbol}
+                  {action1?.fungible_info?.symbol}
                   {tx.attributes.operation_type !== 'approve' && (
                     <IonText color="medium">
                       <br/><small>{currencyFormat.format((action1 as Transfer).value)}</small>
@@ -173,14 +173,14 @@ export function WalletTxEntity(props: { tx: TxInterface }) {
               }}>
                 <img
                     src={
-                      action2.fungible_info.icon?.url ||  `https://images.placeholders.dev/?width=42&height=42&text=${action2.fungible_info.symbol}&bgColor=%23cccccc&textColor=%23182449`
+                      action2.fungible_info.icon?.url ||  `https://images.placeholders.dev/?width=42&height=42&text=${action2?.fungible_info?.symbol}&bgColor=%23cccccc&textColor=%23182449`
                     }
                     alt={tx.relationships.chain.data.id}
                     style={{ transform: "scale(1.01)" }}
                     onError={(event) => {
                       (
                         event.target as any
-                      ).src = `https://images.placeholders.dev/?width=42&height=42&text=${action2.fungible_info.symbol}&bgColor=%23cccccc&textColor=%23182449`;
+                      ).src = `https://images.placeholders.dev/?width=42&height=42&text=${action2?.fungible_info?.symbol}&bgColor=%23cccccc&textColor=%23182449`;
                     }}
                   />
               </IonAvatar>
@@ -188,7 +188,7 @@ export function WalletTxEntity(props: { tx: TxInterface }) {
                 <p className="ion-no-margin">
                   {(action2 as Transfer).direction === 'in' ? '+ ' : '- '} 
                   {action2.quantity.float.toFixed(3) + ' '}
-                  {action2.fungible_info.symbol}
+                  {action2?.fungible_info?.symbol}
                   <IonText color="medium">
                     <br/><small>{currencyFormat.format((action2 as Transfer).value)}</small>
                   </IonText>
