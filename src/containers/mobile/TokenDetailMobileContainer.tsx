@@ -80,7 +80,7 @@ export const TokenDetailMobileContainer = (props: {
 
   const filteredTxs = txs.filter((tx) => {
     return tx.attributes.transfers.some((transfer) => {
-      return transfer.fungible_info.symbol === data.symbol;
+      return transfer?.fungible_info?.symbol === data.symbol;
     });
   });
 
