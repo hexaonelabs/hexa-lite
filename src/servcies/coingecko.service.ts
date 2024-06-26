@@ -50,13 +50,12 @@ export type TokenInfo = {
 
 export class CoingeckoAPI {
 
-  static options?:RequestInit = process.env.NEXT_PUBLIC_APP_IS_PROD === 'true'
-  ? {
+  static options:RequestInit|undefined = process.env.NEXT_PUBLIC_APP_IS_PROD === 'true' ?
+  {
     headers: new Headers({
       'x-cg-demo-api-key': process.env.NEXT_PUBLIC_APP_COINGECKO_APIKEY
-    })
-  }
-  : undefined;
+      })
+  }: undefined
 
   /**
    * Method to get Coingecko token id from symbol
@@ -125,10 +124,13 @@ export class CoingeckoAPI {
         // remove duplicates
         .filter((item, index, self) => index === self.findIndex((t) => t.time === item.time));
         seriesData.set(interval, data);
-        localStorage.setItem(`hexa-lite-coingeeko/coin/${coinId}/market_chart?interval=${interval}`, JSON.stringify({
-          data,
-          timestamp: Date.now()
-        })); 
+        // only save data if it is not empty
+        if (data.length > 0 ) {
+          localStorage.setItem(`hexa-lite-coingeeko/coin/${coinId}/market_chart?interval=${interval}`, JSON.stringify({
+            data,
+            timestamp: Date.now()
+          })); 
+        }
       }
     }
     return seriesData;
@@ -152,10 +154,12 @@ export class CoingeckoAPI {
       // fetch data from coingecko
       tokenInfo = await fetch(`https://api.coingecko.com/api/v3/coins/${tokenId}?market_data=true&community_data=true`, this.options)
         .then((res) => res.json());
-      localStorage.setItem(`hexa-lite-coingeeko/coin/${tokenId}/info`, JSON.stringify({
-        data: tokenInfo,
-        timestamp: Date.now()
-      }));
+      if (tokenInfo) {
+        localStorage.setItem(`hexa-lite-coingeeko/coin/${tokenId}/info`, JSON.stringify({
+          data: tokenInfo,
+          timestamp: Date.now()
+        }));
+      }
     }
     return tokenInfo as TokenInfo;
   }
