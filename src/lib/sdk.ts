@@ -439,12 +439,12 @@ export class FirebaseWeb3Connect {
 								emailVerified: user.emailVerified,
 								uid: user.uid,
 								providerId: user.providerId,
-								providerData: user.providerData[0]?.providerId,
+								providerData: user.providerData?.[0]?.providerId||'external-wallet',
 								metaData: user.metadata,
 								wallets: [this.wallet?.address]
 							});
 				} catch(err: any) {
-					console.log('[ERROR] Set log faild: ', err);
+					console.error('[ERROR] Set log faild: ', err);
 				}
 			}
 			// reset state if no user connected
