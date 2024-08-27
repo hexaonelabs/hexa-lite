@@ -46,7 +46,7 @@ export const ALL_CHAINS: IChain[] = [
     rpcUrl:
       [
         { primary: false, url: "https://eth-mainnet-public.unifra.io" },
-        { primary: true, url: "https://rpc.ankr.com/eth" },
+        { primary: true, url: "https://ethereum-rpc.publicnode.com" },
       ].find((rpc) => rpc.primary)?.url || "",
     type: "evm",
   },
@@ -59,7 +59,7 @@ export const ALL_CHAINS: IChain[] = [
     rpcUrl:
       [
         { primary: false, url: "https://rpc.ankr.com/bsc" },
-        { primary: true, url: "https://1rpc.io/bnb" },
+        { primary: true, url: "https://binance.llamarpc.com" },
       ].find((rpc) => rpc.primary)?.url || "",
     type: "evm",
   },
@@ -84,7 +84,7 @@ export const ALL_CHAINS: IChain[] = [
     logo: "/assets/icons/arb.svg",
     rpcUrl:
       [
-        { primary: true, url: "https://1rpc.io/arb" },
+        { primary: true, url: "https://arbitrum-one.publicnode.com" },
         { primary: false, url: "https://rpc.ankr.com/arbitrum_one" },
       ].find((rpc) => rpc.primary)?.url || "",
     type: "evm",
@@ -114,7 +114,7 @@ export const ALL_CHAINS: IChain[] = [
           primary: false,
           url: "https://endpoints.omniatech.io/v1/base/mainnet/public",
         },
-        { primary: true, url: "https://1rpc.io/base" },
+        { primary: true, url: "https://base-rpc.publicnode.com" },
       ].find((rpc) => rpc.primary)?.url || "",
     type: "evm",
   },
@@ -127,7 +127,7 @@ export const ALL_CHAINS: IChain[] = [
     rpcUrl:
       [
         { primary: false, url: "https://scroll-mainnet.public.blastapi.io" },
-        { primary: true, url: "https://1rpc.io/scroll" },
+        { primary: true, url: "https://scroll.drpc.org" },
       ].find((rpc) => rpc.primary)?.url || "",
     type: "evm",
   },
