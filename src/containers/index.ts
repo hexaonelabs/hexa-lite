@@ -17,4 +17,4 @@ export const WelcomeMobileContainer = lazy(
   );
 export const MagicMigrationContainer = lazy(()=> import('@/containers/MagicMigrationContainer'))
 
-export const AuthWithLinkContainer = lazy(() => import('@/containers/AuthWithLinkContainer'));
+// export const AuthWithLinkContainer = lazy(() => import('@/containers/AuthWithLinkContainer'));

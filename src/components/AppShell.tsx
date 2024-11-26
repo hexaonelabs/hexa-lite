@@ -33,7 +33,7 @@ import { setErrorState } from "@/store/actions";
 import { initializeAppSettings } from "@/store/effects/app-settings.effect";
 import { LoaderProvider } from "@/context/LoaderContext";
 import {
-  AuthWithLinkContainer,
+  // AuthWithLinkContainer,
   BuyWithFiatContainer,
   DefiContainer,
   EarnContainer,
@@ -191,14 +191,14 @@ const AppShell = () => {
         <IonReactRouter>
           <LoaderProvider>
             <IonRouterOutlet id="main">
-              <IonRoute 
+              {/* <IonRoute 
                 path="/auth/link"
                 render={() => (
                   <Suspense fallback={<DefaultProgressBar />}>
                     <AuthWithLinkContainer />
                   </Suspense>
                 )}
-              />
+              /> */}
               <IonRoute
                 path="/leaderboard"
                 render={() => (
@@ -269,14 +269,14 @@ const AppShell = () => {
       {isMobilePWADevice && !isMagicMigrationModalOpen && (
         <IonReactRouter>
           <IonRouterOutlet id="main">
-            <IonRoute 
+            {/* <IonRoute 
               path="/auth/link"
               render={() => (
                 <Suspense fallback={<DefaultProgressBar />}>
                   <AuthWithLinkContainer />
                 </Suspense>
               )}
-            />
+            /> */}
             <IonRoute
               path="/leaderboard"
               render={() => (

@@ -1,5 +1,5 @@
 import web3Connector from "@/servcies/firebase-web3-connect";
-import { FirebaseWeb3Connect } from "@hexaonelabs/firebase-web3connect";
+// import { FirebaseWeb3Connect } from "@hexaonelabs/firebase-web3connect";
 import { IonContent, IonPage, useIonAlert, useIonLoading } from "@ionic/react";
 import { useEffect } from "react";
 
@@ -8,7 +8,7 @@ export default function AuthWithLinkContainer() {
   const [presentAlert] = useIonAlert();
 
   useEffect(() => {
-    const connectFromEmailLink = FirebaseWeb3Connect.isConnectWithLink();
+    const connectFromEmailLink = false; //FirebaseWeb3Connect.isConnectWithLink();
     if (!connectFromEmailLink) {
       presentAlert({
         backdropDismiss: false,
