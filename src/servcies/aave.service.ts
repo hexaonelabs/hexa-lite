@@ -6,6 +6,7 @@ import {
   UiIncentiveDataProvider,
   UiPoolDataProvider,
   WalletBalanceProvider,
+  ChainId
 } from "@aave/contract-helpers";
 import { Signer, Wallet, ethers, providers } from "ethers";
 import * as MARKETS from "@bgd-labs/aave-address-book";
@@ -15,7 +16,6 @@ import {
   formatUserSummary,
   formatUserSummaryAndIncentives,
 } from "@aave/math-utils";
-import { ChainId } from "@aave/contract-helpers";
 import { CHAIN_AVAILABLES } from "../constants/chains";
 import { IUserSummary } from "../interfaces/reserve.interface";
 import { IAavePool } from "@/pool/Aave.pool";
@@ -328,14 +328,10 @@ export const getMarkets = (chainId: number) => {
     /**
      * HERE TESTNETS
      */
-    case chainId === MARKETS.AaveV3ArbitrumGoerli.CHAIN_ID:
-      return MARKETS.AaveV3ArbitrumGoerli;
     case chainId === MARKETS.AaveV3Sepolia.CHAIN_ID:
       return MARKETS.AaveV3Sepolia;
-    case chainId === MARKETS.AaveV3Mumbai.CHAIN_ID:
-      return MARKETS.AaveV3Mumbai;
-    case chainId === MARKETS.AaveV3Fuji.CHAIN_ID:
-      return MARKETS.AaveV3Fuji;
+    // case chainId === MARKETS.AaveV3Fuji.CHAIN_ID:
+    //   return MARKETS.AaveV3Fuji;
     default:
       throw new Error(`ChainId ${chainId} not supported`);
   }
@@ -350,16 +346,20 @@ export const getPools = async (ops: {
   const provider = new ethers.providers.JsonRpcProvider(
     CHAIN_AVAILABLES.find((c) => c.id === chainId)?.rpcUrl||''
   );
+  console.log('>>>> setup provider AAVE: ',     chainId, provider  )
   // View contract used to fetch all reserves data (including market base currency data), and user reserves
   const poolDataProviderContract = new UiPoolDataProvider({
     uiPoolDataProviderAddress: market.UI_POOL_DATA_PROVIDER,
     provider,
     chainId,
   });
+  console.log('>>>xxx >', poolDataProviderContract)
   const { reservesData: reserves, baseCurrencyData } =
-    await poolDataProviderContract.getReservesHumanized({
-      lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
-    });
+  await poolDataProviderContract.getReservesHumanized({
+    lendingPoolAddressProvider: market.POOL_ADDRESSES_PROVIDER,
+  });
+
+  console.log('>>>> yyy', reserves)
   const {
     marketReferenceCurrencyDecimals,
     marketReferenceCurrencyPriceInUsd: marketReferencePriceInUsd,
@@ -554,7 +554,7 @@ const getWalletBalance = async (ops: {
   });
   console.log(
     "[INFO] {{AAVEService}} formattedPoolReserves: ",
-    formattedPoolReserves
+    {formattedPoolReserves, walletbalancesByPools}
   );
   // const userData = await formatUserSummaryAndIncentives({
   //   currentTimestamp,
@@ -616,7 +616,6 @@ export type MARKETTYPE =
   | typeof MARKETS.AaveV3Polygon
   | typeof MARKETS.AaveV3Avalanche
   | typeof MARKETS.AaveV3Arbitrum
-  | typeof MARKETS.AaveV3ArbitrumGoerli
   | typeof MARKETS.AaveV3Optimism
   | typeof MARKETS.AaveV3BNB
   | typeof MARKETS.AaveV3PolygonZkEvm
@@ -625,8 +624,7 @@ export type MARKETTYPE =
   /**
    * HERE TESTNETS
    */
-  | typeof MARKETS.AaveV3Mumbai
-  | typeof MARKETS.AaveV3Fuji
+  // | typeof MARKETS.AaveV3Fuji
   | typeof MARKETS.AaveV3Sepolia;
 
 export const permitByChainAndToken: {
