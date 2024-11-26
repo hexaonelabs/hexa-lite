@@ -76,7 +76,7 @@ class StorageService implements IStorageService {
 
 	private async _getBackup() {
 		// check if the database exist
-		const db = window.localStorage.getItem(Environment.bucketName);
+		const db = this._storageProvider.getItem(Environment.bucketName);
 		if (!db) {
 			throw new Error('Database empty');
 		}
