@@ -44,13 +44,11 @@
 	/* Ionic CSS Variables */
 	--ion-backdrop-color: var(--ion-color-primary);
 	--ion-border-color: rgba(var(--ion-color-primary-rgb), 0.15);  
-	--ion-item-background: rgba(255,255,255,.8);
+	--ion-item-background: #f5f8ff;
+	--ion-card-background: #f5f8ff;
 	
-	--ion-background-color: #f5f8ff;
-	--ion-background-color-rgb: 245,248,255;
-
-	--background-gradient: #e6eefe;
-	--background-shader: #dee6ff;
+	--ion-background-color: #e6eefe;
+	--ion-background-color-rgb: 230, 238, 254;
 
 	--ion-text-color: #180d68;
 	--ion-text-color-rgb: 24, 13, 104;

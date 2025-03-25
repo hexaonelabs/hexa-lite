@@ -1,8 +1,8 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { WalletTokenItemComponent } from '@app/components/ui/wallet-token-item/wallet-token-item.component';
-import { LIFIService } from '@app/services/lifi/lifi.service';
-import { WalletconnectService } from '@app/services/walletconnect/walletconnect.service';
+import { CommonModule } from "@angular/common";
+import { Component, OnInit } from "@angular/core";
+import { WalletTokenItemComponent } from "@app/components/ui/wallet-token-item/wallet-token-item.component";
+import { LIFIService } from "@app/services/lifi/lifi.service";
+import { WalletconnectService } from "@app/services/walletconnect/walletconnect.service";
 import {
   IonButton,
   IonButtons,
@@ -25,10 +25,10 @@ import {
   IonTitle,
   IonToggle,
   IonToolbar,
-} from '@ionic/angular/standalone';
-import { TokenAmount } from '@lifi/sdk';
-import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
-import { addIcons } from 'ionicons';
+} from "@ionic/angular/standalone";
+import { TokenAmount } from "@lifi/sdk";
+import { BehaviorSubject, firstValueFrom, Observable } from "rxjs";
+import { addIcons } from "ionicons";
 import {
   powerOutline,
   arrowDownCircleOutline,
@@ -36,17 +36,18 @@ import {
   close,
   swapHorizontal,
   settingsOutline,
-} from 'ionicons/icons';
-import { Router, RouterLink } from '@angular/router';
-import { SwapPageComponent } from '../swap-page/swap-page.component';
-import { EarnPageComponent } from '../earn-page/earn-page.component';
-import { SearchFooterComponent } from '@app/components/widgets/search-footer/search-footer.component';
-import { SearchPageComponent } from '../search-page/search-page.component';
-import { ToCoingeckoIdPipe } from '@app/pipes/to-coingecko-id/to-coingecko-id.pipe';
-import { CardComponent } from '@app/components/ui/card/card.component';
-import { FormsModule } from '@angular/forms';
-import { toggleDarkPalette } from '@app/app.utils';
-import { StakingToken } from '@app/models/staking-token.interface';
+} from "ionicons/icons";
+import { Router, RouterLink } from "@angular/router";
+import { SwapPageComponent } from "../swap-page/swap-page.component";
+import { EarnPageComponent } from "../earn-page/earn-page.component";
+import { SearchFooterComponent } from "@app/components/widgets/search-footer/search-footer.component";
+import { SearchPageComponent } from "../search-page/search-page.component";
+import { ToCoingeckoIdPipe } from "@app/pipes/to-coingecko-id/to-coingecko-id.pipe";
+import { CardComponent } from "@app/components/ui/card/card.component";
+import { FormsModule } from "@angular/forms";
+import { toggleDarkPalette } from "@app/app.utils";
+import { StakingToken } from "@app/models/staking-token.interface";
+import { SettingsPageComponent } from "../settings-page/settings-page.component";
 
 const UIElements = [
   IonContent,
@@ -72,23 +73,33 @@ const UIElements = [
   IonToggle,
 ];
 
+const CONTAINERS = [
+  SwapPageComponent,
+  EarnPageComponent,
+  SearchPageComponent,
+  SettingsPageComponent,
+];
+
+const UIComponents = [
+  WalletTokenItemComponent,
+  SearchFooterComponent,
+  CardComponent,
+];
+
+const PIPES = [ToCoingeckoIdPipe];
+
 @Component({
-  selector: 'app-wallet-page',
-  templateUrl: './wallet-page.component.html',
-  styleUrls: ['./wallet-page.component.scss'],
+  selector: "app-wallet-page",
+  templateUrl: "./wallet-page.component.html",
+  styleUrls: ["./wallet-page.component.scss"],
   imports: [
+    ...CONTAINERS,
+    ...UIComponents,
     ...UIElements,
+    ...PIPES,
     CommonModule,
-    WalletTokenItemComponent,
-    SwapPageComponent,
-    EarnPageComponent,
-    SearchPageComponent,
-    SearchFooterComponent,
-    IonRouterLink,
     RouterLink,
-    ToCoingeckoIdPipe,
-    CardComponent,
-    FormsModule,
+    IonRouterLink,
   ],
 })
 export class WalletPageComponent implements OnInit {
@@ -101,13 +112,11 @@ export class WalletPageComponent implements OnInit {
   public isEarnPageVisible$ = new BehaviorSubject<boolean>(false);
   public isSearchPageVisible$ = new BehaviorSubject<boolean>(false);
   public isSettingsPageVisible$ = new BehaviorSubject<boolean>(false);
-  public paletteToggle: boolean = false;
   public selectedStakingToken$ = new BehaviorSubject<StakingToken | null>(null);
 
   constructor(
     private readonly _walletService: WalletconnectService,
-    private readonly _lifi: LIFIService,
-    private readonly _router: Router
+    private readonly _lifi: LIFIService
   ) {
     addIcons({
       powerOutline,
@@ -122,25 +131,11 @@ export class WalletPageComponent implements OnInit {
     this.walletBalance$ = this._lifi.walletBalance$;
   }
 
-  ionViewWillEnter() {
-    this.paletteToggle = localStorage.getItem('theme') === 'dark';
-  }
-
   async ngOnInit() {
     const walletAddress = await firstValueFrom(this.walletAddress$);
     if (!walletAddress) {
-      throw new Error('Wallet address not found');
+      throw new Error("Wallet address not found");
     }
     await this._lifi.init();
-  }
-
-  async disconnect() {
-    await this._walletService.disconnect();
-    await this._router.navigateByUrl('/');
-  }
-
-  toggleThemeChange(isChecked: boolean) {
-    const shouldAdd = isChecked;
-    toggleDarkPalette(shouldAdd);
   }
 }

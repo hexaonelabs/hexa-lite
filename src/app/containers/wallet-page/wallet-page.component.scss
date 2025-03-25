@@ -1,8 +1,15 @@
 :host {
-  .logout-btn {
-    position: absolute;
-    right: 16px;
-    top: 20px;
+
+  .heros {
+    h1 {
+      font-size: 2.3rem;
+      margin-bottom: 0rem;
+    }
+    p {
+      font-size: 1.5rem;
+      margin-top: 0;
+      font-weight: 400;
+    }
   }
   ion-item {
     --padding-start: none;

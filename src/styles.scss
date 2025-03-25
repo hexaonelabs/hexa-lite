@@ -7,11 +7,13 @@ ion-item {
 ion-card {
   border-radius: 24px;
   // border: 1px solid rgba(var(--ion-color-primary-rgb), 0.4);
+  box-shadow: 0 4px 16px rgba(var(--ion-color-primary-rgb), 0.12);
 }
 
 .ion-palette-dark {
   ion-card {
     border: 1px solid rgba(var(--ion-color-primary-rgb), 0.4);
+    box-shadow: 0 4px 16px rgba(0,0,0, 0.12);
   }
 }
 ion-modal {
@@ -36,6 +38,13 @@ ion-modal {
   > div.ion-page > div {
     overflow: scroll;
     height: 100%;
+  }
+
+  &.settings-page ion-header {
+    --opacity-scale: 1!important;
+    ion-toolbar {
+      --background: var(--ion-item-background)!important;
+    }
   }
 
   ion-avatar {

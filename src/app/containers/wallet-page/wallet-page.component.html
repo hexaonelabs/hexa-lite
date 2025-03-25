@@ -1,49 +1,25 @@
+<ion-header collapse="fade" class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="end" >
+      <ion-button (click)="isSettingsPageVisible$.next(true)">
+        <ion-icon size="small" slot="icon-only" color="primary" name="settings-outline" />
+      </ion-button>
+    </ion-buttons>
+
+  </ion-toolbar>
+</ion-header>
 <ion-content class="ion-padding-top">
   <ion-grid class="ion-padding-top">
     <ion-row>
-      <ion-col>
-        <ion-card>
-          <ion-card-header>
-            <ion-card-title>Wallet</ion-card-title>
-            <ion-button
-              color="gradient"
-              size="small"
-              fill="clear"
-              class="logout-btn"
-              (click)="isSettingsPageVisible$.next(true)"
-            >
-              <ion-icon name="settings-outline" />
-            </ion-button>
-          </ion-card-header>
-          <ion-card-content>
-            <ion-list>
-              <ion-item>
-                <ion-label color="medium">Address</ion-label>
-                <ion-label
-                  slot="end"
-                  class="ion-text-end"
-                  *ngIf="walletAddress$ | async as walletAddress"
-                >
-                  {{ walletAddress | slice : 0 : 5 }}...{{
-                    walletAddress | slice : -5
-                  }}
-                </ion-label>
-              </ion-item>
-              <ion-item lines="none">
-                <ion-label color="medium">Balance</ion-label>
-                <ion-label
-                  slot="end"
-                  class="ion-text-end"
-                  *ngIf="walletBalance$ | async as walletBalance"
-                >
-                  <b>{{
-                    walletBalance | currency : "USD" : "symbol" : "1.2-2"
-                  }}</b>
-                </ion-label>
-              </ion-item>
-            </ion-list>
-          </ion-card-content>
-        </ion-card>
+      <ion-col class="heros ion-text-center">
+          <ion-text>
+            <h1>Wallet</h1>
+            <p>
+              {{
+                walletBalance$ | async  | currency : "USD" : "symbol" : "1.2-2"
+              }}
+            </p>
+          </ion-text>
       </ion-col>
     </ion-row>
 
@@ -228,7 +204,7 @@
 <!-- Settings Page as Modal -->
 <ion-modal
   [isOpen]="isSettingsPageVisible$.value"
-  class="height-full width-full"
+  class="settings-page height-full width-full"
   (ionModalDidDismiss)="isSettingsPageVisible$.next(false)"
 >
   <ng-template>
@@ -242,25 +218,6 @@
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <ion-content [fullscreen]="true">
-      <ion-list>
-        <ion-item>
-          <ion-toggle
-            [(ngModel)]="paletteToggle"
-            (ionChange)="toggleThemeChange($any($event).detail.checked)"
-            justify="space-between"
-          >
-            <ion-label>
-              <h2>Dark Mode</h2>
-              <p>Enable or disable dark mode</p>
-            </ion-label>
-          </ion-toggle>
-        </ion-item>
-        <ion-item (click)="disconnect(); isSettingsPageVisible$.next(false)">
-          <ion-label>Disconnect</ion-label>
-          <ion-icon slot="end" name="power-outline" color="primary" />
-        </ion-item>
-      </ion-list>
-    </ion-content>
+    <app-settings-page />
   </ng-template>
 </ion-modal>
