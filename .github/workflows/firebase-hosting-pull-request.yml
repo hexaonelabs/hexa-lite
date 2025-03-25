@@ -20,9 +20,9 @@ jobs:
         run:  | 
           echo "export const environment = {" > src/environments/environment.ts
           echo "  isProd: true," >> src/environments/environment.ts
-          echo "  reown_project_id: ${{ secrets.REOWN_PROJECT_ID }}," >> src/environments/environment.ts
-          echo "  lifi_integrator: ${{ secrets.LIFI_INTEGRATOR }}," >> src/environments/environment.ts
-          echo "  coingecko_apikey: ${{ secrets.NEXT_PUBLIC_APP_COINGECKO_APIKEY }}," >> src/environments/environment.ts
+          echo "  reown_project_id: '${{ secrets.REOWN_PROJECT_ID }}'," >> src/environments/environment.ts
+          echo "  lifi_integrator: '${{ secrets.LIFI_INTEGRATOR }}'," >> src/environments/environment.ts
+          echo "  coingecko_apikey: '${{ secrets.NEXT_PUBLIC_APP_COINGECKO_APIKEY }}'," >> src/environments/environment.ts
           echo "};" >> src/environments/environment.ts
           npm ci && npm run build
         env:
