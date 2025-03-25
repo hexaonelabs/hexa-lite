@@ -46,6 +46,7 @@ import { ToCoingeckoIdPipe } from '@app/pipes/to-coingecko-id/to-coingecko-id.pi
 import { CardComponent } from '@app/components/ui/card/card.component';
 import { FormsModule } from '@angular/forms';
 import { toggleDarkPalette } from '@app/app.utils';
+import { StakingToken } from '@app/models/staking-token.interface';
 
 const UIElements = [
   IonContent,
@@ -101,6 +102,7 @@ export class WalletPageComponent implements OnInit {
   public isSearchPageVisible$ = new BehaviorSubject<boolean>(false);
   public isSettingsPageVisible$ = new BehaviorSubject<boolean>(false);
   public paletteToggle: boolean = false;
+  public selectedStakingToken$ = new BehaviorSubject<StakingToken | null>(null);
 
   constructor(
     private readonly _walletService: WalletconnectService,

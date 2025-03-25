@@ -1,21 +1,26 @@
-<app-card>
-  <ion-item lines="none">
-    <ion-label>
-      ETH
-    </ion-label>
-    <ion-text slot="end">
-      2.8%
-    </ion-text>
-  </ion-item>
-</app-card>
+<div *ngIf="stakingList">
+  <app-card *ngFor="let token of stakingList; let i = index" (click)="selectedStaking.emit(token)">
+    <ion-item lines="none">
+      <ion-avatar slot="start">
+        <img [src]="token.imageURL" />
+      </ion-avatar>
+      <ion-label>
+        {{ token.symbol}}
+      </ion-label>
+      <ion-text slot="end" class="ion-color-gradient-text">
+        {{ token.apy | number: '1.2-2' }}%
+      </ion-text>
+    </ion-item>
+  </app-card>
+</div>  
 
-<app-card>
-  <ion-item lines="none">
-    <ion-label>
-      ETH
-    </ion-label>
-    <ion-text slot="end">
-      2.8%
-    </ion-text>
-  </ion-item>
-</app-card>
+<!--  preload template with ion-skeleton-text -->
+<div *ngIf="!stakingList"> 
+  <app-card>
+    <ion-skeleton-text animated style="width: 100%; height: 50px;border-radius: 12px;"></ion-skeleton-text>
+  </app-card>
+  <app-card>
+    <ion-skeleton-text animated style="width: 100%; height: 50px;border-radius: 12px;"></ion-skeleton-text>
+  </app-card>
+
+</div>

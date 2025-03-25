@@ -29,3 +29,22 @@ export const toggleDarkPalette = (shouldAdd: boolean) => {
   document.documentElement.classList.toggle('ion-palette-dark', shouldAdd);
   localStorage.setItem('theme', shouldAdd ? 'dark' : 'light');
 }
+
+export const getBaseAPRstETH = async (signal?: AbortSignal) => {
+  const response = await fetch(
+    "https://eth-api.lido.fi/v1/protocol/steth/apr/sma",
+    { signal }
+  );
+  const { data } = await response.json();
+  const { smaApr: apr } = data as { smaApr: number };
+  return { apr };
+};
+
+export const getBaseAPRstMATIC = async (signal?: AbortSignal) => {
+  const response = await fetch(
+    "https://pol-api-pub.lido.fi/stats",
+    { signal }
+  );
+  const { apr } = await response.json();
+  return { apr };
+};

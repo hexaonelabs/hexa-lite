@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CardComponent } from '@app/components/ui/card/card.component';
 import { StakingListComponent } from '@app/components/widgets/staking-list/staking-list.component';
+import { StakingToken } from '@app/models/staking-token.interface';
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCol, IonContent, IonGrid, IonItem, IonLabel, IonList, IonRow, IonSegment, IonSegmentButton, IonText, IonToolbar } from '@ionic/angular/standalone';
 
 const UIElements = [
@@ -32,6 +33,8 @@ const UIElements = [
 export class EarnPageComponent  implements OnInit {
 
   public segment: 'staking' | 'loans' | 'vaults' = 'staking';
+  @Output() public selectedStaking: EventEmitter<StakingToken> = new EventEmitter();
+
   constructor() { }
 
   ngOnInit() {}

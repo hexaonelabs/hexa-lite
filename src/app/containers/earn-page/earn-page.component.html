@@ -15,7 +15,10 @@
   <ion-grid>
     <ion-row>
       <ion-col>
-        <app-staking-list *ngIf="segment === 'staking'"></app-staking-list>
+        <app-staking-list
+          *ngIf="segment === 'staking'"
+          (selectedStaking)="selectedStaking.emit($event)"
+        ></app-staking-list>
         <!-- <app-loans-list *ngIf="segment === 'loans'"></app-loans-list>
         <app-vaults-list *ngIf="segment === 'vaults'"></app-vaults-list> -->
       </ion-col>

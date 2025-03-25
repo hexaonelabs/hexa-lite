@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BigintToNumberPipe } from '@app/pipes/bigint-to-number/bigint-to-number.pipe';
 import { ToDecimalPipe } from '@app/pipes/to-decimal/to-decimal.pipe';
@@ -81,7 +81,7 @@ const UIElements = [
 export class SwapPageComponent implements OnInit {
   public readonly walletTokens$: Observable<TokenAmount[]>;
   public toAvailableTokens$: Promise<Token[]>;
-  public fromToken?: TokenAmount;
+  @Input() public fromToken?: TokenAmount;
   public toToken?: Token;
   public fromTokenAmount?: number;
   public readonly quote$ = new BehaviorSubject<LiFiStep | null>(null);
