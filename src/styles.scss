@@ -1,5 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 
+ion-toolbar {
+  --background: var(--ion-background-color);
+}
 ion-item {
   --transition: none;
 }
@@ -16,6 +19,7 @@ ion-card {
     box-shadow: 0 4px 16px rgba(0,0,0, 0.12);
   }
 }
+
 ion-modal {
 
   --border-radius: 32px;

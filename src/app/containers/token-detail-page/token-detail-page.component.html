@@ -1,4 +1,4 @@
-<ion-header *ngIf="!fromModal" collapse="fade" class="ion-no-border">
+<ion-header *ngIf="!fromModal" class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/" text=""></ion-back-button>
@@ -124,7 +124,7 @@
   class="height-full width-full"
   (ionModalDidDismiss)="isSwapPageVisible$.next(false)">
   <ng-template>
-      <ion-header collapse="fade" class="ion-no-border">
+      <ion-header class="ion-no-border">
         <ion-toolbar>
           <ion-title>Swap</ion-title>
           <ion-buttons slot="end">

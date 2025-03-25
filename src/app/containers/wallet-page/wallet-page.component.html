@@ -1,4 +1,4 @@
-<ion-header collapse="fade" class="ion-no-border">
+<ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="end" >
       <ion-button (click)="isSettingsPageVisible$.next(true)">
@@ -139,7 +139,7 @@
   (ionModalDidDismiss)="isSwapPageVisible$.next(false); selectedStakingToken$.next(null)"
 >
   <ng-template>
-    <ion-header collapse="fade" class="ion-no-border">
+    <ion-header class="ion-no-border">
       <ion-toolbar>
         <ion-title>{{selectedStakingToken$.value ? 'Staking' : 'Swap'}}</ion-title>
         <ion-buttons slot="end">
@@ -162,7 +162,7 @@
   (ionModalDidDismiss)="isEarnPageVisible$.next(false)"
 >
   <ng-template>
-    <ion-header collapse="fade" class="ion-no-border">
+    <ion-header class="ion-no-border">
       <ion-toolbar>
         <ion-title>Earn</ion-title>
         <ion-buttons slot="end">
@@ -187,7 +187,7 @@
   (ionModalDidDismiss)="isSearchPageVisible$.next(false)"
 >
   <ng-template>
-    <ion-header collapse="fade" class="ion-no-border">
+    <ion-header class="ion-no-border">
       <ion-toolbar>
         <ion-title>Search</ion-title>
         <ion-buttons slot="end">
@@ -208,7 +208,7 @@
   (ionModalDidDismiss)="isSettingsPageVisible$.next(false)"
 >
   <ng-template>
-    <ion-header collapse="fade" class="ion-no-border">
+    <ion-header class="ion-no-border">
       <ion-toolbar>
         <ion-title>Settings</ion-title>
         <ion-buttons slot="end">

@@ -94,7 +94,7 @@
   (ionModalDidDismiss)="selectedToken$.next(null)"
 >
   <ng-template>
-    <ion-header collapse="fade" class="ion-no-border">
+    <ion-header class="ion-no-border">
       <ion-toolbar>
         <ion-title>{{ selectedToken$.value?.name }}</ion-title>
         <ion-buttons slot="end">
