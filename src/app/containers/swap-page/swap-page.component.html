@@ -1,4 +1,4 @@
-<ion-content>
+<ion-content [fullscreen]="true">
   <ion-grid>
     <ion-row *ngIf="quote$.value as quote">
       <ion-col>
@@ -221,7 +221,7 @@
           placeholder="ETH; LINK; AAVE etc..."/>
       </ion-toolbar>
     </ion-header>
-    <ion-content>
+    <ion-content [fullscreen]="true" >
       <ion-list
         *ngIf="
           (!fromToken ? walletTokens$ : toAvailableTokens$) | async as tokens

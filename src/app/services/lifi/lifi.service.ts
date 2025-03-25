@@ -18,7 +18,7 @@ import {
 import { WalletconnectService } from '../walletconnect/walletconnect.service';
 import { LoadingController } from '@ionic/angular/standalone';
 import { AVAILABLE_CHAINS, calculateAmountOfFormToken } from '@app/app.utils';
-import { BehaviorSubject, firstValueFrom, map } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, map, tap } from 'rxjs';
 import { Chain, createPublicClient, http, parseUnits } from 'viem';
 
 @Injectable({
@@ -28,6 +28,7 @@ export class LIFIService {
   private readonly _walletTokens = new BehaviorSubject<TokenAmount[]>([]);
   public readonly walletTokens$ = this._walletTokens.asObservable();
   public readonly walletBalance$ = this._walletTokens.pipe(
+    tap((tokens) => console.log({tokens})),
     map((tokens) =>
       tokens.reduce((acc, token) => {
         const amount = Number(token.amount) * 10 ** -token.decimals;

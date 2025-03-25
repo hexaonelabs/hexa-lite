@@ -15,14 +15,14 @@
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content>
+<ion-content [fullscreen]="true">
   <ion-grid *ngIf="token; else noToken">
     <ion-row class="ion-padding ion-align-items-center ">
       <ion-col size="12">
         <app-chart 
           [data]="token.sparkline_in_7d.price"
           [symbol]="token.symbol">
-          <ion-buttons style="margin-right: -1rem;">
+          <ion-buttons *ngIf="fromModal" style="margin-right: -1rem;">
             <ion-button (click)="toggleFavorite()" fill="clear">
               <ion-icon 
                 slot="icon-only" 
@@ -34,10 +34,11 @@
         </app-chart>
       </ion-col>
     </ion-row>
+
     <ion-row *ngIf="walletBalance$ | async as walletBalance">
       <ion-col size="12" *ngIf="walletBalance.amount > 0">
-        <ion-label color="medium">
-          Wallet Balance
+        <ion-label color="medium" class="ion-margin-start">
+          <small>Wallet Balance</small>
         </ion-label>
         <app-card>
           <ion-list>
@@ -45,13 +46,15 @@
               <ion-label>
                 Amount
               </ion-label>
-              <ion-text slot="end">{{ walletBalance.amount }}</ion-text>
+              <ion-text slot="end">{{ walletBalance.amount | number : "1.2-2"   }}</ion-text>
             </ion-item>
-            <ion-item>
+            <ion-item lines="none">
               <ion-label>
                 Value
               </ion-label>
-              <ion-text slot="end">{{ walletBalance.balanceUSD | currency: 'USD': 'symbol': '1.2-2' }}</ion-text>
+              <ion-text slot="end">
+                <b>{{ walletBalance.balanceUSD | currency: 'USD': 'symbol': '1.2-2' }}</b>
+              </ion-text>
             </ion-item>
           </ion-list>
         </app-card>
@@ -59,9 +62,9 @@
     </ion-row>
     <ion-row>
       <ion-col>
-        <!-- <ion-label color="medium" class="ion-padding-start">
-          Statistics
-        </ion-label> -->
+        <ion-label color="medium" class="ion-margin-start">
+          <small>Market datas</small>
+        </ion-label>
         <app-card>
           <ion-list>
             <ion-item>
