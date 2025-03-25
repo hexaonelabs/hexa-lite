@@ -1,0 +1,253 @@
+<ion-content>
+  <ion-grid>
+    <ion-row *ngIf="quote$.value as quote">
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title> From </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item *ngIf="quote.action.fromToken as quoteFromToken" lines="none">
+              <ion-avatar slot="start">
+                <img [src]="quoteFromToken.logoURI" />
+                <img
+                  class="chainImg"
+                  [src]="quoteFromToken.chainId | toChainImg"
+                  title="chain {{ quoteFromToken.chainId }}"
+                />
+              </ion-avatar>
+              <ion-label>
+                <h2>{{ quoteFromToken.symbol }}</h2>
+                <p>{{ quoteFromToken.name }}</p>
+              </ion-label>
+              <ion-text slot="end" class="ion-text-end">
+                <b>{{ quote.estimate.fromAmount | toDecimal:quoteFromToken.decimals | toBalanceCurrency: quoteFromToken.priceUSD | currency : "USD" : "symbol" : "1.2-2" }}</b>
+                <br/>
+                <small>{{ quote.estimate.fromAmount | toDecimal:quoteFromToken.decimals | number: "1.2-6" }} units</small>
+              </ion-text>
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+  
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title> To </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item *ngIf="quote.action.toToken as quoteToToken" lines="none">
+              <ion-avatar slot="start">
+                <img [src]="quoteToToken.logoURI" />
+                <img
+                  class="chainImg"
+                  [src]="quoteToToken.chainId | toChainImg"
+                  title="chain {{ quoteToToken.chainId }}"
+                />
+              </ion-avatar>
+              <ion-label>
+                <h2>{{ quoteToToken.symbol }}</h2>
+                <p>{{ quoteToToken.name }}</p>
+              </ion-label>
+              <ion-text slot="end" class="ion-text-end">
+                <b>{{ quote.estimate.toAmount | toDecimal:quoteToToken.decimals | toBalanceCurrency: quoteToToken.priceUSD | currency : "USD" : "symbol" : "1.2-2" }}</b>
+                <br/>
+                <small>{{ quote.estimate.toAmount | toDecimal:quoteToToken.decimals | number: "1.2-6" }} units</small>
+              </ion-text>
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+  
+        <ion-button fill="clear" expand="block" (click)="quote$.next(null)">
+          cancel quote
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  
+    <ion-row *ngIf="!quote$.value">
+      <ion-col size="12">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title> From </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item
+              *ngIf="fromToken"
+              (click)="fromToken = undefined; isSearchOpen = true"
+              class="selected"
+              lines="none"
+            >
+              <ion-avatar slot="start">
+                <img [src]="fromToken.logoURI" />
+                <img
+                  class="chainImg"
+                  [src]="fromToken.chainId | toChainImg"
+                  title="chain {{ fromToken.chainId }}"
+                />
+              </ion-avatar>
+              <ion-label>
+                <h2>{{ fromToken.symbol }}</h2>
+                <ion-text color="primary">
+                  <p>{{ fromToken.name }}</p>
+                </ion-text>
+              </ion-label>
+            </ion-item>
+            <ion-button
+              *ngIf="!fromToken"
+              (click)="isSearchOpen = true"
+              color="gradient"
+              expand="block"
+            >
+              Select token
+            </ion-button>
+            <ion-item *ngIf="fromToken" lines="none">
+              <!-- <ion-label>
+                Amount
+                <small
+                  >(max
+                  {{
+                    fromToken?.amount
+                      | bigintToNumber
+                      | toDecimal : fromToken?.decimals || 0
+                      | number : "1.2-6"
+                  }})</small
+                >
+              </ion-label> -->
+              <ion-input
+                mode="md"
+                label="Amount (max
+                {{
+                  fromToken?.amount
+                    | bigintToNumber
+                    | toDecimal : fromToken?.decimals || 0
+                    | number : '1.2-6'
+                }})"
+                label-placement="stacked"
+                fill="outline"
+                [(ngModel)]="fromTokenAmount"
+                class="ion-margin-top"
+                type="number"
+                min="0"
+                [max]="
+                  fromToken?.amount
+                    | bigintToNumber
+                    | toDecimal : fromToken?.decimals || 0
+                    | number : '1.2-6'
+                "
+                required
+              />
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col size="12">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title> To </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item
+              *ngIf="toToken"
+              (click)="toToken = undefined; isSearchOpen = true"
+              class="selected"
+              lines="none"
+            >
+              <ion-avatar slot="start">
+                <img [src]="toToken.logoURI" />
+                <img
+                  class="chainImg"
+                  [src]="toToken.chainId | toChainImg"
+                  title="chain {{ toToken.chainId }}"
+                />
+              </ion-avatar>
+              <ion-label>
+                <h2>{{ toToken.symbol }}</h2>
+                <p>{{ toToken.name }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-button
+              [disabled]="!fromToken"
+              *ngIf="!toToken"
+              (click)="isSearchOpen = true"
+              expand="block"
+              color="gradient"
+            >
+              Select token
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-button
+      *ngIf="!quote$.value"
+      (click)="requestQuote()"
+      expand="block"
+      color="gradient"
+      [disabled]="!fromToken || !toToken || !fromTokenAmount">
+      Request Quote
+    </ion-button>
+    <ion-button
+      *ngIf="quote$.value"
+      (click)="executeQuote()"
+      expand="block"
+      color="gradient"
+    >
+      Execute Swap
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
+
+<ion-modal
+  [isOpen]="isSearchOpen"
+  class="height-full width-full"
+  (ionModalDidDismiss)="isSearchOpen = false"
+>
+  <ng-template>
+    <ion-header  collapse="fade" class="ion-no-border">
+      <ion-toolbar>
+        <ion-title>Search Token</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="isSearchOpen = false">
+            <ion-icon name="close" />
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+      <ion-toolbar>
+        <ion-searchbar
+          [debounce]="500"
+          (ionInput)="search($event)"
+          placeholder="ETH; LINK; AAVE etc..."/>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-list
+        *ngIf="
+          (!fromToken ? walletTokens$ : toAvailableTokens$) | async as tokens
+        "
+      >
+        <ion-item
+          *ngFor="let token of tokens | slice : 0 : 20"
+          (click)="
+            !fromToken ? (fromToken = token) : (toToken = token);
+            isSearchOpen = false
+          "
+        >
+          <ion-avatar slot="start">
+            <img [src]="token.logoURI" />
+            <img
+              class="chainImg"
+              [src]="token.chainId | toChainImg"
+              title="chain {{ token.chainId }}"
+            />
+          </ion-avatar>
+          <ion-label>
+            <h2>{{ token.symbol }}</h2>
+            <p>{{ token.name }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-modal>

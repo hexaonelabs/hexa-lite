@@ -31,3 +31,8 @@ press-paper
 rfp
 .firebase/
 *.log
+.angular
+dist
+
+environment.ts
+environment.local.ts

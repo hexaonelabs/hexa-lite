@@ -1,0 +1,19 @@
+:host {
+  .logout-btn {
+    position: absolute;
+    right: 16px;
+    top: 20px;
+  }
+  ion-item {
+    --padding-start: none;
+    --inner-padding-end: none;
+  }
+  ion-card[button] {
+    ion-icon {
+      font-size: 2rem;
+      display: block;
+      margin: auto;
+    }
+    margin: 0.25rem;
+  }
+}

@@ -1,0 +1,33 @@
+<ion-item [lines]="lines">
+  <ion-grid class="ion-no-padding ion-padding-vertical">
+    <ion-row class="ion-align-items-center">
+      <ion-col size="auto">
+        <ion-avatar class="ion-margin-end">
+          <img [src]="token.logoURI" alt="Token logo" />
+        </ion-avatar>
+      </ion-col>
+      <ion-col>
+        <ion-label>
+          <h2>{{ token.symbol }}</h2>
+          <p>{{ token.priceUSD | currency : "USD" : "symbol" : "1.2-2" }}</p>
+        </ion-label>
+      </ion-col>
+      <ion-col class="ion-text-end">
+        <ion-label>
+          <h3>
+            <b>{{ token.amount | bigintToNumber | toDecimal: token.decimals | toBalanceCurrency: token.priceUSD | currency : "USD" : "symbol" : "1.2-2" }}</b>
+          </h3>
+          <p>{{ token.amount | bigintToNumber | toDecimal: token.decimals | number : "1.2-2" }}</p>
+        </ion-label>
+      </ion-col>
+      <!-- <ion-col class="ion-text-end" size="2">
+        <ion-label>
+          <h3>
+            <b>{{ token | totalPercent : totalWalletWorth | number : "1.2-2" }}%</b>
+          </h3>
+          <p>$0.00</p>
+        </ion-label>
+      </ion-col> -->
+    </ion-row>
+  </ion-grid>
+</ion-item>
