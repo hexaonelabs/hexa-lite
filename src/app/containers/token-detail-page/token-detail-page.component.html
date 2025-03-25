@@ -16,7 +16,7 @@
   </ion-toolbar>
 </ion-header>
 <ion-content [fullscreen]="true">
-  <ion-grid *ngIf="token; else noToken">
+  <ion-grid [fixed]="true" *ngIf="token; else noToken">
     <ion-row class="ion-padding ion-align-items-center ">
       <ion-col size="12">
         <app-chart 

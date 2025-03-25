@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true">
-  <ion-grid>
+  <ion-grid [fixed]="true">
     <ion-row *ngIf="quote$.value as quote">
       <ion-col>
         <ion-card>
@@ -239,38 +239,44 @@
       </ion-toolbar>
     </ion-header>
     <ion-content [fullscreen]="true">
-      <ion-list
-        *ngIf="
-          !fromToken
-            ? fromTokensList
-              ? fromTokensList
-              : (walletTokens$ | async)
-            : toTokensList
-              ? toTokensList
-              : allAvailableTokens as tokens
-        "
-      >
-        <ion-item
-          *ngFor="let token of tokens | slice : 0 : 20"
-          (click)="
-            !fromToken ? (fromToken = token) : (toToken = token);
-            isSearchOpen = false
-          "
-        >
-          <ion-avatar slot="start">
-            <img [src]="token.logoURI" />
-            <img
-              class="chainImg"
-              [src]="token.chainId | toChainImg"
-              title="chain {{ token.chainId }}"
-            />
-          </ion-avatar>
-          <ion-label>
-            <h2>{{ token.symbol }}</h2>
-            <p>{{ token.name }}</p>
-          </ion-label>
-        </ion-item>
-      </ion-list>
+      <ion-grid [fixed]="true">
+        <ion-row>
+          <ion-col>
+            <ion-list
+              *ngIf="
+                !fromToken
+                  ? fromTokensList
+                    ? fromTokensList
+                    : (walletTokens$ | async)
+                  : toTokensList
+                    ? toTokensList
+                    : allAvailableTokens as tokens
+              "
+            >
+              <ion-item
+                *ngFor="let token of tokens | slice : 0 : 20"
+                (click)="
+                  !fromToken ? (fromToken = token) : (toToken = token);
+                  isSearchOpen = false
+                "
+              >
+                <ion-avatar slot="start">
+                  <img [src]="token.logoURI" />
+                  <img
+                    class="chainImg"
+                    [src]="token.chainId | toChainImg"
+                    title="chain {{ token.chainId }}"
+                  />
+                </ion-avatar>
+                <ion-label>
+                  <h2>{{ token.symbol }}</h2>
+                  <p>{{ token.name }}</p>
+                </ion-label>
+              </ion-item>
+            </ion-list>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-content>
   </ng-template>
 </ion-modal>
