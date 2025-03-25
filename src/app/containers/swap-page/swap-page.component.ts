@@ -79,11 +79,18 @@ const UIElements = [
   ],
 })
 export class SwapPageComponent implements OnInit {
-  public readonly walletTokens$: Observable<TokenAmount[]>;
-  public toAvailableTokens$: Promise<Token[]>;
-  @Input() public fromToken?: TokenAmount;
-  public toToken?: Token;
+
+  @Input() public fromTokensList?: TokenAmount[];
+  @Input() public fromToken: TokenAmount | undefined = undefined;
   public fromTokenAmount?: number;
+  
+  @Input() public toTokensList?: Token[];
+  @Input() public toToken?: Token;
+
+  public allAvailableTokens: Token[] = [];
+  
+  public readonly walletTokens$: Observable<TokenAmount[]>;
+  
   public readonly quote$ = new BehaviorSubject<LiFiStep | null>(null);
   public searchTerm$ = new BehaviorSubject<string | null>(null);
   public isSearchOpen = false;
@@ -105,18 +112,19 @@ export class SwapPageComponent implements OnInit {
         );
       })
     );
-    this.toAvailableTokens$ = this._lifiService
-      .getAvailableTokens()
-      .then((tokens) => Object.values(tokens).flat());
   }
 
-  ngOnInit() {}
+  async ngOnInit() {
+    this.allAvailableTokens = await this._lifiService
+    .getAvailableTokens()
+    .then((tokens) => Object.values(tokens).flat());
+  }
 
-  search($event: any) {
+  async search($event: any) {
     const value = $event?.detail?.value;
     if (!value) {
       this.searchTerm$.next(null);
-      this.toAvailableTokens$ = this._lifiService
+      this.allAvailableTokens = await this._lifiService
         .getAvailableTokens()
         .then((tokens) => Object.values(tokens).flat());
       return;
@@ -126,7 +134,7 @@ export class SwapPageComponent implements OnInit {
     }
     this.searchTerm$.next(value);
     if (!this.toToken) {
-      this.toAvailableTokens$ = this._lifiService
+      this.allAvailableTokens = await this._lifiService
         .getAvailableTokens()
         .then((tokens) =>
           Object.values(tokens)

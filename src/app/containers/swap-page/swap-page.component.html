@@ -7,7 +7,10 @@
             <ion-card-title> From </ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <ion-item *ngIf="quote.action.fromToken as quoteFromToken" lines="none">
+            <ion-item
+              *ngIf="quote.action.fromToken as quoteFromToken"
+              lines="none"
+            >
               <ion-avatar slot="start">
                 <img [src]="quoteFromToken.logoURI" />
                 <img
@@ -21,14 +24,26 @@
                 <p>{{ quoteFromToken.name }}</p>
               </ion-label>
               <ion-text slot="end" class="ion-text-end">
-                <b>{{ quote.estimate.fromAmount | toDecimal:quoteFromToken.decimals | toBalanceCurrency: quoteFromToken.priceUSD | currency : "USD" : "symbol" : "1.2-2" }}</b>
-                <br/>
-                <small>{{ quote.estimate.fromAmount | toDecimal:quoteFromToken.decimals | number: "1.2-6" }} units</small>
+                <b>{{
+                  quote.estimate.fromAmount
+                    | toDecimal : quoteFromToken.decimals
+                    | toBalanceCurrency : quoteFromToken.priceUSD
+                    | currency : "USD" : "symbol" : "1.2-2"
+                }}</b>
+                <br />
+                <small
+                  >{{
+                    quote.estimate.fromAmount
+                      | toDecimal : quoteFromToken.decimals
+                      | number : "1.2-6"
+                  }}
+                  units</small
+                >
               </ion-text>
             </ion-item>
           </ion-card-content>
         </ion-card>
-  
+
         <ion-card>
           <ion-card-header>
             <ion-card-title> To </ion-card-title>
@@ -48,20 +63,32 @@
                 <p>{{ quoteToToken.name }}</p>
               </ion-label>
               <ion-text slot="end" class="ion-text-end">
-                <b>{{ quote.estimate.toAmount | toDecimal:quoteToToken.decimals | toBalanceCurrency: quoteToToken.priceUSD | currency : "USD" : "symbol" : "1.2-2" }}</b>
-                <br/>
-                <small>{{ quote.estimate.toAmount | toDecimal:quoteToToken.decimals | number: "1.2-6" }} units</small>
+                <b>{{
+                  quote.estimate.toAmount
+                    | toDecimal : quoteToToken.decimals
+                    | toBalanceCurrency : quoteToToken.priceUSD
+                    | currency : "USD" : "symbol" : "1.2-2"
+                }}</b>
+                <br />
+                <small
+                  >{{
+                    quote.estimate.toAmount
+                      | toDecimal : quoteToToken.decimals
+                      | number : "1.2-6"
+                  }}
+                  units</small
+                >
               </ion-text>
             </ion-item>
           </ion-card-content>
         </ion-card>
-  
+
         <ion-button fill="clear" expand="block" (click)="quote$.next(null)">
           cancel quote
         </ion-button>
       </ion-col>
     </ion-row>
-  
+
     <ion-row *ngIf="!quote$.value">
       <ion-col size="12">
         <ion-card>
@@ -90,27 +117,7 @@
                 </ion-text>
               </ion-label>
             </ion-item>
-            <ion-button
-              *ngIf="!fromToken"
-              (click)="isSearchOpen = true"
-              color="gradient"
-              expand="block"
-            >
-              Select token
-            </ion-button>
             <ion-item *ngIf="fromToken" lines="none">
-              <!-- <ion-label>
-                Amount
-                <small
-                  >(max
-                  {{
-                    fromToken?.amount
-                      | bigintToNumber
-                      | toDecimal : fromToken?.decimals || 0
-                      | number : "1.2-6"
-                  }})</small
-                >
-              </ion-label> -->
               <ion-input
                 mode="md"
                 label="Amount (max
@@ -135,6 +142,14 @@
                 required
               />
             </ion-item>
+            <ion-button
+              *ngIf="!fromToken"
+              (click)="isSearchOpen = true"
+              color="gradient"
+              expand="block"
+            >
+              Select token
+            </ion-button>
           </ion-card-content>
         </ion-card>
       </ion-col>
@@ -185,7 +200,8 @@
       (click)="requestQuote()"
       expand="block"
       color="gradient"
-      [disabled]="!fromToken || !toToken || !fromTokenAmount">
+      [disabled]="!fromToken || !toToken || !fromTokenAmount"
+    >
       Request Quote
     </ion-button>
     <ion-button
@@ -205,7 +221,7 @@
   (ionModalDidDismiss)="isSearchOpen = false"
 >
   <ng-template>
-    <ion-header  collapse="fade" class="ion-no-border">
+    <ion-header collapse="fade" class="ion-no-border">
       <ion-toolbar>
         <ion-title>Search Token</ion-title>
         <ion-buttons slot="end">
@@ -218,13 +234,20 @@
         <ion-searchbar
           [debounce]="500"
           (ionInput)="search($event)"
-          placeholder="ETH; LINK; AAVE etc..."/>
+          placeholder="ETH; LINK; AAVE etc..."
+        />
       </ion-toolbar>
     </ion-header>
-    <ion-content [fullscreen]="true" >
+    <ion-content [fullscreen]="true">
       <ion-list
         *ngIf="
-          (!fromToken ? walletTokens$ : toAvailableTokens$) | async as tokens
+          !fromToken
+            ? fromTokensList
+              ? fromTokensList
+              : (walletTokens$ | async)
+            : toTokensList
+              ? toTokensList
+              : allAvailableTokens as tokens
         "
       >
         <ion-item

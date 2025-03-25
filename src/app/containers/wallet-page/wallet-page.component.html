@@ -160,7 +160,7 @@
 <ion-modal
   [isOpen]="isSwapPageVisible$.value"
   class="height-full width-full"
-  (ionModalDidDismiss)="isSwapPageVisible$.next(false)"
+  (ionModalDidDismiss)="isSwapPageVisible$.next(false); selectedStakingToken$.next(null)"
 >
   <ng-template>
     <ion-header collapse="fade" class="ion-no-border">
@@ -173,7 +173,9 @@
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <app-swap-page [fromToken]="selectedStakingToken$.value?.from?.[0]" />
+    <app-swap-page 
+      [fromTokensList]="selectedStakingToken$.value?.from" 
+      [toTokensList]="selectedStakingToken$.value?.to" />
   </ng-template>
 </ion-modal>
 
