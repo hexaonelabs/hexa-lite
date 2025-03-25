@@ -3,6 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { toggleDarkPalette } from "@app/app.utils";
+import { LIFIService } from "@app/services/lifi/lifi.service";
 import { WalletconnectService } from "@app/services/walletconnect/walletconnect.service";
 import {
   IonButton,
@@ -49,9 +50,11 @@ const UIElements = [
 })
 export class SettingsPageComponent implements OnInit {
   public paletteToggle: boolean = false;
+  public readonly hideSmalAmount$;
   public readonly walletAddress$;
   constructor(
     private readonly _walletService: WalletconnectService,
+    private readonly _lifiService: LIFIService,
     private readonly _router: Router,
     private readonly _modalCtrl: ModalController,
   ) {
@@ -59,6 +62,7 @@ export class SettingsPageComponent implements OnInit {
       openOutline,
     });
     this.walletAddress$ = this._walletService.walletAddress$;
+    this.hideSmalAmount$ = this._lifiService.hideSmallAmount$;
   }
 
   ngOnInit() {
@@ -75,5 +79,9 @@ export class SettingsPageComponent implements OnInit {
   toggleThemeChange(isChecked: boolean) {
     const shouldAdd = isChecked;
     toggleDarkPalette(shouldAdd);
+  }
+
+  toggleHideSmallAmount() {
+    this._lifiService.toggleHideSmallAmount();
   }
 }

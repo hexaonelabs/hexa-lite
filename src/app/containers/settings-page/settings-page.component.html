@@ -18,6 +18,18 @@
           </ion-item>
           <ion-item>
             <ion-toggle
+              [checked]="hideSmalAmount$|async"
+              (ionChange)="toggleHideSmallAmount()"
+              justify="space-between"
+            >
+              <ion-label>
+                <h2>Hide Small Amount</h2>
+                <p>Hide amount worth less than $1</p>
+              </ion-label>
+            </ion-toggle>
+          </ion-item>
+          <ion-item>
+            <ion-toggle
               [(ngModel)]="paletteToggle"
               (ionChange)="toggleThemeChange($any($event).detail.checked)"
               justify="space-between"

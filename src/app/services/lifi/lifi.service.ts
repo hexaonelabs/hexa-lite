@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { environment } from '@env/environment';
+import { Injectable } from "@angular/core";
+import { environment } from "@env/environment";
 import {
   createConfig as createLiFiConfig,
   EVM,
@@ -14,21 +14,42 @@ import {
   convertQuoteToRoute,
   executeRoute,
   RouteExtended,
-} from '@lifi/sdk';
-import { WalletconnectService } from '../walletconnect/walletconnect.service';
-import { LoadingController } from '@ionic/angular/standalone';
-import { AVAILABLE_CHAINS, calculateAmountOfFormToken } from '@app/app.utils';
-import { BehaviorSubject, firstValueFrom, map, tap } from 'rxjs';
-import { Chain, createPublicClient, http, parseUnits } from 'viem';
+} from "@lifi/sdk";
+import { WalletconnectService } from "../walletconnect/walletconnect.service";
+import { LoadingController } from "@ionic/angular/standalone";
+import { AVAILABLE_CHAINS } from "@app/app.utils";
+import { BehaviorSubject, combineLatest, firstValueFrom, map, tap } from "rxjs";
+import { Chain, createPublicClient, http, parseUnits } from "viem";
+import { ToDecimalPipe } from "@app/pipes/to-decimal/to-decimal.pipe";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class LIFIService {
+  private readonly _hideSmallAmount$ = new BehaviorSubject<boolean>(
+    localStorage.getItem("hideSmallAmount")
+      ? localStorage.getItem("hideSmallAmount") === "true"
+      : true
+  );
+  public readonly hideSmallAmount$ = this._hideSmallAmount$.asObservable();
   private readonly _walletTokens = new BehaviorSubject<TokenAmount[]>([]);
-  public readonly walletTokens$ = this._walletTokens.asObservable();
+  public readonly walletTokens$ = combineLatest([
+    this._walletTokens.asObservable(),
+    this.hideSmallAmount$,
+  ]).pipe(
+    map(([tokens, hideSmallAmount]) => {
+      if (hideSmallAmount) {
+        return tokens.filter(
+          (t) =>
+            new ToDecimalPipe().transform(Number(t.amount), t.decimals) *
+              Number(t.priceUSD) >
+            1
+        );
+      }
+      return tokens;
+    })
+  );
   public readonly walletBalance$ = this._walletTokens.pipe(
-    tap((tokens) => console.log({tokens})),
     map((tokens) =>
       tokens.reduce((acc, token) => {
         const amount = Number(token.amount) * 10 ** -token.decimals;
@@ -48,7 +69,7 @@ export class LIFIService {
           getWalletClient: async () => this._walletService.getWalletClient(),
           switchChain: async (chainId) => {
             if (!this._walletService.getWalletClient()) {
-              throw new Error('No wallet client available');
+              throw new Error("No wallet client available");
             }
             await this._walletService.getWalletClient().switchChain({
               id: chainId,
@@ -63,24 +84,24 @@ export class LIFIService {
     } else {
       const mockTokenList = [
         {
-          address: '0x0000000000000000000000000000000000000000',
+          address: "0x0000000000000000000000000000000000000000",
           amount: 3878139031241991493n,
           blockNumber: 69235034n,
           chainId: 137,
-          coinKey: 'POL' as any,
+          coinKey: "POL" as any,
           decimals: 18,
           logoURI:
-            'https://static.debank.com/image/matic_token/logo_url/matic/6f5a6b6f0732a7a235131bd7804d357c.png',
-          name: 'Polygon Ecosystem Token',
-          priceUSD: '0.212',
-          symbol: 'POL',
+            "https://static.debank.com/image/matic_token/logo_url/matic/6f5a6b6f0732a7a235131bd7804d357c.png",
+          name: "Polygon Ecosystem Token",
+          priceUSD: "0.212",
+          symbol: "POL",
         },
       ];
       this._walletTokens.next(mockTokenList);
     }
   }
 
-  async getAvailableTokens(): Promise<{[chainId: number]: Token[]}> {
+  async getAvailableTokens(): Promise<{ [chainId: number]: Token[] }> {
     const tokensResponse = await getTokens({
       minPriceUSD: 0.01,
     });
@@ -120,7 +141,7 @@ export class LIFIService {
         (c) => c.id === executedRte.fromChainId
       );
       if (!chain) {
-        throw new Error('Chain not found');
+        throw new Error("Chain not found");
       }
       // 4) Wait for payment receipt
       const receipts = await this._waitForReceipt(executedRte, chain);
@@ -149,7 +170,7 @@ export class LIFIService {
       toChainId,
     } = value;
     if (!from) {
-      throw new Error('No wallet address available');
+      throw new Error("No wallet address available");
     }
     const fromToken = await getToken(Number(fromChainId), fromTokenAddress);
     const toToken = await getToken(Number(toChainId), toTokenAddress);
@@ -166,6 +187,12 @@ export class LIFIService {
     console.log({ ops });
     const quote = await getQuote(ops);
     return quote;
+  }
+
+  async toggleHideSmallAmount() {
+    const hideSmallAmount = this._hideSmallAmount$.value;
+    localStorage.setItem("hideSmallAmount", String(!hideSmallAmount));
+    this._hideSmallAmount$.next(!hideSmallAmount);
   }
 
   private async _executeLiFiQuote(quote: LiFiStep) {
@@ -208,7 +235,7 @@ export class LIFIService {
       this._walletService.walletAddress$
     );
     if (!walletAddress) {
-      throw new Error('No wallet address available');
+      throw new Error("No wallet address available");
     }
     const ionLoading = await new LoadingController().create({
       message: `Loading wallet tokens balance...`,
