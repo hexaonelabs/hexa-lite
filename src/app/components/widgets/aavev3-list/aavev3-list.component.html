@@ -1,0 +1,103 @@
+<div *ngIf="marketPoolsGroups$ | async as marketPoolsGroups">
+  <app-card *ngFor="let group of marketPoolsGroups">
+    <ion-accordion-group>
+      <ion-accordion [value]="group.symbol">
+        <ion-item slot="header" lines="none">
+          <ion-avatar slot="start">
+            <img src="{{ group.imageURL }}" />
+          </ion-avatar>
+          <ion-label>
+            <h2>
+              <b>{{ group.symbol }}</b>
+            </h2>
+            <div>
+              <img
+                *ngFor="let chainId of group.chainIds"
+                [src]="chainId | toChainImg"
+                style="width: 14px; height: 14px; border-radius: 50%"
+              />
+            </div>
+          </ion-label>
+          <ion-text slot="end">
+            <p>
+              <ion-icon name="download-outline" class="mini margin-right" />
+              <span class="ion-color-gradient-text"
+                ><b>{{ group.topSupplyAPY | number : "1.2-2" }}%</b></span
+              >
+            </p>
+            <p>
+              <ion-icon name="share-outline" class="mini margin-right" />
+              <span class="ion-color-gradient-text"
+                ><b>{{ group.topBorrowAPY | number : "1.2-2" }}%</b></span
+              >
+            </p>
+          </ion-text>
+        </ion-item>
+        <div class="ion-padding" slot="content">
+          <ion-list>
+            <ion-item
+              *ngFor="let pool of group.pools; let i = index"
+              [lines]="group.pools.length === i + 1 ? 'none' : 'full'"
+              (click)="selectedMarketPool$.next(pool)"
+            >
+              <div class="ion-padding-vertical">
+                <img
+                  [src]="group.chainIds[i] | toChainImg"
+                  style="
+                    width: 14px;
+                    height: 14px;
+                    border-radius: 50%;
+                    margin-right: 0.25rem;
+                  "
+                />
+                {{ group.chainIds[i] | toChainName }}
+                <ion-text color="medium">
+                  <p>
+                    <small>
+                      <ion-icon name="wallet-outline" class="mini" /> 0
+                      units
+                    </small>
+                  </p>
+                </ion-text>
+              </div>
+              <ion-text slot="end">
+                <p>
+                  <ion-icon name="download-outline" class="mini margin-right" />
+                  <span class="ion-color-gradient-text"
+                    >{{ pool.supplyAPYpercent | number : "1.2-2" }}%</span
+                  >
+                </p>
+                <p>
+                  <ion-icon name="share-outline" class="mini margin-right" />
+                  <span class="ion-color-gradient-text"
+                    >{{ pool.borrowAPYpercent | number : "1.2-2" }}%</span
+                  >
+                </p>
+              </ion-text>
+            </ion-item>
+          </ion-list>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
+  </app-card>
+</div>
+
+<!-- Pool Detail Page as Modal -->
+<ion-modal
+  [isOpen]="!!selectedMarketPool$.value"
+  class="pool-page height-full width-full"
+  (ionModalDidDismiss)="selectedMarketPool$.next(null)"
+>
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-buttons slot="end">
+          <ion-button (click)="selectedMarketPool$.next(null)">
+            <ion-icon name="close" />
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <app-aavepool-page *ngIf="selectedMarketPool$.value" [pool]="selectedMarketPool$.value" />
+  </ng-template>
+</ion-modal>

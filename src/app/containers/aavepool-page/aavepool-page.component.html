@@ -1,0 +1,161 @@
+<ion-content>
+  <ion-grid *ngIf="marketPool$.value as marketPool">
+    <ion-row class="ion-text-center">
+      <ion-col class="ion-padding-vertical ion-margin-bottom">
+        <ion-avatar>
+          <img [src]="marketPool.imageURL" />
+        </ion-avatar>
+        <ion-text>
+          <h2>
+            {{ marketPool.symbol }}
+          </h2>
+          <p class="ion-no-margin" *ngIf="token$.value?.chainId as chainId">
+            {{ chainId | toChainName }} Network
+          </p>
+        </ion-text>
+      </ion-col>
+    </ion-row>
+
+    <!-- user current positions -->
+    <ion-row *ngIf="userReserveData$.value?.totalBorrowsUSD !== '0' || userReserveData$.value?.underlyingBalance !== '0'">
+      <ion-col>
+        <ion-label color="medium" class="ion-padding-start">
+          <small>Open Positions</small>
+        </ion-label>
+        <app-card>
+          <ion-item *ngIf="userReserveData$.value?.underlyingBalanceUSD !== '0'">
+            <ion-label>
+              Deposit
+            </ion-label>
+            <div class="ion-text-end ion-padding-vertical">
+              <ion-text slot="end" class="ion-color-gradient-text">
+                <b>{{ userReserveData$.value?.underlyingBalanceUSD | currency: 'USD': 'symbol': '1.2-2'}}</b>
+                <br/>
+              </ion-text>
+              <ion-text color="medium">
+                <small>
+                  {{ userReserveData$.value?.underlyingBalance | number: '1.2-6' }} units
+                </small>
+              </ion-text>
+            </div>
+          </ion-item>
+          <ion-item *ngIf="userReserveData$.value?.totalBorrowsUSD  !== '0'">
+            <ion-label>
+              Borrow
+            </ion-label>
+            <div class="ion-text-end ion-padding-vertical">
+              <ion-text slot="end" class="ion-color-gradient-text">
+                <b>{{ userReserveData$.value?.totalBorrowsUSD | currency: 'USD': 'symbol': '1.2-2' }}</b>
+              </ion-text>
+              <br/>
+              <ion-text color="medium">
+                <small>
+                  {{ userReserveData$.value?.totalBorrows | number: '1.2-6' }} units
+                </small>
+              </ion-text>
+            </div>
+          </ion-item>
+          <ion-item lines="none" *ngIf="currentHealFactor$.value as currentHealFactor">
+            <ion-label>
+              Health Factor
+            </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{ currentHealFactor | number : "1.2-2" }}</b>
+            </ion-text>
+          </ion-item>
+        </app-card>
+      </ion-col>
+    </ion-row>
+
+    <!-- pool APYs -->
+    <ion-row>
+      <ion-col>
+        <ion-label color="medium" class="ion-padding-start">
+          <small>Pools APYs</small>
+        </ion-label>
+        <app-card>
+          <ion-item>
+            <ion-label>
+              <h2>
+                Deposit APY
+              </h2>
+              <p>
+                Incentive that you earn
+              </p>
+            </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{ marketPool.supplyAPYpercent | number : "1.2-2" }}%</b>
+            </ion-text>
+          </ion-item>
+          <ion-item lines="none">
+            <ion-label>
+              <h2>Borrow APY</h2>
+              <p>
+                Interest rate that you pay
+              </p>
+            </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{ marketPool.borrowAPYpercent | number : "1.2-2" }}%</b>
+            </ion-text>
+          </ion-item>
+        </app-card>
+      </ion-col>
+    </ion-row>
+
+    <!-- pool details -->
+    <ion-row class="ion-padding-top">
+      <ion-col>
+        <ion-label color="medium" class="ion-padding-start">
+          <small>Pools Details</small>
+        </ion-label>
+        <app-card>
+          <ion-item>
+            <ion-label>
+              Deposit Liquidity
+            </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{ marketPool.totalLiquidityUSD | currency: 'USD' : 'symbol': "1.2-2" }}</b>
+            </ion-text>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              Deposit Capitalisation
+            </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{ marketPool.supplyCapUSD | currency: 'USD' : 'symbol': "1.2-2" }}</b>
+            </ion-text>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              Debit Liquidity
+            </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{ marketPool.totalVariableDebtUSD | currency: 'USD' : 'symbol': "1.2-2" }}</b>
+            </ion-text>
+          </ion-item>
+          <ion-item lines="none">
+            <ion-label>
+              Debit Capitalisation
+            </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{ marketPool.borrowCapUSD | currency: 'USD' : 'symbol': "1.2-2" }}</b>
+            </ion-text>
+          </ion-item>
+        </app-card>
+      </ion-col>
+    </ion-row>
+
+  </ion-grid>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-button
+      expand="block"
+      fill="solid"
+      color="gradient"
+      (click)="isShowOptionsVisible$.next(true)"
+    >
+      Chose option
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

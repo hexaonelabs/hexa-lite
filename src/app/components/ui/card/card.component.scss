@@ -1,4 +1,9 @@
+@import '@ionic/angular/css/core.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '../../../../theme/variables.css';
+
 :host {
+  
   ion-card {
     border-radius: 24px;
     box-shadow: 0 4px 16px rgba(var(--ion-color-primary-rgb), 0.12);
@@ -13,4 +18,30 @@
     border: 1px solid rgba(var(--ion-color-primary-rgb), 0.4);
     box-shadow: 0 4px 16px rgba(0,0,0, 0.12);
   }
+
+  .ion-padding-vertical {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  *[slot=header] {
+    ion-icon {
+      font-size: 1rem;
+      margin-left: 0.25rem;
+    }
+  }
+  ion-icon.mini {
+    font-size: 0.8rem;
+    margin-left: 0rem;
+    margin-right: 0rem;
+    vertical-align: text-top;
+  }
+
+  .mini.margin-left {
+    margin-left: 0.25rem;
+  }
+  .mini.margin-right {
+    margin-right: 0.25rem;
+  }
+
 }

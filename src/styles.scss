@@ -13,6 +13,11 @@ ion-card {
   box-shadow: 0 4px 16px rgba(var(--ion-color-primary-rgb), 0.12);
 }
 
+::slotted(ion-avatar) {
+  width: 52px;
+  height: 52px;
+}
+
 .ion-palette-dark {
   ion-card {
     border: 1px solid rgba(var(--ion-color-primary-rgb), 0.4);

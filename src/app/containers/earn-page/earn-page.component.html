@@ -1,26 +1,33 @@
 <ion-content [fullscreen]="true">
-  <ion-toolbar>
-    <ion-segment [(ngModel)]="segment" color="gradient">
-      <ion-segment-button value="staking">
-        <ion-label>Staking</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="loans">
-        <ion-label>Loans</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="vaults">
-        <ion-label>Vaults</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-  </ion-toolbar>
+  <div style="position: sticky; top: 0; z-index: 1; background-color: var(--ion-background-color);">
+    <ion-toolbar>
+      <ion-segment [(ngModel)]="segment" color="gradient">
+        <ion-segment-button value="staking">
+          <ion-label>Staking</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="loans">
+          <ion-label>Loans</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="vaults">
+          <ion-label>Vaults</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-toolbar>
+    <ion-toolbar *ngIf="segment === 'loans'">
+      <ion-searchbar [(ngModel)]="filterTerm" placeholder="Search" class="ion-margin-top" />
+    </ion-toolbar>
+  </div>
   <ion-grid [fixed]="true">
     <ion-row>
       <ion-col>
         <app-staking-list
           *ngIf="segment === 'staking'"
           (selectedStaking)="selectedStaking.emit($event)"
-        ></app-staking-list>
-        <!-- <app-loans-list *ngIf="segment === 'loans'"></app-loans-list>
-        <app-vaults-list *ngIf="segment === 'vaults'"></app-vaults-list> -->
+        />
+        <div *ngIf="segment === 'loans'">
+          <app-aavev3-list [filterTerm]="filterTerm" (selectedMarketPool)="handleSelect($event)"/>
+        </div>
+        <!-- <app-vaults-list *ngIf="segment === 'vaults'" /> -->
       </ion-col>
     </ion-row>
   </ion-grid>
