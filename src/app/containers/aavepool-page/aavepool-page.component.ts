@@ -13,6 +13,9 @@ import { AAVEV3Service } from "@app/services/aave-v3/aave-v3.service";
 import { LIFIService } from "@app/services/lifi/lifi.service";
 import { WalletconnectService } from "@app/services/walletconnect/walletconnect.service";
 import {
+  ActionSheetButton,
+  ActionSheetController,
+  AlertController,
   IonAvatar,
   IonButton,
   IonCol,
@@ -55,16 +58,14 @@ export class AAVEPoolPageComponent implements OnInit {
     this.marketPool$.next(value);
   }
   public readonly marketPool$ = new BehaviorSubject<MarketPool | null>(null);
-  public readonly token$ = new BehaviorSubject<null | any>(null);
+  public readonly token$ = new BehaviorSubject<null | TokenAmount>(null);
   public readonly userReserveData$ = new BehaviorSubject<
     | null
     | ComputedUserReserve<ReserveDataHumanized & FormatReserveUSDResponse>
     | undefined
   >(null);
+  public userSummary$ = new BehaviorSubject<null | FormatUserSummaryResponse<ReserveDataHumanized & FormatReserveUSDResponse> | undefined>(null);
   public currentHealFactor$ = new BehaviorSubject<null | number>(null);
-  public readonly isShowOptionsVisible$ = new BehaviorSubject<null | any>(
-    false
-  );
 
   constructor(
     private readonly _walletService: WalletconnectService,
@@ -79,7 +80,7 @@ export class AAVEPoolPageComponent implements OnInit {
       this._walletService.walletAddress$
     );
     const chainId = Number(this.marketPool$.value.id.split("-")[0]);
-    const token: Token | TokenAmount = walletAddress
+    const token: TokenAmount = walletAddress
       ? await getToken(chainId, this.marketPool$.value.underlyingAsset).then(
           async (token) =>
             (await getTokenBalance(walletAddress, token)) || token
@@ -101,11 +102,82 @@ export class AAVEPoolPageComponent implements OnInit {
       (reserve) => reserve.reserve.id === this.marketPool$.value?.id
     );
     this.userReserveData$.next(userReserveData);
+    this.userSummary$.next(userSummary);
     console.log("token", {
       token,
       userReserveData,
       userSummary,
       pool: this.marketPool$.value,
     });
+  }
+
+  async choseOption() {
+    const walletAddress = await firstValueFrom(this._walletService.walletAddress$);
+    const hasBorrowPosition = (this.currentHealFactor$.value || -1) > 0;
+    const hasDepositPosition = Number(this.userReserveData$.value?.underlyingBalance || 0) > 0;
+    const hasBalance = Number(this.token$.value?.amount || 0) > 0;
+    const actionSheet = await new ActionSheetController().create({
+      header: 'Options',
+      buttons: [
+        {
+          text: 'Deposit',
+          role: 'supply',
+          disabled: !hasBalance,
+        },
+        {
+          text: 'Borrow',
+          role: 'borrow',
+        },
+        hasDepositPosition ? {
+          text: 'Withdraw',
+          role: 'withdraw',
+        } : null,
+        hasBorrowPosition ? {
+          text: 'Repay',
+          role: 'repay',
+        } : null,
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+      ].filter(Boolean) as ActionSheetButton[],
+    });
+    await actionSheet.present();
+    const { role } = await actionSheet.onDidDismiss();
+    const token = this.token$.value!;
+    const aToken: TokenAmount = await getToken(this.token$.value?.chainId!, this.marketPool$?.value?.aTokenAddress!).then(
+      async (token) => (await getTokenBalance(walletAddress!, token)) || token
+    );
+    console.log('role', {role, token, aToken}); 
+    switch (true) {
+      case role === 'borrow': {
+        const canBorrow = Number(this.userSummary$.value?.availableBorrowsUSD || 0) > 0;
+        if (!canBorrow) {
+          const ionAlert = await new AlertController().create({
+            header: 'Error',
+            message: `You have to deposit collateral on ${new ToChainNamePipe().transform(this.token$.value?.chainId || 0)} network to enable borrow.`,
+            buttons: ['OK'],
+          });
+          await ionAlert.present();
+          break;
+        }
+        break;
+      } 
+      case role === 'supply': {
+        const canDeposit = Number(this.token$.value?.amount || 0) > 0;
+        if (!canDeposit) {
+          const ionAlert = await new AlertController().create({
+            header: 'Error',
+            message: `You have to get ${token.symbol} to enable deposit.`,
+            buttons: ['OK'],
+          });
+          await ionAlert.present();
+          break;
+        }
+        break;
+      }       
+      default:
+        break;
+    }
   }
 }

@@ -55,12 +55,12 @@
               </ion-text>
             </div>
           </ion-item>
-          <ion-item lines="none" *ngIf="currentHealFactor$.value as currentHealFactor">
+          <ion-item lines="none" *ngIf="(currentHealFactor$.value || -1) >= 0">
             <ion-label>
               Health Factor
             </ion-label>
             <ion-text slot="end" class="ion-color-gradient-text">
-              <b>{{ currentHealFactor | number : "1.2-2" }}</b>
+              <b>{{ currentHealFactor$.value | number : "1.2-2" }}</b>
             </ion-text>
           </ion-item>
         </app-card>
@@ -153,9 +153,9 @@
       expand="block"
       fill="solid"
       color="gradient"
-      (click)="isShowOptionsVisible$.next(true)"
+      (click)="choseOption()"
     >
-      Chose option
+      Select option
     </ion-button>
   </ion-toolbar>
 </ion-footer>
