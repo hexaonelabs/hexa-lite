@@ -1,5 +1,5 @@
 <div *ngIf="stakingList">
-  <app-card *ngFor="let token of stakingList; let i = index" (click)="selectedStaking.emit(token)">
+  <app-card *ngFor="let token of stakingList; let i = index" (click)="selectStaking(token)">
     <ion-item lines="none">
       <ion-avatar slot="start">
         <img [src]="token.imageURL" />

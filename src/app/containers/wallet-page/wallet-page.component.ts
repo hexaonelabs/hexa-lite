@@ -26,7 +26,7 @@ import {
   IonToggle,
   IonToolbar,
 } from "@ionic/angular/standalone";
-import { TokenAmount } from "@lifi/sdk";
+import { Token, TokenAmount } from "@lifi/sdk";
 import { BehaviorSubject, firstValueFrom, Observable } from "rxjs";
 import { addIcons } from "ionicons";
 import {
@@ -112,7 +112,7 @@ export class WalletPageComponent implements OnInit {
   public isEarnPageVisible$ = new BehaviorSubject<boolean>(false);
   public isSearchPageVisible$ = new BehaviorSubject<boolean>(false);
   public isSettingsPageVisible$ = new BehaviorSubject<boolean>(false);
-  public selectedStakingToken$ = new BehaviorSubject<StakingToken | null>(null);
+  public selectedStakingToken$ = new BehaviorSubject<StakingToken & {from: TokenAmount[]; to: Token[]} | null>(null);
 
   constructor(
     private readonly _walletService: WalletconnectService,

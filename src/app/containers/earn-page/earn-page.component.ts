@@ -6,6 +6,7 @@ import { AAVEV3ListComponent } from '@app/components/widgets/aavev3-list/aavev3-
 import { StakingListComponent } from '@app/components/widgets/staking-list/staking-list.component';
 import { StakingToken } from '@app/models/staking-token.interface';
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCol, IonContent, IonGrid, IonItem, IonLabel, IonList, IonRow, IonSearchbar, IonSegment, IonSegmentButton, IonText, IonToolbar } from '@ionic/angular/standalone';
+import { Token, TokenAmount } from '@lifi/sdk';
 
 const UIElements = [
   IonGrid,
@@ -36,7 +37,7 @@ export class EarnPageComponent  implements OnInit {
 
   public segment: 'staking' | 'loans' | 'vaults' = 'loans';
   public filterTerm = '';
-  @Output() public selectedStaking: EventEmitter<StakingToken> = new EventEmitter();
+  @Output() public selectedStaking: EventEmitter<StakingToken & {from: TokenAmount[]; to: Token[]}> = new EventEmitter();
 
   constructor() { }
 
