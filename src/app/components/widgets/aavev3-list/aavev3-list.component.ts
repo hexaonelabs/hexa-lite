@@ -82,7 +82,7 @@ export class AAVEV3ListComponent implements OnInit {
     undefined
   );
   public readonly marketPools$: Observable<MarketPool[] | null>;
-  public readonly marketPoolsGroups$: Observable<MarketPoolGroup[]>; 
+  public readonly marketPoolsGroups$: Observable<MarketPoolGroup[]>;
   public readonly selectedMarketPool$ = new BehaviorSubject<null | MarketPool>(
     null
   );
@@ -98,7 +98,10 @@ export class AAVEV3ListComponent implements OnInit {
       close,
     });
     this.marketPools$ = this._aaveV3Servcie.marketPools$;
-    this.marketPoolsGroups$ = combineLatest([this.marketPools$, this._filterTerm$.asObservable()]).pipe(
+    this.marketPoolsGroups$ = combineLatest([
+      this.marketPools$,
+      this._filterTerm$.asObservable(),
+    ]).pipe(
       switchMap(async ([marketPools, filterTerm]) => {
         if (!marketPools) {
           return [];
