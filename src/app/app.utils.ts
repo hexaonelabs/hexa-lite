@@ -31,20 +31,44 @@ export const toggleDarkPalette = (shouldAdd: boolean) => {
 }
 
 export const getBaseAPRstETH = async (signal?: AbortSignal) => {
+  // check localstorage for cached value
+  const cachedValue = localStorage.getItem('baseAPRstETH');
+  // if cached value is present and not expired (24h), return it else call the API
+  if (cachedValue) {
+    const { timestamp, apr } = JSON.parse(cachedValue);
+    if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+      return { apr };
+    }
+  }
   const response = await fetch(
     "https://eth-api.lido.fi/v1/protocol/steth/apr/sma",
     { signal }
   );
   const { data } = await response.json();
   const { smaApr: apr } = data as { smaApr: number };
+  // cache the value with timestamp
+  localStorage.setItem('baseAPRstETH', JSON.stringify({ timestamp: Date.now(), apr }));
+  // return response
   return { apr };
 };
 
 export const getBaseAPRstMATIC = async (signal?: AbortSignal) => {
+  // check localstorage for cached value
+  const cachedValue = localStorage.getItem('baseAPRstMATIC');
+  // if cached value is present and not expired (24h), return it else call the API
+  if (cachedValue) {
+    const { timestamp, apr } = JSON.parse(cachedValue);
+    if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+      return { apr };
+    }
+  }
   const response = await fetch(
     "https://pol-api-pub.lido.fi/stats",
     { signal }
   );
   const { apr } = await response.json();
+  // cache the value with timestamp
+  localStorage.setItem('baseAPRstMATIC', JSON.stringify({ timestamp: Date.now(), apr }));
+  // return response
   return { apr };
 };
