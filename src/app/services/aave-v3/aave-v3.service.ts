@@ -16,7 +16,8 @@ import {
   formatUserSummary,
   FormatUserSummaryResponse,
 } from "@aave/math-utils";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, filter, map, mergeMap, Observable } from "rxjs";
+import { MarketPool } from "@app/models/market-pool.interface";
 
 @Injectable({
   providedIn: "root",
@@ -26,6 +27,36 @@ export class AAVEV3Service {
     number,
     (FormatUserSummaryResponse<ReserveDataHumanized & FormatReserveUSDResponse>)
   >>(null);
+  public readonly marketPools$: Observable<null | MarketPool[]> = this._userSummaries$.asObservable().pipe(
+    map((userSummaries) => {
+      if (!userSummaries) {
+        return [] as any[];
+      }
+      const userReservesData = [...userSummaries.values()].flatMap(
+        (userSummary) => {
+          return userSummary.userReservesData;
+        }
+      );
+      return userReservesData.flatMap((userReserve) => userReserve.reserve);
+    }),
+    map((userReservesData) => {
+      return userReservesData.filter((reserve) => {
+        return (
+          reserve.isActive === true &&
+          reserve.isFrozen === false &&
+          reserve.isPaused === false
+        );
+      })
+      .map((reserve) => {
+        return {
+          ...reserve,
+          supplyAPYpercent: Number(reserve.supplyAPY) * 100,
+          borrowAPYpercent: Number(reserve.variableBorrowAPY) * 100,
+        };
+      });
+    }),
+  );
+
   constructor() {}
 
   async init(account: string, force?: boolean) {

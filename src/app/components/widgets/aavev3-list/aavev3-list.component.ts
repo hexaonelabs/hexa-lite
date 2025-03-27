@@ -1,6 +1,5 @@
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { AVAILABLE_CHAINS } from "@app/app.utils";
 import { CardComponent } from "@app/components/ui/card/card.component";
 import { ToChainImgPipe } from "@app/pipes/to-chain-img/to-chain-img.pipe";
 import { ToChainNamePipe } from "@app/pipes/to-chain-name/to-chain-name.pipe";
@@ -60,7 +59,6 @@ const UIElements = [
   IonButtons,
   IonButton,
 ];
-
 @Component({
   selector: "app-aavev3-list",
   templateUrl: "./aavev3-list.component.html",
@@ -83,12 +81,24 @@ export class AAVEV3ListComponent implements OnInit {
   private readonly _filterTerm$ = new BehaviorSubject<string | undefined>(
     undefined
   );
-  private readonly _marketPools$ = new BehaviorSubject<null | MarketPool[]>(
+  public readonly marketPools$: Observable<MarketPool[] | null>;
+  public readonly marketPoolsGroups$: Observable<MarketPoolGroup[]>; 
+  public readonly selectedMarketPool$ = new BehaviorSubject<null | MarketPool>(
     null
   );
-  public readonly marketPools$ = this._marketPools$.asObservable();
-  public readonly marketPoolsGroups$: Observable<MarketPoolGroup[]> =
-    combineLatest([this.marketPools$, this._filterTerm$.asObservable()]).pipe(
+
+  constructor(
+    private readonly _aaveV3Servcie: AAVEV3Service,
+    private readonly _walletServcie: WalletconnectService
+  ) {
+    addIcons({
+      downloadOutline,
+      shareOutline,
+      walletOutline,
+      close,
+    });
+    this.marketPools$ = this._aaveV3Servcie.marketPools$;
+    this.marketPoolsGroups$ = combineLatest([this.marketPools$, this._filterTerm$.asObservable()]).pipe(
       switchMap(async ([marketPools, filterTerm]) => {
         if (!marketPools) {
           return [];
@@ -154,20 +164,6 @@ export class AAVEV3ListComponent implements OnInit {
         });
       })
     );
-  public readonly selectedMarketPool$ = new BehaviorSubject<null | MarketPool>(
-    null
-  );
-
-  constructor(
-    private readonly _aaveV3Servcie: AAVEV3Service,
-    private readonly _walletServcie: WalletconnectService
-  ) {
-    addIcons({
-      downloadOutline,
-      shareOutline,
-      walletOutline,
-      close,
-    });
   }
 
   async ngOnInit() {
@@ -181,32 +177,6 @@ export class AAVEV3ListComponent implements OnInit {
     });
     await ionLoading.present();
     await this._aaveV3Servcie.init(currentAccount);
-    const userSummaries = await firstValueFrom(this._aaveV3Servcie.getUserSummaries$());
-    if (!userSummaries) {
-      throw new Error("No user summaries found");
-    }
-    const userReservesData = [...userSummaries.values()].flatMap(userSummary => {
-      return userSummary.userReservesData;
-    });
-    const marketPools: MarketPool[] = userReservesData
-      .flatMap((userReserve) => {
-        return userReserve.reserve;
-      })
-      .filter((reserve) => {
-        return (
-          reserve.isActive === true &&
-          reserve.isFrozen === false &&
-          reserve.isPaused === false
-        );
-      })
-      .map((reserve) => {
-        return {
-          ...reserve,
-          supplyAPYpercent: Number(reserve.supplyAPY) * 100,
-          borrowAPYpercent: Number(reserve.variableBorrowAPY) * 100,
-        };
-      });
-    this._marketPools$.next(marketPools);
     await ionLoading.dismiss();
   }
 }
