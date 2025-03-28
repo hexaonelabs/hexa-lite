@@ -167,6 +167,7 @@ export class AAVEPoolPageComponent implements OnInit {
             buttons: ['OK'],
           });
           await ionAlert.present();
+          return;
         }
         break;
       } 
@@ -179,7 +180,7 @@ export class AAVEPoolPageComponent implements OnInit {
             buttons: ['OK'],
           });
           await ionAlert.present();
-          break;
+          return;
         }
         break;
       }       
