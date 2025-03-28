@@ -10,6 +10,7 @@
         trackBy: trackByFn
       "
       [group]="group"
+      [walletTokens]="walletTokens$|async"
       (selectedMarketPool)="selectedMarketPool$.next($event)"
     />
   </div>

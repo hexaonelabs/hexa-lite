@@ -14,12 +14,10 @@ import {
   IonText,
 } from "@ionic/angular/standalone";
 import { addIcons } from "ionicons";
-import {
-  downloadOutline,
-  shareOutline,
-  walletOutline,
-} from "ionicons/icons";
+import { downloadOutline, shareOutline, walletOutline } from "ionicons/icons";
 import { CardComponent } from "../card/card.component";
+import { TokenAmount } from "@lifi/sdk";
+import { ToTokenAmountPipe } from "@app/pipes/to-token-amount/to-token-amount.pipe";
 
 const UIElements = [
   IonList,
@@ -36,12 +34,20 @@ const UIElements = [
   selector: "app-market-pool-group-item",
   templateUrl: "./market-pool-group-item.component.html",
   styleUrls: ["./market-pool-group-item.component.scss"],
-  imports: [...UIElements, CommonModule, ToChainImgPipe, ToChainNamePipe, CardComponent],
+  imports: [
+    ...UIElements,
+    CommonModule,
+    ToChainImgPipe,
+    ToChainNamePipe,
+    CardComponent,
+    ToTokenAmountPipe,
+  ],
 })
 export class MarketPoolGroupItemComponent implements OnInit {
-
   @Input() public group!: MarketPoolGroup;
-  @Output() public readonly selectedMarketPool: EventEmitter<MarketPool> = new EventEmitter();
+  @Input() public walletTokens?: TokenAmount[] | null;
+  @Output() public readonly selectedMarketPool: EventEmitter<MarketPool> =
+    new EventEmitter();
 
   constructor() {
     addIcons({

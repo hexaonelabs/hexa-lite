@@ -78,6 +78,7 @@ export class AAVEV3ListComponent implements OnInit {
   private readonly _filterTerm$ = new BehaviorSubject<string | undefined>(
     undefined
   );
+  public readonly walletTokens$;
   public readonly marketPools$: Observable<MarketPool[] | null>;
   public readonly marketPoolsGroups$: Observable<MarketPoolGroup[]>;
   public readonly marketPoolsGroupsWithPositions$: Observable<MarketPoolGroup[] | null>;
@@ -97,6 +98,7 @@ export class AAVEV3ListComponent implements OnInit {
       walletOutline,
       close,
     });
+    this.walletTokens$ = this._lifiService.walletTokens$;
     this.marketPools$ = this._aaveV3Servcie.marketPools$;
     this.marketPoolsGroups$ = combineLatest([
       this.marketPools$,

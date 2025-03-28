@@ -109,6 +109,19 @@ export class LIFIService {
           priceUSD: "14.1182904980535",
           symbol: "aPolLINK",
         },
+        {
+          address: "0x53E0bca35eC356BD5ddDFebbD1Fc0fD03FaBad39",
+          amount: 14418513471878085n,
+          blockNumber: 69620692n,
+          chainId: 137,
+          coinKey: "LINK",
+          decimals: 18,
+          logoURI:
+            "https://static.debank.com/image/matic_token/logo_url/0x53e0bca35ec356bd5dddfebbd1fc0fd03fabad39/69425617db0ef93a7c21c4f9b81c7ca5.png",
+          name: "ChainLink Token",
+          priceUSD: "14.283839511834369",
+          symbol: "LINK",
+        },
       ];
       this._walletTokens.next(mockTokenList);
     }
