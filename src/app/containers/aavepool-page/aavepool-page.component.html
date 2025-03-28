@@ -41,8 +41,8 @@
     <!-- user current positions -->
     <ion-row
       *ngIf="
-        (userReserveData$.value?.totalBorrowsUSD || '0') !== '0' ||
-        (userReserveData$.value?.underlyingBalance || '0') !== '0'
+        ((userReserveData$ | async)?.totalBorrowsUSD || '0') !== '0' ||
+        ((userReserveData$ | async)?.underlyingBalance || '0') !== '0'
       "
     >
       <ion-col>
@@ -51,14 +51,14 @@
         </ion-label>
         <app-card>
           <ion-item
-            *ngIf="userReserveData$.value?.underlyingBalanceUSD !== '0'"
-            [lines]="userReserveData$.value?.totalBorrowsUSD !== '0' ? 'full' : 'none'"
+            *ngIf="(userReserveData$ | async)?.underlyingBalanceUSD !== '0'"
+            [lines]="(userReserveData$ | async)?.totalBorrowsUSD !== '0' ? 'full' : 'none'"
           >
             <ion-label> Deposit </ion-label>
             <div class="ion-text-end ion-padding-vertical">
               <ion-text slot="end" class="ion-color-gradient-text">
                 <b>{{
-                  userReserveData$.value?.underlyingBalanceUSD
+                  (userReserveData$ | async)?.underlyingBalanceUSD
                     | currency : "USD" : "symbol" : "1.2-2"
                 }}</b>
                 <br />
@@ -66,19 +66,19 @@
               <ion-text color="medium">
                 <small>
                   {{
-                    userReserveData$.value?.underlyingBalance | number : "1.2-6"
+                    (userReserveData$ | async)?.underlyingBalance | number : "1.2-6"
                   }}
                   units
                 </small>
               </ion-text>
             </div>
           </ion-item>
-          <ion-item *ngIf="userReserveData$.value?.totalBorrowsUSD !== '0'">
+          <ion-item *ngIf="(userReserveData$ | async)?.totalBorrowsUSD !== '0'">
             <ion-label> Borrow </ion-label>
             <div class="ion-text-end ion-padding-vertical">
               <ion-text slot="end" class="ion-color-gradient-text">
                 <b>{{
-                  userReserveData$.value?.totalBorrowsUSD
+                  (userReserveData$ | async)?.totalBorrowsUSD
                     | currency : "USD" : "symbol" : "1.2-2"
                 }}</b>
               </ion-text>
@@ -86,7 +86,7 @@
               <ion-text color="medium">
                 <small>
                   {{
-                    userReserveData$.value?.totalBorrows | number : "1.2-6"
+                    (userReserveData$ | async)?.totalBorrows | number : "1.2-6"
                   }}
                   units
                 </small>

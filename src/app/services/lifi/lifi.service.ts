@@ -213,65 +213,100 @@ export class LIFIService {
       transport: http(),
     });
     const receipts: `0x${string}`[] = [];
-    route.steps.forEach((step, index) => {
-      step.execution?.process.forEach(async (process) => {
-        if (process.txHash) {
-          console.log(
-            `Transaction Hash for Step ${index + 1}, Process ${process.type}:`,
-            process.txHash
+    for (const [index, step] of route.steps.entries()) {
+      if (step.execution?.process) {
+        for (const process of step.execution.process) {
+          const receipt = await this._processTransaction(
+            publicClient,
+            process,
+            index
           );
-          const receipt = await publicClient.waitForTransactionReceipt({
-            hash: process.txHash as `0x${string}`,
-          });
-          receipts.push(receipt.transactionHash);
+          if (receipt) receipts.push(receipt);
         }
-      });
-    });
+      }
+    }
     return receipts;
   }
 
+  private async _processTransaction(
+    publicClient: ReturnType<typeof createPublicClient>,
+    process: any,
+    index: number
+  ): Promise<`0x${string}` | undefined> {
+    if (!process.txHash) return;
+    console.log(
+      `Transaction Hash for Step ${index + 1}, Process ${process.type}:`,
+      process.txHash
+    );
+    try {
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: process.txHash as `0x${string}`,
+      });
+      return receipt.transactionHash;
+    } catch (error) {
+      console.error(
+        `Error while waiting for transaction receipt for Step ${
+          index + 1
+        }, Process ${process.type}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
   private async _populateTokensBalanceList() {
+    const walletAddress = await this._getWalletAddress();
+    const ionLoading = await this._showLoadingIndicator(
+      "Loading wallet tokens balance..."
+    );
+    try {
+      const tokenWithAmount = await this._fetchTokenBalances(walletAddress);
+      this._walletTokens.next(tokenWithAmount);
+    } catch (error) {
+      throw error;
+    } finally {
+      await ionLoading.dismiss();
+    }
+  }
+
+  private async _getWalletAddress(): Promise<string> {
     const walletAddress = await firstValueFrom(
       this._walletService.walletAddress$
     );
     if (!walletAddress) {
       throw new Error("No wallet address available");
     }
-    const ionLoading = await new LoadingController().create({
-      message: `Loading wallet tokens balance...`,
-    });
+    return walletAddress;
+  }
+
+  private async _showLoadingIndicator(message: string) {
+    const ionLoading = await new LoadingController().create({ message });
     await ionLoading.present();
-    // get available account tokens from chain
-    try {
-      const tokensResponse = await getTokens({
-        minPriceUSD: 0.05,
-      });
-      console.log({ tokensResponse });
-      const tokenWithAmount: TokenAmount[] = [];
-      // filter tokensResponse.tokens with AVAILABLE_CHAINS
-      const tokens = Object.keys(tokensResponse.tokens).filter((chainId) =>
-        AVAILABLE_CHAINS.find((c) => c.id === Number(chainId))
-      );
-      const chainTokens = tokens.reduce((acc, chainId) => {
-        acc[Number(chainId)] = tokensResponse.tokens[Number(chainId)];
-        return acc;
-      }, {} as { [chainId: number]: Token[] });
-      const balances = await getTokenBalancesByChain(
-        walletAddress,
-        chainTokens
-      );
-      // add all token with amount > 0
-      const withAmount = Object.values(balances)
-        .flat()
-        .filter((t) => Number(t.amount) > 0);
-      console.log(balances);
-      tokenWithAmount.push(...withAmount);
-      console.log({ tokenWithAmount });
-      this._walletTokens.next(tokenWithAmount);
-    } catch (error) {
-      console.error(error);
-    }
-    // dismiss loader
-    await ionLoading.dismiss();
+    return ionLoading;
+  }
+
+  private async _fetchTokenBalances(
+    walletAddress: string
+  ): Promise<TokenAmount[]> {
+    const tokensResponse = await getTokens({ minPriceUSD: 0.05 });
+    const chainTokens = this._filterTokensByAvailableChains(
+      tokensResponse.tokens
+    );
+    const balances = await getTokenBalancesByChain(walletAddress, chainTokens);
+    return Object.values(balances)
+      .flat()
+      .filter((t) => Number(t.amount) > 0);
+  }
+
+  private _filterTokensByAvailableChains(tokensToFilter: {
+    [chainId: number]: Token[];
+  }): { [chainId: number]: Token[] } {
+    const tokens = Object.keys(tokensToFilter).filter((chainId) =>
+      AVAILABLE_CHAINS.find((c) => c.id === Number(chainId))
+    );
+    return tokens.reduce((acc, chainId) => {
+      acc[Number(chainId)] = tokensToFilter[Number(chainId)];
+      return acc;
+    }, {} as { [chainId: number]: Token[] });
   }
 }
