@@ -111,6 +111,7 @@ export class WalletPageComponent implements OnInit {
   public isSearchPageVisible$ = new BehaviorSubject<boolean>(false);
   public isSettingsPageVisible$ = new BehaviorSubject<boolean>(false);
   public selectedStakingToken$ = new BehaviorSubject<StakingToken & {from: TokenAmount[]; to: Token[]} | null>(null);
+  public selectedMarketPool$ = new BehaviorSubject<{from: TokenAmount; to: Token; action: string;} | null>(null);
 
   constructor(
     private readonly _walletService: WalletconnectService,

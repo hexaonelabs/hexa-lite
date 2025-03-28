@@ -31,13 +31,10 @@ export class EarnPageComponent  implements OnInit {
   public segment: 'staking' | 'loans' | 'vaults' = 'loans';
   public filterTerm = '';
   @Output() public selectedStaking: EventEmitter<StakingToken & {from: TokenAmount[]; to: Token[]}> = new EventEmitter();
+  @Output() public selectedMarketPool: EventEmitter<{from: TokenAmount; to: Token; action: string;}> = new EventEmitter();
 
   constructor() { }
 
   ngOnInit() {}
-
-  handleSelect($event: any) {
-    console.log($event);
-  }
 
 }

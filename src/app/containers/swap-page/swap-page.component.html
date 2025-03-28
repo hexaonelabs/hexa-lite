@@ -98,7 +98,7 @@
           <ion-card-content>
             <ion-item
               *ngIf="fromToken"
-              (click)="fromToken = undefined; isSearchOpen = true"
+              (click)="preventChangeToken === true ? null : fromToken = undefined; preventChangeToken === true ? null :isSearchOpen = true"
               class="selected"
               lines="none"
             >
@@ -161,7 +161,7 @@
           <ion-card-content>
             <ion-item
               *ngIf="toToken"
-              (click)="toToken = undefined; isSearchOpen = true"
+              (click)="preventChangeToken === true ? null : toToken = undefined; preventChangeToken === true ? null : isSearchOpen = true"
               class="selected"
               lines="none"
             >

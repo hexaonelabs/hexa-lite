@@ -1,25 +1,27 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-buttons slot="end" >
+    <ion-buttons slot="end">
       <ion-button (click)="isSettingsPageVisible$.next(true)">
-        <ion-icon size="small" slot="icon-only" color="primary" name="settings-outline" />
+        <ion-icon
+          size="small"
+          slot="icon-only"
+          color="primary"
+          name="settings-outline"
+        />
       </ion-button>
     </ion-buttons>
-
   </ion-toolbar>
 </ion-header>
 <ion-content class="ion-padding-top">
   <ion-grid [fixed]="true" class="ion-padding-top">
     <ion-row>
       <ion-col class="heros ion-text-center">
-          <ion-text>
-            <h1>Wallet</h1>
-            <p>
-              {{
-                walletBalance$ | async  | currency : "USD" : "symbol" : "1.2-2"
-              }}
-            </p>
-          </ion-text>
+        <ion-text>
+          <h1>Wallet</h1>
+          <p>
+            {{ walletBalance$ | async | currency : "USD" : "symbol" : "1.2-2" }}
+          </p>
+        </ion-text>
       </ion-col>
     </ion-row>
 
@@ -136,22 +138,33 @@
 <ion-modal
   [isOpen]="isSwapPageVisible$.value"
   class="height-full width-full"
-  (ionModalDidDismiss)="isSwapPageVisible$.next(false); selectedStakingToken$.next(null)"
+  (ionModalDidDismiss)="
+    isSwapPageVisible$.next(false); selectedStakingToken$.next(null)
+  "
 >
   <ng-template>
     <ion-header class="ion-no-border">
       <ion-toolbar>
-        <ion-title>{{selectedStakingToken$.value ? 'Staking' : 'Swap'}}</ion-title>
+        <ion-title>{{
+          selectedStakingToken$.value ? "Staking" : "Swap"
+        }}</ion-title>
         <ion-buttons slot="end">
-          <ion-button (click)="isSwapPageVisible$.next(false)">
+          <ion-button
+            (click)="
+              isSwapPageVisible$.next(false); selectedStakingToken$.next(null)
+            "
+          >
             <ion-icon name="close" />
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <app-swap-page 
-      [fromTokensList]="selectedStakingToken$.value?.from" 
-      [toTokensList]="selectedStakingToken$.value?.to" />
+    <app-swap-page
+      [fromToken]="selectedStakingToken$.value?.from?.[0]"
+      [toToken]="selectedStakingToken$.value?.to?.[0]"
+      [fromTokensList]="selectedStakingToken$.value?.from"
+      [toTokensList]="selectedStakingToken$.value?.to"
+    />
   </ng-template>
 </ion-modal>
 

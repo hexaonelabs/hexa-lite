@@ -25,7 +25,9 @@
           (selectedStaking)="selectedStaking.emit($any($event))"
         />
         <div *ngIf="segment === 'loans'">
-          <app-aavev3-list [filterTerm]="filterTerm" (selectedMarketPool)="handleSelect($event)"/>
+          <app-aavev3-list 
+            [filterTerm]="filterTerm" 
+            (selectedMarketPool)="selectedMarketPool.emit($event)"/>
         </div>
         <!-- <app-vaults-list *ngIf="segment === 'vaults'" /> -->
       </ion-col>

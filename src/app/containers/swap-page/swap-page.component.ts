@@ -87,6 +87,7 @@ export class SwapPageComponent implements OnInit {
   @Input() public toTokensList?: Token[];
   @Input() public toToken?: Token;
 
+  @Input() public preventChangeToken: boolean = false;
   public allAvailableTokens: Token[] = [];
   
   public readonly walletTokens$: Observable<TokenAmount[]>;
@@ -121,6 +122,9 @@ export class SwapPageComponent implements OnInit {
   }
 
   async search($event: any) {
+    if (this.preventChangeToken) {
+      return;
+    }
     const value = $event?.detail?.value;
     if (!value) {
       this.searchTerm$.next(null);

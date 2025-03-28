@@ -98,6 +98,9 @@
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <app-aavepool-page *ngIf="selectedMarketPool$.value" [pool]="selectedMarketPool$.value" />
+    <app-aavepool-page 
+      *ngIf="selectedMarketPool$.value" 
+      [pool]="selectedMarketPool$.value" 
+      (handlePoolAction)="selectedMarketPool.emit($event)" />
   </ng-template>
 </ion-modal>

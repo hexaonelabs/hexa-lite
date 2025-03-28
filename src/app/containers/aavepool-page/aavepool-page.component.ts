@@ -5,7 +5,7 @@ import {
   FormatUserSummaryResponse,
 } from "@aave/math-utils";
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { CardComponent } from "@app/components/ui/card/card.component";
 import { MarketPool } from "@app/models/market-pool.interface";
 import { ToChainNamePipe } from "@app/pipes/to-chain-name/to-chain-name.pipe";
@@ -56,6 +56,7 @@ export class AAVEPoolPageComponent implements OnInit {
   @Input() set pool(value: MarketPool) {
     this.marketPool$.next(value);
   }
+  @Output() public readonly handlePoolAction: EventEmitter<{from: TokenAmount, to: Token; action: string;}> = new EventEmitter();
   public readonly marketPool$ = new BehaviorSubject<MarketPool | null>(null);
   public readonly token$ = new BehaviorSubject<null | TokenAmount>(null);
   public readonly userReserveData$ = new BehaviorSubject<
@@ -143,6 +144,12 @@ export class AAVEPoolPageComponent implements OnInit {
     });
     await actionSheet.present();
     const { role } = await actionSheet.onDidDismiss();
+    if (!role) {
+      throw new Error('No role selected');
+    }
+    if (role === 'cancel' || role === 'backdrop') {
+      return;
+    }
     const token = this.token$.value!;
     const aToken: TokenAmount = await getToken(this.token$.value?.chainId!, this.marketPool$?.value?.aTokenAddress!).then(
       async (token) => (await getTokenBalance(walletAddress!, token)) || token
@@ -176,7 +183,12 @@ export class AAVEPoolPageComponent implements OnInit {
         break;
       }       
       default:
-        break;
+        throw new Error('No action selected');
     }
+    this.handlePoolAction.emit({
+      from: token, 
+      to: aToken,
+      action: role ,
+    });
   }
 }
