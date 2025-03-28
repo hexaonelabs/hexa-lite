@@ -39,7 +39,6 @@ const UIElements = [
   IonCol,
   IonAvatar,
   IonText,
-  IonList,
   IonItem,
   IonButton,
   IonLabel,

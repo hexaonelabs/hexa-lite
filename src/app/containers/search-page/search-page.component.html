@@ -5,7 +5,7 @@
         <ion-searchbar
           placeholder="Search Token"
           [debounce]="500"
-          (ionInput)="searchTerm$.next($event?.detail?.value || '')"
+          (ionInput)="searchTerm$.next($event.detail.value || '')"
         />
       </ion-col>
     </ion-row>

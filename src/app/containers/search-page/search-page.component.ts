@@ -61,8 +61,6 @@ const UIElements = [
     ...UIElements,
     CommonModule,
     CardComponent,
-    RouterLink,
-    IonRouterLink,
     TokenDetailPageComponent,
   ],
 })

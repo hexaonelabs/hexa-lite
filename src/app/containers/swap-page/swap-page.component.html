@@ -122,9 +122,9 @@
                 mode="md"
                 label="Amount (max
                 {{
-                  fromToken?.amount
+                  fromToken.amount
                     | bigintToNumber
-                    | toDecimal : fromToken?.decimals || 0
+                    | toDecimal : fromToken.decimals || 0
                     | number : '1.2-6'
                 }})"
                 label-placement="stacked"
@@ -134,9 +134,9 @@
                 type="number"
                 min="0"
                 [max]="
-                  fromToken?.amount
+                  fromToken.amount
                     | bigintToNumber
-                    | toDecimal : fromToken?.decimals || 0
+                    | toDecimal : fromToken.decimals || 0
                     | number : '1.2-6'
                 "
                 required

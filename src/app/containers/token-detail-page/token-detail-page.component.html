@@ -71,31 +71,31 @@
               <ion-label>
                 Market Cap
               </ion-label>
-              <ion-text slot="end">{{ token?.market_cap | currency: 'USD': 'symbol': '1.2-2' }}</ion-text>
+              <ion-text slot="end">{{ token.market_cap | currency: 'USD': 'symbol': '1.2-2' }}</ion-text>
             </ion-item>
             <ion-item>
               <ion-label>
                 Fully Diluted Valuation
               </ion-label>
-              <ion-text slot="end">{{ token?.fully_diluted_valuation }}</ion-text>
+              <ion-text slot="end">{{ token.fully_diluted_valuation }}</ion-text>
             </ion-item>
             <ion-item>
               <ion-label>
                 24h Volume
               </ion-label>
-              <ion-text slot="end">{{ token?.total_volume  }}</ion-text>
+              <ion-text slot="end">{{ token.total_volume  }}</ion-text>
             </ion-item>
             <ion-item>
               <ion-label>
                 All Time High
               </ion-label>
-              <ion-text slot="end">{{ token?.ath | currency: 'USD': 'symbol': '1.2-6'  }}</ion-text>
+              <ion-text slot="end">{{ token.ath | currency: 'USD': 'symbol': '1.2-6'  }}</ion-text>
             </ion-item>
             <ion-item>
               <ion-label>
                 All Time Low
               </ion-label>
-              <ion-text slot="end">{{ token?.atl | currency: 'USD': 'symbol': '1.2-6'  }}</ion-text>
+              <ion-text slot="end">{{ token.atl | currency: 'USD': 'symbol': '1.2-6'  }}</ion-text>
             </ion-item>
           </ion-list>
         </app-card>

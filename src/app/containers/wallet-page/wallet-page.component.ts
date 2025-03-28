@@ -70,7 +70,6 @@ const UIElements = [
   IonTitle,
   IonButtons,
   IonIcon,
-  IonToggle,
 ];
 
 const CONTAINERS = [
@@ -83,7 +82,6 @@ const CONTAINERS = [
 const UIComponents = [
   WalletTokenItemComponent,
   SearchFooterComponent,
-  CardComponent,
 ];
 
 const PIPES = [ToCoingeckoIdPipe];

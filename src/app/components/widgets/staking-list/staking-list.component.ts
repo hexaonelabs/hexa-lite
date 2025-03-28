@@ -18,7 +18,6 @@ import { firstValueFrom } from "rxjs";
 import { arbitrum, base, optimism, polygon } from "viem/chains";
 
 const UIElements = [
-  IonList,
   IonItem,
   IonLabel,
   IonText,

@@ -6,7 +6,6 @@ const UIElements = [
   IonCard,
   IonCardHeader,
   IonCardTitle,
-  IonCardSubtitle,
   IonCardContent,
 ];
 

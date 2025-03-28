@@ -68,9 +68,6 @@ const UIElements = [
     RouterLink,
     IonRouterLink,
     SwapPageComponent,
-    BigintToNumberPipe,
-    ToDecimalPipe,
-    ToBalanceCurrencyPipe,
   ],
 })
 export class TokenDetailPageComponent implements OnInit {
