@@ -6,6 +6,7 @@ import { ToChainNamePipe } from "@app/pipes/to-chain-name/to-chain-name.pipe";
 import { AAVEV3Service } from "@app/services/aave-v3/aave-v3.service";
 import { WalletconnectService } from "@app/services/walletconnect/walletconnect.service";
 import {
+  InfiniteScrollCustomEvent,
   IonAccordion,
   IonAccordionGroup,
   IonAvatar,
@@ -13,6 +14,8 @@ import {
   IonButtons,
   IonHeader,
   IonIcon,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonItem,
   IonLabel,
   IonList,
@@ -56,7 +59,10 @@ const UIElements = [
   IonToolbar,
   IonButtons,
   IonButton,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
 ];
+
 @Component({
   selector: "app-aavev3-list",
   templateUrl: "./aavev3-list.component.html",
@@ -82,6 +88,7 @@ export class AAVEV3ListComponent implements OnInit {
   public readonly selectedMarketPool$ = new BehaviorSubject<null | MarketPool>(
     null
   );
+  public max: number = 20;
 
   constructor(
     private readonly _aaveV3Servcie: AAVEV3Service,
@@ -177,5 +184,21 @@ export class AAVEV3ListComponent implements OnInit {
     await ionLoading.present();
     await this._aaveV3Servcie.init(currentAccount);
     await ionLoading.dismiss();
+  }
+
+  trackByFn(index: number, item: MarketPoolGroup) {
+    return item.symbol; // Use property as the unique identifier
+  }
+
+  showMore() {
+    this.max += 10;
+  }
+
+  async onIonInfinite(event: InfiniteScrollCustomEvent) {
+    this.showMore();
+    const t = setTimeout(() => {
+      event.target.complete();
+      clearTimeout(t);
+    }, 500);
   }
 }

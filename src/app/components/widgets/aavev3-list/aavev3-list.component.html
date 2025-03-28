@@ -1,5 +1,5 @@
 <div *ngIf="marketPoolsGroups$ | async as marketPoolsGroups">
-  <app-card *ngFor="let group of marketPoolsGroups">
+  <app-card *ngFor="let group of marketPoolsGroups | slice : 0 : max; trackBy: trackByFn">
     <ion-accordion-group>
       <ion-accordion [value]="group.symbol">
         <ion-item slot="header" lines="none">
@@ -80,6 +80,9 @@
       </ion-accordion>
     </ion-accordion-group>
   </app-card>
+  <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
+    <ion-infinite-scroll-content />
+  </ion-infinite-scroll>
 </div>
 
 <!-- Pool Detail Page as Modal -->
