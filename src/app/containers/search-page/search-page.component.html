@@ -61,7 +61,7 @@
                 </h2>
                 <p>{{ token.name }}</p>
               </ion-label>
-              <ion-text>
+              <ion-text class="ion-text-end" slot="end">
                 {{ token.current_price | currency : "USD" : "symbol" : "1.2-2"
                 }}<br />
                 <span

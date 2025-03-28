@@ -25,16 +25,22 @@
   }
 
   *[slot=header] {
+
+    ion-avatar {
+      min-width: 48px;
+      min-height: 48px;
+    }
+
     ion-icon {
       font-size: 1rem;
       margin-left: 0.25rem;
     }
   }
   ion-icon.mini {
-    font-size: 0.8rem;
+    font-size: 0.6rem;
     margin-left: 0rem;
     margin-right: 0rem;
-    vertical-align: text-top;
+    vertical-align: inherit;
   }
 
   .mini.margin-left {

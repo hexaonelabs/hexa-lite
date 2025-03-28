@@ -9,6 +9,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { CardComponent } from "@app/components/ui/card/card.component";
 import { MarketPool } from "@app/models/market-pool.interface";
 import { ToChainNamePipe } from "@app/pipes/to-chain-name/to-chain-name.pipe";
+import { ToDecimalPipe } from "@app/pipes/to-decimal/to-decimal.pipe";
 import { AAVEV3Service } from "@app/services/aave-v3/aave-v3.service";
 import { LIFIService } from "@app/services/lifi/lifi.service";
 import { WalletconnectService } from "@app/services/walletconnect/walletconnect.service";
@@ -52,7 +53,7 @@ const UIElements = [
   selector: "app-aavepool-page",
   templateUrl: "./aavepool-page.component.html",
   styleUrls: ["./aavepool-page.component.scss"],
-  imports: [...UIElements, CommonModule, CardComponent, ToChainNamePipe],
+  imports: [...UIElements, CommonModule, CardComponent, ToChainNamePipe, ToDecimalPipe],
 })
 export class AAVEPoolPageComponent implements OnInit {
   @Input() set pool(value: MarketPool) {

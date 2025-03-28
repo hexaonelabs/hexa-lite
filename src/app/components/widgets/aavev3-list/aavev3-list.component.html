@@ -25,7 +25,7 @@
                 ><b>{{ group.topSupplyAPY | number : "1.2-2" }}%</b></span
               >
             </p>
-            <p>
+            <p *ngIf="group.pools[0].borrowingEnabled">
               <ion-icon name="share-outline" class="mini margin-right" />
               <span class="ion-color-gradient-text"
                 ><b>{{ group.topBorrowAPY | number : "1.2-2" }}%</b></span
@@ -67,7 +67,7 @@
                     >{{ pool.supplyAPYpercent | number : "1.2-2" }}%</span
                   >
                 </p>
-                <p>
+                <p *ngIf="pool.borrowingEnabled">
                   <ion-icon name="share-outline" class="mini margin-right" />
                   <span class="ion-color-gradient-text"
                     >{{ pool.borrowAPYpercent | number : "1.2-2" }}%</span
