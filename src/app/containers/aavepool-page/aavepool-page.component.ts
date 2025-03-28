@@ -284,6 +284,28 @@ export class AAVEPoolPageComponent implements OnInit {
         maxAmount = availableBorrowsUSD / Number(this.marketPool$.value?.priceInUSD);
         break;
       }
+      case action === "withdraw": {
+        const userReserveData = this.userReserveData$.value!;
+        const underlyingBalance = Number(userReserveData.underlyingBalance);
+        const aTokenBalance = Number(userReserveData.scaledATokenBalance);
+        const aTokenPriceInUSD = Number(userReserveData.reserve.priceInUSD);
+        const aTokenBalanceUSD = aTokenBalance * aTokenPriceInUSD;
+        const underlyingBalanceUSD = underlyingBalance * Number(this.marketPool$.value?.priceInUSD);
+        const totalBalanceUSD = aTokenBalanceUSD + underlyingBalanceUSD;
+        maxAmount = totalBalanceUSD / Number(this.marketPool$.value?.priceInUSD);
+        break;
+      }
+      case action === "repay": {
+        const userReserveData = this.userReserveData$.value!;
+        const underlyingBalance = Number(userReserveData.underlyingBalance);
+        const aTokenPriceInUSD = Number(userReserveData.reserve.priceInUSD);
+        const underlyingBalanceUSD = underlyingBalance * Number(this.marketPool$.value?.priceInUSD);
+        maxAmount = underlyingBalanceUSD / aTokenPriceInUSD;
+        break;
+      }
+      default: {
+        throw new Error("Invalid action");
+      }
     }
     return maxAmount;
   }
