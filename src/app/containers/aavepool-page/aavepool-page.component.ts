@@ -32,7 +32,7 @@ import {
   LoadingController,
 } from "@ionic/angular/standalone";
 import { getToken, getTokenBalance, Token, TokenAmount } from "@lifi/sdk";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom, max } from "rxjs";
 
 const UIElements = [
   IonContent,
@@ -183,7 +183,20 @@ export class AAVEPoolPageComponent implements OnInit {
           return;
         }
         break;
-      }       
+      }  
+      case role === 'withdraw': {
+        const canWithdraw = Number(this.userReserveData$.value?.underlyingBalance || 0) > 0;
+        if (!canWithdraw) {
+          const ionAlert = await new AlertController().create({
+            header: 'Error',
+            message: `You have to deposit ${token.symbol} to enable withdraw.`,
+            buttons: ['OK'],
+          });
+          await ionAlert.present();
+          return;
+        }
+        break;
+      }     
       default:
         throw new Error('No action selected');
     }
@@ -197,10 +210,12 @@ export class AAVEPoolPageComponent implements OnInit {
       this._walletService.walletAddress$
     );
     const maxAmount = await this._getMaxAmountToAction(role);
+    // use maxAmount with max 4 digits
+    const rountedMaxAmount = Math.floor(maxAmount * 10000) / 10000;
     // ask user to know amount to {role}
     const ionAlert = await new AlertController().create({
       header: role.toUpperCase(),
-      message: `Enter amount to ${role} ${pool.symbol} (max: ${maxAmount})`,
+      message: `Enter amount (max: ${rountedMaxAmount})`,
       inputs: [
         {
           name: 'amount',
@@ -208,8 +223,7 @@ export class AAVEPoolPageComponent implements OnInit {
           placeholder: `Amount to ${role}`,
           attributes: {
             min: 0,
-            max: maxAmount,
-            step: 0.01,
+            max: rountedMaxAmount,
           },
         },
       ],
@@ -233,7 +247,7 @@ export class AAVEPoolPageComponent implements OnInit {
       return;
     }
     const amount = Number(data.values.amount);
-    if (isNaN(amount) || amount <= 0) {
+    if (isNaN(amount) || amount <= 0 || amount > rountedMaxAmount) {
       const ionAlert = await new AlertController().create({
         header: 'Error',
         message: `Invalid amount to ${role} ${pool.symbol}`,
@@ -275,7 +289,7 @@ export class AAVEPoolPageComponent implements OnInit {
     let maxAmount = 0;
     switch (true) {
       case action === "supply": {
-        maxAmount = Number(token.amount);
+        maxAmount = Number(token.amount) / 10 ** token.decimals;;
         break;
       }
       case action === "borrow": {
@@ -285,22 +299,19 @@ export class AAVEPoolPageComponent implements OnInit {
         break;
       }
       case action === "withdraw": {
-        const userReserveData = this.userReserveData$.value!;
-        const underlyingBalance = Number(userReserveData.underlyingBalance);
-        const aTokenBalance = Number(userReserveData.scaledATokenBalance);
-        const aTokenPriceInUSD = Number(userReserveData.reserve.priceInUSD);
-        const aTokenBalanceUSD = aTokenBalance * aTokenPriceInUSD;
-        const underlyingBalanceUSD = underlyingBalance * Number(this.marketPool$.value?.priceInUSD);
-        const totalBalanceUSD = aTokenBalanceUSD + underlyingBalanceUSD;
-        maxAmount = totalBalanceUSD / Number(this.marketPool$.value?.priceInUSD);
+        const aToken: TokenAmount = await getToken(this.token$.value?.chainId!, this.marketPool$?.value?.aTokenAddress!).then(
+          async (token) => (await getTokenBalance(walletAddress!, token)) || token
+        );
+        maxAmount = Number(aToken.amount) / 10 ** aToken.decimals;
         break;
       }
       case action === "repay": {
-        const userReserveData = this.userReserveData$.value!;
-        const underlyingBalance = Number(userReserveData.underlyingBalance);
-        const aTokenPriceInUSD = Number(userReserveData.reserve.priceInUSD);
-        const underlyingBalanceUSD = underlyingBalance * Number(this.marketPool$.value?.priceInUSD);
-        maxAmount = underlyingBalanceUSD / aTokenPriceInUSD;
+        const debtToken: TokenAmount = await getToken(this.token$.value?.chainId!, this.marketPool$?.value?.variableDebtTokenAddress!).then(
+          async (token) => (await getTokenBalance(walletAddress!, token)) || token
+        );
+        const debtTokenAmount = Number(debtToken.amount) / 10 ** debtToken.decimals;
+        const tokenAmount = Number(this.token$.value?.amount) / 10 ** this.token$.value?.decimals;
+        maxAmount = debtTokenAmount + tokenAmount;
         break;
       }
       default: {
