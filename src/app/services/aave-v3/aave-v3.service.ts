@@ -18,6 +18,7 @@ import {
 } from "@aave/math-utils";
 import { BehaviorSubject, filter, map, mergeMap, Observable } from "rxjs";
 import { MarketPool } from "@app/models/market-pool.interface";
+import { Token } from "@lifi/sdk";
 
 @Injectable({
   providedIn: "root",
@@ -170,5 +171,15 @@ export class AAVEV3Service {
     userSummaries.set(ops.chainId, userSummary);
     this._userSummaries$.next(userSummaries);
     return userSummary;
+  }
+
+  async actions(role: string, payload: {
+    pool: MarketPool;
+    amount: number;
+  }) {
+    console.log('process done: ', {
+      role,
+      payload,
+    });    
   }
 }

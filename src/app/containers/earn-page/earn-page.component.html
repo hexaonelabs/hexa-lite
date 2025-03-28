@@ -1,5 +1,12 @@
 <ion-content [fullscreen]="true">
-  <div style="position: sticky; top: 0; z-index: 1; background-color: var(--ion-background-color);">
+  <div
+    style="
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background-color: var(--ion-background-color);
+    "
+  >
     <ion-toolbar>
       <ion-segment [(ngModel)]="segment" color="gradient">
         <ion-segment-button value="staking">
@@ -14,7 +21,11 @@
       </ion-segment>
     </ion-toolbar>
     <ion-toolbar *ngIf="segment === 'loans'">
-      <ion-searchbar [(ngModel)]="filterTerm" placeholder="Search" class="ion-margin-top" />
+      <ion-searchbar
+        [(ngModel)]="filterTerm"
+        placeholder="Search"
+        class="ion-margin-top"
+      />
     </ion-toolbar>
   </div>
   <ion-grid [fixed]="true">
@@ -24,11 +35,10 @@
           *ngIf="segment === 'staking'"
           (selectedStaking)="selectedStaking.emit($any($event))"
         />
-        <div *ngIf="segment === 'loans'">
-          <app-aavev3-list 
-            [filterTerm]="filterTerm" 
-            (selectedMarketPool)="selectedMarketPool.emit($event)"/>
-        </div>
+        <app-aavev3-list
+          *ngIf="segment === 'loans'"
+          [filterTerm]="filterTerm"
+        />
         <!-- <app-vaults-list *ngIf="segment === 'vaults'" /> -->
       </ion-col>
     </ion-row>

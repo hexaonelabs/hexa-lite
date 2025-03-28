@@ -74,8 +74,6 @@ export class AAVEV3ListComponent implements OnInit {
   @Input() public set filterTerm(value: string | undefined) {
     this._filterTerm$.next(value);
   }
-  @Output() public selectedMarketPool: EventEmitter<{from: TokenAmount, to: Token; action: string;}> =
-    new EventEmitter();
   private readonly _filterTerm$ = new BehaviorSubject<string | undefined>(
     undefined
   );

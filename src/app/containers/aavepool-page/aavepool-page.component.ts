@@ -12,6 +12,7 @@ import { ToChainNamePipe } from "@app/pipes/to-chain-name/to-chain-name.pipe";
 import { AAVEV3Service } from "@app/services/aave-v3/aave-v3.service";
 import { LIFIService } from "@app/services/lifi/lifi.service";
 import { WalletconnectService } from "@app/services/walletconnect/walletconnect.service";
+import { IonAlert } from "@ionic/angular";
 import {
   ActionSheetButton,
   ActionSheetController,
@@ -28,6 +29,7 @@ import {
   IonRow,
   IonText,
   IonToolbar,
+  LoadingController,
 } from "@ionic/angular/standalone";
 import { getToken, getTokenBalance, Token, TokenAmount } from "@lifi/sdk";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
@@ -56,7 +58,6 @@ export class AAVEPoolPageComponent implements OnInit {
   @Input() set pool(value: MarketPool) {
     this.marketPool$.next(value);
   }
-  @Output() public readonly handlePoolAction: EventEmitter<{from: TokenAmount, to: Token; action: string;}> = new EventEmitter();
   public readonly marketPool$ = new BehaviorSubject<MarketPool | null>(null);
   public readonly token$ = new BehaviorSubject<null | TokenAmount>(null);
   public readonly userReserveData$ = new BehaviorSubject<
@@ -155,6 +156,7 @@ export class AAVEPoolPageComponent implements OnInit {
       async (token) => (await getTokenBalance(walletAddress!, token)) || token
     );
     console.log('role', {role, token, aToken}); 
+    // handle errors
     switch (true) {
       case role === 'borrow': {
         const canBorrow = Number(this.userSummary$.value?.availableBorrowsUSD || 0) > 0;
@@ -165,7 +167,6 @@ export class AAVEPoolPageComponent implements OnInit {
             buttons: ['OK'],
           });
           await ionAlert.present();
-          break;
         }
         break;
       } 
@@ -185,10 +186,104 @@ export class AAVEPoolPageComponent implements OnInit {
       default:
         throw new Error('No action selected');
     }
-    this.handlePoolAction.emit({
-      from: token, 
-      to: aToken,
-      action: role ,
+    // No error, user is allowed to perform action. 
+    await this._executeAction(role);
+  }
+
+  private async _executeAction(role: string) {
+    const pool = this.marketPool$?.value!
+    const walletAddress = await firstValueFrom(
+      this._walletService.walletAddress$
+    );
+    const maxAmount = await this._getMaxAmountToAction(role);
+    // ask user to know amount to {role}
+    const ionAlert = await new AlertController().create({
+      header: role.toUpperCase(),
+      message: `Enter amount to ${role} ${pool.symbol} (max: ${maxAmount})`,
+      inputs: [
+        {
+          name: 'amount',
+          type: 'number',
+          placeholder: `Amount to ${role}`,
+          attributes: {
+            min: 0,
+            max: maxAmount,
+            step: 0.01,
+          },
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'OK',
+          role: 'confirm',
+        },
+      ],
     });
+    await ionAlert.present();
+    const { data, role: confirmRole } = await ionAlert.onDidDismiss();
+    if (!confirmRole) {
+      throw new Error('No role selected');
+    }
+    if (confirmRole === 'cancel' || confirmRole === 'backdrop') {
+      return;
+    }
+    const amount = Number(data.values.amount);
+    if (isNaN(amount) || amount <= 0) {
+      const ionAlert = await new AlertController().create({
+        header: 'Error',
+        message: `Invalid amount to ${role} ${pool.symbol}`,
+        buttons: ['OK'],
+      });
+      await ionAlert.present();
+      return;
+    }
+    const ionLoader = await new LoadingController().create({
+      message: `Processing ${role}...`,
+    });
+    await ionLoader.present();
+    this._aavev3Service.actions(role, {
+      pool,
+      amount
+    });
+    await this._aavev3Service.init(walletAddress!, true);
+    await ionLoader.dismiss();
+    const ionAlertSuccess = await new AlertController().create({
+      header: 'Success',
+      message: `${role} ${pool.symbol} successfully`,
+      buttons: ['OK'],
+    });
+    await ionAlertSuccess.present();
+    await ionAlertSuccess.onDidDismiss();
+  }
+
+  private async _getMaxAmountToAction(action: string) {
+    const walletAddress = await firstValueFrom(
+      this._walletService.walletAddress$
+    );
+    if (!walletAddress) {
+      throw new Error("No wallet address found");
+    }
+    const token = this.token$.value;
+    if (!token) {
+      throw new Error("No token found");
+    }
+    let maxAmount = 0;
+    switch (true) {
+      case action === "supply": {
+        maxAmount = Number(token.amount);
+        break;
+      }
+      case action === "borrow": {
+        const userSummary = this.userSummary$.value!;
+        const availableBorrowsUSD = Number(userSummary.availableBorrowsUSD);
+        maxAmount = availableBorrowsUSD / Number(this.marketPool$.value?.priceInUSD);
+        break;
+      }
+    }
+    return maxAmount;
   }
 }

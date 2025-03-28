@@ -100,7 +100,6 @@
     </ion-header>
     <app-aavepool-page 
       *ngIf="selectedMarketPool$.value" 
-      [pool]="selectedMarketPool$.value" 
-      (handlePoolAction)="selectedMarketPool.emit($event)" />
+      [pool]="selectedMarketPool$.value" />
   </ng-template>
 </ion-modal>
