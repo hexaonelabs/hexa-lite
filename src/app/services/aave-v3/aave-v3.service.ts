@@ -182,7 +182,7 @@ export class AAVEV3Service {
     pool: MarketPool;
     amount: number;
   }) {
-    console.log('process done: ', {
+    console.log('process: ', {
       role,
       payload,
     }); 
@@ -210,6 +210,60 @@ export class AAVEV3Service {
         const result = await this._lifiService.executeSwap(quote);
         console.log({ result });
         break;
+      }
+      case role === "withdraw": {
+        const fromToken = await getToken(Number(chainId), pool.aTokenAddress);
+        const toToken = await getToken(Number(chainId), pool.underlyingAsset);
+        const ops = {
+          from: walletAddress as `0x${string}`,
+          fromAmount: amount,
+          fromTokenAddress: fromToken.address as `0x${string}`,
+          fromChainId: Number(chainId),
+          toTokenAddress: toToken.address as `0x${string}`,
+          toChainId: Number(chainId),
+        };
+        const quote = await this._lifiService.requestLiFiQuote(ops);
+        console.log({ quote });
+        const result = await this._lifiService.executeSwap(quote);
+        console.log({ result });
+        break;
+      }
+      case role === "borrow": {
+        const fromToken = await getToken(Number(chainId), pool.underlyingAsset);
+        const toToken = await getToken(Number(chainId), pool.variableDebtTokenAddress);
+        const ops = {
+          from: walletAddress as `0x${string}`,
+          fromAmount: amount,
+          fromTokenAddress: fromToken.address as `0x${string}`,
+          fromChainId: Number(chainId),
+          toTokenAddress: toToken.address as `0x${string}`,
+          toChainId: Number(chainId),
+        };
+        const quote = await this._lifiService.requestLiFiQuote(ops);
+        console.log({ quote });
+        const result = await this._lifiService.executeSwap(quote);
+        console.log({ result });
+        break;
+      }
+      case role === "repay": {
+        const fromToken = await getToken(Number(chainId), pool.variableDebtTokenAddress);
+        const toToken = await getToken(Number(chainId), pool.underlyingAsset);
+        const ops = {
+          from: walletAddress as `0x${string}`,
+          fromAmount: amount,
+          fromTokenAddress: fromToken.address as `0x${string}`,
+          fromChainId: Number(chainId),
+          toTokenAddress: toToken.address as `0x${string}`,
+          toChainId: Number(chainId),
+        };
+        const quote = await this._lifiService.requestLiFiQuote(ops);
+        console.log({ quote });
+        const result = await this._lifiService.executeSwap(quote);
+        console.log({ result });
+        break;
+      }
+      default: {
+        throw new Error("Invalid action");
       }
     }
   }
