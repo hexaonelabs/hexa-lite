@@ -96,6 +96,19 @@ export class LIFIService {
           priceUSD: "0.212",
           symbol: "POL",
         },
+        {
+          address: "0x191c10Aa4AF7C30e871E70C95dB0E4eb77237530",
+          amount: 15044015341139963n,
+          blockNumber: 69616404n,
+          chainId: 137,
+          coinKey: "aPolLINK",
+          decimals: 18,
+          logoURI:
+            "https://static.debank.com/image/matic_token/logo_url/0x191c10aa4af7c30e871e70c95db0e4eb77237530/048393d32b2941d475463a9f9a9c1596.png",
+          name: "Aave Polygon LINK",
+          priceUSD: "14.1182904980535",
+          symbol: "aPolLINK",
+        },
       ];
       this._walletTokens.next(mockTokenList);
     }

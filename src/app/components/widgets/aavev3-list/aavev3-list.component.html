@@ -1,85 +1,30 @@
 <div *ngIf="marketPoolsGroups$ | async as marketPoolsGroups">
-  <app-card *ngFor="let group of marketPoolsGroups | slice : 0 : max; trackBy: trackByFn">
-    <ion-accordion-group>
-      <ion-accordion [value]="group.symbol">
-        <ion-item slot="header" lines="none">
-          <ion-avatar slot="start">
-            <img src="{{ group.imageURL }}" />
-          </ion-avatar>
-          <ion-label>
-            <h2>
-              <b>{{ group.symbol }}</b>
-            </h2>
-            <div>
-              <img
-                *ngFor="let chainId of group.chainIds"
-                [src]="chainId | toChainImg"
-                style="width: 14px; height: 14px; border-radius: 50%"
-              />
-            </div>
-          </ion-label>
-          <ion-text slot="end">
-            <p>
-              <ion-icon name="download-outline" class="mini margin-right" />
-              <span class="ion-color-gradient-text"
-                ><b>{{ group.topSupplyAPY | number : "1.2-2" }}%</b></span
-              >
-            </p>
-            <p *ngIf="group.pools[0].borrowingEnabled">
-              <ion-icon name="share-outline" class="mini margin-right" />
-              <span class="ion-color-gradient-text"
-                ><b>{{ group.topBorrowAPY | number : "1.2-2" }}%</b></span
-              >
-            </p>
-          </ion-text>
-        </ion-item>
-        <div class="ion-padding" slot="content">
-          <ion-list>
-            <ion-item
-              *ngFor="let pool of group.pools; let i = index"
-              [lines]="group.pools.length === i + 1 ? 'none' : 'full'"
-              (click)="selectedMarketPool$.next(pool)"
-            >
-              <div class="ion-padding-vertical">
-                <img
-                  [src]="group.chainIds[i] | toChainImg"
-                  style="
-                    width: 14px;
-                    height: 14px;
-                    border-radius: 50%;
-                    margin-right: 0.25rem;
-                  "
-                />
-                {{ group.chainIds[i] | toChainName }}
-                <ion-text color="medium">
-                  <p>
-                    <small>
-                      <ion-icon name="wallet-outline" class="mini" /> 0
-                      units
-                    </small>
-                  </p>
-                </ion-text>
-              </div>
-              <ion-text slot="end">
-                <p>
-                  <ion-icon name="download-outline" class="mini margin-right" />
-                  <span class="ion-color-gradient-text"
-                    >{{ pool.supplyAPYpercent | number : "1.2-2" }}%</span
-                  >
-                </p>
-                <p *ngIf="pool.borrowingEnabled">
-                  <ion-icon name="share-outline" class="mini margin-right" />
-                  <span class="ion-color-gradient-text"
-                    >{{ pool.borrowAPYpercent | number : "1.2-2" }}%</span
-                  >
-                </p>
-              </ion-text>
-            </ion-item>
-          </ion-list>
-        </div>
-      </ion-accordion>
-    </ion-accordion-group>
-  </app-card>
+
+  <div *ngIf="marketPoolsGroupsWithPositions$ | async as marketPoolsGroupsWithPositions" class="ion-margin-bottom ion-padding-bottom">
+    <ion-label *ngIf="marketPoolsGroupsWithPositions.length > 0" class="ion-padding-start ion-margin-top" color="medium">
+      Pools with positions
+    </ion-label>
+    <app-market-pool-group-item
+      *ngFor="
+        let group of marketPoolsGroupsWithPositions | slice : 0 : max;
+        trackBy: trackByFn
+      "
+      [group]="group"
+      (selectedMarketPool)="selectedMarketPool$.next($event)"
+    />
+  </div>
+
+  <ion-label class="ion-padding-start ion-margin-top" color="medium"
+    >Best pools</ion-label
+  >
+  <app-market-pool-group-item
+    *ngFor="
+      let group of marketPoolsGroups | slice : 0 : max;
+      trackBy: trackByFn
+    "
+    [group]="group"
+    (selectedMarketPool)="selectedMarketPool$.next($event)"
+  />
   <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
     <ion-infinite-scroll-content />
   </ion-infinite-scroll>
@@ -101,8 +46,9 @@
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <app-aavepool-page 
-      *ngIf="selectedMarketPool$.value" 
-      [pool]="selectedMarketPool$.value" />
+    <app-aavepool-page
+      *ngIf="selectedMarketPool$.value"
+      [pool]="selectedMarketPool$.value"
+    />
   </ng-template>
 </ion-modal>

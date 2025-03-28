@@ -30,6 +30,7 @@ import { getToken, Token, TokenAmount } from "@lifi/sdk";
 import {
   BehaviorSubject,
   combineLatest,
+  filter,
   firstValueFrom,
   map,
   Observable,
@@ -44,16 +45,12 @@ import {
 } from "ionicons/icons";
 import { MarketPool, MarketPoolGroup } from "@app/models/market-pool.interface";
 import { AAVEPoolPageComponent } from "@app/containers/aavepool-page/aavepool-page.component";
+import { LIFIService } from "@app/services/lifi/lifi.service";
+import { MarketPoolGroupItemComponent } from "@app/components/ui/market-pool-group-item/market-pool-group-item.component";
 
 const UIElements = [
-  IonList,
-  IonItem,
-  IonLabel,
-  IonText,
-  IonAvatar,
-  IonAccordion,
-  IonAccordionGroup,
   IonIcon,
+  IonLabel,
   IonModal,
   IonHeader,
   IonToolbar,
@@ -70,10 +67,8 @@ const UIElements = [
   imports: [
     ...UIElements,
     CommonModule,
-    CardComponent,
-    ToChainImgPipe,
-    ToChainNamePipe,
     AAVEPoolPageComponent,
+    MarketPoolGroupItemComponent,
   ],
 })
 export class AAVEV3ListComponent implements OnInit {
@@ -85,6 +80,7 @@ export class AAVEV3ListComponent implements OnInit {
   );
   public readonly marketPools$: Observable<MarketPool[] | null>;
   public readonly marketPoolsGroups$: Observable<MarketPoolGroup[]>;
+  public readonly marketPoolsGroupsWithPositions$: Observable<MarketPoolGroup[] | null>;
   public readonly selectedMarketPool$ = new BehaviorSubject<null | MarketPool>(
     null
   );
@@ -92,7 +88,8 @@ export class AAVEV3ListComponent implements OnInit {
 
   constructor(
     private readonly _aaveV3Servcie: AAVEV3Service,
-    private readonly _walletServcie: WalletconnectService
+    private readonly _walletServcie: WalletconnectService,
+    private readonly _lifiService: LIFIService
   ) {
     addIcons({
       downloadOutline,
@@ -169,6 +166,36 @@ export class AAVEV3ListComponent implements OnInit {
           return a.symbol.localeCompare(b.symbol);
         });
       })
+    );
+    this.marketPoolsGroupsWithPositions$ = combineLatest([
+      this.marketPoolsGroups$,
+      this._lifiService.walletTokens$,
+      this._filterTerm$.asObservable(),
+    ]).pipe(
+      // extract all group with existing pool position. 
+      // Use wallet token list to check if pool token is find in wallet
+      map(([marketPoolsGroups, walletTokens, filterTerm]) => {
+        if (filterTerm?.length || 0 > 1) {
+          return null;
+        }
+        if (!marketPoolsGroups || !walletTokens) {
+          return null;
+        }
+        
+        return marketPoolsGroups.filter((group) => {
+          return group.pools.some((pool) => {
+            const token = walletTokens.find(
+              (token) =>
+                token.address.toLowerCase() ===
+                pool.variableDebtTokenAddress.toLowerCase() ||
+                token.address.toLowerCase() ===
+                pool.aTokenAddress.toLowerCase()
+            );
+            return token && Number(token.amount) > 0;
+          });
+        }
+        );
+      }),
     );
   }
 
