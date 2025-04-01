@@ -9,8 +9,7 @@ Hexa Lite is frictionless, secure, and reliable for everyone to use and enjoy th
 
 - Increased User Adoption: Providing a smooth and intuitive process with seamless user experience to interact with DeFi protocols and services will increase the adoption of DeFi services and blockchain technology.
 
-- Increased Security: Hexa Lite is non-custodial and does not store any user data or private keys. Users are in full control of their assets and can interact with DeFi protocols and services without the need to leave the platform..
-
+- Increased Security: Hexa Lite is non-custodial and does not store any user data or private keys. Users are in full control of their assets and can interact with DeFi protocols and services without the need to leave the platform.
 - Increased Accessibility: Hexa Lite is a web-based platform that can be accessed from any device with a web browser and internet connection. Users can interact with DeFi protocols and services without the need to install any software or browser extension.
 
 - Increased Transparency: Hexa Lite is open-source and all the code is available on GitHub. Users can verify the code and build their own version of the platform. 
