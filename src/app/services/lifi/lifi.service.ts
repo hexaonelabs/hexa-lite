@@ -207,8 +207,8 @@ export class LIFIService {
       fromAmount: parseUnits(String(fromAmount), fromToken.decimals).toString(),
       toChain: toChainId,
       toToken: toToken.address,
-      fee: 0.0175, // 1.75%
-      slippage: 0.005, // = 0.5%
+      fee: environment.app_fees_min,
+      slippage: environment.app_slippage_min,
     };
     console.log({ ops });
     const quote = await getQuote(ops);
