@@ -64,14 +64,14 @@
           <ion-item>
             <ion-label>
               <h2>Version</h2>
-              <p>Hexa Lite</p>
             </ion-label>
             <ion-text slot="end">
-              <p>
-                v.2.0.0
-                <small>
-      
-                </small>
+              <p class="ion-text-end">
+                v.{{ release.version }}
+                <br/>
+                <ion-text color="medium">
+                  <small>{{ release.date }}</small>
+                </ion-text>
               </p>
             </ion-text>
           </ion-item>

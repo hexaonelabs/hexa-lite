@@ -5,9 +5,9 @@ import { Router } from "@angular/router";
 import { toggleDarkPalette } from "@app/app.utils";
 import { LIFIService } from "@app/services/lifi/lifi.service";
 import { WalletconnectService } from "@app/services/walletconnect/walletconnect.service";
+import { environment } from "@env/environment";
 import {
   IonButton,
-  IonButtons,
   IonCol,
   IonContent,
   IonFooter,
@@ -49,13 +49,17 @@ const UIElements = [
 })
 export class SettingsPageComponent implements OnInit {
   public paletteToggle: boolean = false;
+  public release = {
+    version: environment.app_release_version,
+    date: environment.app_release_date,
+  };
   public readonly hideSmalAmount$;
   public readonly walletAddress$;
   constructor(
     private readonly _walletService: WalletconnectService,
     private readonly _lifiService: LIFIService,
     private readonly _router: Router,
-    private readonly _modalCtrl: ModalController,
+    private readonly _modalCtrl: ModalController
   ) {
     addIcons({
       openOutline,
@@ -69,7 +73,7 @@ export class SettingsPageComponent implements OnInit {
   }
 
   async disconnect() {
-    const ionModal =  await this._modalCtrl.getTop();
+    const ionModal = await this._modalCtrl.getTop();
     await this._walletService.disconnect();
     await ionModal?.dismiss();
     await this._router.navigateByUrl("/");
