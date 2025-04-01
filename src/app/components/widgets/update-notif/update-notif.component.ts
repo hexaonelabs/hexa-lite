@@ -48,7 +48,7 @@ export class UpdateNotifComponent  implements OnInit {
           role: 'ok',
         },
       ],
-      color: 'success',
+      color: 'primary',
       duration: 1000 * 60,
     });
     await toast.present();
