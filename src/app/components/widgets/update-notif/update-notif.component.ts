@@ -38,16 +38,19 @@ export class UpdateNotifComponent  implements OnInit {
   }
 
   private async _displayNotif() {
-    const data = <ToastOptions>{
+    const toast = await new ToastController().create({
       message: 'New version available!',
       position: 'bottom',
-      showCloseButton: true,
-      closeButtonText: `Update`,
       swipeGesture: 'vertical',
+      buttons: [
+        {
+          text: 'Update',
+          role: 'ok',
+        },
+      ],
       color: 'success',
       duration: 1000 * 60,
-    };
-    const toast = await new ToastController().create(data);
+    });
     await toast.present();
     await toast.onDidDismiss()
     await this.activateUpdate()
