@@ -1,0 +1,192 @@
+<ion-content>
+  <ion-grid *ngIf="marketPool$.value as marketPool">
+    <ion-row class="ion-text-center">
+      <ion-col class="ion-padding-vertical ion-margin-bottom">
+        <ion-avatar>
+          <img [src]="marketPool.imageURL" />
+        </ion-avatar>
+        <ion-text>
+          <h2>
+            {{ marketPool.symbol }}
+          </h2>
+          <p class="ion-no-margin" *ngIf="token$.value?.chainId as chainId">
+            {{ chainId | toChainName }} Network
+          </p>
+        </ion-text>
+      </ion-col>
+    </ion-row>
+
+    <!-- user wallet overview -->
+    <ion-row *ngIf="(token$.value?.amount || 0) > 0">
+      <ion-col size="12">
+        <ion-label color="medium" class="ion-padding-start">
+          <small>Wallet Overview</small>
+        </ion-label>
+        <app-card>
+          <ion-item *ngIf="token$.value as token" lines="none">
+            <ion-label>
+              <h2>Token Balance</h2>
+              <p>Balance of {{ token.symbol }}</p>
+            </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{
+                token.amount | toDecimal : token.decimals | number : "1.2-6"
+              }}</b>
+            </ion-text>
+          </ion-item>
+        </app-card>
+      </ion-col>
+    </ion-row>
+
+    <!-- user current positions -->
+    <ion-row
+      *ngIf="
+        ((userReserveData$ | async)?.totalBorrowsUSD || '0') !== '0' ||
+        ((userReserveData$ | async)?.underlyingBalance || '0') !== '0'
+      "
+    >
+      <ion-col>
+        <ion-label color="medium" class="ion-padding-start">
+          <small>Open Positions</small>
+        </ion-label>
+        <app-card>
+          <ion-item
+            *ngIf="(userReserveData$ | async)?.underlyingBalanceUSD !== '0'"
+            [lines]="(userReserveData$ | async)?.totalBorrowsUSD !== '0' ? 'full' : 'none'"
+          >
+            <ion-label> Deposit </ion-label>
+            <div class="ion-text-end ion-padding-vertical">
+              <ion-text slot="end" class="ion-color-gradient-text">
+                <b>{{
+                  (userReserveData$ | async)?.underlyingBalanceUSD
+                    | currency : "USD" : "symbol" : "1.2-2"
+                }}</b>
+                <br />
+              </ion-text>
+              <ion-text color="medium">
+                <small>
+                  {{
+                    (userReserveData$ | async)?.underlyingBalance | number : "1.2-6"
+                  }}
+                  units
+                </small>
+              </ion-text>
+            </div>
+          </ion-item>
+          <ion-item *ngIf="(userReserveData$ | async)?.totalBorrowsUSD !== '0'">
+            <ion-label> Borrow </ion-label>
+            <div class="ion-text-end ion-padding-vertical">
+              <ion-text slot="end" class="ion-color-gradient-text">
+                <b>{{
+                  (userReserveData$ | async)?.totalBorrowsUSD
+                    | currency : "USD" : "symbol" : "1.2-2"
+                }}</b>
+              </ion-text>
+              <br />
+              <ion-text color="medium">
+                <small>
+                  {{
+                    (userReserveData$ | async)?.totalBorrows | number : "1.2-6"
+                  }}
+                  units
+                </small>
+              </ion-text>
+            </div>
+          </ion-item>
+          <ion-item lines="none" *ngIf="(currentHealFactor$.value || -1) >= 0">
+            <ion-label> Health Factor </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{ currentHealFactor$.value | number : "1.2-2" }}</b>
+            </ion-text>
+          </ion-item>
+        </app-card>
+      </ion-col>
+    </ion-row>
+
+    <!-- pool APYs -->
+    <ion-row>
+      <ion-col>
+        <ion-label color="medium" class="ion-padding-start">
+          <small>Pools APYs</small>
+        </ion-label>
+        <app-card>
+          <ion-item [lines]="marketPool.borrowingEnabled ? 'full' : 'none'">
+            <ion-label>
+              <h2>Deposit APY</h2>
+              <p>Incentive that you earn</p>
+            </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{ marketPool.supplyAPYpercent | number : "1.2-2" }}%</b>
+            </ion-text>
+          </ion-item>
+          <ion-item lines="none" *ngIf="marketPool.borrowingEnabled">
+            <ion-label>
+              <h2>Borrow APY</h2>
+              <p>Interest rate that you pay</p>
+            </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{ marketPool.borrowAPYpercent | number : "1.2-2" }}%</b>
+            </ion-text>
+          </ion-item>
+        </app-card>
+      </ion-col>
+    </ion-row>
+
+    <!-- pool details -->
+    <ion-row class="ion-padding-top">
+      <ion-col>
+        <ion-label color="medium" class="ion-padding-start">
+          <small>Pools Details</small>
+        </ion-label>
+        <app-card>
+          <ion-item>
+            <ion-label> Deposit Liquidity </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{
+                marketPool.totalLiquidityUSD
+                  | currency : "USD" : "symbol" : "1.2-2"
+              }}</b>
+            </ion-text>
+          </ion-item>
+          <ion-item [lines]="marketPool.borrowingEnabled ? 'full' : 'none'">
+            <ion-label> Deposit Capitalisation </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{
+                marketPool.supplyCapUSD | currency : "USD" : "symbol" : "1.2-2"
+              }}</b>
+            </ion-text>
+          </ion-item>
+          <ion-item *ngIf="marketPool.borrowingEnabled">
+            <ion-label> Debit Liquidity </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{
+                marketPool.totalVariableDebtUSD
+                  | currency : "USD" : "symbol" : "1.2-2"
+              }}</b>
+            </ion-text>
+          </ion-item>
+          <ion-item lines="none" *ngIf="marketPool.borrowingEnabled">
+            <ion-label> Debit Capitalisation </ion-label>
+            <ion-text slot="end" class="ion-color-gradient-text">
+              <b>{{
+                marketPool.borrowCapUSD | currency : "USD" : "symbol" : "1.2-2"
+              }}</b>
+            </ion-text>
+          </ion-item>
+        </app-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-button
+      expand="block"
+      fill="solid"
+      color="gradient"
+      (click)="choseOption()"
+    >
+      Select option
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

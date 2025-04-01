@@ -1,7 +1,7 @@
 {
   "hosting": {
     "target": "app-hexa-lite",
-    "public": "build",
+    "public": "dist/hexa-lite/browser",
     "ignore": [
       "firebase.json",
       "**/.*",

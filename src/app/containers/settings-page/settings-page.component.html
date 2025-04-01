@@ -1,0 +1,89 @@
+<ion-content [fullscreen]="true">
+  <ion-grid [fixed]="true">
+    <ion-row>
+      <ion-col>
+        <ion-list class="ion-margin-top">
+          <ion-item>
+            <ion-label>
+              <h2>Wallet</h2>
+              <p *ngIf="walletAddress$ | async as address">
+                {{ address | slice: 0:6 }}...{{ address | slice: -4 }}
+              </p>
+            </ion-label>
+            <ion-text slot="end" color="success">
+              <p>
+               connected
+              </p>
+            </ion-text>
+          </ion-item>
+          <ion-item>
+            <ion-toggle
+              [checked]="hideSmalAmount$|async"
+              (ionChange)="toggleHideSmallAmount()"
+              justify="space-between"
+            >
+              <ion-label>
+                <h2>Hide Small Amount</h2>
+                <p>Hide amount worth less than $1</p>
+              </ion-label>
+            </ion-toggle>
+          </ion-item>
+          <ion-item>
+            <ion-toggle
+              [(ngModel)]="paletteToggle"
+              (ionChange)="toggleThemeChange($any($event).detail.checked)"
+              justify="space-between"
+            >
+              <ion-label>
+                <h2>Dark Mode</h2>
+                <p>Enable or disable dark mode</p>
+              </ion-label>
+            </ion-toggle>
+          </ion-item>
+          <ion-item detail="false" href="https://forms.gle/Dx25eG66TMxyFfh8A" target="_blank">
+            <ion-label>
+              <h2>Feedback</h2>
+              <p>Send your feedback</p>
+            </ion-label>
+            <ion-icon slot="end" size="small" name="open-outline" color="primary" />
+          </ion-item>
+          <ion-item detail="false" href="https://snapshot.box/#/hexaonelabs.eth" target="_blank">
+            <ion-label>
+              <h2>Gouvernance</h2>
+              <p>Snapshot</p>
+            </ion-label>
+            <ion-icon slot="end" size="small" name="open-outline" color="primary" />
+          </ion-item>
+          <ion-item detail="false" href="https://hexa-lite.io/terms/" target="_blank">
+            <ion-label>
+              <h2>Terms & Conditions</h2>
+              <p>PDF</p>
+            </ion-label>
+            <ion-icon slot="end" size="small" name="open-outline" color="primary" />
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <h2>Version</h2>
+            </ion-label>
+            <ion-text slot="end">
+              <p class="ion-text-end">
+                v.{{ release.version }}
+                <br/>
+                <ion-text color="medium">
+                  <small>{{ release.date }}</small>
+                </ion-text>
+              </p>
+            </ion-text>
+          </ion-item>
+        </ion-list>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-button color="gradient" expand="block" (click)="disconnect();">
+      Disconnect
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

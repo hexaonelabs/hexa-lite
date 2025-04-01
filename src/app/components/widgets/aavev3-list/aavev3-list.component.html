@@ -1,0 +1,55 @@
+<div *ngIf="marketPoolsGroups$ | async as marketPoolsGroups">
+
+  <div *ngIf="marketPoolsGroupsWithPositions$ | async as marketPoolsGroupsWithPositions" class="ion-margin-bottom ion-padding-bottom">
+    <ion-label *ngIf="marketPoolsGroupsWithPositions.length > 0" class="ion-padding-start ion-margin-top" color="medium">
+      Pools with positions
+    </ion-label>
+    <app-market-pool-group-item
+      *ngFor="
+        let group of marketPoolsGroupsWithPositions | slice : 0 : max;
+        trackBy: trackByFn
+      "
+      [group]="group"
+      [walletTokens]="walletTokens$|async"
+      (selectedMarketPool)="selectedMarketPool$.next($event)"
+    />
+  </div>
+
+  <ion-label class="ion-padding-start ion-margin-top" color="medium"
+    >Best pools</ion-label
+  >
+  <app-market-pool-group-item
+    *ngFor="
+      let group of marketPoolsGroups | slice : 0 : max;
+      trackBy: trackByFn
+    "
+    [group]="group"
+    (selectedMarketPool)="selectedMarketPool$.next($event)"
+  />
+  <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
+    <ion-infinite-scroll-content />
+  </ion-infinite-scroll>
+</div>
+
+<!-- Pool Detail Page as Modal -->
+<ion-modal
+  [isOpen]="!!selectedMarketPool$.value"
+  class="pool-page height-full width-full"
+  (ionModalDidDismiss)="selectedMarketPool$.next(null)"
+>
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-buttons slot="end">
+          <ion-button (click)="selectedMarketPool$.next(null)">
+            <ion-icon name="close" />
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <app-aavepool-page
+      *ngIf="selectedMarketPool$.value"
+      [pool]="selectedMarketPool$.value"
+    />
+  </ng-template>
+</ion-modal>

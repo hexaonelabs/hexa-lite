@@ -1,0 +1,10 @@
+<ion-card [ngClass]="{'ion-palette-dark': isPaletteDark}">
+  <ion-card-header *ngIf="title">
+    <ion-card-title>
+      {{ title }}
+    </ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <ng-content></ng-content>
+  </ion-card-content>
+</ion-card>

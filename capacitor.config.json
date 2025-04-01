@@ -1,9 +1,9 @@
 {
-  "appId": "com.example.app",
-  "appName": "nextjs-tailwind-capacitor",
+  "appId": "io.hexa-lite.app",
+  "appName": "HexaLite",
   "bundledWebRuntime": false,
   "npmClient": "npm",
-  "webDir": "out",
+  "webDir": "dist/hexa-lite/browser",
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 0

@@ -1,0 +1,236 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="isSettingsPageVisible$.next(true)">
+        <ion-icon
+          size="small"
+          slot="icon-only"
+          color="primary"
+          name="settings-outline"
+        />
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding-top">
+  <ion-grid [fixed]="true" class="ion-padding-top">
+    <ion-row>
+      <ion-col class="heros ion-text-center">
+        <ion-text>
+          <h1>Wallet</h1>
+          <p>
+            {{ walletBalance$ | async | currency : "USD" : "symbol" : "1.2-2" }}
+          </p>
+        </ion-text>
+      </ion-col>
+    </ion-row>
+
+    <ion-row
+      class="ion-padding-horizontal ion-justify-content-between ion-text-center"
+    >
+      <!-- <ion-col>
+        <ion-card 
+          button 
+          color="gradient"
+          [disabled]="(walletAddress$ | async) === null"
+          (click)="isDepositPageVisible$.next(true)"
+        >
+          <ion-card-content>
+            <ion-icon name="arrow-up-circle-outline" />
+            <ion-text>
+              <small>Send</small>
+            </ion-text>
+          </ion-card-content>
+        </ion-card>
+      </ion-col> -->
+      <!-- <ion-col>
+        <ion-card 
+          button 
+          color="gradient"
+          [disabled]="(walletAddress$ | async) === null"
+          (click)="isDepositPageVisible$.next(true)"
+        >
+          <ion-card-content>
+            <ion-icon name="arrow-down-circle-outline" />
+            <ion-text>
+              <small>Deposit</small>
+            </ion-text>
+          </ion-card-content>
+        </ion-card>
+      </ion-col> -->
+
+      <ion-col>
+        <ion-card
+          button
+          color="gradient"
+          [disabled]="(walletAddress$ | async) === null"
+          (click)="isEarnPageVisible$.next(true)"
+        >
+          <ion-card-content>
+            <ion-icon src="bank.svg" />
+            <ion-text>
+              <small>Earn</small>
+            </ion-text>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col>
+        <ion-card
+          button
+          color="gradient"
+          [disabled]="(walletAddress$ | async) === null"
+          (click)="isSwapPageVisible$.next(true)"
+        >
+          <ion-card-content>
+            <ion-icon name="swap-horizontal" />
+            <ion-text>
+              <small>Swap</small>
+            </ion-text>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Tokens</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list *ngIf="walletTokens$ | async as walletTokens">
+              <ion-item>
+                <ion-grid class="ion-no-padding">
+                  <ion-row>
+                    <ion-col>
+                      <ion-label color="medium">
+                        <small>Token / Price</small>
+                      </ion-label>
+                    </ion-col>
+                    <ion-col class="ion-text-end">
+                      <ion-label color="medium">
+                        <small>Balance / Units</small>
+                      </ion-label>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-item>
+              <app-wallet-token-item
+                *ngFor="let token of walletTokens; let i = index"
+                [token]="token"
+                [lines]="i === walletTokens.length - 1 ? 'none' : 'full'"
+                [routerLink]="[token.symbol | toCoingeckoId | async]"
+              />
+              <ion-item *ngIf="walletTokens.length === 0">
+                <ion-label>No tokens found</ion-label>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+<app-search-footer (searchClicked)="isSearchPageVisible$.next(true)" />
+
+<!-- Swap Page as Modal -->
+<ion-modal
+  [isOpen]="isSwapPageVisible$.value"
+  class="height-full width-full"
+  (ionModalDidDismiss)="
+    isSwapPageVisible$.next(false); selectedStakingToken$.next(null)
+  "
+>
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title>{{
+          selectedStakingToken$.value ? "Staking" : "Swap"
+        }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="
+              isSwapPageVisible$.next(false); selectedStakingToken$.next(null)
+            "
+          >
+            <ion-icon name="close" />
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <app-swap-page
+      [fromToken]="selectedStakingToken$.value?.from?.[0]"
+      [toToken]="selectedStakingToken$.value?.to?.[0]"
+      [fromTokensList]="selectedStakingToken$.value?.from"
+      [toTokensList]="selectedStakingToken$.value?.to"
+    />
+  </ng-template>
+</ion-modal>
+
+<!-- Earn Page as Modal -->
+<ion-modal
+  [isOpen]="isEarnPageVisible$.value"
+  class="height-full width-full"
+  (ionModalDidDismiss)="isEarnPageVisible$.next(false)"
+>
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title>Earn</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="isEarnPageVisible$.next(false)">
+            <ion-icon name="close" />
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <app-earn-page
+      (selectedStaking)="
+        selectedStakingToken$.next($event); isSwapPageVisible$.next(true)
+      "
+    />
+  </ng-template>
+</ion-modal>
+
+<!-- Search Page as Modal -->
+<ion-modal
+  [isOpen]="isSearchPageVisible$.value"
+  class="height-full width-full"
+  (ionModalDidDismiss)="isSearchPageVisible$.next(false)"
+>
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title>Search</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="isSearchPageVisible$.next(false)">
+            <ion-icon name="close" />
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <app-search-page />
+  </ng-template>
+</ion-modal>
+
+<!-- Settings Page as Modal -->
+<ion-modal
+  [isOpen]="isSettingsPageVisible$.value"
+  class="settings-page height-full width-full"
+  (ionModalDidDismiss)="isSettingsPageVisible$.next(false)"
+>
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title>Settings</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="isSettingsPageVisible$.next(false)">
+            <ion-icon name="close" />
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <app-settings-page />
+  </ng-template>
+</ion-modal>
