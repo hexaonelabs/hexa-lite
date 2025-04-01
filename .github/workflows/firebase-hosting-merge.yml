@@ -13,7 +13,7 @@ jobs:
       - name: "Set current date as env variable"
         run: |
           echo "builddate=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
-        id: version  # this is used on variable path
+        id: current_date
 
       - uses: actions/checkout@v3
       
@@ -21,13 +21,17 @@ jobs:
         id: extract_version
         uses: Saionaro/extract-package-version@v1.2.1
         
-      - name: Set Environement and Build
+      - name: Set Environment and Build
         run:  | 
           echo "export const environment = {" > src/environments/environment.ts
           echo "  isProd: true," >> src/environments/environment.ts
-          echo "  reown_project_id: ${{ secrets.REOWN_PROJECT_ID }}," >> src/environments/environment.ts
-          echo "  lifi_integrator: ${{ secrets.LIFI_INTEGRATOR }}," >> src/environments/environment.ts
-          echo "  coingecko_apikey: ${{ secrets.NEXT_PUBLIC_APP_COINGECKO_APIKEY }}," >> src/environments/environment.ts
+          echo "  reown_project_id: '${{ secrets.REOWN_PROJECT_ID }}'," >> src/environments/environment.ts
+          echo "  lifi_integrator: '${{ secrets.LIFI_INTEGRATOR }}'," >> src/environments/environment.ts
+          echo "  coingecko_apikey: '${{ secrets.NEXT_PUBLIC_APP_COINGECKO_APIKEY }}'," >> src/environments/environment.ts
+          echo "  app_fees_min: '${{ secrets.APP_FEES_MIN }}'," >> src/environments/environment.ts
+          echo "  app_slippage_min: '${{ secrets.APP_SLIPPAGE_MIN }}'," >> src/environments/environment.ts
+          echo "  app_release_date: '${{ steps.current_date.outputs.builddate }}'," >> src/environments/environment.ts
+          echo "  app_release_version: '${{ steps.extract_version.outputs.version }}'," >> src/environments/environment.ts
           echo "};" >> src/environments/environment.ts
           npm ci && npm run build
         env:
