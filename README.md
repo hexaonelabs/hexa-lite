@@ -16,8 +16,7 @@ Hexa Lite is frictionless, secure, and reliable for everyone to use and enjoy th
 
 ## 🚀 Features
 
-- [x] <b>Frictionless Onboarding:</b> Users can connect they wallet in less than 10 secondes and start using the platform without the need to create an account or provide any personal information. 
-
+- [x] <b>Frictionless Onboarding:</b> Users can connect their wallet in less than 10 seconds and start using the platform without the need to create an account or provide any personal information.
 - [x] <b>Buy assets with fiats:</b> Users can buy assets with fiats using Credit Card, Debit Card, [Google Pay](https://pay.google.com/intl/en_us/about/) or [Apple Pay](https://www.apple.com/apple-pay/).
 
 - [x] <b>Exchange assets at best rate:</b> Users can exchange assets at best rate that is available on the market and can select the best rate from multiple DEXs and liquidity pools across multiple blockchains.
