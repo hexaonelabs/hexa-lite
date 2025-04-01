@@ -1,0 +1,139 @@
+<ion-header *ngIf="!fromModal" class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ token?.name }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleFavorite()" fill="clear">
+        <ion-icon 
+          slot="icon-only" 
+          size="small" 
+          [name]="isFavorite ? 'star' : 'star-outline'" 
+          color="gradient" />
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+  <ion-grid [fixed]="true" *ngIf="token; else noToken">
+    <ion-row class="ion-padding ion-align-items-center ">
+      <ion-col size="12">
+        <app-chart 
+          [data]="token.sparkline_in_7d.price"
+          [symbol]="token.symbol">
+          <ion-buttons *ngIf="fromModal" style="margin-right: -1rem;">
+            <ion-button (click)="toggleFavorite()" fill="clear">
+              <ion-icon 
+                slot="icon-only" 
+                size="small" 
+                [name]="isFavorite ? 'star' : 'star-outline'" 
+                color="gradient" />
+            </ion-button>
+          </ion-buttons>
+        </app-chart>
+      </ion-col>
+    </ion-row>
+
+    <ion-row *ngIf="walletBalance$ | async as walletBalance">
+      <ion-col size="12" *ngIf="walletBalance.amount > 0">
+        <ion-label color="medium" class="ion-margin-start">
+          <small>Wallet Balance</small>
+        </ion-label>
+        <app-card>
+          <ion-list>
+            <ion-item>
+              <ion-label>
+                Amount
+              </ion-label>
+              <ion-text slot="end">{{ walletBalance.amount | number : "1.2-2"   }}</ion-text>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label>
+                Value
+              </ion-label>
+              <ion-text slot="end">
+                <b>{{ walletBalance.balanceUSD | currency: 'USD': 'symbol': '1.2-2' }}</b>
+              </ion-text>
+            </ion-item>
+          </ion-list>
+        </app-card>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-label color="medium" class="ion-margin-start">
+          <small>Market datas</small>
+        </ion-label>
+        <app-card>
+          <ion-list>
+            <ion-item>
+              <ion-label>
+                Market Cap
+              </ion-label>
+              <ion-text slot="end">{{ token.market_cap | currency: 'USD': 'symbol': '1.2-2' }}</ion-text>
+            </ion-item>
+            <ion-item>
+              <ion-label>
+                Fully Diluted Valuation
+              </ion-label>
+              <ion-text slot="end">{{ token.fully_diluted_valuation }}</ion-text>
+            </ion-item>
+            <ion-item>
+              <ion-label>
+                24h Volume
+              </ion-label>
+              <ion-text slot="end">{{ token.total_volume  }}</ion-text>
+            </ion-item>
+            <ion-item>
+              <ion-label>
+                All Time High
+              </ion-label>
+              <ion-text slot="end">{{ token.ath | currency: 'USD': 'symbol': '1.2-6'  }}</ion-text>
+            </ion-item>
+            <ion-item>
+              <ion-label>
+                All Time Low
+              </ion-label>
+              <ion-text slot="end">{{ token.atl | currency: 'USD': 'symbol': '1.2-6'  }}</ion-text>
+            </ion-item>
+          </ion-list>
+        </app-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <ng-template #noToken>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="auto">
+        <ion-spinner *ngIf="token === undefined" color="gradient"></ion-spinner>
+        <ion-button *ngIf="token === null" routerLink="/">back</ion-button>
+      </ion-col>
+    </ion-row>
+  </ng-template>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-button expand="block" color="gradient" [disabled]="!token" (click)="isSwapPageVisible$.next(true)">
+      Swap token
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
+
+<ion-modal
+  [isOpen]="isSwapPageVisible$.value"
+  class="height-full width-full"
+  (ionModalDidDismiss)="isSwapPageVisible$.next(false)">
+  <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>Swap</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isSwapPageVisible$.next(false)">
+              <ion-icon name="close" />
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <app-swap-page />
+  </ng-template>
+</ion-modal>

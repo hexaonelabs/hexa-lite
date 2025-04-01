@@ -1,0 +1,112 @@
+<ion-content [fullscreen]="true">
+  <ion-grid [fixed]="true">
+    <ion-row class="sticky">
+      <ion-col>
+        <ion-searchbar
+          placeholder="Search Token"
+          [debounce]="500"
+          (ionInput)="searchTerm$.next($event.detail.value || '')"
+        />
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col
+        *ngIf="favoriteTokens$ | async as favoriteTokens"
+        class="ion-padding-top"
+      >
+        <ion-label class="ion-padding-start ion-margin-top" color="medium"
+          >Favoties tokens</ion-label
+        >
+        <ion-grid class="ion-no-padding">
+          <ion-row>
+            <ion-col
+              *ngFor="let token of favoriteTokens"
+              size-xs="6"
+              size-md="4"
+            >
+              <app-card (click)="selectedToken$.next(token)">
+                <ion-avatar slot="start">
+                  <img [src]="token.image" />
+                </ion-avatar>
+                <ion-label>
+                  <h2>
+                    <b>{{ token.symbol | uppercase }}</b>
+                  </h2>
+                  <p>
+                    {{  token.current_price | currency : "USD" : "symbol" : "1.2-2" }}
+                  </p>
+                </ion-label>
+              </app-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
+      <ion-col size="12" class="ion-padding-top">
+        <ion-label class="ion-padding-start ion-margin-top" color="medium"
+          >Best tokens</ion-label
+        >
+        <app-card>
+          <ion-list *ngIf="searchResult$ | async as searchResult">
+            <ion-item
+              *ngFor="let token of searchResult | slice : min : max; let i = index"
+              (click)="selectedToken$.next(token)"
+              [lines]="i === searchResult.length - 1 ? 'none' : 'full'"
+            >
+              <ion-avatar slot="start">
+                <img [src]="token.image" />
+              </ion-avatar>
+              <ion-label>
+                <h2>
+                  <b>{{ token.symbol | uppercase }}</b>
+                </h2>
+                <p>{{ token.name }}</p>
+              </ion-label>
+              <ion-text class="ion-text-end" slot="end">
+                {{ token.current_price | currency : "USD" : "symbol" : "1.2-2"
+                }}<br />
+                <span
+                  [ngStyle]="{
+                    color:
+                      token.price_change_percentage_24h > 0 ? 'green' : 'red'
+                  }"
+                >
+                  {{ token.price_change_percentage_24h > 0 ? "+" : "" }}
+                  {{ token.price_change_percentage_24h | number : "1.2-2" }}%
+                </span>
+              </ion-text>
+            </ion-item>
+            <ion-item *ngIf="searchResult.length === 0">
+              <ion-label>No result found</ion-label>
+            </ion-item>
+          </ion-list>
+        </app-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
+    <ion-infinite-scroll-content></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>
+
+<ion-modal
+  [isOpen]="!!selectedToken$.value"
+  class="height-full width-full"
+  (ionModalDidDismiss)="selectedToken$.next(null)"
+>
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title>{{ selectedToken$.value?.name }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="selectedToken$.next(null)">
+            <ion-icon name="close" />
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <app-token-detail-page
+      *ngIf="selectedToken$.value as token"
+      [token]="token"
+    />
+  </ng-template>
+</ion-modal>

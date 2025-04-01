@@ -1,0 +1,81 @@
+<app-card>
+  <ion-accordion-group>
+    <ion-accordion [value]="group.symbol">
+      <ion-item slot="header" lines="none">
+        <ion-avatar slot="start">
+          <img src="{{ group.imageURL }}" />
+        </ion-avatar>
+        <ion-label>
+          <h2>
+            <b>{{ group.symbol }}</b>
+          </h2>
+          <div>
+            <img
+              *ngFor="let chainId of group.chainIds"
+              [src]="chainId | toChainImg"
+              style="width: 14px; height: 14px; border-radius: 50%"
+            />
+          </div>
+        </ion-label>
+        <ion-text slot="end">
+          <p>
+            <ion-icon name="download-outline" class="mini margin-right" />
+            <span class="ion-color-gradient-text"
+              ><b>{{ group.topSupplyAPY | number : "1.2-2" }}%</b></span
+            >
+          </p>
+          <p *ngIf="group.pools[0].borrowingEnabled">
+            <ion-icon name="share-outline" class="mini margin-right" />
+            <span class="ion-color-gradient-text"
+              ><b>{{ group.topBorrowAPY | number : "1.2-2" }}%</b></span
+            >
+          </p>
+        </ion-text>
+      </ion-item>
+      <div class="ion-padding" slot="content">
+        <ion-list>
+          <ion-item
+            *ngFor="let pool of group.pools; let i = index"
+            [lines]="group.pools.length === i + 1 ? 'none' : 'full'"
+            (click)="selectedMarketPool.emit(pool)"
+          >
+            <div class="ion-padding-vertical">
+              <img
+                [src]="group.chainIds[i] | toChainImg"
+                style="
+                  width: 14px;
+                  height: 14px;
+                  border-radius: 50%;
+                  margin-right: 0.25rem;
+                "
+              />
+              {{ group.chainIds[i] | toChainName }}
+              <ion-text color="medium">
+                <p>
+                  <small>
+                    <ion-icon name="wallet-outline" class="mini" /> 
+                    {{ pool.underlyingAsset | toTokenAmount: walletTokens | number: '1.2-6' }} units
+                  </small>
+                </p>
+              </ion-text>
+            </div>
+            <ion-text slot="end">
+              <p>
+                <ion-icon name="download-outline" class="mini margin-right" />
+                <span class="ion-color-gradient-text"
+                  >{{ pool.supplyAPYpercent | number : "1.2-2" }}%</span
+                >
+              </p>
+              <p *ngIf="pool.borrowingEnabled">
+                <ion-icon name="share-outline" class="mini margin-right" />
+                <span class="ion-color-gradient-text"
+                  >{{ pool.borrowAPYpercent | number : "1.2-2" }}%</span
+                >
+              </p>
+            </ion-text>
+          </ion-item>
+        </ion-list>
+      </div>
+    </ion-accordion>
+  </ion-accordion-group>
+</app-card>

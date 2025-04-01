@@ -1,0 +1,29 @@
+:host {
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: relative;
+  background: var(--ion-item-background);
+  
+  ion-content {
+    --background: var(--ion-item-background);
+
+  }
+  ion-list {
+    min-height: 100%;
+
+    ion-item {
+      ion-label {
+        p {
+          font-size: 0.75rem;
+        }
+      }
+    }
+    
+  }
+
+  ion-footer {
+    position: fixed;
+    bottom: 0;
+  }
+}
