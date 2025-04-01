@@ -43,6 +43,9 @@ export class UpdateNotifComponent  implements OnInit {
       position: 'bottom',
       showCloseButton: true,
       closeButtonText: `Update`,
+      swipeGesture: 'vertical',
+      color: 'success',
+      duration: 1000 * 60,
     };
     const toast = await new ToastController().create(data);
     await toast.present();
