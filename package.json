@@ -6,6 +6,11 @@
     "start": "ng serve --configuration local",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "dev:emulator": "firebase emulators:start",
+    "predeploy:gh": "npm run build",
+    "predeploy:fb": "npm run build",
+    "deploy:gh": "gh-pages -d build",
+    "deploy:fb": "firebase deploy --only hosting:app-hexa-lite",
     "test": "ng test"
   },
   "private": true,
