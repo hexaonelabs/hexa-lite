@@ -1,5 +1,6 @@
 export const environment = {
   isProd: false,
+  enso_apikey: '',
   reown_project_id: '',
   lifi_integrator: '',
   coingecko_apikey: '',
