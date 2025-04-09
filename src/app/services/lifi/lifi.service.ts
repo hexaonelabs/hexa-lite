@@ -29,7 +29,7 @@ export class LIFIService {
   private readonly _hideSmallAmount$ = new BehaviorSubject<boolean>(
     localStorage.getItem("hideSmallAmount")
       ? localStorage.getItem("hideSmallAmount") === "true"
-      : true
+      : false
   );
   public readonly hideSmallAmount$ = this._hideSmallAmount$.asObservable();
   private readonly _walletTokens = new BehaviorSubject<TokenAmount[]>([]);
