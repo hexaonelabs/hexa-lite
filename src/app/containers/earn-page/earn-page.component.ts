@@ -55,7 +55,7 @@ const UIElements = [
   ],
 })
 export class EarnPageComponent implements OnInit {
-  public segment: "staking" | "loans" | "lp" = "lp";
+  public segment: "staking" | "loans" | "lp" = "loans";
   public filterTerm = "";
   @Output() public selectedStaking: EventEmitter<
     StakingToken & { from: TokenAmount[]; to: Token[] }
