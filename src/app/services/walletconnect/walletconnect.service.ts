@@ -48,9 +48,13 @@ export class WalletconnectService {
       optionalChains,
     });
     if (this._web3Provider.connected) {
-      console.log('Reconnecting Wallet...');
-      await this._addWalletEventListeners();
-      await this._initWalletClient();
+      try {
+        console.log('Reconnecting Wallet...');
+        await this._addWalletEventListeners();
+        await this._initWalletClient();
+      } catch (error) {
+        await this.disconnect();
+      }
     }
   }
 
