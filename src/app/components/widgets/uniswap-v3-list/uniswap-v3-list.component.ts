@@ -54,13 +54,12 @@ export class UniswapV3ListComponent implements OnInit {
   async ngOnInit() {
     const ionLoading = await new LoadingController().create();
     await ionLoading.present();
-    const walletAddress = '0xE426D8BAacb6156677E51cc65142D54224a390C7';
-    // await firstValueFrom(
-    //   this._walletService.walletAddress$
-    // );
-    // if (!walletAddress) {
-    //   throw new Error("No account found");
-    // }
+    const walletAddress = await firstValueFrom(
+      this._walletService.walletAddress$
+    );
+    if (!walletAddress) {
+      throw new Error("No account found");
+    }
     const positions = await getUniswapPositions(walletAddress as `0x${string}`);
     const pools = await getUniswapPools();
     this.positions = positions;
@@ -69,7 +68,9 @@ export class UniswapV3ListComponent implements OnInit {
     await ionLoading.dismiss();
   }
 
-  async selectPool(pool: Pick<PoolData, "address" | "chainId" | "token0" | "token1">) {
+  async selectPool(
+    pool: Pick<PoolData, "address" | "chainId" | "token0" | "token1">
+  ) {
     console.log("Selected pool:", pool);
     // prompt to explain that user will be redirected to Uniswap Pool
     const ionAlert = await new AlertController().create({
