@@ -15,9 +15,9 @@
       <ion-col class="ion-text-end">
         <ion-label>
           <h3>
-            <b>{{ token.amount | bigintToNumber | toDecimal: token.decimals | toBalanceCurrency: token.priceUSD | currency : "USD" : "symbol" : "1.2-2" }}</b>
+            <b>${{ token.amount | bigintToNumber | toDecimal: token.decimals | toBalanceCurrency: token.priceUSD | number : "1.2-2" | shortNumber }}</b>
           </h3>
-          <p>{{ token.amount | bigintToNumber | toDecimal: token.decimals | number : "1.2-2" }}</p>
+          <p>{{ token.amount | bigintToNumber | toDecimal: token.decimals | number : "1.2-2" | shortNumber }}</p>
         </ion-label>
       </ion-col>
       <!-- <ion-col class="ion-text-end" size="2">

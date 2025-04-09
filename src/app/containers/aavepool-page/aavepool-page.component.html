@@ -30,7 +30,7 @@
             </ion-label>
             <ion-text slot="end" class="ion-color-gradient-text">
               <b>{{
-                token.amount | toDecimal : token.decimals | number : "1.2-6"
+                token.amount | toDecimal : token.decimals | number : "1.2-6" | shortNumber
               }}</b>
             </ion-text>
           </ion-item>
@@ -66,7 +66,7 @@
               <ion-text color="medium">
                 <small>
                   {{
-                    (userReserveData$ | async)?.underlyingBalance | number : "1.2-6"
+                    (userReserveData$ | async)?.underlyingBalance | number : "1.2-6" | shortNumber
                   }}
                   units
                 </small>
@@ -142,34 +142,33 @@
           <ion-item>
             <ion-label> Deposit Liquidity </ion-label>
             <ion-text slot="end" class="ion-color-gradient-text">
-              <b>{{
-                marketPool.totalLiquidityUSD
-                  | currency : "USD" : "symbol" : "1.2-2"
+              <b>${{
+                marketPool.totalLiquidityUSD | shortNumber
               }}</b>
             </ion-text>
           </ion-item>
           <ion-item [lines]="marketPool.borrowingEnabled ? 'full' : 'none'">
             <ion-label> Deposit Capitalisation </ion-label>
             <ion-text slot="end" class="ion-color-gradient-text">
-              <b>{{
-                marketPool.supplyCapUSD | currency : "USD" : "symbol" : "1.2-2"
+              <b>${{
+                marketPool.supplyCapUSD | shortNumber
               }}</b>
             </ion-text>
           </ion-item>
           <ion-item *ngIf="marketPool.borrowingEnabled">
             <ion-label> Debit Liquidity </ion-label>
             <ion-text slot="end" class="ion-color-gradient-text">
-              <b>{{
+              <b>${{
                 marketPool.totalVariableDebtUSD
-                  | currency : "USD" : "symbol" : "1.2-2"
+                  | shortNumber
               }}</b>
             </ion-text>
           </ion-item>
           <ion-item lines="none" *ngIf="marketPool.borrowingEnabled">
             <ion-label> Debit Capitalisation </ion-label>
             <ion-text slot="end" class="ion-color-gradient-text">
-              <b>{{
-                marketPool.borrowCapUSD | currency : "USD" : "symbol" : "1.2-2"
+              <b>${{
+                marketPool.borrowCapUSD | shortNumber
               }}</b>
             </ion-text>
           </ion-item>

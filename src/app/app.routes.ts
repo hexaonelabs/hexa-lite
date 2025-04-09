@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { isConnectedGuard } from './guards/is-connected/is-connected.guard';
 import { isNotConnectedGuard } from './guards/is-not-connected/is-not-connected.guard';
+// Removed unused import of EarnPageComponent
 
 export const routes: Routes = [
   {

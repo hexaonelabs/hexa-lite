@@ -19,7 +19,7 @@
         <ion-text>
           <h1>Wallet</h1>
           <p>
-            {{ walletBalance$ | async | currency : "USD" : "symbol" : "1.2-2" }}
+            ${{ walletBalance$ | async | number : "1.2-2" | shortNumber }}
           </p>
         </ion-text>
       </ion-col>

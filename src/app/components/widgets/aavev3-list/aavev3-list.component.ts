@@ -47,6 +47,7 @@ import { MarketPool, MarketPoolGroup } from "@app/models/market-pool.interface";
 import { AAVEPoolPageComponent } from "@app/containers/aavepool-page/aavepool-page.component";
 import { LIFIService } from "@app/services/lifi/lifi.service";
 import { MarketPoolGroupItemComponent } from "@app/components/ui/market-pool-group-item/market-pool-group-item.component";
+import { LabelListComponent } from "@app/components/ui/label-list/label-list.component";
 
 const UIElements = [
   IonIcon,
@@ -58,6 +59,7 @@ const UIElements = [
   IonButton,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
+  IonText,
 ];
 
 @Component({
@@ -69,6 +71,7 @@ const UIElements = [
     CommonModule,
     AAVEPoolPageComponent,
     MarketPoolGroupItemComponent,
+    LabelListComponent,
   ],
 })
 export class AAVEV3ListComponent implements OnInit {

@@ -1,0 +1,22 @@
+
+ion-item.pool > div:first-child {
+  display: flex;
+  margin-right: -24px;
+  // only seconde ion-avatar
+  ion-avatar {
+    &:nth-child(2) {
+      margin-left: -25%;
+      overflow: hidden;
+      border-radius: 0;
+
+      img {
+        transform: translateX(-50%);
+      }
+    }
+  }
+}
+
+ion-badge {
+  margin: 0.25rem 0;
+  font-weight: 300;
+}
