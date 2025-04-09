@@ -32,11 +32,6 @@ export const routes: Routes = [
     ],
   },
   {
-    path: 'earn',
-    component: EarnPageComponent,
-    canActivate: [isConnectedGuard],
-  },
-  {
     path: '**',
     redirectTo: '',
     pathMatch: 'full',
