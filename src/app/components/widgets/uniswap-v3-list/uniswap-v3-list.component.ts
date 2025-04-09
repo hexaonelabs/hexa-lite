@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import {
   AlertController,
   IonAvatar,
+  IonBadge,
   IonButton,
   IonIcon,
   IonItem,
@@ -26,7 +27,15 @@ import { WalletconnectService } from "@app/services/walletconnect/walletconnect.
 import { firstValueFrom } from "rxjs";
 import { LabelListComponent } from "@app/components/ui/label-list/label-list.component";
 
-const UIElements = [IonIcon, IonItem, IonAvatar, IonLabel, IonText, IonButton];
+const UIElements = [
+  IonIcon,
+  IonItem,
+  IonAvatar,
+  IonLabel,
+  IonText,
+  IonButton,
+  IonBadge,
+];
 
 @Component({
   selector: "app-uniswap-v3-list",

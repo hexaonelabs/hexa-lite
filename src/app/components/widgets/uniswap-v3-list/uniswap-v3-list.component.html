@@ -28,11 +28,16 @@
           Uniswap V3 <br />
           <small>{{ position.chainId | toChainName }}</small>
         </p>
+        <ion-badge [color]="position.tickCurrent > position.tickLower && position.tickCurrent < position.tickUpper ? 'success' : 'danger'">
+          {{position.tickCurrent > position.tickLower && position.tickCurrent < position.tickUpper ? 'in' : 'out of'}} range
+        </ion-badge>
       </ion-label>
-      <ion-text slot="end" class="ion-color-gradient-text ion-text-end">
-        ${{ position.tokenUSDTickLower | shortNumber }}<br/>
-        ${{ position.tokenUSDTickUpper | shortNumber }}
-      </ion-text>
+      <div slot="end" class="ion-text-end">
+        <ion-text class="ion-color-gradient-text">
+          {{ position.tokenUSDTickLower | currency: 'USD': 'symbol': '1.2-2' }}<br/>
+          {{ position.tokenUSDTickUpper | currency: 'USD': 'symbol': '1.2-2' }}
+        </ion-text>
+      </div>
     </ion-item>
   </app-card>
 </div>

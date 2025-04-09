@@ -1,5 +1,5 @@
 
-ion-item.pool > div {
+ion-item.pool > div:first-child {
   display: flex;
   margin-right: -24px;
   // only seconde ion-avatar
@@ -14,4 +14,9 @@ ion-item.pool > div {
       }
     }
   }
+}
+
+ion-badge {
+  margin: 0.25rem 0;
+  font-weight: 300;
 }
