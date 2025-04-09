@@ -29,6 +29,8 @@
     "@ionic/angular": "^8.5.0",
     "@khmyznikov/pwa-install": "^0.5.4",
     "@lifi/sdk": "^3.6.2",
+    "@uniswap/sdk-core": "^7.7.2",
+    "@uniswap/v3-sdk": "^3.25.2",
     "@walletconnect/ethereum-provider": "^2.19.1",
     "dayjs": "^1.11.13",
     "lightweight-charts": "^5.0.3",

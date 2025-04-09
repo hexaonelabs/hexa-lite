@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, OnInit, Output } from "@angular/core";
 import { getBaseAPRstETH, getBaseAPRstMATIC } from "@app/app.utils";
 import { CardComponent } from "@app/components/ui/card/card.component";
+import { LabelListComponent } from "@app/components/ui/label-list/label-list.component";
 import { StakingToken } from "@app/models/staking-token.interface";
 import { WalletconnectService } from "@app/services/walletconnect/walletconnect.service";
 import {
@@ -105,7 +106,7 @@ const POL_TOKENS = async (walletAddress?: string) => {
   selector: "app-staking-list",
   templateUrl: "./staking-list.component.html",
   styleUrls: ["./staking-list.component.scss"],
-  imports: [CardComponent, ...UIElements, CommonModule],
+  imports: [CardComponent, ...UIElements, CommonModule, LabelListComponent],
 })
 export class StakingListComponent implements OnInit {
   public stakingList?: StakingToken[];

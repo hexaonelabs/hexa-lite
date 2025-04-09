@@ -15,9 +15,9 @@
         <ion-segment-button value="loans">
           <ion-label>Loans</ion-label>
         </ion-segment-button>
-        <!-- <ion-segment-button value="vaults">
-          <ion-label>Vaults</ion-label>
-        </ion-segment-button> -->
+        <ion-segment-button value="lp">
+          <ion-label>LP</ion-label>
+        </ion-segment-button>
       </ion-segment>
     </ion-toolbar>
     <ion-toolbar *ngIf="segment === 'loans'">
@@ -39,7 +39,7 @@
           *ngIf="segment === 'loans'"
           [filterTerm]="filterTerm"
         />
-        <!-- <app-vaults-list *ngIf="segment === 'vaults'" /> -->
+        <app-uniswap-v3-list *ngIf="segment === 'lp'" />
       </ion-col>
     </ion-row>
   </ion-grid>

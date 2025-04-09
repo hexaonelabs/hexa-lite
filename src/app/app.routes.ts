@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { isConnectedGuard } from './guards/is-connected/is-connected.guard';
 import { isNotConnectedGuard } from './guards/is-not-connected/is-not-connected.guard';
+import { EarnPageComponent } from './containers/earn-page/earn-page.component';
 
 export const routes: Routes = [
   {
@@ -29,6 +30,11 @@ export const routes: Routes = [
         ),
       }
     ],
+  },
+  {
+    path: 'earn',
+    component: EarnPageComponent,
+    canActivate: [isConnectedGuard],
   },
   {
     path: '**',

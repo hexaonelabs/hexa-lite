@@ -34,6 +34,7 @@ import { SwapPageComponent } from "../swap-page/swap-page.component";
 import { ToBalanceCurrencyPipe } from "@app/pipes/to-balance-currency/to-balance-currency.pipe";
 import { BigintToNumberPipe } from "@app/pipes/bigint-to-number/bigint-to-number.pipe";
 import { ToDecimalPipe } from "@app/pipes/to-decimal/to-decimal.pipe";
+import { ShortNumberPipe } from "@app/pipes/short-number/short-number.pipe";
 
 const UIElements = [
   IonHeader,
@@ -68,6 +69,7 @@ const UIElements = [
     RouterLink,
     IonRouterLink,
     SwapPageComponent,
+    ShortNumberPipe,
   ],
 })
 export class TokenDetailPageComponent implements OnInit {

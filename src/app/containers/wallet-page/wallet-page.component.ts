@@ -48,6 +48,7 @@ import { FormsModule } from "@angular/forms";
 import { toggleDarkPalette } from "@app/app.utils";
 import { StakingToken } from "@app/models/staking-token.interface";
 import { SettingsPageComponent } from "../settings-page/settings-page.component";
+import { ShortNumberPipe } from "@app/pipes/short-number/short-number.pipe";
 
 const UIElements = [
   IonContent,
@@ -79,12 +80,9 @@ const CONTAINERS = [
   SettingsPageComponent,
 ];
 
-const UIComponents = [
-  WalletTokenItemComponent,
-  SearchFooterComponent,
-];
+const UIComponents = [WalletTokenItemComponent, SearchFooterComponent];
 
-const PIPES = [ToCoingeckoIdPipe];
+const PIPES = [ToCoingeckoIdPipe, ShortNumberPipe];
 
 @Component({
   selector: "app-wallet-page",
@@ -110,8 +108,14 @@ export class WalletPageComponent implements OnInit {
   public isEarnPageVisible$ = new BehaviorSubject<boolean>(false);
   public isSearchPageVisible$ = new BehaviorSubject<boolean>(false);
   public isSettingsPageVisible$ = new BehaviorSubject<boolean>(false);
-  public selectedStakingToken$ = new BehaviorSubject<StakingToken & {from: TokenAmount[]; to: Token[]} | null>(null);
-  public selectedMarketPool$ = new BehaviorSubject<{from: TokenAmount; to: Token; action: string;} | null>(null);
+  public selectedStakingToken$ = new BehaviorSubject<
+    (StakingToken & { from: TokenAmount[]; to: Token[] }) | null
+  >(null);
+  public selectedMarketPool$ = new BehaviorSubject<{
+    from: TokenAmount;
+    to: Token;
+    action: string;
+  } | null>(null);
 
   constructor(
     private readonly _walletService: WalletconnectService,

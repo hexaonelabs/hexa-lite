@@ -46,7 +46,7 @@
               <ion-label>
                 Amount
               </ion-label>
-              <ion-text slot="end">{{ walletBalance.amount | number : "1.2-2"   }}</ion-text>
+              <ion-text slot="end">{{ walletBalance.amount | number : "1.2-2" | shortNumber }}</ion-text>
             </ion-item>
             <ion-item lines="none">
               <ion-label>
@@ -71,19 +71,19 @@
               <ion-label>
                 Market Cap
               </ion-label>
-              <ion-text slot="end">{{ token.market_cap | currency: 'USD': 'symbol': '1.2-2' }}</ion-text>
+              <ion-text slot="end">${{ token.market_cap | shortNumber }}</ion-text>
             </ion-item>
             <ion-item>
               <ion-label>
                 Fully Diluted Valuation
               </ion-label>
-              <ion-text slot="end">{{ token.fully_diluted_valuation }}</ion-text>
+              <ion-text slot="end">${{ token.fully_diluted_valuation | shortNumber }}</ion-text>
             </ion-item>
             <ion-item>
               <ion-label>
                 24h Volume
               </ion-label>
-              <ion-text slot="end">{{ token.total_volume  }}</ion-text>
+              <ion-text slot="end">${{ token.total_volume | shortNumber }}</ion-text>
             </ion-item>
             <ion-item>
               <ion-label>

@@ -1,3 +1,15 @@
+<div class="ion-margin">
+  <ion-text>
+    <p>
+      Liquide Staking allow you to earn rewards on your crypto assets. 
+      By staking your tokens, you can earn interest and help secure the network.
+    </p>
+  </ion-text>  
+</div>
+
+<app-label-list color="medium">
+  Available for staking
+</app-label-list>
 <div *ngIf="stakingList">
   <app-card *ngFor="let token of stakingList; let i = index" (click)="selectStaking(token)">
     <ion-item lines="none">
@@ -5,10 +17,10 @@
         <img [src]="token.imageURL" />
       </ion-avatar>
       <ion-label>
-        {{ token.symbol}}
+        <b>{{ token.symbol}}</b>
       </ion-label>
       <ion-text slot="end" class="ion-color-gradient-text">
-        {{ token.apy | number: '1.2-2' }}%
+        <b>{{ token.apy | number: '1.2-2' }}%</b>
       </ion-text>
     </ion-item>
   </app-card>

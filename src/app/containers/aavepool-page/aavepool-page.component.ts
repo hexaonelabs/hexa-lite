@@ -8,6 +8,7 @@ import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { CardComponent } from "@app/components/ui/card/card.component";
 import { MarketPool } from "@app/models/market-pool.interface";
+import { ShortNumberPipe } from "@app/pipes/short-number/short-number.pipe";
 import { ToChainNamePipe } from "@app/pipes/to-chain-name/to-chain-name.pipe";
 import { ToDecimalPipe } from "@app/pipes/to-decimal/to-decimal.pipe";
 import { AAVEV3Service } from "@app/services/aave-v3/aave-v3.service";
@@ -68,6 +69,7 @@ const UIElements = [
     CardComponent,
     ToChainNamePipe,
     ToDecimalPipe,
+    ShortNumberPipe,
   ],
 })
 export class AAVEPoolPageComponent implements OnInit {
