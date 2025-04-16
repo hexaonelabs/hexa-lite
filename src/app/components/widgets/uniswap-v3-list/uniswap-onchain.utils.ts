@@ -1,17 +1,13 @@
 import { createPublicClient, getContract, http, parseAbi } from "viem";
-import { arbitrum, base, optimism } from "viem/chains";
-import nonfungiblePositionManagerAbi from "@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json";
-import {
-  Pool,
-  TickMath,
-  Position as UniswapPosition,
-  encodeSqrtRatioX96,
-} from "@uniswap/v3-sdk";
-import { CurrencyAmount, Token as UniswapToken } from "@uniswap/sdk-core";
+import { arbitrum, base, mainnet, optimism } from "viem/chains";
+// import nonfungiblePositionManagerAbi from "@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json";
+import { Pool, TickMath, Position as UniswapPosition } from "@uniswap/v3-sdk";
+import { Token as UniswapToken } from "@uniswap/sdk-core";
 
-import JSBI from "jsbi";
+// import JSBI from "jsbi";
 import { getToken, Token } from "@lifi/sdk";
 import { AVAILABLE_CHAINS } from "@app/app.utils";
+import { PoolColumnDataType } from "./uniswap-thegraph.utils";
 
 interface PositionRaw {
   token0: any;
@@ -95,10 +91,23 @@ interface TokenData {
   decimals: number;
 }
 
+// See https://docs.uniswap.org/contracts/v3/reference/deployments/
 export const UNISWAP_MARKETS = [
+  {
+    chain: mainnet,
+    name: "mainnet",
+    factory: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
+    nftManager: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+  },
   {
     chain: arbitrum,
     name: "arbitrum",
+    factory: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
+    nftManager: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+  },
+  {
+    chain: optimism,
+    name: "optimism",
     factory: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
     nftManager: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
   },
@@ -133,32 +142,37 @@ const tokenAbi = parseAbi([
 ]);
 
 export const getUniswapPositions = async (
-  walletAddress: `0x${string}`
+  walletAddress: `0x${string}`,
 ): Promise<PositionData[]> => {
-  try {
-    const market = UNISWAP_MARKETS[0];
-
-    const client = createPublicClient({
-      chain: market.chain,
-      transport: http(),
-    });
-    const nftContract = getContract({
-      address: market.nftManager as `0x${string}`,
-      abi: nftPositionManagerAbi,
-      client,
-    });
-
-    const balance = await nftContract.read.balanceOf([walletAddress]);
-    return await processAllPositions(
-      walletAddress,
-      nftContract,
-      balance,
-      market.chain.id
-    );
-  } catch (error) {
-    console.error("Error fetching positions:", error);
-    throw error;
+  const positions = [];
+  // Loop through all markets to fetch positions
+  for (let index = 0; index < UNISWAP_MARKETS.length; index++) {
+    const market = UNISWAP_MARKETS[index];
+    try {
+      const client = createPublicClient({
+        chain: market.chain,
+        transport: http(),
+      });
+      const nftContract = getContract({
+        address: market.nftManager as `0x${string}`,
+        abi: nftPositionManagerAbi,
+        client,
+      });
+  
+      const balance = await nftContract.read.balanceOf([walletAddress]);
+      const marketPositions = await processAllPositions(
+        walletAddress,
+        nftContract,
+        balance,
+        market.chain.id
+      );
+      positions.push(...marketPositions);
+    } catch (error) {
+      console.error("Error fetching positions form market " + market.name + ":", error);
+      throw error;
+    }
   }
+  return positions;
 };
 
 export const getUniswapPools = async (): Promise<PoolData[]> => {
@@ -186,17 +200,17 @@ export const getUniswapPools = async (): Promise<PoolData[]> => {
         chainId: arbitrum.id,
         fee: 500,
       },
-      // ETH/USDC Base
-      {
-        address: "0xd0b53D9277642d899DF5C87A3966A349A798F224",
-        token0: await getToken(base.id, "ETH"),
-        token1: await getToken(
-          base.id,
-          "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-        ),
-        chainId: base.id,
-        fee: 500,
-      },
+      // // ETH/USDC Base
+      // {
+      //   address: "0xd0b53D9277642d899DF5C87A3966A349A798F224",
+      //   token0: await getToken(base.id, "ETH"),
+      //   token1: await getToken(
+      //     base.id,
+      //     "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+      //   ),
+      //   chainId: base.id,
+      //   fee: 500,
+      // },
       // // USDC/WBTC Optimism
       // {
       //   address: '0xaDAb76dD2dcA7aE080A796F0ce86170e482AfB4a',
@@ -216,6 +230,10 @@ export const getUniswapPools = async (): Promise<PoolData[]> => {
     ].map(async (pool) => ({
       ...pool,
       tvl: await getPoolTVL(pool.address as `0x${string}`, pool.chainId),
+      // metaData: await getPoolAPY(
+      //   pool.address as `0x${string}`,
+      //   7,
+      //   pool.chainId)
     }))
   );
   const pools = await poolsRequest;
@@ -464,9 +482,15 @@ const buildPositionData = async (
     tickLower: position.tickLower,
     tickUpper: position.tickUpper,
   });
-  console.log({ uniPosition, poolData});
-  
-  return formatPositionData({...position, poolAddress: poolData.poolAddress}, uniPosition, token0Data, token1Data, chainId);
+  console.log({ uniPosition, poolData });
+
+  return formatPositionData(
+    { ...position, poolAddress: poolData.poolAddress },
+    uniPosition,
+    token0Data,
+    token1Data,
+    chainId
+  );
 };
 
 const createPoolInstance = (
@@ -499,11 +523,11 @@ const createPoolInstance = (
 };
 
 const formatPositionData = async (
-  position: PositionRaw & { poolAddress: string; },
+  position: PositionRaw & { poolAddress: string },
   uniPosition: UniswapPosition,
   token0Data: TokenData,
   token1Data: TokenData,
-  chainId: number,
+  chainId: number
 ): Promise<PositionData> => {
   const unclaimedFees = await calculateUnclaimedFees(
     {
@@ -534,9 +558,7 @@ const formatPositionData = async (
   //   fees0: unclaimedFees0,
   //   // fees1: fees1.toString(),
   // });
-  const chain = AVAILABLE_CHAINS.find(
-    (chain) => chain.id === chainId
-  );
+  const chain = AVAILABLE_CHAINS.find((chain) => chain.id === chainId);
   if (!chain) {
     throw new Error(`No chain found for ID ${chainId}`);
   }
@@ -562,7 +584,7 @@ const formatPositionData = async (
     token0,
     token1,
     chainId,
-    address: position.poolAddress
+    address: position.poolAddress,
   };
 };
 
@@ -576,9 +598,7 @@ const formatLiquidity = (liquidity: bigint, decimals: number): string => {
   return `${whole.toString()}.${fractional}`;
 };
 
-const tickToUsd = (
-  tick: number,
-) => {
+const tickToUsd = (tick: number) => {
   const price = TickMath.getSqrtRatioAtTick(tick);
   return Number(price.toString());
 };

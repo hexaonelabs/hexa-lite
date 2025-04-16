@@ -2,11 +2,20 @@
 ion-item.pool > div:first-child {
   display: flex;
   margin-right: -24px;
-  // only seconde ion-avatar
   ion-avatar {
+    &:first-child {
+      img {
+        background: rgba(var(--ion-color-primary-rgb), 0.2);
+      }
+      border: solid 2px transparent;
+    }
     &:nth-child(2) {
-      margin-left: -25%;
+      margin-left: calc(-25% - 3px);
       overflow: hidden;
+      border-left: solid 2px var(--ion-background-color);
+      border-right: solid 2px transparent;
+      border-top: solid 2px transparent;
+      border-bottom: solid 2px transparent;
       border-radius: 0;
 
       img {
@@ -19,4 +28,10 @@ ion-item.pool > div:first-child {
 ion-badge {
   margin: 0.25rem 0;
   font-weight: 300;
+}
+
+.slot-start-icon {
+  font-size: 2rem;
+  margin: 0 0 0 -0.75rem !important;
+  padding: 0;
 }
