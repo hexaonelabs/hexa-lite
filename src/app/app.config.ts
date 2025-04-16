@@ -24,7 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideIonicAngular({ mode: 'ios' }),
     provideAppInitializer(() => appInitializer(inject(WalletconnectService))),
     provideHttpClient(),
-    provideErrorHandler(),
+    !isDevMode() ? provideErrorHandler() : [],
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',

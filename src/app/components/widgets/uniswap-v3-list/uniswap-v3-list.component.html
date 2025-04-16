@@ -1,9 +1,11 @@
 <div class="ion-margin">
   <ion-text>
     <p>
-      Liquidity Providing allows you to earn rewards on your crypto assets. By providing liquidity to these pools, you can earn fees and help facilitate trades on the platform.
+      Liquidity Providing allows you to earn rewards on your crypto assets. By
+      providing liquidity to these pools, you can earn fees and help facilitate
+      trades on the platform.
     </p>
-  </ion-text>  
+  </ion-text>
 </div>
 
 <div *ngIf="positions">
@@ -11,7 +13,7 @@
     Pools with positions
   </app-label-list>
   <app-card *ngFor="let position of positions; let i = index">
-    <ion-item lines="none" class="pool" (click)="selectPool(position)">
+    <ion-item lines="none" class="pool" (click)="openUniswapPool(position)">
       <div slot="start">
         <ion-avatar>
           <img [src]="position.token0.logoURI" />
@@ -28,14 +30,30 @@
           Uniswap V3 <br />
           <small>{{ position.chainId | toChainName }}</small>
         </p>
-        <ion-badge [color]="position.tickCurrent > position.tickLower && position.tickCurrent < position.tickUpper ? 'success' : 'danger'">
-          {{position.tickCurrent > position.tickLower && position.tickCurrent < position.tickUpper ? 'in' : 'out of'}} range
+        <ion-badge
+          [color]="
+            position.tickCurrent > position.tickLower &&
+            position.tickCurrent < position.tickUpper
+              ? 'success'
+              : 'danger'
+          "
+        >
+          {{
+            position.tickCurrent > position.tickLower &&
+            position.tickCurrent < position.tickUpper
+              ? "in"
+              : "out of"
+          }}
+          range
         </ion-badge>
       </ion-label>
       <div slot="end" class="ion-text-end">
         <ion-text class="ion-color-gradient-text">
-          {{ position.tokenUSDTickLower | currency: 'USD': 'symbol': '1.2-2' }}<br/>
-          {{ position.tokenUSDTickUpper | currency: 'USD': 'symbol': '1.2-2' }}
+          {{ position.tokenUSDTickLower | currency : "USD" : "symbol" : "1.2-2"
+          }}<br />
+          {{
+            position.tokenUSDTickUpper | currency : "USD" : "symbol" : "1.2-2"
+          }}
         </ion-text>
       </div>
     </ion-item>
@@ -43,7 +61,16 @@
 </div>
 
 <app-label-list color="medium">
-  Best pools
+  <ion-grid class="ion-no-padding">
+    <ion-row>
+      <ion-col size="6"> Best pools </ion-col>
+      <ion-col size="6" class="ion-text-end">
+        <ion-text color="medium">
+          <small>24h Volume</small>
+        </ion-text>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </app-label-list>
 <div *ngIf="pools">
   <app-card *ngFor="let pool of pools; let i = index">
@@ -65,9 +92,176 @@
           <small>{{ pool.chainId | toChainName }}</small>
         </p>
       </ion-label>
-      <ion-text slot="end" class="ion-color-gradient-text ion-text-end">
-        <b>${{ pool.tvl | shortNumber }} TVL</b>
-      </ion-text>
+      <div slot="end" class="ion-text-end">
+        <ion-text class="ion-color-gradient-text">
+          <b>
+            ${{ pool.volume24h | shortNumber }}
+          </b>
+        </ion-text>
+      </div>
     </ion-item>
   </app-card>
+  <ion-button fill="clear" expand="full" (click)="openUniswap()">
+    <ion-label>Check more pools on Uniswap</ion-label>
+    <ion-icon slot="end" name="open"></ion-icon>
+  </ion-button>
 </div>
+
+<ion-modal
+  class="height-auto"
+  [isOpen]="!!selectedPool$.value"
+  [initialBreakpoint]="1"
+  [breakpoints]="[0, 1]"
+  (ionModalDidDismiss)="selectedPool$.next(null); feesRewardsEstimation = null"
+>
+  <ng-template>
+    <ng-container>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Pool Fees Calculator</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <div class="ion-padding" *ngIf="selectedPool$ | async as selectedPool">
+        <ion-list lines="none" class="border-radius bg-transparent">
+          <ion-item lines="none" class="pool bg-transparent">
+            <div slot="start">
+              <ion-avatar>
+                <img [src]="selectedPool.token0.logoURI" />
+              </ion-avatar>
+              <ion-avatar>
+                <img [src]="selectedPool.token1.logoURI" />
+              </ion-avatar>
+            </div>
+            <ion-label>
+              <h2>
+                <b>
+                  {{ selectedPool.token0.symbol }} /
+                  {{ selectedPool.token1.symbol }}
+                </b>
+              </h2>
+              <p>
+                Uniswap V3 <br />
+                <small>{{ selectedPool.chainId | toChainName }}</small>
+              </p>
+            </ion-label>
+            <div slot="end" class="ion-text-end">
+              <ion-text class="ion-color-gradient-text">
+                <b>${{ selectedPool.volume24h | shortNumber }}</b>
+              </ion-text>
+              <br />
+              <ion-text color="medium">
+                <small>Vol. 24h</small>
+              </ion-text>
+            </div>
+          </ion-item>
+        </ion-list>
+        <app-label-list>
+          <h2>Estimated Fees rewards</h2>
+        </app-label-list>
+        <ion-list lines="none" class="ion-padding-vertical bg-transparent">
+          <ion-item lines="none" class="bg-transparent ion-margin-bottom">
+            <ion-input
+              type="number"
+              mode="md"
+              fill="outline"
+              label="Liquidity Amount"
+              labelPlacement="floating"
+              placeholder="Enter your liquidity amount"
+              class="ion-margin-top"
+              [(ngModel)]="liquidityAmount"
+              [debounce]="500"
+              (ionInput)="calculateEstimatedFees()"
+            >
+              <ion-icon
+                src="./dollar.svg"
+                slot="start"
+                color="medium"
+                class="slot-start-icon"
+              />
+            </ion-input>
+          </ion-item>
+
+          <ion-item lines="none" class="bg-transparent pv-025">
+            <ion-label>Fees 24h</ion-label>
+            <div class="ion-text-end">
+              @if(feesRewardsEstimation) {
+              {{
+                feesRewardsEstimation.fee24h
+                  | currency : "USD" : "symbol" : "1.2-2"
+              }}<br/>
+                <small class="ion-color-gradient-text">
+                  {{feesRewardsEstimation.fee24h | apy: liquidityAmount
+                    | number : "1.2-2"
+                  }}% APY
+                </small>
+              } @else {
+              <ion-skeleton-text animated style="width: 55px; height: 38px;" />
+              }
+            </div>
+          </ion-item>
+          <ion-item lines="none" class="bg-transparent pv-025">
+            <ion-label>Fees 7d</ion-label>
+            <div class="ion-text-end">
+              @if(feesRewardsEstimation) {
+              {{
+                feesRewardsEstimation.fee7d
+                  | currency : "USD" : "symbol" : "1.2-2"
+              }}<br/>
+              <small class="ion-color-gradient-text">
+                {{ feesRewardsEstimation.fee7d | apy: liquidityAmount
+                  | number : "1.2-2"
+                }}% APY
+              </small>
+              } @else {
+              <ion-skeleton-text animated style="width: 65px; height: 38px;" />
+              }
+            </div>
+          </ion-item>
+          <ion-item lines="none" class="bg-transparent pv-025">
+            <ion-label>Fees 30d</ion-label>
+            <div class="ion-text-end">
+              @if(feesRewardsEstimation) {
+              {{
+                feesRewardsEstimation.fee30d
+                  | currency : "USD" : "symbol" : "1.2-2"
+              }}<br/>
+              <small class="ion-color-gradient-text">
+                {{ feesRewardsEstimation.fee30d | apy: liquidityAmount
+                  | number : "1.2-2"
+                }}% APY
+              </small>
+              } @else {
+              <ion-skeleton-text animated style="width: 75px; height: 38px;" />
+              }
+            </div>
+          </ion-item>
+          <ion-item lines="none" class="bg-transparent pv-025">
+            <ion-label>Fees 1y</ion-label>
+            <div class="ion-text-end">
+              @if(feesRewardsEstimation) {
+                {{
+                  feesRewardsEstimation.fee1y
+                    | currency : "USD" : "symbol" : "1.2-2"
+                }}<br/>
+                <small class="ion-color-gradient-text">
+                  {{ feesRewardsEstimation.fee1y | apy: liquidityAmount
+                    | number : "1.2-2"
+                  }}% APY
+                </small>
+              } @else {
+                <ion-skeleton-text animated style="width: 85px; height: 38px;" />
+              }
+            </div>
+          </ion-item>
+        </ion-list>
+        <ion-button
+          expand="block"
+          color="gradient"
+          class="ion-margin-top"
+          (click)="openUniswapPool(selectedPool)"
+          >Open Position</ion-button
+        >
+      </div>
+    </ng-container>
+  </ng-template>
+</ion-modal>

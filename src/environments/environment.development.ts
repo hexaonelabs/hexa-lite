@@ -1,5 +1,6 @@
 export const environment = {
   isProd: false,
+  thegraph_apikey: '',
   enso_apikey: '',
   reown_project_id: '',
   lifi_integrator: '',

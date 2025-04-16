@@ -72,3 +72,23 @@ ion-modal {
 a#tv-attr-logo {
   display: none;;
 }
+
+.bg-transparent {
+  background: transparent !important;
+  --background: transparent !important;
+}
+.border-radius {
+  border-radius: 16px;
+}
+.height-auto {
+  height: auto!important;
+  --height: auto!important;
+}
+.height-full {
+  height: 100%!important;
+  --height: 100%!important;
+}
+.pv-025 {
+  padding-top: 0.25rem!important;
+  padding-bottom: 0.25rem!important;
+}
